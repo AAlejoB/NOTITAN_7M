@@ -37,4 +37,4 @@ El tercer bloque. Ejecutás, probás y reportás. Modelo: Sonnet 5.5.
 
 ## Al cerrar una tanda
 
-Tiene que estar escrito y pusheado: `buzon/pendientes.md` al día, `CLAUDE.md` con el estado y las decisiones nuevas, y tu reporte. Después Alejo hace `/clear`. Sos la única sesión de Claude Code: no hay nadie más a quien avisar ni nada que igualar.
+Tiene que estar escrito y pusheado: `buzon/pendientes.md` al día, `CLAUDE.md` con el estado y las decisiones nuevas, y tu reporte. Último paso, después del reporte: `npm run paquete`, que rearma `buzon/paquetes/PEGAR_*.md` (la foto que Alejo pega en Cowork); si no, quedan viejos. Después Alejo hace `/clear`. Sos la única sesión de Claude Code: no hay nadie más a quien avisar ni nada que igualar.

@@ -65,10 +65,10 @@ La memoria es el repo, no el chat. Lo que no quedó escrito se pierde con el `/c
 
 Hay una sola sesión de Claude Code y trabaja en la rama `claude/trusting-knuth-brmpsy`, que es la rama principal del repo en GitHub. Los chats de Cowork leen `buzon/` de ahí. No hay nada que igualar.
 
-1. **Hacia Cowork:** lo leen del repo. Si un chat no puede abrir el repo, Alejo le pega el contenido de su `LEEME_<ROL>.md` y de `CLAUDE.md`.
+1. **Hacia Cowork:** lo leen del repo. Si un chat no puede abrir el repo (dice "no hay nada conectado"), Alejo le pega el paquete de su rol: `buzon/paquetes/PEGAR_DISENADOR.md` o `buzon/paquetes/PEGAR_PREPARADOR.md`. Lo arma Claude Code con `npm run paquete` y trae, en un solo texto, el LEEME del rol, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y la carta más nueva que ese rol tiene que leer.
 2. **Desde Cowork:** lo que escriben (`Disenador_para_PREPARADOR_*`, `PREPARADOR_para_ClaudeCode_*`) lo pega Alejo en el chat de Claude Code, que lo guarda en `buzon/` con el nombre correcto, lo commitea y lo pushea. Queda en el repo apenas se pushea.
 
-La línea corta para pegar sigue siendo la de abajo; si el chat no puede abrir el archivo, se pega el contenido en vez de la línea.
+La línea corta para pegar sigue siendo la de abajo; si el chat no puede abrir el archivo, se pega el paquete en vez de la línea.
 
 Para el DISEÑADOR:
 

@@ -47,6 +47,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 04-10-2026 · Paquetes para pegar en Cowork (`npm run paquete`): un archivo por rol en `buzon/paquetes/`, para cuando el chat no tiene el repo conectado.
 - [x] 04-10-2026 · Feeds probados y lista real en `config/feeds.json`.
 - [x] 04-10-2026 · Vía B (firma reconocida) en el núcleo, con `config/firmas.json` vacía.
 - [x] 04-10-2026 · Cantidad de noticias por bloque elegible de 3 a 7.

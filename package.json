@@ -7,7 +7,8 @@
     "test": "node --test",
     "demo": "node ejemplos/demo.js",
     "feeds": "node scripts/probar-feeds.js config/feeds.json",
-    "leer": "node scripts/leer.js"
+    "leer": "node scripts/leer.js",
+    "paquete": "node scripts/armar-paquete.js"
   },
   "engines": { "node": ">=20" }
 }
