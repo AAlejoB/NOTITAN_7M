@@ -127,9 +127,19 @@ function esInformativa(nota, regla) {
 
 /* ───────────── agrupar: "misma noticia" ───────────── */
 
-// Una nota entra al grupo con la que más se parece, si supera el umbral y
-// salió dentro de la ventana contada desde la primera nota del grupo.
-function agrupar(notas, { umbralSimilitud, ventanaMismoHechoHoras }) {
+// Cuántas palabras comparten dos notas (los elementos de `completo`, que arma firma() con título y bajada).
+function palabrasComunes(fa, fb) {
+  let n = 0;
+  for (const t of fa.completo) if (fb.completo.has(t)) n++;
+  return n;
+}
+
+// Una nota entra al grupo con la que más se parece, si el par "califica" y salió dentro de la
+// ventana contada desde la primera nota del grupo. Un par califica si la similitud llega a
+// `umbralSeguro`, o si llega a `umbralSimilitud` y además comparten al menos `minPalabrasComunes`
+// palabras. Así un umbral bajo no junta dos etapas distintas de un tema que comparten pocas
+// palabras. Si faltan los dos valores nuevos, el resultado es el de siempre.
+function agrupar(notas, { umbralSimilitud, ventanaMismoHechoHoras, umbralSeguro = umbralSimilitud, minPalabrasComunes = 0 }) {
   const orden = [...notas].sort((a, b) =>
     Date.parse(a.fecha) - Date.parse(b.fecha) || String(a.id).localeCompare(String(b.id)));
   const grupos = [];
@@ -142,10 +152,11 @@ function agrupar(notas, { umbralSimilitud, ventanaMismoHechoHoras }) {
       if (t - g.primera > ventanaMismoHechoHoras * HORA) continue;
       for (const m of g.firmas) {
         const s = similitud(f, m);
-        if (s > mejorSim) { mejorSim = s; mejor = g; }
+        if (s <= mejorSim) continue;
+        if (s >= umbralSeguro || (s >= umbralSimilitud && palabrasComunes(f, m) >= minPalabrasComunes)) { mejorSim = s; mejor = g; }
       }
     }
-    if (mejor && mejorSim >= umbralSimilitud) {
+    if (mejor) {
       mejor.notas.push(n);
       mejor.firmas.push(f);
     } else {

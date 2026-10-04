@@ -479,6 +479,117 @@ test('acumular: dos lecturas seguidas iguales no suman nada nuevo', () => {
   assert.equal(segunda.repetidas.length, 2);
 });
 
+/* ───────── agrupar: umbral bajo con palabras en común ───────── */
+
+const sinPerillas = r => { const { umbralSeguro, minPalabrasComunes, ...resto } = r; return resto; };
+const gruposDe = (notas, r) => N.agrupar(notas, r).map(g => g.notas.map(n => n.id));
+const reglasBajas = { ...reglas, umbralSimilitud: 0.3, umbralSeguro: 0.5, minPalabrasComunes: 3 };
+const comunesDe = (a, b) => { const fb = N.firma(b).completo; return [...N.firma(a).completo].filter(t => fb.has(t)).length; };
+
+const presupuesto = [
+  nota('a', 'clarin.com', 'Diputados aprobó el Presupuesto'),
+  nota('b', 'infobae.com', 'Diputados empezó a debatir el Presupuesto'),
+  nota('c', 'perfil.com', 'Aprobaron el Presupuesto'),
+  nota('d', 'ambito.com', 'Qué cambia con el Presupuesto aprobado'),
+];
+const brasil = [
+  nota('p', 'clarin.com', 'Brasil: Lula y Bolsonaro definirán la presidencia en un balotaje'),
+  nota('q', 'infobae.com', 'Elecciones en Brasil: Lula ganó la primera vuelta pero habrá balotaje con Bolsonaro'),
+];
+
+// La función de antes de agregar la regla, copiada tal cual, para comprobar que sin los valores nuevos nada cambia.
+function agruparComoAntes(notas, { umbralSimilitud, ventanaMismoHechoHoras }) {
+  const orden = [...notas].sort((a, b) => Date.parse(a.fecha) - Date.parse(b.fecha) || String(a.id).localeCompare(String(b.id)));
+  const grupos = [];
+  for (const n of orden) {
+    const t = Date.parse(n.fecha);
+    const f = N.firma(n);
+    let mejor = null;
+    let mejorSim = 0;
+    for (const g of grupos) {
+      if (t - g.primera > ventanaMismoHechoHoras * 3600e3) continue;
+      for (const m of g.firmas) { const sim = N.similitud(f, m); if (sim > mejorSim) { mejorSim = sim; mejor = g; } }
+    }
+    if (mejor && mejorSim >= umbralSimilitud) { mejor.notas.push(n); mejor.firmas.push(f); }
+    else grupos.push({ primera: t, notas: [n], firmas: [f] });
+  }
+  return grupos.map(g => g.notas.map(n => n.id));
+}
+
+test('agrupar, ejemplo 1: con 0,3 y 3 palabras en común, dos etapas del mismo tema no se juntan', () => {
+  assert.deepEqual(gruposDe(presupuesto, reglasBajas), [['a', 'c', 'd'], ['b']]);
+  assert.equal(N.similitud(N.firma(presupuesto[0]), N.firma(presupuesto[1])).toFixed(2), '0.40');
+  assert.equal(comunesDe(presupuesto[0], presupuesto[1]), 2, 'diput y presu: no alcanzan 3');
+});
+
+test('agrupar, ejemplo 1 bis: con 0,3 sola se juntan las cuatro, la unión falsa que se quiere evitar', () => {
+  assert.deepEqual(gruposDe(presupuesto, sinPerillas({ ...reglas, umbralSimilitud: 0.3 })), [['a', 'b', 'c', 'd']]);
+});
+
+test('agrupar, ejemplo 2: la misma noticia con otras palabras se junta con 0,3 y 4 palabras en común', () => {
+  assert.deepEqual(gruposDe(brasil, reglasBajas), [['p', 'q']]);
+  assert.equal(N.similitud(N.firma(brasil[0]), N.firma(brasil[1])).toFixed(3), '0.364');
+  assert.equal(comunesDe(brasil[0], brasil[1]), 4, 'brasi, lula, bolso y balot');
+});
+
+test('agrupar, ejemplo 2 bis: con 0,5, como hoy, quedan separadas', () => {
+  assert.deepEqual(gruposDe(brasil, reglas), [['p'], ['q']]);
+});
+
+test('agrupar, ejemplo 3: sin los valores nuevos el resultado es el de la función de antes', () => {
+  const juntas = [...presupuesto, ...brasil];
+  for (const umbral of [0.5, 0.4, 0.3, 0.2]) {
+    const r = sinPerillas({ ...reglas, umbralSimilitud: umbral });
+    assert.deepEqual(gruposDe(juntas, r), agruparComoAntes(juntas, r), `las 6 notas, umbral ${umbral}`);
+    assert.deepEqual(gruposDe(dia.notas, r), agruparComoAntes(dia.notas, r), `el día de ejemplo entero, umbral ${umbral}`);
+  }
+});
+
+test('agrupar: con umbralSeguro igual al umbral, el mínimo de palabras no cambia nada (como hoy con 0,5 y 0,5)', () => {
+  assert.deepEqual(gruposDe(dia.notas, reglas), agruparComoAntes(dia.notas, reglas));
+  const iguales = { ...reglas, umbralSimilitud: 0.3, umbralSeguro: 0.3, minPalabrasComunes: 99 };
+  assert.deepEqual(gruposDe(presupuesto, iguales), [['a', 'b', 'c', 'd']]);
+});
+
+test('agrupar: con mínimo 0 el umbral bajo funciona solo; y una similitud alta se suma aunque comparta pocas palabras', () => {
+  assert.deepEqual(gruposDe(presupuesto, { ...reglas, umbralSimilitud: 0.3, umbralSeguro: 0.5, minPalabrasComunes: 0 }), [['a', 'b', 'c', 'd']]);
+  const cortas = [nota('x', 'clarin.com', 'Paro general'), nota('y', 'infobae.com', 'Paro general')];
+  assert.equal(comunesDe(cortas[0], cortas[1]), 2);
+  assert.deepEqual(gruposDe(cortas, reglasBajas), [['x', 'y']], 'similitud 1: pasa por umbralSeguro');
+});
+
+test('agrupar: la nota entra al grupo que califica, no al más parecido que no califica', () => {
+  // c se parece más a a (2 de 5 palabras: 0,40, pero solo 2 en común) que a b (3 de 9: 0,33, con 3 en común).
+  const notas = [
+    nota('a', 'clarin.com', 'zorro plato'),
+    nota('b', 'infobae.com', 'zorro nubes cielo barco moneda tigre viaje'),
+    nota('c', 'perfil.com', 'zorro plato nubes carta cielo'),
+  ];
+  assert.equal(N.similitud(N.firma(notas[2]), N.firma(notas[0])).toFixed(2), '0.40');
+  assert.equal(N.similitud(N.firma(notas[2]), N.firma(notas[1])).toFixed(2), '0.33');
+  assert.deepEqual(gruposDe(notas, reglasBajas), [['a'], ['b', 'c']], 'con la regla, entra al que califica');
+  assert.deepEqual(gruposDe(notas, { ...reglasBajas, minPalabrasComunes: 0 }), [['a', 'c'], ['b']], 'sin mínimo, al más parecido');
+});
+
+test('agrupar: las palabras en común cuentan también las de la bajada, no solo las del título', () => {
+  const notas = [
+    nota('x', 'clarin.com', 'zorro plato', { bajada: 'nubes carta cielo barco moneda' }),
+    nota('y', 'infobae.com', 'zorro viaje', { bajada: 'nubes carta cielo tigre otros' }),
+  ];
+  assert.equal(comunesDe(notas[0], notas[1]), 4);
+  assert.equal(N.similitud(N.firma(notas[0]), N.firma(notas[1])).toFixed(2), '0.40');
+  assert.deepEqual(gruposDe(notas, reglasBajas), [['x', 'y']]);
+});
+
+test('agrupar: si falta minPalabrasComunes vale 0 (queda el umbral bajo solo), y si falta umbralSeguro vale lo mismo que el umbral', () => {
+  const sinMinimo = { ...reglas, umbralSimilitud: 0.3, umbralSeguro: 0.5 };
+  delete sinMinimo.minPalabrasComunes;
+  assert.deepEqual(gruposDe(presupuesto, sinMinimo), [['a', 'b', 'c', 'd']]);
+  const sinSeguro = { ...reglas, umbralSimilitud: 0.3, minPalabrasComunes: 99 };
+  delete sinSeguro.umbralSeguro;
+  assert.deepEqual(gruposDe(presupuesto, sinSeguro), [['a', 'b', 'c', 'd']], 'con seguro = umbral, el mínimo no se mira');
+});
+
 /* ───────── un día completo ───────── */
 
 test('día de ejemplo: de punta a punta', () => {

@@ -25,6 +25,8 @@ npm run leer    # lee los 19 feeds y dibuja el embudo con datos reales (sin la I
                #   --umbral 0.3         prueba otro umbral de similitud, sin tocar config/
                #   --acumular datos/notas.json   guarda lo leído y verifica sobre las últimas 48 h juntadas (datos/ no se sube al repo)
                #   --sin-leer           con --acumular: no lee los feeds, usa lo que ya está en el archivo
+               #   --min-comunes 0      prueba otro mínimo de palabras en común del agrupador (0 = el umbral solo)
+               #   --detalle            lista cada hecho con 3 o más grupos, con el portal y el título de cada nota
 npm run demo   # corre un día inventado y dibuja el embudo
 ```
 

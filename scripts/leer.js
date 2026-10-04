@@ -1,8 +1,10 @@
 'use strict';
 // Lee los feeds de config/feeds.json, arma las notas con src/lector.js y corre preparar() del núcleo
 // para ver el embudo con datos reales. No juzga (falta la IA): muestra hechos, candidatos y En observación.
-// Uso: node scripts/leer.js [--json notas.json] [--umbral 0.3] [--acumular datos/notas.json [--sin-leer]]
+// Uso: node scripts/leer.js [--json notas.json] [--umbral 0.3] [--min-comunes 3] [--detalle] [--acumular datos/notas.json [--sin-leer]]
 //   --umbral         prueba otro umbralSimilitud solo para esta corrida, sin tocar config/reglas.json.
+//   --min-comunes N  prueba otro minPalabrasComunes solo para esta corrida (0 = el umbral solo, sin mínimo).
+//   --detalle        lista cada hecho con 3 o más grupos: los grupos, y el portal y el título de cada nota.
 //   --acumular <f>   guarda lo leído en <f> y verifica sobre todo lo juntado en las últimas 48 h, no solo sobre esta lectura.
 //   --sin-leer       solo con --acumular: no lee los feeds, trabaja con lo que ya está en <f> y no lo modifica.
 //   --json <f>       guarda las notas de esta lectura (con --sin-leer, las del archivo acumulado).
@@ -10,7 +12,7 @@
 const { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } = require('node:fs');
 const { dirname } = require('node:path');
 const { leerFeeds } = require('../src/lector.js');
-const { preparar, acumular } = require('../src/nucleo.js');
+const { preparar, acumular, agrupar, esInformativa, gruposIndependientes } = require('../src/nucleo.js');
 const reglasBase = require('../config/reglas.json');
 const { portales } = require('../config/portales.json');
 const { feeds } = require('../config/feeds.json');
@@ -72,6 +74,26 @@ const abarca = (notas, nombre) => {
   return ts.length ? `abarca ${((Math.max(...ts) - Math.min(...ts)) / 36e5).toFixed(1)} h` : '';
 };
 
+/* ───────────── el detalle de los hechos ───────────── */
+
+// Los hechos con 3 o más grupos de medios, con las mismas notas que mira preparar(): dentro de la ventana
+// de recolección y que pasan el criterio 1. Sirve para revisar a ojo si lo que se juntó es la misma noticia.
+function detalleDeHechos(notas, reglas, portales, ahora) {
+  const t0 = Date.parse(ahora);
+  const validas = notas.filter(n => t0 - Date.parse(n.fecha) <= reglas.ventanaRecoleccionHoras * 3600 * 1000
+    && esInformativa(n, reglas.criterio1 || {}).ok);
+  const hechos = agrupar(validas, reglas)
+    .map(g => ({ g, grupos: gruposIndependientes(g.notas, portales) }))
+    .filter(h => h.grupos.cantidad >= 3)
+    .sort((a, b) => b.grupos.cantidad - a.grupos.cantidad || b.g.notas.length - a.g.notas.length);
+  const lineas = [];
+  for (const { g, grupos } of hechos) {
+    lineas.push('', `[${grupos.cantidad} grupos · ${g.notas.length} notas] ${corto(g.notas[0].titulo, 90)}`, `    grupos: ${grupos.claves.join(', ')}`);
+    for (const n of g.notas) lineas.push(`    · ${n.portal.padEnd(20)} ${corto(n.titulo, 100)}`);
+  }
+  return { cantidad: hechos.length, lineas };
+}
+
 /* ───────────── opciones ───────────── */
 
 function leerOpciones(args, reglasBase) {
@@ -91,13 +113,18 @@ function leerOpciones(args, reglasBase) {
     if (!Number.isFinite(Number(umbral))) throw new ErrorDeUso(`--umbral tiene que ser un número, no "${umbral}".`);
     reglas.umbralSimilitud = Number(umbral);
   }
-  return { reglas, archivoAcum, sinLeer, salidaJson: valor('--json') };
+  const minComunes = valor('--min-comunes');
+  if (minComunes !== null) {
+    if (!/^\d+$/.test(minComunes)) throw new ErrorDeUso(`--min-comunes tiene que ser un número entero, 0 o más, no "${minComunes}".`);
+    reglas.minPalabrasComunes = Number(minComunes);
+  }
+  return { reglas, archivoAcum, sinLeer, salidaJson: valor('--json'), detalle: args.includes('--detalle') };
 }
 
 /* ───────────── el comando ───────────── */
 
 async function main() {
-  const { reglas, archivoAcum, sinLeer, salidaJson } = leerOpciones(process.argv.slice(2), reglasBase);
+  const { reglas, archivoAcum, sinLeer, salidaJson, detalle } = leerOpciones(process.argv.slice(2), reglasBase);
   const ahora = new Date().toISOString();
   const hora = new Date().toLocaleString('es-AR', { timeZone: ZONA, dateStyle: 'short', timeStyle: 'short' });
 
@@ -129,7 +156,7 @@ async function main() {
 
   const p = preparar(notas, { portales, reglas, firmas, ahora });
   const r = p.resumen;
-  console.log(`\nEMBUDO · datos reales, sin el juicio de la IA · umbral de similitud ${reglas.umbralSimilitud}${archivoAcum ? ' · sobre lo acumulado' : ''}\n`);
+  console.log(`\nEMBUDO · datos reales, sin el juicio de la IA · umbral de similitud ${reglas.umbralSimilitud} · seguro ${reglas.umbralSeguro ?? reglas.umbralSimilitud} · mínimo de palabras en común ${reglas.minPalabrasComunes ?? 0}${archivoAcum ? ' · sobre lo acumulado' : ''}\n`);
   fila('Notas leídas', r.notasEntrada, r.notasEntrada);
   fila('  fuera de la ventana de 48 h', r.fueraDeVentana, r.notasEntrada);
   fila('  − criterio 1 (opinión, servicio)', r.notasDescartadas, r.notasEntrada, 'no cuentan para verificar');
@@ -153,6 +180,12 @@ async function main() {
   const conInternacional = p.candidatos.filter(c => c.notas.filter(n => internacionales.has(n.portal)).length >= 2);
   console.log(`\nVERIFICADOS con al menos 2 notas de feeds internacionales (aproximado): ${conInternacional.length} de ${r.candidatos}`);
 
+  if (detalle) {
+    const d = detalleDeHechos(notas, reglas, portales, ahora);
+    console.log(`\nHECHOS CON 3 O MÁS GRUPOS (${d.cantidad})`);
+    d.lineas.forEach(l => console.log(l));
+  }
+
   console.log('\nVERIFICADOS (hasta 15)');
   [...p.candidatos].sort((a, b) => b.gruposIndependientes - a.gruposIndependientes).slice(0, 15)
     .forEach(c => console.log(`  [${c.gruposIndependientes}] ${corto(c.titulo, 78)}`));
@@ -170,4 +203,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, leerOpciones, ErrorDeUso };
+module.exports = { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, detalleDeHechos, leerOpciones, ErrorDeUso };

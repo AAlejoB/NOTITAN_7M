@@ -4,8 +4,9 @@ const assert = require('node:assert/strict');
 const { mkdtempSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync } = require('node:fs');
 const { join } = require('node:path');
 const { tmpdir } = require('node:os');
-const { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, leerOpciones, ErrorDeUso } = require('../scripts/leer.js');
+const { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, detalleDeHechos, leerOpciones, ErrorDeUso } = require('../scripts/leer.js');
 const reglas = require('../config/reglas.json');
+const { portales } = require('../config/portales.json');
 
 const carpeta = () => mkdtempSync(join(tmpdir(), 'notitan-leer-'));
 const nota = id => ({ id, titulo: id, fecha: '2026-10-04T10:00:00.000Z' });
@@ -71,4 +72,42 @@ test('leerOpciones: --umbral pisa solo la copia, y sin opciones todo queda como 
   const vacio = leerOpciones([], reglas);
   assert.deepEqual([vacio.archivoAcum, vacio.sinLeer, vacio.salidaJson], [null, false, null]);
   assert.equal(vacio.reglas.umbralSimilitud, reglas.umbralSimilitud);
+});
+
+test('leerOpciones: --min-comunes pisa solo la copia y tiene que ser un entero; --detalle se activa solo si se pide', () => {
+  assert.equal(leerOpciones(['--min-comunes', '0'], reglas).reglas.minPalabrasComunes, 0);
+  assert.equal(leerOpciones(['--min-comunes', '5'], reglas).reglas.minPalabrasComunes, 5);
+  assert.equal(reglas.minPalabrasComunes, 3, 'config/reglas.json no se toca');
+  assert.throws(() => leerOpciones(['--min-comunes', '2.5'], reglas), /entero/);
+  assert.throws(() => leerOpciones(['--min-comunes', '-1'], reglas), /entero/);
+  assert.equal(leerOpciones(['--detalle'], reglas).detalle, true);
+  assert.equal(leerOpciones([], reglas).detalle, false);
+});
+
+const AHORA_DET = '2026-10-04T18:00:00.000Z';
+const notaDet = (id, portal, titulo, extra = {}) => ({ id, portal, titulo, url: `https://www.${portal}/mundo/${id}`, fecha: '2026-10-04T16:00:00.000Z', ...extra });
+
+test('detalleDeHechos: lista los hechos de 3 o más grupos con el portal y el título de cada nota', () => {
+  const tratado = 'Se firmó un tratado comercial entre Chile y Japón en Tokio';
+  const notas = [
+    notaDet('1', 'clarin.com', tratado), notaDet('2', 'lanacion.com.ar', tratado), notaDet('3', 'infobae.com', tratado),
+    notaDet('4', 'perfil.com', 'Llovió mucho en Rosario durante la madrugada'),
+    notaDet('5', 'ambito.com', tratado, { url: 'https://www.ambito.com/opinion/5' }),
+    notaDet('6', 'cronista.com', tratado, { fecha: '2026-10-01T16:00:00.000Z' }),
+  ];
+  const d = detalleDeHechos(notas, reglas, portales, AHORA_DET);
+  assert.equal(d.cantidad, 1, 'la lluvia tiene 1 grupo; la opinión y la nota de hace 3 días no cuentan');
+  assert.match(d.lineas[1], /^\[3 grupos · 3 notas\] Se firmó un tratado/);
+  assert.match(d.lineas[2], /^    grupos: .*clarín.*|^    grupos: .*clarin/);
+  assert.deepEqual(d.lineas.slice(3).map(l => l.trim().split(/\s+/)[1]), ['clarin.com', 'lanacion.com.ar', 'infobae.com']);
+  assert.ok(!d.lineas.join('\n').includes('opinion'));
+});
+
+test('detalleDeHechos: respeta las reglas del agrupador que se le pasan', () => {
+  const a = 'Diputados aprobó el Presupuesto';
+  const b = 'Diputados empezó a debatir el Presupuesto';
+  const notas = [notaDet('1', 'clarin.com', a), notaDet('2', 'lanacion.com.ar', b), notaDet('3', 'infobae.com', b)];
+  const bajaSola = { ...reglas, umbralSimilitud: 0.3, minPalabrasComunes: 0 };
+  assert.equal(detalleDeHechos(notas, bajaSola, portales, AHORA_DET).cantidad, 1, '0,3 sola junta las etapas');
+  assert.equal(detalleDeHechos(notas, { ...bajaSola, minPalabrasComunes: 3 }, portales, AHORA_DET).cantidad, 0, 'con 3 palabras en común, no');
 });
