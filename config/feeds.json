@@ -41,6 +41,6 @@
     { "nombre": "AFP",      "dominio": "afp.com",      "motivo": "El único RSS de afp.com es del sitio corporativo y su nota más nueva tiene 5 años. No hay feed de noticias." },
     { "nombre": "EFE",      "dominio": "efe.com",      "motivo": "El sitio responde 'No feed available' en todas las rutas de feed probadas (/feed/, ?feed=rss2, /mundo/feed/)." },
     { "nombre": "La Voz",   "dominio": "lavoz.com.ar", "motivo": "HTTP 403 también en la portada: bloquea lectores automáticos." },
-    { "nombre": "LN+",      "dominio": "lnmas.com",    "motivo": "Sin conexión (timeout) en dos intentos. Puede ser la red del entorno: volver a probar con Network access en Full." }
+    { "nombre": "LN+",      "dominio": "lnmas.com",    "motivo": "Sin respuesta con la red completa (04-10, por el proxy del entorno): el portal corta la conexión (timeout al conectar; con curl, Connection reset by peer a los 12 s) en las 8 direcciones probadas (/arc/outboundfeeds/rss/ con y sin ?outputType=xml, /rss, /rss/, /feed, /feed/ y la portada, con y sin www), mientras La Nación responde 200 en 1 s por el mismo camino. Sin portada no hay <link> de RSS para buscar. Se reintenta solo si Alejo lo pide." }
   ]
 }
