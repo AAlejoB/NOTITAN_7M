@@ -12,7 +12,8 @@ const T0 = Date.parse(ahora);
 const iso = horas => new Date(T0 - horas * 3600e3).toISOString();
 
 const NAC = ['clarin.com', 'lanacion.com.ar', 'infobae.com', 'pagina12.com.ar', 'perfil.com', 'ambito.com', 'cronista.com', 'eldiarioar.com', 'lacapital.com.ar', 'lagaceta.com.ar'];
-const INT = ['reuters.com', 'apnews.com', 'afp.com', 'efe.com', 'bbc.com', 'dw.com', 'france24.com', 'elpais.com', 'theguardian.com', 'aljazeera.com'];
+// Las 4 primeras son medios argentinos: hoy el motor los cuenta también para una noticia internacional (opción C de buzon/pendientes.md). Reuters, AP, AFP y EFE están inactivas porque no tienen feed.
+const INT = ['clarin.com', 'lanacion.com.ar', 'infobae.com', 'pagina12.com.ar', 'bbc.com', 'dw.com', 'france24.com', 'elpais.com', 'theguardian.com', 'aljazeera.com'];
 
 const notas = [];
 const juicios = {};

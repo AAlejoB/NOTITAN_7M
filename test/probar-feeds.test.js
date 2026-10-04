@@ -74,3 +74,16 @@ test('config/feeds.json: lo que no tiene feed no figura como activo', () => {
   const activos = new Set(feeds.feeds.map((f) => f.dominio));
   for (const s of feeds.sinFeed) assert.ok(!activos.has(s.dominio), `${s.nombre} está en feeds y en sinFeed`);
 });
+
+test('config/portales.json: los portales sin feed están inactivos', () => {
+  const feeds = require('../config/feeds.json');
+  const { portales } = require('../config/portales.json');
+  const sinFeed = feeds.sinFeed.map(f => f.dominio).sort();
+  for (const dominio of sinFeed) {
+    const p = portales.find(x => x.dominio === dominio);
+    assert.ok(p, `${dominio} no está en portales.json`);
+    assert.equal(p.activo, false, `${dominio} no tiene feed y tiene que estar inactivo`);
+  }
+  const inactivos = portales.filter(x => x.activo === false).map(x => x.dominio).sort();
+  assert.deepEqual(inactivos, sinFeed, 'ningún otro portal puede estar inactivo');
+});
