@@ -33,6 +33,14 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 Bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion}` para `preparar`. Hay que descartar las rutas de otros países del Cronista. Al armarlo, marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; hoy no se tocó porque el día de ejemplo y un test usan esas agencias.
 Sospecha sin confirmar: el agrupador compara palabras, así que The Guardian (en inglés) solo se va a juntar con los medios en español cuando coincidan nombres propios y cifras.
 
+## Lo que Alejo pidió el 2026-10-04 (todavía sin construir)
+
+- Meta: que quien apriete el botón (él, su hermana o un cliente desconocido) confíe en que las noticias pasaron por varios filtros. Entrega: título, breve descripción y links. Para la "breve descripción" se asume la bajada del propio medio, sin IA, salvo que diga otra cosa.
+- A futuro: 10 noticias, 5 nacionales + 5 internacionales. Hoy son 7 + 7; se cambia con `cupoPorBloque` en `config/reglas.json`. No se tocó.
+- Vía B para internacionales: que una nota entre sin llegar a 5 grupos si la firma alguien reconocido (biógrafo, escritor, periodista). Propuesta de Claude, a confirmar con Alejo: lista de firmas que arma él, solo reportaje, investigación o biografía con fuentes con nombre (la opinión se descarta en el criterio 1), etiqueta distinta ("Respaldada por [nombre]") y que siga pasando por fuente con nombre, interés público y no desmentido.
+- Etiqueta para el cliente: "confirmada por N medios", no "verificada". Cinco medios que repiten el mismo error pasan igual, y el agrupador compara palabras (le cuesta con notas en otro idioma).
+- Dibujo del embudo: https://claude.ai/artifact/1x8EynL8rEGJV9i6DyiHFi
+
 ## Decisión de arquitectura (n8n)
 
 Veredicto de la comparación: **n8n, con el código de reglas y agrupado en este repo y con tests**. Puntajes sobre 10: n8n con el código en el repo 6,5; híbrido (n8n + motor aparte) 6,2; todo en código 5,7. Gana el híbrido si Don Julio ya maneja un servidor con Docker y Python.
