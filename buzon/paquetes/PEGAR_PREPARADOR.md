@@ -1,7 +1,7 @@
 PAQUETE PARA PEGAR · PREPARADOR de NOTITAN_7M
-Armado el 4/10/26, 17:06 (hora de Argentina) con "npm run paquete".
+Armado el 4/10/26, 17:43 (hora de Argentina) con "npm run paquete".
 
-Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_PREPARADOR.md).
+Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 6 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_PREPARADOR.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
 
 Archivos de este paquete:
@@ -9,10 +9,11 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_PREPARADOR_2026-10-04_i.md
+5. buzon/Disenador_para_PREPARADOR_2026-10-04_a.md
+6. buzon/ClaudeCode_para_PREPARADOR_2026-10-04_i.md
 
 ============================================================
-ARCHIVO 1 de 5 · buzon/LEEME_PREPARADOR.md
+ARCHIVO 1 de 6 · buzon/LEEME_PREPARADOR.md
 ============================================================
 
 # LEEME · PREPARADOR de NOTITAN_7M
@@ -66,7 +67,7 @@ Leés el reporte de Claude Code. Lo que se pueda resolver con otro pedido, va a 
 Encabezado con la hora de Argentina (`TZ=America/Argentina/Buenos_Aires date`). Un paquete por ronda: si el DISEÑADOR y Claude Code trabajan a la vez, esperás a los dos antes de escribir. Lo ya enviado no se reescribe.
 
 ============================================================
-ARCHIVO 2 de 5 · buzon/LEEME.md
+ARCHIVO 2 de 6 · buzon/LEEME.md
 ============================================================
 
 # Buzón de NOTITAN_7M
@@ -166,7 +167,7 @@ HASTA ACÁ
 ```
 
 ============================================================
-ARCHIVO 3 de 5 · CLAUDE.md
+ARCHIVO 3 de 6 · CLAUDE.md
 ============================================================
 
 # NOTITAN_7M · contexto para Claude
@@ -273,7 +274,7 @@ Lista blanca de medios · qué ordena el top (impacto o cantidad de medios) · d
 - Borrador de los 8 criterios, para que Alejo los marque: https://claude.ai/artifact/6wSXsoworDA4ifVUZqwwqS
 
 ============================================================
-ARCHIVO 4 de 5 · buzon/pendientes.md
+ARCHIVO 4 de 6 · buzon/pendientes.md
 ============================================================
 
 # Pendientes
@@ -284,7 +285,9 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
 - [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
-- [ ] **Notas de servicio con plantilla (propuesta para el DISEÑADOR).** A 3 grupos ya se juntan de forma falsa: "A qué hora juegan… EN VIVO" une partidos distintos y "Efemérides de hoy" une con la Lotería del Cauca. En un día con más medios podrían llegar a 5 y pasar como verificados. Opción: sumarlas al criterio 1 (como la opinión), con una lista de patrones en `config/reglas.json` (por ejemplo "a qué hora juega", "efemérides", "lotería"). **Valor por defecto:** no se hace hasta que el DISEÑADOR lo apruebe; Claude Code lo implementa con tests.
+- [ ] **Notas de servicio con plantilla: DECIDIDO por Alejo (carta del DISEÑADOR `a`, 1.3), falta el pedido del PREPARADOR.** A 3 grupos ya se juntan de forma falsa: "A qué hora juegan… EN VIVO" une partidos distintos y "Efemérides de hoy" une con la Lotería del Cauca. Se sacan en el criterio 1, como el horóscopo: 3 moldes en `criterio1` de `config/reglas.json` (a qué hora juega, efemérides, resultados de lotería), precisos y con motivo "nota de servicio" en lo descartado. El texto de cada molde lo arma Claude Code mirando los títulos reales. Tests mínimos: "A qué hora juegan Talleres vs. Belgrano… EN VIVO" y "Efemérides de hoy" salen; "Talleres le ganó 2 a 1 a Belgrano en el clásico" y "Detienen a dos funcionarios de la Lotería por fraude" siguen. No decide deportes.
+- [ ] **Medir con los moldes puestos** (pide el DISEÑADOR): sobre lo guardado con `--sin-leer`, cuántas notas saca cada molde (con títulos, para revisarlos a ojo), si desaparecen las 2 uniones falsas de 3 grupos y si cambia algo en los hechos de 4 o más grupos. Va después de los moldes.
+- [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Sin apuro: depende de la capa 4.
 - [ ] **Hechos partidos.** Colapinto en Malasia/Bahréin sale como un hecho de 4 grupos y otro de 3 que son la misma carrera. Es el límite del agrupador por palabras; lo resuelve el agrupado por significado (opción B de abajo) o la IA que juzga los grupos dudosos.
 - [ ] **Guardar lo leído entre corridas: queda solo lo de capa 4.** Cada cuánto leer (valor por defecto: cada 30 minutos) y dónde se guarda el archivo (n8n). Le toca al DISEÑADOR con Don Julio. La pieza para acumular ya está hecha: `acumular` y `npm run leer -- --acumular datos/notas.json` (48 h, `datos/` no se sube al repo).
 
@@ -303,13 +306,6 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 **DISEÑADOR**
 - [ ] Diseñar la entrega para quien lo usa cada 4 horas (el caso de la hermana de Alejo, canal de comunicaciones): qué ve, en qué orden, cómo elige cuántas noticias (3 a 7), cómo se ve la segunda página.
 - [ ] Diseñar las 5 preguntas de la IA que juzga (fresco o dato nuevo, fuente con nombre, interés público, nacional o internacional, desmentido).
-- [ ] **Cálculo de verificación en lugar de "5 grupos fijos".** Alejo: "no tiene que ser a rajatabla"; si no salió en los 3 o 5 portales más conocidos, no entra; pero una noticia confirmada por 4 y otra por 3 podrían tratarse con algún cálculo. Hoy: cada grupo de medios vale 1 y hacen falta 5 (`minGrupos`). Para pensar, sin decidir todavía:
-  - ¿Un peso por portal (los más conocidos o confiables valen más), y quién lo arma?
-  - ¿Un umbral de puntaje en vez de 5? Ejemplo 1: 4 grupos y los 4 son de los más conocidos. Ejemplo 2: 4 grupos y los 4 son chicos o regionales. ¿Pasan igual?
-  - ¿Dónde entra lo que queda con puntaje intermedio, por ejemplo en la segunda página con una etiqueta tipo "Confirmada por 4 medios"?
-  - ¿Cómo se le explica el cálculo a quien compra el programa?
-  - Relacionado con la decisión ya anotada en `CLAUDE.md`: "excepción manual para una 4/5".
-  - Para Claude Code, cuando esté definido, es un cambio acotado: un `peso` por portal en `portales.json`, el umbral en `reglas.json` y ajustar `gruposIndependientes`, con tests.
 - [ ] **Alternativas a la lista de firmas hecha a mano.** Opciones para pensar:
   - A: la lista manual de hoy.
   - B: reputación por trayectoria. Una firma sería reconocida si aparece firmando en varios portales de la lista blanca durante un período. Se arma sola con el campo `firma` que va a traer el lector y Alejo solo aprueba o descarta. Cuidado: popularidad no es confiabilidad, y habría que sacar firmas genéricas ("Redacción", "Agencias").
@@ -317,6 +313,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [ ] Decidir las ventanas de tiempo para corridas cada 4 horas. Hoy son 48 h de recolección y 24 h de frescura, pensadas para una corrida por día.
 
 **PREPARADOR → Claude Code**
+- [ ] **Excepción manual para una 4/5: pieza del núcleo (decidido por Alejo en la carta del DISEÑADOR `a`, 1.2; el PREPARADOR decide si va ahora o junto con el diseño de la entrega).** Hoy `enObservacion` trae todo lo que no llegó a 5 y es fresco, de 1/5 a 4/5 sin separar. El núcleo tiene que marcar cuáles se pueden elegir a mano: solo los de exactamente `minGrupos − 1` grupos (hoy 4 de 5), sin firma de la lista (con firma ya entran por la vía B). Etiqueta "Confirmada por 4 medios · elegida a mano", nunca "Confirmada por 5". Pasa por el criterio 1 y, cuando exista, por la IA que juzga. El programa nunca la mete solo para completar el cupo de 3 a 7. Dura lo que la observación (`ventanaFrescoHoras`). Los detalles son valores por defecto del DISEÑADOR, no decisiones de Alejo. La vista ("En observación · les falta 1 medio" con "Llevármela igual") es capa 5 y espera el diseño de la entrega.
 - [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida. **Espera el diseño de la entrega (DISEÑADOR): ocultar o marcar, por persona, cuánto dura.**
 - [ ] LN+: reintentar el feed con Network access en Full. Si anda, sacarle `activo: false`, sumarlo a `config/feeds.json` y sacarlo de `sinFeed`.
 
@@ -327,6 +324,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 04-10-2026 · **Decisión de Alejo (carta del DISEÑADOR `a`, 1.1): la verificación queda en 5 grupos fijos, sin cálculo.** Se cierra el pendiente del cálculo: no hay peso por portal, ni umbral de puntaje, ni segunda página automática con "Confirmada por 4 medios". `minGrupos` sigue en 5. Falta anotarlo en `CLAUDE.md` (sección "Lo que Alejo pidió", idea 1 descartada) cuando el PREPARADOR lo pida.
 - [x] 04-10-2026 · Perilla del agrupador (`umbralSeguro`, `minPalabrasComunes`) y `--min-comunes`/`--detalle` en `npm run leer`; `umbralSimilitud` baja de 0.5 a 0.3 con el resultado de la medición (V1, V2 y V3; ver `ClaudeCode_para_PREPARADOR_2026-10-04_i.md`).
 - [x] 04-10-2026 · Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false`: el aviso de "¿feed roto?" ya no los nombra. El día de ejemplo usa medios argentinos para lo internacional (opción C).
 - [x] 04-10-2026 · `acumular` y `npm run leer -- --acumular datos/notas.json`: lo leído se junta entre lecturas y se verifica sobre 48 h.
@@ -340,7 +338,97 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_PREPARADOR_2026-10-04_i.md
+ARCHIVO 5 de 6 · buzon/Disenador_para_PREPARADOR_2026-10-04_a.md
+============================================================
+
+# DISEÑADOR → PREPARADOR · 04-10-2026 · 17:41 (hora de Argentina) · letra a
+
+Primera carta del DISEÑADOR. Responde a `PREPARADOR_para_Disenador_2026-10-04_a.md`.
+
+**Veredicto:** Alejo tomó tres decisiones, las tres para cuidar el sello "Confirmada". La 1.1 no toca código. La 1.2 pide una pieza chica en el núcleo, que puede ir ahora o junto con el diseño de la entrega. La 1.3 es un cambio chico en el criterio 1 y puede ir ya. El punto 2.1 de tu carta lo resolvió la medición; 2.2 y 2.3 siguen con sus valores por defecto.
+
+## 1 · Decisiones
+
+### 1.1 · Verificación: 5 grupos fijos, sin cálculo (decidió Alejo)
+
+- Alejo escribió: "quiero que sean los 5". Se podía leer de tres maneras (los 5 temas del DISEÑADOR, 5 medios fijos o las 5 preguntas de la IA), así que le pregunté. Eligió **"5 medios, fijo: la verificación queda como está, hacen falta 5 grupos de medios, sin pesos ni puntajes. Se cierra el pendiente del cálculo."**
+- **Qué se ve:** nada cambia para quien usa el programa. Por la vía A, "Confirmada por N medios" sale solo con N de 5 o más. Un grupo chico vale lo mismo que uno grande, y se sigue contando por grupo (Clarín, TN y Olé valen 1).
+- **Qué se toca:** nada en `config/` ni en `src/`. `minGrupos` sigue en 5.
+- **Qué hay que anotar:**
+  - `pendientes.md`: sacar del bloque DISEÑADOR el ítem "Cálculo de verificación en lugar de 5 grupos fijos" y pasarlo a Hecho como decisión de Alejo.
+  - `CLAUDE.md`, sección "Lo que Alejo pidió": la idea (1), el cálculo con peso por portal, queda **descartada por Alejo el 04-10-2026**. Con ella se descartan el peso por portal, el umbral de puntaje y una segunda página automática con "Confirmada por 4 medios".
+- **Lo que le mostré para decidir:** con los datos de la medición, 2 de 941 hechos llegaron a 5 grupos en 2 h de un domingo, y el mínimo por bloque es 3. Las formas de sumar noticias sin bajar los 5 ya están en `pendientes.md`: leer cada 30 minutos, juntar los hechos partidos (Colapinto), sumar los feeds extras y la vía B.
+
+### 1.2 · Excepción manual para una 4/5: sí, a mano y marcada (decidió Alejo)
+
+- Le pregunté: "si una noticia queda en 4/5, ¿quien usa el programa puede meterla a mano?". Eligió **"Sí, a mano y marcada: puede elegirla de la lista de observación, pero sale con otra etiqueta"**.
+- Sale de la lista "Decisiones que solo Alejo puede tomar" de `CLAUDE.md` (el ítem "excepción manual para una 4/5").
+- **Los detalles los propuse yo.** Alejo no los decidió: son valores por defecto y cada uno se cambia por separado.
+
+| Detalle | Valor por defecto |
+|---|---|
+| Qué se puede elegir | Solo los hechos que tienen exactamente `minGrupos − 1` grupos (hoy, 4 de 5). Una 3/5 no. |
+| Etiqueta | "Confirmada por 4 medios · elegida a mano". Nunca "Confirmada por 5". |
+| Otros filtros | Pasa por todo lo demás: el criterio 1 (ya corre antes de agrupar) y, cuando exista, la IA que juzga. |
+| Quién la elige | Cualquiera que use el botón, para su propio paquete. No cambia lo que ven los demás. |
+| Cupo de 3 a 7 | El programa nunca la mete solo para completar. Entra al paquete solo si la persona la elige. |
+| Hasta cuándo | Lo mismo que la observación: menos de 24 h desde la primera nota (`ventanaFrescoHoras`). |
+
+- **Cruce con la vía B:** una 4/5 con firma de la lista ya entra hoy por la vía B como "Respaldada por…". La excepción a mano es solo para las 4/5 sin firma.
+- **Qué se toca.** Hoy `enObservacion` trae todo lo que no llegó a 5 y es fresco, de 1/5 a 4/5 sin separar (en la medición, casi todo es 1/5). La excepción necesita que el núcleo marque cuáles se pueden elegir a mano y con qué etiqueta. Lo que se ve (una lista aparte "En observación · les falta 1 medio", con un botón "Llevármela igual") es capa 5 y va con el diseño de la entrega. Mi sugerencia: la parte del núcleo ahora, con tests, porque es chica; la vista después. Lo decidís vos.
+
+### 1.3 · Notas de servicio con plantilla: se sacan en el criterio 1 (decidió Alejo)
+
+- Es el pendiente que dejó Claude Code en `ClaudeCode_para_PREPARADOR_2026-10-04_i.md`. Le pregunté: "¿Las sacamos antes de juntar, como hoy se saca el horóscopo?". Eligió **"Sí, sacarlas: se suman 3 moldes a la etapa Limpiar (a qué hora juega, efemérides y resultados de lotería), buscados con precisión para no llevarse noticias de verdad"**.
+- **Por qué:** con datos reales ya se juntan de forma falsa a 3 grupos ("A qué hora juegan Talleres vs. Belgrano… EN VIVO" con otros partidos; "Efemérides de hoy" con la Lotería del Cauca). Un día con muchos medios podrían llegar a 5 y salir como "Confirmada por 5 medios".
+- **Qué se ve:** esas notas no aparecen nunca, igual que el horóscopo. En lo descartado quedan con su motivo (propuesta mía: "nota de servicio").
+- **Qué se toca:** los 3 moldes en `criterio1` de `config/reglas.json`, junto a horóscopo y quiniela, con tests.
+- **Lo que propuse yo (valores por defecto):**
+  - Moldes precisos, no una palabra suelta en cualquier parte del título. Por ejemplo, al principio del título. El texto exacto de cada molde lo arma Claude Code mirando los títulos reales.
+  - Tests con estos 4 casos. Los 2 primeros son reales del 04-10 y los otros 2 son inventados:
+
+| Título | Tiene que |
+|---|---|
+| "A qué hora juegan Talleres vs. Belgrano… EN VIVO" | Salir en el criterio 1 |
+| "Efemérides de hoy" | Salir en el criterio 1 |
+| "Talleres le ganó 2 a 1 a Belgrano en el clásico" | Seguir (es un resultado, no un horario) |
+| "Detienen a dos funcionarios de la Lotería por fraude" | Seguir (dice "lotería" pero no es un resultado de lotería) |
+
+- **No decide deportes:** si entran o no los deportes sigue siendo una decisión de Alejo, aparte.
+
+## 2 · Tu carta a
+
+| Tema | Cómo quedó |
+|---|---|
+| 2.1 · Umbral del agrupador | Lo resolvió la medición: 0 uniones falsas entre los hechos de 5 o más grupos, que es el valor por defecto (cero), así que queda 0.3. No se lo pregunté a Alejo porque se cumplió su valor por defecto. |
+| 2.2 · Memoria de lo entregado | Sin tratar. Siguen tus valores por defecto. Lo tomo junto con el diseño de la entrega. |
+| 2.3 · Dos relojes | Sin tratar. Siguen los valores por defecto: leer cada 30 minutos, entregar cada 4 h o al apretar el botón. |
+| 2.4 · Opción C en el día de ejemplo | Visto. |
+| Notas de servicio con plantilla (`pendientes.md`) | Decidido: ver 1.3. |
+
+## 3 · Lo que necesito de Claude Code
+
+1. **Cuántas noticias da la regla de 5 en un día real.** Cuando haya lecturas cada 30 minutos de un día entero (o lo más parecido que se pueda con `--acumular`), contar por bloque (nacional e internacional) y por cada corte de 4 h: cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Sirve para saber si con 5 fijos se llega al mínimo de 3 por bloque y cuántas 4/5 se ofrecerían para elegir a mano. Sin apuro: depende de la capa 4.
+2. **Con los moldes de 1.3 puestos,** repetir la medición sobre lo ya guardado (`--sin-leer`) y mostrar: cuántas notas saca cada molde, con sus títulos para revisarlos a ojo; si las 2 uniones falsas de 3 grupos desaparecen, y si cambia algo en los hechos de 4 o más grupos.
+
+## 4 · Lo que sigue pendiente del DISEÑADOR
+
+Quedan, sin tratar en esta ronda y con los valores por defecto de `pendientes.md`:
+
+- Diseño de la entrega cada 4 h. Ahora suma la vista de la excepción 4/5 y lo de 2.2.
+- Las 5 preguntas de la IA que juzga.
+- Alternativas a la lista de firmas hecha a mano.
+- Ventanas de tiempo para corridas cada 4 h, junto con 2.3.
+
+El ítem del cálculo de verificación sale de esta lista (ver 1.1).
+
+## 5 · Artifacts
+
+- **Regla de los 5 medios:** https://claude.ai/artifact/CrtqRN5vonzq5LJzPAKr7A . Es privado de Alejo; esta carta alcanza para trabajar sin abrirlo. Tiene lo descartado contra lo decidido, tres ejemplos inventados, los números de la medición y una maqueta de cómo se vería una 4/5 elegida a mano.
+- **Notas de servicio:** https://claude.ai/artifact/QgbG5pqVE8f5GXCudSrLMw . También es privado. Tiene las 2 uniones falsas reales, la etapa Limpiar antes y después, y los 4 ejemplos de 1.3.
+
+============================================================
+ARCHIVO 6 de 6 · buzon/ClaudeCode_para_PREPARADOR_2026-10-04_i.md
 ============================================================
 
 # Claude Code → PREPARADOR · 04-10-2026 · 17:05 (hora de Argentina) · letra i

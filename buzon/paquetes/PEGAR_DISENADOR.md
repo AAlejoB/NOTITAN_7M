@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · DISEÑADOR de NOTITAN_7M
-Armado el 4/10/26, 17:06 (hora de Argentina) con "npm run paquete".
+Armado el 4/10/26, 17:43 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_DISENADOR.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -277,7 +277,9 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
 - [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
-- [ ] **Notas de servicio con plantilla (propuesta para el DISEÑADOR).** A 3 grupos ya se juntan de forma falsa: "A qué hora juegan… EN VIVO" une partidos distintos y "Efemérides de hoy" une con la Lotería del Cauca. En un día con más medios podrían llegar a 5 y pasar como verificados. Opción: sumarlas al criterio 1 (como la opinión), con una lista de patrones en `config/reglas.json` (por ejemplo "a qué hora juega", "efemérides", "lotería"). **Valor por defecto:** no se hace hasta que el DISEÑADOR lo apruebe; Claude Code lo implementa con tests.
+- [ ] **Notas de servicio con plantilla: DECIDIDO por Alejo (carta del DISEÑADOR `a`, 1.3), falta el pedido del PREPARADOR.** A 3 grupos ya se juntan de forma falsa: "A qué hora juegan… EN VIVO" une partidos distintos y "Efemérides de hoy" une con la Lotería del Cauca. Se sacan en el criterio 1, como el horóscopo: 3 moldes en `criterio1` de `config/reglas.json` (a qué hora juega, efemérides, resultados de lotería), precisos y con motivo "nota de servicio" en lo descartado. El texto de cada molde lo arma Claude Code mirando los títulos reales. Tests mínimos: "A qué hora juegan Talleres vs. Belgrano… EN VIVO" y "Efemérides de hoy" salen; "Talleres le ganó 2 a 1 a Belgrano en el clásico" y "Detienen a dos funcionarios de la Lotería por fraude" siguen. No decide deportes.
+- [ ] **Medir con los moldes puestos** (pide el DISEÑADOR): sobre lo guardado con `--sin-leer`, cuántas notas saca cada molde (con títulos, para revisarlos a ojo), si desaparecen las 2 uniones falsas de 3 grupos y si cambia algo en los hechos de 4 o más grupos. Va después de los moldes.
+- [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Sin apuro: depende de la capa 4.
 - [ ] **Hechos partidos.** Colapinto en Malasia/Bahréin sale como un hecho de 4 grupos y otro de 3 que son la misma carrera. Es el límite del agrupador por palabras; lo resuelve el agrupado por significado (opción B de abajo) o la IA que juzga los grupos dudosos.
 - [ ] **Guardar lo leído entre corridas: queda solo lo de capa 4.** Cada cuánto leer (valor por defecto: cada 30 minutos) y dónde se guarda el archivo (n8n). Le toca al DISEÑADOR con Don Julio. La pieza para acumular ya está hecha: `acumular` y `npm run leer -- --acumular datos/notas.json` (48 h, `datos/` no se sube al repo).
 
@@ -296,13 +298,6 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 **DISEÑADOR**
 - [ ] Diseñar la entrega para quien lo usa cada 4 horas (el caso de la hermana de Alejo, canal de comunicaciones): qué ve, en qué orden, cómo elige cuántas noticias (3 a 7), cómo se ve la segunda página.
 - [ ] Diseñar las 5 preguntas de la IA que juzga (fresco o dato nuevo, fuente con nombre, interés público, nacional o internacional, desmentido).
-- [ ] **Cálculo de verificación en lugar de "5 grupos fijos".** Alejo: "no tiene que ser a rajatabla"; si no salió en los 3 o 5 portales más conocidos, no entra; pero una noticia confirmada por 4 y otra por 3 podrían tratarse con algún cálculo. Hoy: cada grupo de medios vale 1 y hacen falta 5 (`minGrupos`). Para pensar, sin decidir todavía:
-  - ¿Un peso por portal (los más conocidos o confiables valen más), y quién lo arma?
-  - ¿Un umbral de puntaje en vez de 5? Ejemplo 1: 4 grupos y los 4 son de los más conocidos. Ejemplo 2: 4 grupos y los 4 son chicos o regionales. ¿Pasan igual?
-  - ¿Dónde entra lo que queda con puntaje intermedio, por ejemplo en la segunda página con una etiqueta tipo "Confirmada por 4 medios"?
-  - ¿Cómo se le explica el cálculo a quien compra el programa?
-  - Relacionado con la decisión ya anotada en `CLAUDE.md`: "excepción manual para una 4/5".
-  - Para Claude Code, cuando esté definido, es un cambio acotado: un `peso` por portal en `portales.json`, el umbral en `reglas.json` y ajustar `gruposIndependientes`, con tests.
 - [ ] **Alternativas a la lista de firmas hecha a mano.** Opciones para pensar:
   - A: la lista manual de hoy.
   - B: reputación por trayectoria. Una firma sería reconocida si aparece firmando en varios portales de la lista blanca durante un período. Se arma sola con el campo `firma` que va a traer el lector y Alejo solo aprueba o descarta. Cuidado: popularidad no es confiabilidad, y habría que sacar firmas genéricas ("Redacción", "Agencias").
@@ -310,6 +305,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [ ] Decidir las ventanas de tiempo para corridas cada 4 horas. Hoy son 48 h de recolección y 24 h de frescura, pensadas para una corrida por día.
 
 **PREPARADOR → Claude Code**
+- [ ] **Excepción manual para una 4/5: pieza del núcleo (decidido por Alejo en la carta del DISEÑADOR `a`, 1.2; el PREPARADOR decide si va ahora o junto con el diseño de la entrega).** Hoy `enObservacion` trae todo lo que no llegó a 5 y es fresco, de 1/5 a 4/5 sin separar. El núcleo tiene que marcar cuáles se pueden elegir a mano: solo los de exactamente `minGrupos − 1` grupos (hoy 4 de 5), sin firma de la lista (con firma ya entran por la vía B). Etiqueta "Confirmada por 4 medios · elegida a mano", nunca "Confirmada por 5". Pasa por el criterio 1 y, cuando exista, por la IA que juzga. El programa nunca la mete solo para completar el cupo de 3 a 7. Dura lo que la observación (`ventanaFrescoHoras`). Los detalles son valores por defecto del DISEÑADOR, no decisiones de Alejo. La vista ("En observación · les falta 1 medio" con "Llevármela igual") es capa 5 y espera el diseño de la entrega.
 - [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida. **Espera el diseño de la entrega (DISEÑADOR): ocultar o marcar, por persona, cuánto dura.**
 - [ ] LN+: reintentar el feed con Network access en Full. Si anda, sacarle `activo: false`, sumarlo a `config/feeds.json` y sacarlo de `sinFeed`.
 
@@ -320,6 +316,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 04-10-2026 · **Decisión de Alejo (carta del DISEÑADOR `a`, 1.1): la verificación queda en 5 grupos fijos, sin cálculo.** Se cierra el pendiente del cálculo: no hay peso por portal, ni umbral de puntaje, ni segunda página automática con "Confirmada por 4 medios". `minGrupos` sigue en 5. Falta anotarlo en `CLAUDE.md` (sección "Lo que Alejo pidió", idea 1 descartada) cuando el PREPARADOR lo pida.
 - [x] 04-10-2026 · Perilla del agrupador (`umbralSeguro`, `minPalabrasComunes`) y `--min-comunes`/`--detalle` en `npm run leer`; `umbralSimilitud` baja de 0.5 a 0.3 con el resultado de la medición (V1, V2 y V3; ver `ClaudeCode_para_PREPARADOR_2026-10-04_i.md`).
 - [x] 04-10-2026 · Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false`: el aviso de "¿feed roto?" ya no los nombra. El día de ejemplo usa medios argentinos para lo internacional (opción C).
 - [x] 04-10-2026 · `acumular` y `npm run leer -- --acumular datos/notas.json`: lo leído se junta entre lecturas y se verifica sobre 48 h.
