@@ -1,0 +1,22 @@
+# Feeds candidatos. SIN VERIFICAR: direcciones puestas de memoria.
+# Formato: nombre | ámbito | url
+Clarín|nacional|https://www.clarin.com/rss/lo-ultimo/
+La Nación|nacional|https://www.lanacion.com.ar/arc/outboundfeeds/rss/?outputType=xml
+Infobae|nacional|https://www.infobae.com/feeds/rss/
+Página/12|nacional|https://www.pagina12.com.ar/rss/portada
+Perfil|nacional|https://www.perfil.com/feed
+Ámbito|nacional|https://www.ambito.com/rss/pages/home.xml
+El Cronista|nacional|https://www.cronista.com/files/rss/economia.xml
+elDiarioAR|nacional|https://www.eldiarioar.com/rss/
+TN (grupo Clarín)|nacional|https://tn.com.ar/arc/outboundfeeds/rss/?outputType=xml
+La Capital|nacional|https://www.lacapital.com.ar/rss/
+La Gaceta|nacional|https://www.lagaceta.com.ar/rss
+BBC Mundo|internacional|https://feeds.bbci.co.uk/mundo/rss.xml
+DW español|internacional|https://rss.dw.com/rdf/rss-es-all
+France 24 español|internacional|https://www.france24.com/es/rss
+El País|internacional|https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada
+The Guardian|internacional|https://www.theguardian.com/world/rss
+Al Jazeera|internacional|https://www.aljazeera.com/xml/rss/all.xml
+EFE|internacional|https://www.efe.com/efe/espana/1/rss
+Reuters|internacional|https://www.reuters.com/arc/outboundfeeds/rss/?outputType=xml
+AP News|internacional|https://apnews.com/hub/world-news.rss
