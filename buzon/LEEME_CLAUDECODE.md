@@ -37,4 +37,4 @@ El tercer bloque. Ejecutás, probás y reportás. Modelo: Sonnet 5.5.
 
 ## Al cerrar una tanda
 
-Tiene que estar escrito y pusheado: `buzon/pendientes.md` al día, `CLAUDE.md` con el estado y las decisiones nuevas, y tu reporte. Después avisás a Alejo para que la sesión original iguale la rama principal a tu rama, y recién ahí Alejo hace `/clear`.
+Tiene que estar escrito y pusheado: `buzon/pendientes.md` al día, `CLAUDE.md` con el estado y las decisiones nuevas, y tu reporte. Después Alejo hace `/clear`. Sos la única sesión de Claude Code: no hay nadie más a quien avisar ni nada que igualar.
