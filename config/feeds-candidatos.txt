@@ -1,3 +1,6 @@
+# REEMPLAZADO por config/feeds.json (probado el 2026-10-04). Queda como registro de lo que se puso de memoria:
+# 12 de estas 20 andaban; 4 se corrigieron (Infobae, Página/12, El Cronista, La Capital) y DW (era rss-es-all, es rss-sp-all);
+# Reuters, AP News y EFE no tienen feed alcanzable.
 # Feeds candidatos. SIN VERIFICAR: direcciones puestas de memoria.
 # Formato: nombre | ámbito | url
 Clarín|nacional|https://www.clarin.com/rss/lo-ultimo/

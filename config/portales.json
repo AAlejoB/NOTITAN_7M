@@ -1,5 +1,5 @@
 {
-  "_aviso": "LISTA PROVISORIA armada de ejemplo. Dominios y feeds sin verificar. La lista blanca definitiva la decide Alejo.",
+  "_aviso": "LISTA PROVISORIA armada de ejemplo. Los dominios con feed se verificaron el 2026-10-04 (ver feeds.json); los de Reuters, AP, AFP, EFE, La Voz y LN+ no se pudieron leer. La lista blanca definitiva la decide Alejo.",
   "portales": [
     { "dominio": "clarin.com",          "grupo": "Clarín",       "ambito": "nacional",      "tipo": "medio" },
     { "dominio": "tn.com.ar",           "grupo": "Clarín",       "ambito": "nacional",      "tipo": "medio" },

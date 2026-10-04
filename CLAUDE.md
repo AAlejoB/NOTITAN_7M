@@ -15,13 +15,23 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 24 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 33 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado.
+- Capa 3, primera mitad hecha: `config/feeds.json` (19 feeds probados el 2026-10-04) y `scripts/probar-feeds.js`. `npm run feeds` los vuelve a probar (con proxy: `NODE_USE_ENV_PROXY=1`).
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
 
-## Siguiente paso: capa 3, leer los portales
+## Capa 3 · lo que se probó de los feeds (2026-10-04)
 
-`config/feeds-candidatos.txt` tiene 20 direcciones de feeds puestas de memoria, sin verificar. Hay que probarlas, corregir las que den 404 y armar la lista real. Sospecha sin confirmar: Reuters, AP y AFP no tienen RSS público.
+- Andan 19: 13 nacionales + 6 internacionales. Los links de cada feed caen en el dominio que ya está en `portales.json`.
+- Se corrigieron 5 direcciones de memoria: Infobae, Página/12, El Cronista, La Capital y DW (el español es `rss-sp-all`, no `es`).
+- **Sin feed alcanzable:** Reuters (401, DataDome), AP (403, Cloudflare), AFP (solo RSS corporativo, viejo), EFE ("No feed available"), La Voz (403) y LN+ (timeout: reintentar con Network access en Full). Se confirmó la sospecha de Reuters, AP y AFP.
+- 10 feeds internacionales extra andan (Euronews, RFI, NYT, Sky, NPR, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos) pero su portal no está en la lista blanca: los decide Alejo. Hoy hay 6 grupos internacionales con feed, y una nota necesita estar en 5 de esos 6.
+- El feed de El Cronista mezcla ediciones de otros países (37 de 100 notas: /espana/, /mexico/, /colombia/, /usa/). Clarín solo trae 10 notas; Olé es solo deportes.
+
+## Siguiente paso: `src/lector.js`
+
+Bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion}` para `preparar`. Hay que descartar las rutas de otros países del Cronista. Al armarlo, marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; hoy no se tocó porque el día de ejemplo y un test usan esas agencias.
+Sospecha sin confirmar: el agrupador compara palabras, así que The Guardian (en inglés) solo se va a juntar con los medios en español cuando coincidan nombres propios y cifras.
 
 ## Decisión de arquitectura (n8n)
 

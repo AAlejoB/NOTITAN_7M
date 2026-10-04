@@ -5,12 +5,12 @@ Al apretar un botón: las 7 noticias NACIONALES de Argentina + las 7 INTERNACION
 ## Estado
 
 Se construye **de adentro hacia afuera**. Hecho: el núcleo (reglas) y el motor (agrupar y ordenar), con tests.
-Falta: leer los portales, la IA que juzga, el botón y la entrega. Todavía no se conectó nada a internet.
+Hecho a medias: leer los portales (ya están probados los feeds, falta el lector). Falta la IA que juzga, el botón y la entrega.
 
 ```
 5 · Botón y entrega            (falta)
 4 · Orquestación               (falta)  ← pensado para n8n
-3 · Leer los portales          (falta)
+3 · Leer los portales          (feeds probados en config/feeds.json; falta src/lector.js)
 2 · Motor: agrupar y ordenar   ✔ src/nucleo.js
 1 · Núcleo: las reglas         ✔ config/reglas.json + src/nucleo.js
 ```
@@ -18,7 +18,8 @@ Falta: leer los portales, la IA que juzga, el botón y la entrega. Todavía no s
 ## Cómo se prueba
 
 ```
-npm test       # 24 tests + 1 pendiente a propósito (sinónimos)
+npm test       # 33 tests + 1 pendiente a propósito (sinónimos)
+npm run feeds  # prueba por internet cada feed de config/feeds.json
 npm run demo   # corre un día inventado y dibuja el embudo
 ```
 
@@ -36,7 +37,7 @@ El 7 es un tope, no una cuota: si pasan menos, se entregan menos y se avisa.
 ## Dónde se cambian las reglas
 
 - `config/reglas.json`: los números (5 grupos, 24 h, cupo de 7, tope de 3 por sección y 2 por país) y los filtros de nota informativa. Las expresiones de `titulosExcluidos` se aplican sobre el título en minúsculas y sin tildes.
-- `config/portales.json`: la lista blanca. **Hoy es provisoria**: dominios y feeds sin verificar.
+- `config/portales.json`: la lista blanca. **Hoy es provisoria**: los feeds ya se probaron (`config/feeds.json`), pero qué medios entran lo decide Alejo.
 
 Los 8 criterios, con ejemplos, están en la página de borrador. Los valores actuales son la propuesta por defecto, no una decisión tomada.
 

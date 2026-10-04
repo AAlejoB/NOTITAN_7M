@@ -1,0 +1,46 @@
+{
+  "_aviso": "Feeds PROBADOS el 2026-10-04 desde el entorno de Claude con node scripts/probar-feeds.js config/feeds.json. 'feeds' son los que andan y cuyo portal ya está en portales.json. 'extras' andan pero su portal NO está en la lista blanca: los decide Alejo. 'sinFeed' no se pueden leer. Los feeds cambian sin aviso: volver a probar antes de cada cambio de lista.",
+  "verificado": "2026-10-04",
+  "feeds": [
+    { "nombre": "Clarín",            "dominio": "clarin.com",        "grupo": "Clarín",      "ambito": "nacional",      "url": "https://www.clarin.com/rss/lo-ultimo/", "nota": "Trae solo las últimas 10 notas." },
+    { "nombre": "La Nación",         "dominio": "lanacion.com.ar",   "grupo": "La Nación",   "ambito": "nacional",      "url": "https://www.lanacion.com.ar/arc/outboundfeeds/rss/?outputType=xml" },
+    { "nombre": "Infobae",           "dominio": "infobae.com",       "grupo": "Infobae",     "ambito": "nacional",      "url": "https://www.infobae.com/arc/outboundfeeds/rss/", "corregido": "era /feeds/rss/ (404)" },
+    { "nombre": "Página/12",         "dominio": "pagina12.com.ar",   "grupo": "Página/12",   "ambito": "nacional",      "url": "https://www.pagina12.com.ar/arc/outboundfeeds/rss/?outputType=xml", "corregido": "era /rss/portada (404)" },
+    { "nombre": "Perfil",            "dominio": "perfil.com",        "grupo": "Perfil",      "ambito": "nacional",      "url": "https://www.perfil.com/feed" },
+    { "nombre": "Ámbito",            "dominio": "ambito.com",        "grupo": "Ámbito",      "ambito": "nacional",      "url": "https://www.ambito.com/rss/pages/home.xml" },
+    { "nombre": "El Cronista",       "dominio": "cronista.com",      "grupo": "El Cronista", "ambito": "nacional",      "url": "https://www.cronista.com/arc/outboundfeeds/rss/?outputType=xml", "corregido": "era /files/rss/economia.xml (404)", "nota": "Mezcla ediciones de otros países: de 100 notas, 37 son de /espana/, /mexico/, /colombia/ y /usa/. Al leerlo hay que descartar esas rutas." },
+    { "nombre": "elDiarioAR",        "dominio": "eldiarioar.com",    "grupo": "elDiarioAR",  "ambito": "nacional",      "url": "https://www.eldiarioar.com/rss/" },
+    { "nombre": "TN",                "dominio": "tn.com.ar",         "grupo": "Clarín",      "ambito": "nacional",      "url": "https://tn.com.ar/arc/outboundfeeds/rss/?outputType=xml" },
+    { "nombre": "La Capital",        "dominio": "lacapital.com.ar",  "grupo": "La Capital",  "ambito": "nacional",      "url": "https://www.lacapital.com.ar/rss/ultimas-noticias.xml", "corregido": "era /rss/ (404)" },
+    { "nombre": "La Gaceta",         "dominio": "lagaceta.com.ar",   "grupo": "La Gaceta",   "ambito": "nacional",      "url": "https://www.lagaceta.com.ar/rss" },
+    { "nombre": "Noticias Argentinas", "dominio": "noticiasargentinas.com", "grupo": "NA",   "ambito": "nacional",      "url": "https://noticiasargentinas.com/rss", "tipo": "agencia" },
+    { "nombre": "Olé",               "dominio": "ole.com.ar",        "grupo": "Clarín",      "ambito": "nacional",      "url": "https://www.ole.com.ar/rss/ultimas-noticias/", "nota": "Solo deportes. Que entre o no es decisión de Alejo." },
+
+    { "nombre": "BBC Mundo",         "dominio": "bbc.com",           "grupo": "BBC",         "ambito": "internacional", "url": "https://feeds.bbci.co.uk/mundo/rss.xml" },
+    { "nombre": "DW español",        "dominio": "dw.com",            "grupo": "DW",          "ambito": "internacional", "url": "https://rss.dw.com/xml/rss-sp-all", "corregido": "era rss-es-all (vacío): el español es 'sp'" },
+    { "nombre": "France 24 español", "dominio": "france24.com",      "grupo": "France 24",   "ambito": "internacional", "url": "https://www.france24.com/es/rss" },
+    { "nombre": "El País",           "dominio": "elpais.com",        "grupo": "El País",     "ambito": "internacional", "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada" },
+    { "nombre": "The Guardian",      "dominio": "theguardian.com",   "grupo": "The Guardian","ambito": "internacional", "url": "https://www.theguardian.com/world/rss" },
+    { "nombre": "Al Jazeera",        "dominio": "aljazeera.com",     "grupo": "Al Jazeera",  "ambito": "internacional", "url": "https://www.aljazeera.com/xml/rss/all.xml" }
+  ],
+  "extras": [
+    { "nombre": "Euronews español",  "dominio": "euronews.com",      "grupo": "Euronews",    "ambito": "internacional", "url": "https://es.euronews.com/rss" },
+    { "nombre": "RFI español",       "dominio": "rfi.fr",            "grupo": "RFI",         "ambito": "internacional", "url": "https://www.rfi.fr/es/rss" },
+    { "nombre": "The New York Times","dominio": "nytimes.com",       "grupo": "The New York Times", "ambito": "internacional", "url": "https://rss.nytimes.com/services/xml/rss/nyt/World.xml" },
+    { "nombre": "Sky News",          "dominio": "news.sky.com",      "grupo": "Sky News",    "ambito": "internacional", "url": "https://feeds.skynews.com/feeds/rss/world.xml" },
+    { "nombre": "NPR",               "dominio": "npr.org",           "grupo": "NPR",         "ambito": "internacional", "url": "https://feeds.npr.org/1004/rss.xml" },
+    { "nombre": "Europa Press",      "dominio": "europapress.es",    "grupo": "Europa Press","ambito": "internacional", "url": "https://www.europapress.es/rss/rss.aspx?ch=69", "tipo": "agencia" },
+    { "nombre": "El Mundo",          "dominio": "elmundo.es",        "grupo": "El Mundo",    "ambito": "internacional", "url": "https://e00-elmundo.uecdn.es/elmundo/rss/internacional.xml" },
+    { "nombre": "La Vanguardia",     "dominio": "lavanguardia.com",  "grupo": "La Vanguardia","ambito": "internacional", "url": "https://www.lavanguardia.com/rss/internacional.xml" },
+    { "nombre": "ABC (España)",      "dominio": "abc.es",            "grupo": "ABC",         "ambito": "internacional", "url": "https://www.abc.es/rss/2.0/internacional/" },
+    { "nombre": "20minutos",         "dominio": "20minutos.es",      "grupo": "20minutos",   "ambito": "internacional", "url": "https://www.20minutos.es/rss/internacional/" }
+  ],
+  "sinFeed": [
+    { "nombre": "Reuters",  "dominio": "reuters.com",  "motivo": "HTTP 401: protección anti-bots (DataDome). No hay feed público alcanzable. Se confirmó la sospecha." },
+    { "nombre": "AP News",  "dominio": "apnews.com",   "motivo": "HTTP 403: desafío de Cloudflare. No hay feed público alcanzable. Se confirmó la sospecha." },
+    { "nombre": "AFP",      "dominio": "afp.com",      "motivo": "El único RSS de afp.com es del sitio corporativo y su nota más nueva tiene 5 años. No hay feed de noticias." },
+    { "nombre": "EFE",      "dominio": "efe.com",      "motivo": "El sitio responde 'No feed available' en todas las rutas de feed probadas (/feed/, ?feed=rss2, /mundo/feed/)." },
+    { "nombre": "La Voz",   "dominio": "lavoz.com.ar", "motivo": "HTTP 403 también en la portada: bloquea lectores automáticos." },
+    { "nombre": "LN+",      "dominio": "lnmas.com",    "motivo": "Sin conexión (timeout) en dos intentos. Puede ser la red del entorno: volver a probar con Network access en Full." }
+  ]
+}
