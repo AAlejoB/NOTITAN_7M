@@ -18,7 +18,7 @@ Hecho a medias: leer los portales (ya están probados los feeds, falta el lector
 ## Cómo se prueba
 
 ```
-npm test       # 51 tests + 1 pendiente a propósito (sinónimos)
+npm test       # 52 tests + 1 pendiente a propósito (sinónimos)
 npm run feeds  # prueba por internet cada feed de config/feeds.json
 npm run demo   # corre un día inventado y dibuja el embudo
 ```
@@ -29,15 +29,15 @@ Requiere Node 20 o más. No tiene dependencias.
 
 Dos pasos, porque en el medio va una IA para lo que no se puede medir con un conteo:
 
-1. `preparar(notas, ctx)` saca lo barato (opinión, servicio, notas viejas), junta las notas que cuentan **el mismo hecho** y cuenta en cuántos **grupos de medios** salió. Clarín + TN + Olé valen 1. Un cable copiado de agencia vale 1. Con menos de 5 grupos va a *En observación*. Hay una **segunda línea (vía B)**: si un hecho no llega a 5 grupos pero lo firman al menos 2 autores distintos de `config/firmas.json`, también pasa a candidato. Sale con otra etiqueta ("Respaldada por …" en vez de "Confirmada por N medios") y va después de todo lo confirmado por la vía A.
+1. `preparar(notas, ctx)` saca lo barato (opinión, servicio, notas viejas), junta las notas que cuentan **el mismo hecho** y cuenta en cuántos **grupos de medios** salió. Clarín + TN + Olé valen 1. Un cable copiado de agencia vale 1. Con menos de 5 grupos va a *En observación*. Hay una **segunda línea (vía B)**: si un hecho no llega a 5 grupos pero lo firma al menos 1 autor de `config/firmas.json`, también pasa a candidato. Sale con otra etiqueta ("Respaldada por …" en vez de "Confirmada por N medios") y va después de todo lo confirmado por la vía A. Nombra hasta 2 autores.
 2. `decidir(candidatos, juicios, ctx)` recibe el juicio de la IA por cada hecho (¿hay fuente con nombre?, ¿es de interés público?, ¿a qué bloque va?, ¿impacto de 0 a 3?, ¿está desmentido?) y arma las dos listas. Todo lo que queda afuera lleva su motivo.
 
-La cantidad de noticias por bloque se elige entre 3 y 7 (`cupo`; sin elegir, 7). Es un tope, no una cuota: si pasan menos, se entregan menos y se avisa; nunca se baja el estándar para completar. La segunda página (vía B) muestra hasta 2 noticias por bloque.
+La cantidad de noticias por bloque se elige entre 3 y 7 (`cupo`; sin elegir, 7). Es un tope, no una cuota: si pasan menos, se entregan menos y se avisa; nunca se baja el estándar para completar.
 
 ## Dónde se cambian las reglas
 
 - `config/reglas.json`: los números (5 grupos, 24 h, cupo de 3 a 7, tope de 3 por sección y 2 por país, y la vía B) y los filtros de nota informativa. Las expresiones de `titulosExcluidos` se aplican sobre el título en minúsculas y sin tildes.
-- `config/firmas.json`: los autores reconocidos de la vía B. **La arma Alejo; hoy está vacía y la vía B no hace nada.** Cada uno puede valer para nacional, internacional o los dos. El mínimo (`minFirmas`, hoy 2) y el interruptor están en `viaB` de `config/reglas.json`.
+- `config/firmas.json`: los autores reconocidos de la vía B. **La arma Alejo; hoy está vacía y la vía B no hace nada.** Cada uno puede valer para nacional, internacional o los dos. El mínimo (`minFirmas`, hoy 1), cuántos nombres se muestran (`maxFirmasEnEtiqueta`, hoy 2) y el interruptor están en `viaB` de `config/reglas.json`. Se puede agregar un tope de noticias de segunda página con `maxNoticiasPorBloque`.
 - `config/portales.json`: la lista blanca. **Hoy es provisoria**: los feeds ya se probaron (`config/feeds.json`), pero qué medios entran lo decide Alejo.
 
 Los 8 criterios, con ejemplos, están en la página de borrador. Los valores actuales son la propuesta por defecto, no una decisión tomada.

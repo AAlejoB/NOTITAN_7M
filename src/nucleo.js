@@ -183,6 +183,15 @@ function minimoFirmas(reglas) {
   return v && v.activa !== false ? (v.minFirmas || 2) : Infinity;
 }
 
+// "Respaldada por A", "… por A y B" y, si hay más autores que reglas.viaB.maxFirmasEnEtiqueta, "… por A y B (y 1 más)".
+function etiquetaViaB(firmasDelBloque, reglas) {
+  const nombres = firmasDelBloque.map(f => f.nombre);
+  const tope = reglas.viaB && reglas.viaB.maxFirmasEnEtiqueta;
+  const mostrados = tope ? nombres.slice(0, tope) : nombres;
+  const resto = nombres.length - mostrados.length;
+  return `Respaldada por ${unir(mostrados)}${resto ? ` (y ${resto} más)` : ''}`;
+}
+
 // "A", "A y B", "A, B y C"
 function unir(lista) {
   return lista.length < 2 ? lista.join('') : `${lista.slice(0, -1).join(', ')} y ${lista[lista.length - 1]}`;
@@ -350,9 +359,7 @@ function decidir(candidatos, juicios, { reglas, cupo }) {
       const salida = {
         id: c.id, titulo: c.titulo, bloque, impacto: j.impacto || 0, seccion, pais,
         via: viaB ? 'B' : 'A',
-        etiqueta: viaB
-          ? `Respaldada por ${unir(firmasDelBloque.map(f => f.nombre))}`
-          : `Confirmada por ${c.gruposIndependientes} medios`,
+        etiqueta: viaB ? etiquetaViaB(firmasDelBloque, reglas) : `Confirmada por ${c.gruposIndependientes} medios`,
         gruposIndependientes: c.gruposIndependientes,
         links: c.notas.map(n => ({ portal: n.portal, url: n.url })),
       };

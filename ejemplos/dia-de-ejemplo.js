@@ -161,24 +161,24 @@ const firmas = [
   { nombre: 'Autor Ficticio Tres', ambitos: ['nacional'] },
 ];
 
-// Información reservada: solo 3 grupos, pero la respaldan 2 firmas habilitadas para internacional.
+// Información reservada: solo 3 grupos, pero la respaldan firmas habilitadas para internacional.
 hecho('IB', ['bbc.com', 'theguardian.com', 'elpais.com'], [
   'Se filtró el texto de un tratado reservado entre dos países europeos',
   'El texto del tratado reservado entre dos países europeos se filtró',
 ], { hace: 4, seccion: 'politica', firmas: ['Por Autora Ficticia Uno', 'Autor Ficticio Dos'],
   juicio: J({ bloque: 'internacional', impacto: 2, seccion: 'política', pais: 'Suiza' }) });
 
-// Investigación nacional: 2 grupos y 2 firmas habilitadas para nacional.
+// Investigación nacional: 2 grupos y firmas habilitadas para nacional.
 hecho('NB', ['lanacion.com.ar', 'pagina12.com.ar'], [
   'Una investigación revela cómo se adjudicó la obra de un puente en el Litoral',
   'Cómo se adjudicó la obra de un puente en el Litoral: la investigación',
 ], { hace: 3, seccion: 'politica', firmas: ['Autora Ficticia Uno', 'Autor Ficticio Tres'],
   juicio: J({ impacto: 2, seccion: 'justicia' }) });
 
-// Una sola firma de dos que hacen falta: queda "En observación" con 2/5 grupos y 1/2 firmas.
+// Lo firma alguien que no está en la lista: no cuenta como firma reconocida. Queda "En observación" con 2/5 grupos.
 hecho('IC', ['dw.com', 'france24.com'], [
-  'Un escritor propone un nuevo marco legal para la pesca en el Ártico',
+  'Un especialista propone un nuevo marco legal para la pesca en el Ártico',
   'Propuesta de un nuevo marco legal para la pesca en el Ártico',
-], { hace: 3, seccion: 'sociedad', firmas: ['Autor Ficticio Dos'] });
+], { hace: 3, seccion: 'sociedad', firmas: ['Autor Sin Lista'] });
 
 module.exports = { ahora, notas, juicios, firmas };

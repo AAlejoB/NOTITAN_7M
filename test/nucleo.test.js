@@ -251,6 +251,8 @@ const FIRMAS = [
   { nombre: 'Autor Ficticio Tres' },
 ];
 const ctxB = { ...ctx, firmas: FIRMAS };
+const conViaB = cambios => ({ ...ctxB, reglas: { ...reglas, viaB: { ...reglas.viaB, ...cambios } } });
+const ctxMin2 = conViaB({ minFirmas: 2 });
 const TRATADO = 'Se filtró el texto de un tratado reservado entre dos países europeos';
 const hechoB = (firmas, portalesLista = ['bbc.com', 'theguardian.com', 'elpais.com'], extra = {}) =>
   portalesLista.map((d, i) => nota('b' + i, d, TRATADO, { firma: firmas[i], ...extra }));
@@ -266,32 +268,42 @@ test('vía B: 3 grupos + 2 firmas reconocidas distintas pasan a candidato, con s
   assert.equal(d.internacionales[0].etiqueta, 'Respaldada por Autora Ficticia Uno y Autor Ficticio Dos');
 });
 
-test('vía B: una sola firma no alcanza y queda En observación con su contador', () => {
+test('vía B: con la regla elegida por Alejo, una sola firma reconocida alcanza', () => {
   const p = N.preparar(hechoB(['Autora Ficticia Uno', undefined, undefined]), ctxB);
+  assert.equal(p.candidatos.length, 1);
+  assert.equal(p.candidatos[0].via, 'B');
+  const d = N.decidir(p.candidatos, { 'g:b0': J({ bloque: 'internacional' }) }, ctxB);
+  assert.equal(d.internacionales[0].etiqueta, 'Respaldada por Autora Ficticia Uno');
+});
+
+test('vía B: si se sube el mínimo a 2, una sola firma no alcanza y queda En observación con su contador', () => {
+  const p = N.preparar(hechoB(['Autora Ficticia Uno', undefined, undefined]), ctxMin2);
   assert.equal(p.candidatos.length, 0);
   assert.equal(p.enObservacion[0].contador, '3/5');
   assert.equal(p.enObservacion[0].contadorFirmas, '1/2');
 });
 
 test('vía B: el mismo autor en dos portales vale 1, y el alias cuenta como la misma persona', () => {
-  const dos = N.preparar(hechoB(['Autora Ficticia Uno', 'Autora Ficticia Uno', undefined]), ctxB);
-  assert.equal(dos.candidatos.length, 0, 'un autor repetido no llega a 2');
+  const dos = N.preparar(hechoB(['Autora Ficticia Uno', 'Autora Ficticia Uno', undefined]), ctxMin2);
+  assert.equal(dos.candidatos.length, 0, 'con mínimo 2, un autor repetido no llega');
+  assert.equal(N.preparar(hechoB(['Autora Ficticia Uno', 'Autora Ficticia Uno', undefined]), ctxB).candidatos[0].firmasReconocidas.length, 1);
   const alias = N.preparar(hechoB(['Autor Ficticio Dos', 'A. Ficticio Dos', 'Autor Ficticio Tres']), ctxB);
   assert.equal(alias.candidatos[0].firmasReconocidas.length, 2, 'Dos (por nombre y por alias) + Tres');
 });
 
 test('vía B: una columna de opinión de un autor reconocido no suma (criterio 1)', () => {
-  const notas = hechoB(['Autora Ficticia Uno', 'Autor Ficticio Dos', undefined]);
-  notas[1].url = 'https://www.theguardian.com/opinion/b1';
+  const notas = hechoB(['Autora Ficticia Uno', undefined, undefined]);
+  notas[0].url = 'https://www.bbc.com/opinion/b0';
   const p = N.preparar(notas, ctxB);
   assert.equal(p.candidatos.length, 0);
-  assert.equal(p.enObservacion[0].contadorFirmas, '1/2');
+  assert.equal(p.enObservacion[0].contador, '2/5', 'la columna ni cuenta como nota del hecho');
+  assert.equal(p.enObservacion[0].firmasReconocidas.length, 0);
 });
 
 test('vía B: una firma suma solo si salió en un portal que cuenta', () => {
-  const p = N.preparar(hechoB(['Autora Ficticia Uno', 'Autor Ficticio Dos', 'Autor Ficticio Tres'], ['bbc.com', 'chequeado.com', 'blog-personal.com']), ctxB);
+  const p = N.preparar(hechoB(['Autora Ficticia Uno', 'Autor Ficticio Dos', undefined], ['chequeado.com', 'blog-personal.com', 'elpais.com']), ctxB);
   assert.equal(p.candidatos.length, 0, 'Chequeado (no suma) y un sitio fuera de lista no habilitan firmas');
-  assert.equal(p.enObservacion[0].contadorFirmas, '1/2');
+  assert.equal(p.enObservacion[0].firmasReconocidas.length, 0);
 });
 
 test('vía B: si ya hay 5 grupos entra por la vía A, y las firmas quedan como dato extra', () => {
@@ -331,18 +343,23 @@ test('decidir: la vía B sigue pasando por los criterios 3 a 6', () => {
 });
 
 test('decidir: una firma habilitada solo para internacional no respalda una nacional', () => {
-  const c = cand('n', { via: 'B', gruposIndependientes: 2, firmasReconocidas: [
-    { nombre: 'Uno', ambitos: ['nacional', 'internacional'] }, { nombre: 'Dos', ambitos: ['internacional'] }] });
-  const nac = N.decidir([c], { n: J({ bloque: 'nacional' }) }, ctx);
+  const soloInt = cand('n', { via: 'B', gruposIndependientes: 2, firmasReconocidas: [{ nombre: 'Dos', ambitos: ['internacional'] }] });
+  const nac = N.decidir([soloInt], { n: J({ bloque: 'nacional' }) }, ctx);
   assert.equal(nac.nacionales.length, 0);
   assert.match(nac.descartadas[0].motivo, /firmas_no_habilitadas_para_nacional/);
-  const int = N.decidir([c], { n: J({ bloque: 'internacional' }) }, ctx);
-  assert.equal(int.internacionales.length, 1);
+  assert.equal(N.decidir([soloInt], { n: J({ bloque: 'internacional' }) }, ctx).internacionales.length, 1);
+  const mixto = cand('m', { via: 'B', gruposIndependientes: 2, firmasReconocidas: [
+    { nombre: 'Uno', ambitos: ['nacional', 'internacional'] }, { nombre: 'Dos', ambitos: ['internacional'] }] });
+  const r = N.decidir([mixto], { m: J({ bloque: 'nacional' }) }, ctx);
+  assert.equal(r.nacionales[0].etiqueta, 'Respaldada por Uno', 'solo se nombra a quien está habilitado para el bloque');
 });
 
-test('decidir: la etiqueta de la vía B une los nombres ("A, B y C")', () => {
-  const r = N.decidir([candB('t', ['A', 'B', 'C'])], { t: J() }, ctx);
-  assert.equal(r.nacionales[0].etiqueta, 'Respaldada por A, B y C');
+test('decidir: la etiqueta de la vía B nombra hasta 2 autores y cuenta el resto', () => {
+  const tres = [candB('t', ['A', 'B', 'C'])];
+  assert.equal(N.decidir(tres, { t: J() }, ctx).nacionales[0].etiqueta, 'Respaldada por A y B (y 1 más)');
+  const sinTope = { reglas: { ...reglas, viaB: { ...reglas.viaB, maxFirmasEnEtiqueta: undefined } } };
+  assert.equal(N.decidir(tres, { t: J() }, sinTope).nacionales[0].etiqueta, 'Respaldada por A, B y C');
+  assert.equal(N.decidir([candB('u', ['A', 'B'])], { u: J() }, ctx).nacionales[0].etiqueta, 'Respaldada por A y B');
 });
 
 /* ───────── cuántas noticias: se elige entre 3 y 7 ───────── */
@@ -386,13 +403,15 @@ test('cupo: si no se llega al mínimo de 3, se avisa y no se baja el estándar p
   assert.ok(r.avisos.some(a => /Internacionales: solo 1/.test(a)));
 });
 
-test('vía B: la segunda página muestra como máximo 2 noticias por bloque; las demás van a Reserva', () => {
+test('vía B: si se pone tope, la segunda página muestra como máximo esa cantidad por bloque', () => {
+  const conTope = { reglas: { ...reglas, viaB: { ...reglas.viaB, maxNoticiasPorBloque: 2 } } };
   const cs = [candB('b1', ['X', 'Y']), candB('b2', ['X', 'Y']), candB('b3', ['X', 'Y']), candB('bi', ['X', 'Y'])];
   const js = { b1: J({ impacto: 3 }), b2: J({ impacto: 2 }), b3: J({ impacto: 1 }), bi: J({ bloque: 'internacional' }) };
-  const r = N.decidir(cs, js, ctx);
+  const r = N.decidir(cs, js, conTope);
   assert.deepEqual(ids(r.nacionales), ['b1', 'b2']);
   assert.equal(r.reserva.find(x => x.id === 'b3').motivo, 'tope_via_B');
   assert.deepEqual(ids(r.internacionales), ['bi'], 'el tope es por bloque');
+  assert.equal(N.decidir(cs, js, ctx).nacionales.length, 3, 'sin tope (lo elegido por Alejo) entran las tres');
 });
 
 test('vía B: la segunda página solo ocupa lo que la primera deja libre', () => {
@@ -413,7 +432,7 @@ test('día de ejemplo: de punta a punta', () => {
   assert.equal(p.resumen.notasDescartadas, 8, 'las 5 columnas y los 3 "dólar hoy"');
   assert.equal(p.resumen.viaB, 2, 'el tratado reservado y la investigación del puente');
   assert.deepEqual(p.enObservacion.map(x => [x.id, x.contador]).sort(), [['g:IC-1', '2/5'], ['g:N8-1', '1/5'], ['g:O1-1', '3/5']]);
-  assert.equal(p.enObservacion.find(x => x.id === 'g:IC-1').contadorFirmas, '1/2');
+  assert.equal(p.enObservacion.find(x => x.id === 'g:IC-1').firmasReconocidas.length, 0, 'lo firma alguien que no está en la lista');
 
   // La vía A de siempre, en el mismo orden, y la vía B al final de cada lista.
   assert.deepEqual(ids(d.nacionales), ['g:N2-1', 'g:N1-1', 'g:N3-1', 'g:E2-1', 'g:E1-1', 'g:N6-1', 'g:NB-1']);

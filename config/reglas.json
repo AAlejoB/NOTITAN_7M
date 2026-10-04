@@ -8,7 +8,7 @@
   "umbralSimilitud": 0.5,
   "maxPorSeccion": 3,
   "maxPorPais": 2,
-  "viaB": { "activa": true, "minFirmas": 2, "maxNoticiasPorBloque": 2 },
+  "viaB": { "activa": true, "minFirmas": 1, "maxFirmasEnEtiqueta": 2 },
   "criterio1": {
     "urlsExcluidas": [
       "/opinion/", "/columnistas/", "/editorial/", "/blogs/",

@@ -5,7 +5,6 @@
 Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Alejo**
-- [ ] Confirmar la segunda página (vía B). Ver pregunta en `ClaudeCode_para_PREPARADOR_2026-10-04_a.md`, punto 3. Hoy queda cargada la opción B.
 - [ ] Pasar los primeros nombres de la lista de firmas (`config/firmas.json`): nombre y si vale para nacional, internacional o los dos.
 - [ ] Decidir si los 10 feeds internacionales extra entran a la lista blanca (`config/feeds.json`, sección `extras`).
 
@@ -28,5 +27,6 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 - [x] 04-10-2026 · Feeds probados y lista real en `config/feeds.json`.
 - [x] 04-10-2026 · Vía B (firma reconocida) en el núcleo, con `config/firmas.json` vacía.
-- [x] 04-10-2026 · Cantidad de noticias por bloque elegible de 3 a 7, y tope de 2 para la segunda página.
+- [x] 04-10-2026 · Cantidad de noticias por bloque elegible de 3 a 7.
+- [x] 04-10-2026 · Segunda página confirmada por Alejo: alcanza con 1 autor de la lista, y se nombran hasta 2 (ver `ClaudeCode_para_PREPARADOR_2026-10-04_b.md`).
 - [x] 04-10-2026 · Buzón armado en el repo.
