@@ -268,14 +268,37 @@ function preparar(notas, { portales, reglas, ahora, firmas = [] }) {
 
 const BLOQUES = ['nacional', 'internacional'];
 
+// Cuántas noticias por bloque pide quien aprieta el botón. Se elige entre
+// reglas.cupoMinimo y reglas.cupoPorBloque (que es el máximo). `cupo` puede ser un número
+// para los dos bloques o { nacional, internacional }. Sin elegir, vale el máximo.
+// Lo que se sale del rango se acomoda y se avisa; nunca se rellena con notas que no pasaron.
+function cupoElegido(reglas, cupo, avisos) {
+  const max = reglas.cupoPorBloque;
+  const min = Math.min(reglas.cupoMinimo || 1, max);
+  const uno = (pedido, nombre) => {
+    const n = pedido == null || pedido === '' ? NaN : Number(pedido);
+    if (!Number.isFinite(n)) return max;
+    const usado = Math.min(max, Math.max(min, Math.round(n)));
+    if (usado !== n) avisos.push(`Se pidieron ${n} ${nombre}; se usaron ${usado} (el rango es de ${min} a ${max}).`);
+    return usado;
+  };
+  const porBloque = cupo !== null && typeof cupo === 'object';
+  return {
+    nacional: uno(porBloque ? cupo.nacional : cupo, 'nacionales'),
+    internacional: uno(porBloque ? cupo.internacional : cupo, 'internacionales'),
+  };
+}
+
 // juicios[idDelHecho] = {
 //   datoNuevo, fuenteConNombre, interesPublico, desmentido  (true/false)
 //   bloque: 'nacional' | 'internacional' | null,
 //   impacto: 0..3, seccion: 'economía', pais: 'EEUU'
 // }
-function decidir(candidatos, juicios, { reglas }) {
+function decidir(candidatos, juicios, { reglas, cupo }) {
   const descartadas = [];
   const avisos = [];
+  const cupoUsado = cupoElegido(reglas, cupo, avisos);
+  const topeViaB = reglas.viaB && reglas.viaB.maxNoticiasPorBloque;
   const sobreviven = { nacional: [], internacional: [] };
   const minFirmas = minimoFirmas(reglas);
   const baja = (c, motivo) => descartadas.push({ tipo: 'hecho', id: c.id, titulo: c.titulo, motivo });
@@ -313,15 +336,17 @@ function decidir(candidatos, juicios, { reglas }) {
       Date.parse(b.c.primera) - Date.parse(a.c.primera));
     const porSeccion = {};
     const porPais = {};
+    let enViaB = 0;
     // Criterio 8: variedad, de arriba hacia abajo hasta llenar el cupo.
     for (const { c, j, firmasDelBloque } of orden) {
       const seccion = j.seccion || '';
       const pais = j.pais || '';
+      const viaB = c.via === 'B';
       let motivo = null;
-      if (listas[bloque].length >= reglas.cupoPorBloque) motivo = 'cupo';
+      if (listas[bloque].length >= cupoUsado[bloque]) motivo = 'cupo';
+      else if (viaB && topeViaB != null && enViaB >= topeViaB) motivo = 'tope_via_B';
       else if (seccion && (porSeccion[seccion] || 0) >= reglas.maxPorSeccion) motivo = `tope_seccion (${seccion})`;
       else if (bloque === 'internacional' && pais && (porPais[pais] || 0) >= reglas.maxPorPais) motivo = `tope_pais (${pais})`;
-      const viaB = c.via === 'B';
       const salida = {
         id: c.id, titulo: c.titulo, bloque, impacto: j.impacto || 0, seccion, pais,
         via: viaB ? 'B' : 'A',
@@ -333,6 +358,7 @@ function decidir(candidatos, juicios, { reglas }) {
       };
       if (motivo) { reserva.push({ ...salida, motivo }); continue; }
       listas[bloque].push(salida);
+      if (viaB) enViaB++;
       if (seccion) porSeccion[seccion] = (porSeccion[seccion] || 0) + 1;
       if (pais) porPais[pais] = (porPais[pais] || 0) + 1;
     }
@@ -340,11 +366,14 @@ function decidir(candidatos, juicios, { reglas }) {
 
   const n = listas.nacional.length;
   const i = listas.internacional.length;
-  // El 7 es un tope, no una cuota: nunca se rellena.
-  const aviso = (n < reglas.cupoPorBloque || i < reglas.cupoPorBloque)
+  // El cupo es un tope, no una cuota: nunca se rellena. Si no se llega al mínimo, se dice y no se baja el estándar.
+  const minimo = Math.min(reglas.cupoMinimo || 1, reglas.cupoPorBloque);
+  if (n < minimo) avisos.push(`Nacionales: solo ${n} pasaron los filtros (el mínimo es ${minimo}). No se baja el estándar para completar.`);
+  if (i < minimo) avisos.push(`Internacionales: solo ${i} pasaron los filtros (el mínimo es ${minimo}). No se baja el estándar para completar.`);
+  const aviso = (n < cupoUsado.nacional || i < cupoUsado.internacional)
     ? `Hoy: ${n} ${n === 1 ? 'nacional' : 'nacionales'}, ${i} ${i === 1 ? 'internacional' : 'internacionales'}` : null;
 
-  return { nacionales: listas.nacional, internacionales: listas.internacional, reserva, descartadas, avisos, aviso };
+  return { nacionales: listas.nacional, internacionales: listas.internacional, cupo: cupoUsado, reserva, descartadas, avisos, aviso };
 }
 
 module.exports = { normalizar, tokens, similitud, firma, jaccard, dominioDe, emisor, gruposIndependientes, esInformativa, agrupar, preparar, decidir };

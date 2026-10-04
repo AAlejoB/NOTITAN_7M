@@ -345,6 +345,64 @@ test('decidir: la etiqueta de la vía B une los nombres ("A, B y C")', () => {
   assert.equal(r.nacionales[0].etiqueta, 'Respaldada por A, B y C');
 });
 
+/* ───────── cuántas noticias: se elige entre 3 y 7 ───────── */
+
+const nueve = prefijo => Array.from({ length: 9 }, (_, k) => cand(prefijo + k));
+const juiciosDe = (prefijo, o = {}) => Object.fromEntries(Array.from({ length: 9 }, (_, k) => [prefijo + k, J({ seccion: 's' + k, pais: 'p' + k, ...o })]));
+const lleno = { ...juiciosDe('n'), ...juiciosDe('i', { bloque: 'internacional' }) };
+const candidatos9 = [...nueve('n'), ...nueve('i')];
+
+test('cupo: sin elegir valen 7 por bloque; eligiendo 3, entran 3 y el resto va a Reserva', () => {
+  const sin = N.decidir(candidatos9, lleno, ctx);
+  assert.equal(sin.nacionales.length, 7);
+  assert.deepEqual(sin.cupo, { nacional: 7, internacional: 7 });
+  const tres = N.decidir(candidatos9, lleno, { ...ctx, cupo: 3 });
+  assert.equal(tres.nacionales.length, 3);
+  assert.equal(tres.internacionales.length, 3);
+  assert.equal(tres.reserva.filter(x => x.motivo === 'cupo').length, 12, '6 nacionales + 6 internacionales');
+});
+
+test('cupo: se puede elegir distinto para cada bloque', () => {
+  const r = N.decidir(candidatos9, lleno, { ...ctx, cupo: { nacional: 3, internacional: 5 } });
+  assert.equal(r.nacionales.length, 3);
+  assert.equal(r.internacionales.length, 5);
+});
+
+test('cupo: lo que se sale del rango 3 a 7 se acomoda y se avisa; un texto numérico del formulario sirve', () => {
+  const alto = N.decidir(candidatos9, lleno, { ...ctx, cupo: 10 });
+  assert.equal(alto.nacionales.length, 7);
+  assert.match(alto.avisos[0], /Se pidieron 10 nacionales; se usaron 7/);
+  const bajo = N.decidir(candidatos9, lleno, { ...ctx, cupo: 1 });
+  assert.equal(bajo.nacionales.length, 3, 'el mínimo que se puede elegir es 3');
+  assert.equal(N.decidir(candidatos9, lleno, { ...ctx, cupo: '5' }).nacionales.length, 5);
+  assert.equal(N.decidir(candidatos9, lleno, { ...ctx, cupo: '' }).nacionales.length, 7);
+  assert.equal(N.decidir(candidatos9, lleno, { ...ctx, cupo: null }).nacionales.length, 7);
+});
+
+test('cupo: si no se llega al mínimo de 3, se avisa y no se baja el estándar para completar', () => {
+  const r = N.decidir([cand('a'), cand('b'), cand('c', { id: 'c' })], { a: J(), b: J(), c: J({ bloque: 'internacional' }) }, ctx);
+  assert.equal(r.nacionales.length, 2);
+  assert.ok(r.avisos.some(a => /Nacionales: solo 2 pasaron los filtros \(el mínimo es 3\)/.test(a)));
+  assert.ok(r.avisos.some(a => /Internacionales: solo 1/.test(a)));
+});
+
+test('vía B: la segunda página muestra como máximo 2 noticias por bloque; las demás van a Reserva', () => {
+  const cs = [candB('b1', ['X', 'Y']), candB('b2', ['X', 'Y']), candB('b3', ['X', 'Y']), candB('bi', ['X', 'Y'])];
+  const js = { b1: J({ impacto: 3 }), b2: J({ impacto: 2 }), b3: J({ impacto: 1 }), bi: J({ bloque: 'internacional' }) };
+  const r = N.decidir(cs, js, ctx);
+  assert.deepEqual(ids(r.nacionales), ['b1', 'b2']);
+  assert.equal(r.reserva.find(x => x.id === 'b3').motivo, 'tope_via_B');
+  assert.deepEqual(ids(r.internacionales), ['bi'], 'el tope es por bloque');
+});
+
+test('vía B: la segunda página solo ocupa lo que la primera deja libre', () => {
+  const cs = [cand('a1'), cand('a2'), cand('a3'), candB('b1', ['X', 'Y']), candB('b2', ['X', 'Y'])];
+  const js = { a1: J({ seccion: 'x' }), a2: J({ seccion: 'y' }), a3: J({ seccion: 'z' }), b1: J({ impacto: 3 }), b2: J({ impacto: 3 }) };
+  const r = N.decidir(cs, js, { ...ctx, cupo: 4 });
+  assert.deepEqual(ids(r.nacionales), ['a1', 'a2', 'a3', 'b1']);
+  assert.equal(r.reserva[0].motivo, 'cupo');
+});
+
 /* ───────── un día completo ───────── */
 
 test('día de ejemplo: de punta a punta', () => {
@@ -366,4 +424,16 @@ test('día de ejemplo: de punta a punta', () => {
   assert.deepEqual(d.reserva.map(x => x.motivo).sort(), ['tope_pais (EEUU)', 'tope_seccion (economía)', 'tope_seccion (economía)']);
   assert.equal(d.descartadas.length, 4);
   assert.equal(d.aviso, 'Hoy: 7 nacionales, 5 internacionales');
+});
+
+test('día de ejemplo: eligiendo 5 o 3 noticias por bloque', () => {
+  const p = N.preparar(dia.notas, { portales, reglas, firmas: dia.firmas, ahora: dia.ahora });
+  const cinco = N.decidir(p.candidatos, dia.juicios, { reglas, cupo: 5 });
+  assert.deepEqual(ids(cinco.nacionales), ['g:N2-1', 'g:N1-1', 'g:N3-1', 'g:E2-1', 'g:E1-1']);
+  assert.deepEqual(ids(cinco.internacionales), ['g:I1-1', 'g:I6-1', 'g:I4-1', 'g:I2-1', 'g:IB-1']);
+  assert.deepEqual(cinco.reserva.filter(x => x.motivo === 'cupo').map(x => x.id).sort(), ['g:E3-1', 'g:E4-1', 'g:N6-1', 'g:NB-1'],
+    'con la lista llena, lo que sobra queda por cupo: N6, las dos de economía que igual habrían caído por tope, y la vía B');
+  const tres = N.decidir(p.candidatos, dia.juicios, { reglas, cupo: 3 });
+  assert.deepEqual(ids(tres.nacionales), ['g:N2-1', 'g:N1-1', 'g:N3-1']);
+  assert.deepEqual(ids(tres.internacionales), ['g:I1-1', 'g:I6-1', 'g:I4-1']);
 });

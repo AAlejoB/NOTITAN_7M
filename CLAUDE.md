@@ -12,10 +12,12 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - Cada entrega termina con el bloque "QUÉ HACÉS AHORA" (a quién, qué le pasa, qué espera, cuándo, quién ejecuta).
 - No poner diagramas con forma de comando dentro de bloques de código: una vez los copió en PowerShell.
 - Dice "andá para adelante": no pedirle permiso por cada paso, solo parar si hay algo que solo él puede hacer.
+- Trabaja con tres roles, como en su otro proyecto (ST): DISEÑADOR y PREPARADOR (dos chats de Cowork) y Claude Code, que ejecuta. Alejo lleva los archivos de uno a otro. El buzón vive en `buzon/` (leer `buzon/LEEME.md` y `buzon/pendientes.md` al empezar). Lo chico va directo a Claude Code; pasa por la ronda lo que toca una decisión de Alejo o más de un archivo.
+- Los artifacts, para comparar opciones. El del embudo queda como mapa vivo y se sobrescribe. Un artifact es privado: para pasarle el contexto a otra IA sirve este archivo, no el link.
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 44 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 51 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3, primera mitad hecha: `config/feeds.json` (19 feeds probados el 2026-10-04) y `scripts/probar-feeds.js`. `npm run feeds` los vuelve a probar (con proxy: `NODE_USE_ENV_PROXY=1`).
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
@@ -37,14 +39,17 @@ Sospecha sin confirmar: el agrupador compara palabras, así que The Guardian (en
 ## Lo que Alejo pidió el 2026-10-04
 
 - Meta: que quien apriete el botón (él, su hermana o un cliente desconocido) confíe en que las noticias pasaron por varios filtros. Entrega: título, breve descripción y links. Para la "breve descripción" se asume la bajada del propio medio, sin IA, salvo que diga otra cosa.
-- A futuro, sin tocar todavía: 10 noticias, 5 nacionales + 5 internacionales. Hoy son 7 + 7; se cambia con `cupoPorBloque` en `config/reglas.json`.
-- **Vía B, hecha** (confirmada por Alejo: "que sea así tal cual"): segunda línea de verificación, para internacionales y también nacionales. Si un hecho no llega a 5 grupos, lo respaldan al menos `minFirmas` autores distintos de `config/firmas.json`. Su razonamiento: un hecho público con miles de testigos (una conferencia de dos presidentes) lo confirman muchos medios solos; la información más reservada (un tratado) tiene pocos medios con acceso, y ahí entran las firmas.
-  - `minFirmas` es 2: Alejo dijo "dos o tres", queda el valor más bajo. Subirlo es un número en `config/reglas.json`.
+- Uso real: su hermana trabaja en un canal de comunicaciones y hoy lo hace a mano (lee noticias, en Canva busca y edita la foto). Quiere un botón, con corridas cada 4 horas (por ejemplo), de 5 a 10 noticias como máximo; con rescatar 2 o 3 ya le alcanza para publicar. Más adelante, que salga más cerca de lo publicable (fotos y armado). Eso es futuro: hoy solo las noticias.
+- **Cantidad de noticias, hecho:** se elige entre 3 y 7 por bloque (`cupoMinimo` y `cupoPorBloque` en `config/reglas.json`; se pasa como `cupo` a `decidir`). Sirve para un domingo flojo o para pedir 5 y 5. Sin elegir valen 7. Si no se llega al mínimo de 3, se avisa y no se baja el estándar para completar.
+- **Vía B, hecha** (Alejo: "que sea así tal cual"): segunda línea de verificación para internacionales y también nacionales. Si un hecho no llega a 5 grupos, lo respaldan al menos `minFirmas` autores distintos de `config/firmas.json`. Su razonamiento: un hecho público con miles de testigos (una conferencia de dos presidentes) lo confirman muchos medios solos; la información más reservada (un tratado) tiene pocos medios con acceso, y ahí entran las firmas.
+  - Es una segunda página: solo ocupa lo que la primera deja libre, va después de todo lo de la vía A y sale con la etiqueta "Respaldada por [nombres]".
+  - **Pendiente de confirmar con Alejo:** dijo "un mínimo de un escritor y un máximo de dos". Quedó cargada la lectura B: la segunda página muestra hasta 2 noticias por bloque (`viaB.maxNoticiasPorBloque: 2`) y cada noticia pide 2 autores (`minFirmas: 2`). La lectura A sería 1 autor por noticia (`minFirmas: 1`). Antes había dicho "dos o tres internacionales, que sea de escritores", que también puede ser 2 o 3 noticias y no 2 o 3 autores. Detalle en `buzon/ClaudeCode_para_PREPARADOR_2026-10-04_a.md`.
   - La lista de firmas la arma Alejo; Claude no inventa nombres. Está vacía, así que hoy la vía B no hace nada.
   - Una firma suma solo si su nota es informativa (la opinión se descarta en el criterio 1) y salió en un portal que cuenta de `portales.json`. Un autor vale 1 aunque firme en varios portales. Cada autor tiene `ambitos`: nacional, internacional o los dos.
-  - Sale con la etiqueta "Respaldada por [nombres]" y va después de todo lo de la vía A. Sigue pasando por fuente con nombre, interés público y no desmentido.
+  - Sigue pasando por fuente con nombre, interés público y no desmentido.
   - El lector (`src/lector.js`) tiene que llenar `nota.firma` con el autor del feed (`dc:creator`, `author`); elDiarioAR ya lo trae.
-  - Pendiente a futuro (venta a otros países, por ejemplo Uruguay): portales y firmas por país.
+- Con corridas cada 4 horas, la misma noticia vuelve a salir en la corrida siguiente: el motor no recuerda lo ya entregado. Hace falta esa memoria antes de automatizar. Las ventanas de 48 h y 24 h también están pensadas para una corrida por día.
+- Futuro: portales y firmas por país (venta a otros países, por ejemplo Uruguay). Las fotos de los portales tienen derechos: antes de automatizar imágenes hay que definir de dónde salen.
 - Etiqueta para el cliente: "confirmada por N medios", no "verificada". Cinco medios que repiten el mismo error pasan igual, y el agrupador compara palabras (le cuesta con notas en otro idioma).
 - Dibujo del embudo: https://claude.ai/artifact/1x8EynL8rEGJV9i6DyiHFi
 

@@ -1,13 +1,14 @@
 {
   "minGrupos": 5,
   "cupoPorBloque": 7,
+  "cupoMinimo": 3,
   "ventanaFrescoHoras": 24,
   "ventanaRecoleccionHoras": 48,
   "ventanaMismoHechoHoras": 24,
   "umbralSimilitud": 0.5,
   "maxPorSeccion": 3,
   "maxPorPais": 2,
-  "viaB": { "activa": true, "minFirmas": 2 },
+  "viaB": { "activa": true, "minFirmas": 2, "maxNoticiasPorBloque": 2 },
   "criterio1": {
     "urlsExcluidas": [
       "/opinion/", "/columnistas/", "/editorial/", "/blogs/",
