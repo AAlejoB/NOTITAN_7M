@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · PREPARADOR de NOTITAN_7M
-Armado el 4/10/26, 18:06 (hora de Argentina) con "npm run paquete".
+Armado el 4/10/26, 18:19 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 6 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_PREPARADOR.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.

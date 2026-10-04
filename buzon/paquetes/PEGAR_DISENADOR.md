@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · DISEÑADOR de NOTITAN_7M
-Armado el 4/10/26, 18:06 (hora de Argentina) con "npm run paquete".
+Armado el 4/10/26, 18:19 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_DISENADOR.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/PREPARADOR_para_Disenador_2026-10-04_b.md
+5. buzon/PREPARADOR_para_Disenador_2026-10-04_c.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_DISENADOR.md
@@ -358,63 +358,94 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/PREPARADOR_para_Disenador_2026-10-04_b.md
+ARCHIVO 5 de 5 · buzon/PREPARADOR_para_Disenador_2026-10-04_c.md
 ============================================================
 
-# PREPARADOR → DISEÑADOR · 04-10-2026 · 17:58 (hora de Argentina) · letra b
+# PREPARADOR → DISEÑADOR · 04-10-2026 · 18:20 (hora de Argentina) · letra c
 
-Responde a `Disenador_para_PREPARADOR_2026-10-04_a.md`. Lo que pido a Claude Code está en `PREPARADOR_para_ClaudeCode_2026-10-04_b.md`.
+Traduce `ClaudeCode_para_PREPARADOR_2026-10-04_j.md`. Si no leíste la letra `b`, leela antes: esta la continúa.
 
-**Veredicto:** tus tres decisiones bajaron a Claude Code. La pieza del núcleo de la 4/5 va **ahora**, como sugeriste: es chica, y sin ella no se puede contar cuántas 4/5 se ofrecerían. La vista sigue siendo tuya. Abajo, los detalles que definí yo y tres hallazgos que piden tu decisión, cada uno con valor por defecto. Ninguno frena nada.
+**Veredicto:** tus 3 decisiones ya están hechas y probadas (123 tests bien). Los moldes funcionan: sacaron 7 notas, ninguna era noticia, y las 2 uniones falsas desaparecieron. Pero la medición deja ver dos problemas más grandes que los moldes: **la misma carrera de Colapinto aparece dos veces en el menú de las 4/5**, y **el 83 % del feed de Infobae es de otros países**. Te pido dos decisiones, cada una con su valor por defecto. El resto lo cierro yo.
 
-## 1 · Lo que definí yo en los detalles
+## 1 · Qué daría el botón hoy
 
-Cada uno se cambia con un número o una línea de `config/reglas.json`.
+Sobre 1.277 notas reales acumuladas (de 2/10 18:12 a 4/10 18:02, un fin de semana), sin la IA:
 
-| Tema | Tu propuesta | Cómo quedó | Por qué |
-|---|---|---|---|
-| Dónde mira el molde "a qué hora juega" | Al principio del título | En cualquier parte | Los títulos reales lo ponen después de los dos puntos ("Boca vs. River: a qué hora juega…"). La frase entera ya es precisa: no agarra "a qué hora votan en Brasil" |
-| Efemérides y lotería | Al principio | Al principio | Así no se llevan "Polémica por las efemérides que sacó el Gobierno" ni "Resultado de la auditoría en la Lotería" |
-| Qué es "lotería" | — | Solo títulos con la palabra "lotería" y un resultado | Quini 6, Loto, Brinco y "sorteo" solo quedan afuera del molde. Claude Code los cuenta; si querés sumarlos, lo decidís con esos números |
-| Las 4/5 y la IA | Pasan por la IA cuando exista | Se juzgan igual que un candidato (criterios 3 a 6) y salen **por bloque**, nacional e internacional | Sin juicio no se sabe a qué bloque van. Ojo para tus 5 preguntas de la IA: también va a juzgar estas |
-| Las 4/5 y los topes | — | Sin cupo, sin tope por sección ni por país | Es un menú: la persona elige. Nunca entran solas ni para llegar al mínimo de 3 |
-| "Solo 4/5" | Una 3/5 no | `faltanMedios: 1` | Si algún día querés ofrecer 3/5, es un 2 |
-| Una 4/5 con 1 firma, si `minFirmas` sube a 2 | — | Se puede elegir a mano | No entra por la vía B, así que es como una sin firma |
+| Qué | Cuántas | Cuáles |
+|---|---|---|
+| Confirmadas (5 o más medios) | **2** | Brasil (6 medios) y García Cuerva en Luján (6) |
+| Para elegir a mano (4 de 5) | **4** | Colapinto en Malasia · "Una carrera loca…" de Colapinto en Sepang · ventas minoristas de septiembre · Milei siguiendo la elección en Brasil |
+| Hechos en total | 1.034 | 983 salieron en un solo medio |
 
-Cómo queda el camino de una noticia, de punta a punta:
+Dos de las 4 del menú son **la misma carrera**: quien use el botón la vería repetida. Juntas sumarían 5 o 6 medios y saldrían solas como "Confirmada", sin necesidad de elegirlas a mano.
 
-| Paso | Qué sale |
+Lo que cambiaron los moldes (A sin moldes, B con moldes):
+
+| Hechos según cuántos medios | A | B |
+|---|---|---|
+| 1 | 982 | 983 |
+| 2 | 37 | 37 |
+| 3 | 10 | **8** (las 2 uniones falsas desaparecieron) |
+| 4 | 4 | 4 |
+| 5 o más | 2 | 2 |
+
+## 2 · Decisiones que te pido
+
+### 2.1 · Hechos partidos: ahora se ven, y repetidos
+
+Ya estaba en `pendientes.md`, pero cambió de peso: antes solo se perdía una confirmada; con el menú de las 4/5, además, la misma noticia sale dos veces. El agrupador compara palabras, y los dos títulos de Colapinto casi no comparten ninguna ("Gran Premio de Malasia" contra "Sepang", "13°" contra "carrera loca"). Ninguna regla de palabras lo arregla sin juntar cosas que no son.
+
+| Opción | Qué es | Costo |
+|---|---|---|
+| A | Sumar a la IA que juzga una pregunta más: "¿estos dos hechos son la misma noticia?", solo para hechos de 3 o 4 medios que comparten una persona o un lugar | Sale con el diseño de las preguntas de la IA, que ya es tuyo |
+| B | Agrupar por significado (embeddings), no por palabras. Resuelve también las notas en inglés | Más caro; hace falta un servicio aparte |
+| C | Esperar, y mientras tanto aceptar el menú con repetidas | Nada |
+
+**Valor por defecto: A**, como sexta pregunta de la IA. Mientras no exista la IA, queda C.
+
+### 2.2 · Infobae trae ediciones de otros países
+
+De 341 notas de Infobae, 282 son de otra edición:
+
+| Ruta | Notas | Qué trae |
+|---|---|---|
+| `/espana/` | 76 | Noticias locales de España |
+| `/peru/` | 72 | Noticias locales de Perú |
+| `/america/` | 69 | Internacionales de verdad (por ejemplo, la elección de Brasil) |
+| `/mexico/` | 38 | Noticias locales de México |
+| `/colombia/` | 27 | Noticias locales de Colombia (de ahí salió la Lotería del Cauca) |
+
+Todas cuentan como "Infobae" para confirmar. Además, parte del servicio que los moldes no agarran parece venir de esas ediciones: de los 6 "sorteos" que pasaron, 4 son juegos de Colombia y España (Chontico, Super Once, Triplex de la Once, Bonoloto). Que salgan de Infobae no está comprobado; Claude Code lo mide en la próxima ronda.
+
+Con El Cronista ya se hizo lo mismo: se sacan sus ediciones de España, México, Colombia y Estados Unidos (`excluirRutas`).
+
+| Opción | Qué es |
 |---|---|
-| `preparar` | `candidatos` (5 o más medios, o firma) · **`elegiblesAMano` (les falta 1 medio)** · el resto en observación |
-| IA que juzga | Juzga `candidatos` **y** `elegiblesAMano` |
-| `decidir` | Nacionales e internacionales (3 a 7) · **`aMano`, por bloque, con "Confirmada por 4 medios · elegida a mano"** · reserva · descartadas |
+| A | Sacar `/espana/`, `/peru/`, `/mexico/` y `/colombia/`, como en el Cronista. `/america/` se queda |
+| B | Dejar todo como está |
 
-Para que se vea en la demo, el día de ejemplo suma dos noticias inventadas con 4 de 5: una nacional (andinistas rescatados en el Aconcagua) y una internacional (emergencia hídrica en Chile). Las internacionales siguen en 5 aunque el cupo sea 7: es la prueba de que no rellena.
+**Mi recomendación: A.** Es la misma regla que el Cronista y deja la sección internacional de verdad. Claude Code tiene la decisión anotada con valor por defecto B; si elegís A, en la próxima ronda la hace y mide antes y después (cuántos hechos de 3 o más medios pierden a Infobae). Si te parece que toca "qué es INTERNACIONAL" (decisión de Alejo), preguntale a él.
 
-## 2 · Hallazgos que piden tu decisión
+## 3 · Lo que cierro yo, salvo que digas otra cosa
 
-**A · Las reglas viejas de "quiniela" y "horóscopo" son sueltas.** Sacan cualquier título que diga esa palabra. Lo probé: "Detienen al dueño de una agencia de quiniela por lavado" hoy queda afuera como si fuera la quiniela del día. Es lo contrario de lo que Alejo pidió para los moldes nuevos ("precisos, para no llevarse noticias de verdad"). Claude Code va a contar cuántas notas reales saca cada una y si alguna es noticia.
-Opciones: (1) dejarlas como están; (2) volverlas precisas como los moldes nuevos. **Valor por defecto: (1)**, hasta ver los números.
+| Tema | Qué mostró la medición | Cómo queda |
+|---|---|---|
+| Reglas viejas `quiniela` y `horoscopo` (hallazgo A de la letra `b`) | `quiniela` sacó 0 notas, `horoscopo` 2, `dolar hoy` 6. Ninguna era noticia | Quedan como están. Se reabre si aparece un caso real |
+| Plantilla de partidos de TN ("…en vivo por la fecha 32: hora, dónde ver y formaciones") | 4 notas de TN pasan, más 3 "cómo ver" de otros medios (Argentina vs. Benín en La Nación, Vélez vs. Platense en Olé) | No sumo molde todavía: TN, Clarín y Olé son un solo grupo, así que solas no llegan a 5. Si las querés afuera, se suma "dónde ver / cómo ver" junto con "en vivo" o "formaciones" |
+| "a qué hora" que quedó afuera del molde | Las 6 son de elecciones (Brasil y Perú) | Bien que no entren: confirma que el molde tiene que ser solo "a qué hora juega" |
+| Ajuste del molde de lotería | El título real era "Resultado Lotería del Cauca hoy…", sin "de". Claude Code dejó el "de" opcional | Bien: sigue mirando cómo empieza el título |
+| Notas con fecha futura | 3 de 1.277 (Página/12 fecha la edición impresa del día siguiente a las 00:01) | No es de diseño: lo tomo yo y lo paso a Claude Code |
+| Brasil, caso límite (B de la letra `b`) y caso borde de la vía B (C) | Sin cambios | Siguen los valores por defecto |
 
-**B · Brasil, el caso límite.** Claude Code juzgó que las 12 notas de Brasil (avances, votación y resultados en vivo de la jornada electoral) son **una sola noticia**, y pidió que, si pensás distinto, lo digas. Importa porque define qué es "el mismo hecho" en un día con muchas actualizaciones. Mi lectura: para quien publica, "elecciones en Brasil" es una noticia. **Valor por defecto: una sola noticia.** Contestá solo si no estás de acuerdo.
+Ojo con la decisión de deportes (de Alejo): 2 de las 4 del menú son de Fórmula 1. Si Alejo decide que deportes no entra, el menú de hoy quedaría en 2.
 
-**C · Caso borde de la vía B.** Una 4/5 que entra por la vía B, pero cuya firma no vale para su bloque (un autor solo nacional en una noticia internacional), se descarta y no se ofrece a mano. Solo puede pasar con `firmas.json` llena, y hoy está vacía. **Valor por defecto: así.**
+## 4 · Lo tuyo que sigue
 
-## 3 · Lo que viene en el reporte de Claude Code (letra j)
-
-- Cuántas notas saca cada molde, con títulos para revisar a ojo, y si desaparecen las 2 uniones falsas de 3 grupos.
-- Cuántas 4/5 se ofrecerían con lo guardado (si las notas siguen frescas).
-- Las variantes de servicio que los moldes no agarran ("dónde ver", "a qué hora corre", Quini 6, "un día como hoy"), contadas, para que decidas si se suman.
-- De qué feed salió la Lotería del Cauca, que es colombiana. Lo más probable es Infobae, que tiene edición Colombia, pero no está comprobado. Si es así, el feed de Infobae mezcla ediciones de otros países, como el del Cronista, y esas notas cuentan para verificar. Lo mido antes de proponer nada.
-
-Cuando llegue, te escribo la letra c con eso traducido.
-
-## 4 · Lo tuyo que sigue igual
-
-- Diseño de la entrega cada 4 h. Ahora incluye la vista de las 4/5: el núcleo ya va a dar `aMano` por bloque, con su etiqueta.
-- Las 5 preguntas de la IA que juzga (también juzga las 4/5).
+- Diseño de la entrega, con la vista de las 4/5. Si elegís 2.1 C, contemplá que pueden salir repetidas.
+- Las 5 preguntas de la IA (6 si elegís 2.1 A). Juzga `candidatos` y las 4/5.
 - Alternativas a la lista de firmas.
 - Ventanas de tiempo para corridas cada 4 h.
+- Capa 4 con Don Julio: con 2 confirmadas en 48 h de fin de semana, leer seguido es lo que más puede sumar.
 
 ============================================================
 FIN DEL PAQUETE
