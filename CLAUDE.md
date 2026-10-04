@@ -13,15 +13,15 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - No poner diagramas con forma de comando dentro de bloques de código: una vez los copió en PowerShell.
 - Dice "andá para adelante": no pedirle permiso por cada paso, solo parar si hay algo que solo él puede hacer.
 - Trabaja con tres bloques, como en su otro proyecto (ST): DISEÑADOR (Cowork, Opus 5.5, esfuerzo alto o máximo) → PREPARADOR (Cowork, Opus 5.5, alto o máximo, el más preciso) → Claude Code (Sonnet 5.5, ejecuta). **Claude Code habla solo con el PREPARADOR, por archivos en `buzon/`, y nunca directo con el DISEÑADOR**: todo pasa por el PREPARADOR. El DISEÑADOR es quien le pregunta mucho a Alejo y dibuja; Claude Code casi no le pregunta. Alejo lleva los archivos de uno a otro. Al empezar: `buzon/LEEME_CLAUDECODE.md` y `buzon/pendientes.md`. Lo chico se le pide directo a Claude Code; pasa por los tres bloques lo que toca una decisión de Alejo o más de un archivo.
-- Cada tanda arranca en limpio: Alejo hace `/clear` en Claude Code, borra y reabre los chats de Cowork, y pega en cada uno una línea que apunta a su `LEEME_<ROL>.md` (ver `buzon/LEEME.md`). La memoria es el repo: al cerrar una tanda hay que dejar `pendientes.md`, `CLAUDE.md` y un reporte al día, y pushear.
+- Cada tanda arranca en limpio: Alejo hace `/clear` en Claude Code, borra y reabre los chats de Cowork, y pega en cada uno una línea que apunta a su `LEEME_<ROL>.md` (ver `buzon/LEEME.md`). La memoria es el repo: al cerrar una tanda hay que dejar `pendientes.md`, `CLAUDE.md` y un reporte al día, pushear y avisar a Alejo para que la sesión original iguale la rama principal (`claude/quirky-bell-pkumz7`) a esta rama.
 - No llenar a Alejo de preguntas. Las decisiones abiertas van a `buzon/pendientes.md` con un valor por defecto y a él se le pregunta solo lo que es suyo y frena el trabajo. Muchas veces va a contestar "dejalo pendiente": está bien.
 - Los artifacts, para comparar opciones. El del embudo queda como mapa vivo y se sobrescribe. Un artifact es privado: para pasarle el contexto a otra IA sirve este archivo, no el link.
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 52 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 69 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
-- Capa 3, primera mitad hecha: `config/feeds.json` (19 feeds probados el 2026-10-04) y `scripts/probar-feeds.js`. `npm run feeds` los vuelve a probar (con proxy: `NODE_USE_ENV_PROXY=1`).
+- Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json` y `--umbral`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
 
@@ -33,10 +33,18 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - 10 feeds internacionales extra andan (Euronews, RFI, NYT, Sky, NPR, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos) pero su portal no está en la lista blanca: los decide Alejo. Hoy hay 6 grupos internacionales con feed, y dos (The Guardian y Al Jazeera) publican en inglés. El motor cuenta cualquier medio de la lista para cualquier noticia, también los argentinos para una internacional; si eso es lo que Alejo quiere es decisión suya (ver `buzon/pendientes.md`).
 - El feed de El Cronista mezcla ediciones de otros países (37 de 100 notas: /espana/, /mexico/, /colombia/, /usa/). Clarín solo trae 10 notas; Olé es solo deportes.
 
-## Siguiente paso: `src/lector.js`
+## Hallazgo con datos reales (2026-10-04, 14:00): casi no se verifica nada
 
-Bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion, firma}` para `preparar` (`firma` = autor del feed, la usa la vía B). Hay que descartar las rutas de otros países del Cronista. `portal` sale del campo `dominio` de `feeds.json`, no del host del feed (BBC Mundo se lee en `feeds.bbci.co.uk` y sus notas caen en `bbc.com`). Al armarlo, marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; hoy no se tocó porque el día de ejemplo y un test usan esas agencias.
-Sospecha sin confirmar: el agrupador compara palabras, así que The Guardian (en inglés) solo se va a juntar con los medios en español cuando coincidan nombres propios y cifras.
+Con el lector corriendo sobre los 19 feeds (1.018 notas, 735 hechos), con el umbral actual de 0.5 hay **0 verificados**. Hay dos causas, que se suman:
+
+1. **Los feeds muestran ventanas de tiempo muy distintas.** Clarín abarca 0,5 h, Infobae 1,2 h, Olé 3 h, Noticias Argentinas 4,2 h y Al Jazeera 5,4 h; La Nación, Perfil y La Gaceta, 11 a 13 h; el resto, de 20 h a varios días. En una sola lectura los 19 coinciden solo en la última hora. Hace falta guardar lo leído y verificar sobre las últimas 24 h acumuladas, leyendo los feeds seguido (por ejemplo cada 15 o 30 minutos). Va junto con la memoria de lo ya entregado.
+2. **El agrupador por palabras casi no junta las notas reales.** La noticia del día (las elecciones de Brasil) la cubren 14 medios, y con 0.5 se parte en 45 pedazos. Con `umbralSimilitud` 0.3 se junta en un hecho de 6 o 7 grupos y aparecen 2 verificados (Brasil y el mensaje de García Cuerva en Luján, con 5 grupos). Los grupos de 3 o más notas, revisados a ojo, son casi todos la misma noticia. Con 0.25 ya aparecen uniones falsas (partidos de fútbol distintos). Una variante con peso por rareza de las palabras (IDF) no mejoró. Cambiar el umbral es un número en `config/reglas.json`; no se tocó porque el día de ejemplo y varios tests asumen 0.5.
+
+Además se confirmó que la noticia de Brasil solo se verifica porque el motor cuenta a los medios argentinos: en las notas leídas la cubren 10 grupos argentinos y 4 internacionales, y dos de esos 4 están en inglés. Es la opción C de `buzon/pendientes.md`.
+
+## Siguiente paso
+
+Está en `buzon/pendientes.md`: decidir el umbral del agrupador, guardar lo leído entre corridas (y lo ya entregado), y recién después la IA que juzga. El lector (`src/lector.js`) ya está hecho: devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`, con `portal` tomado del campo `dominio` de `feeds.json` y las rutas de otros países del Cronista descartadas con `excluirRutas`. Falta marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; no se tocó porque el día de ejemplo y un test usan esas agencias.
 
 ## Lo que Alejo pidió el 2026-10-04
 

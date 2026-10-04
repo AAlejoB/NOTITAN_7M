@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test",
     "demo": "node ejemplos/demo.js",
-    "feeds": "node scripts/probar-feeds.js config/feeds.json"
+    "feeds": "node scripts/probar-feeds.js config/feeds.json",
+    "leer": "node scripts/leer.js"
   },
   "engines": { "node": ">=20" }
 }

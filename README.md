@@ -5,12 +5,12 @@ Al apretar un botón: las 7 noticias NACIONALES de Argentina + las 7 INTERNACION
 ## Estado
 
 Se construye **de adentro hacia afuera**. Hecho: el núcleo (reglas) y el motor (agrupar y ordenar), con tests.
-Hecho a medias: leer los portales (ya están probados los feeds, falta el lector). Falta la IA que juzga, el botón y la entrega.
+Hecho: leer los portales (feeds probados y lector). Falta guardar lo leído entre corridas, la IA que juzga, el botón y la entrega.
 
 ```
 5 · Botón y entrega            (falta)
 4 · Orquestación               (falta)  ← pensado para n8n
-3 · Leer los portales          (feeds probados en config/feeds.json; falta src/lector.js)
+3 · Leer los portales          ✔ src/lector.js + config/feeds.json (falta guardar lo leído)
 2 · Motor: agrupar y ordenar   ✔ src/nucleo.js
 1 · Núcleo: las reglas         ✔ config/reglas.json + src/nucleo.js
 ```
@@ -18,8 +18,9 @@ Hecho a medias: leer los portales (ya están probados los feeds, falta el lector
 ## Cómo se prueba
 
 ```
-npm test       # 52 tests + 1 pendiente a propósito (sinónimos)
+npm test       # 69 tests + 1 pendiente a propósito (sinónimos)
 npm run feeds  # prueba por internet cada feed de config/feeds.json
+npm run leer    # lee los 19 feeds y dibuja el embudo con datos reales (sin la IA). Opciones: --json notas.json, --umbral 0.3
 npm run demo   # corre un día inventado y dibuja el embudo
 ```
 

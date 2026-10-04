@@ -4,6 +4,10 @@
 
 Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
+**URGENTE para PREPARADOR y DISEÑADOR: con datos reales casi no se verifica nada** (medido con `npm run leer` el 04-10 a las 14:00, ver `CLAUDE.md`)
+- [ ] **Umbral del agrupador.** Con `umbralSimilitud` 0.5 hay 0 verificados de 795 hechos. Con 0.3, 2 verificados y los grupos grandes son casi todos la misma noticia; con 0.25 aparecen uniones falsas (partidos distintos). **Valor por defecto propuesto: 0.3**, y más adelante una IA que confirme los grupos dudosos. Para Claude Code es un número en `config/reglas.json` más ajustar el día de ejemplo y los tests que asumen 0.5. Se puede probar sin tocar nada con `npm run leer -- --umbral 0.3`.
+- [ ] **Guardar lo leído entre corridas.** Cada feed muestra una ventana distinta (Clarín 0,5 h, Infobae 1,2 h, Olé 3 h; otros, días). En una sola lectura casi no se solapan. Diseñar: leer los feeds cada 15 o 30 minutos, guardar las notas y verificar sobre las últimas 24 h acumuladas. Es la misma pieza que la memoria de lo ya entregado, y es trabajo de la capa 4 (n8n y Don Julio).
+
 **Alejo**
 - [ ] Nombres para la lista de firmas (`config/firmas.json`): nombre y si vale para nacional, internacional o los dos. **Sin apuro**: Alejo no los tiene a mano. Mientras esté vacía, la vía B no hace nada. Hay alternativas para el DISEÑADOR (abajo).
 - [ ] Decidir si los 10 feeds internacionales extra entran a la lista blanca (`config/feeds.json`, sección `extras`). Va junto con el riesgo de abajo.
@@ -11,6 +15,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - A: sumar a la lista blanca los 7 extras en español (Euronews, RFI, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos). Cuesta poco, los feeds ya andan. Ojo: 5 son de España.
   - B: agrupado multilengua, comparar significado y no palabras. Resuelve también The Guardian, Al Jazeera y los extras en inglés (NYT, Sky News, NPR). Más caro: hace falta embeddings o una IA. Es el pendiente de los sinónimos.
   - C: que cuenten los medios argentinos para una internacional, como está hoy, o decidir que no. Es la decisión "argentinos afuera / qué es INTERNACIONAL" de `CLAUDE.md`.
+  - Primera medición con datos reales: en las notas leídas, la noticia de Brasil la cubren 10 grupos argentinos y 4 internacionales (2 en inglés, The Guardian y Al Jazeera). Sin contar a los argentinos no se verifica: quedan 2 internacionales en español. Se verifica porque cuentan los medios argentinos.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **DISEÑADOR**
@@ -30,12 +35,8 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [ ] Decidir las ventanas de tiempo para corridas cada 4 horas. Hoy son 48 h de recolección y 24 h de frescura, pensadas para una corrida por día.
 
 **PREPARADOR → Claude Code**
-- [ ] `src/lector.js`: bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion, firma}`. Descartar `/espana/`, `/mexico/`, `/colombia/` y `/usa/` del feed de El Cronista. **`portal` sale del campo `dominio` de `feeds.json`, no del host del feed**: BBC Mundo se lee en `feeds.bbci.co.uk` pero sus notas caen en `bbc.com` (verificado: 34 de 34 links), que es el dominio de `portales.json`.
 - [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida.
 - [ ] Marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE (sin feed) para que no avisen "feed roto" en cada corrida. Hay que ajustar el día de ejemplo y un test que usan esas agencias.
-
-**Alejo, antes de que Cowork lea el repo**
-- [ ] Que los chats de Cowork vean `buzon/`: hoy la carpeta está solo en la rama `claude/trusting-knuth-brmpsy`. Opciones: mergear esa rama a la principal (hace falta un PR, que Claude Code arma si Alejo lo pide), o clonar el repo en su PC y hacer `git pull` de esa rama. Mientras tanto se pega el contenido a mano (ver `LEEME.md`).
 
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
@@ -48,4 +49,6 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Vía B (firma reconocida) en el núcleo, con `config/firmas.json` vacía.
 - [x] 04-10-2026 · Cantidad de noticias por bloque elegible de 3 a 7.
 - [x] 04-10-2026 · Segunda página confirmada por Alejo: alcanza con 1 autor de la lista, y se nombran hasta 2 (ver `ClaudeCode_para_PREPARADOR_2026-10-04_b.md`).
+- [x] 04-10-2026 · Los chats de Cowork ven `buzon/`: la sesión original igualó la rama principal a la de Claude Code (`79b1e73`).
+- [x] 04-10-2026 · Lector `src/lector.js` y `npm run leer`: 19 de 19 feeds leen bien con datos reales (1.018 notas).
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
