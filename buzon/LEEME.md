@@ -61,7 +61,14 @@ Una tanda es una vuelta completa: el DISEÑADOR decide, el PREPARADOR arma el pe
 
 La memoria es el repo, no el chat. Lo que no quedó escrito se pierde con el `/clear`.
 
-Si un chat de Cowork no puede leer el repo, pegarle además el contenido del archivo que nombra.
+### Cómo viajan los archivos mientras Cowork no vea el repo
+
+El repo está en la nube (GitHub) y los chats de Cowork trabajan en la PC de Alejo, así que pueden no ver `buzon/`. Además, hoy esta carpeta vive solo en la rama `claude/trusting-knuth-brmpsy`, no en la principal (`claude/quirky-bell-pkumz7`). Hasta que eso cambie (mergear la rama, o clonar el repo en la PC de Alejo y hacer `git pull` de esa rama):
+
+1. **Hacia los chats de Cowork:** Alejo pega el contenido de su `LEEME_<ROL>.md` y de `CLAUDE.md` en el chat nuevo, y después los archivos que les toquen.
+2. **Desde los chats de Cowork:** lo que escriben (`Disenador_para_PREPARADOR_*`, `PREPARADOR_para_ClaudeCode_*`) lo pega Alejo en el chat de Claude Code, que lo guarda en `buzon/` con el nombre correcto, lo commitea y lo pushea.
+
+La línea corta para pegar sigue siendo la de abajo; si el chat no puede abrir el archivo, se pega el contenido en vez de la línea.
 
 Para el DISEÑADOR:
 

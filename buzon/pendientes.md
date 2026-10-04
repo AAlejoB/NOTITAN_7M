@@ -29,6 +29,9 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida.
 - [ ] Marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE (sin feed) para que no avisen "feed roto" en cada corrida. Hay que ajustar el día de ejemplo y un test que usan esas agencias.
 
+**Alejo, antes de que Cowork lea el repo**
+- [ ] Que los chats de Cowork vean `buzon/`: hoy la carpeta está solo en la rama `claude/trusting-knuth-brmpsy`. Opciones: mergear esa rama a la principal (hace falta un PR, que Claude Code arma si Alejo lo pide), o clonar el repo en su PC y hacer `git pull` de esa rama. Mientras tanto se pega el contenido a mano (ver `LEEME.md`).
+
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
 - [ ] Fotos y armado de publicaciones (hoy se hace a mano en Canva). Las fotos de los portales tienen derechos: antes de automatizar hay que definir de dónde salen las imágenes.
