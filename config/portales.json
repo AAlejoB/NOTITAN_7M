@@ -1,0 +1,37 @@
+{
+  "_aviso": "LISTA PROVISORIA armada de ejemplo. Dominios y feeds sin verificar. La lista blanca definitiva la decide Alejo.",
+  "portales": [
+    { "dominio": "clarin.com",          "grupo": "Clarín",       "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "tn.com.ar",           "grupo": "Clarín",       "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "ole.com.ar",          "grupo": "Clarín",       "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "lavoz.com.ar",        "grupo": "Clarín",       "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "lanacion.com.ar",     "grupo": "La Nación",    "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "lnmas.com",           "grupo": "La Nación",    "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "infobae.com",         "grupo": "Infobae",      "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "pagina12.com.ar",     "grupo": "Página/12",    "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "perfil.com",          "grupo": "Perfil",       "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "ambito.com",          "grupo": "Ámbito",       "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "cronista.com",        "grupo": "El Cronista",  "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "eldiarioar.com",      "grupo": "elDiarioAR",   "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "noticiasargentinas.com", "grupo": "NA",        "ambito": "nacional",      "tipo": "agencia" },
+    { "dominio": "lacapital.com.ar",    "grupo": "La Capital",   "ambito": "nacional",      "tipo": "medio" },
+    { "dominio": "lagaceta.com.ar",     "grupo": "La Gaceta",    "ambito": "nacional",      "tipo": "medio" },
+
+    { "dominio": "reuters.com",         "grupo": "Reuters",      "ambito": "internacional", "tipo": "agencia" },
+    { "dominio": "apnews.com",          "grupo": "AP",           "ambito": "internacional", "tipo": "agencia" },
+    { "dominio": "afp.com",             "grupo": "AFP",          "ambito": "internacional", "tipo": "agencia" },
+    { "dominio": "efe.com",             "grupo": "EFE",          "ambito": "internacional", "tipo": "agencia" },
+    { "dominio": "bbc.com",             "grupo": "BBC",          "ambito": "internacional", "tipo": "medio" },
+    { "dominio": "dw.com",              "grupo": "DW",           "ambito": "internacional", "tipo": "medio" },
+    { "dominio": "france24.com",        "grupo": "France 24",    "ambito": "internacional", "tipo": "medio" },
+    { "dominio": "elpais.com",          "grupo": "El País",      "ambito": "internacional", "tipo": "medio" },
+    { "dominio": "theguardian.com",     "grupo": "The Guardian", "ambito": "internacional", "tipo": "medio" },
+    { "dominio": "aljazeera.com",       "grupo": "Al Jazeera",   "ambito": "internacional", "tipo": "medio" },
+
+    { "dominio": "boletinoficial.gob.ar", "grupo": "Boletín Oficial", "ambito": "nacional", "tipo": "fuente_primaria", "cuenta": false },
+    { "dominio": "indec.gob.ar",        "grupo": "INDEC",        "ambito": "nacional",      "tipo": "fuente_primaria", "cuenta": false },
+    { "dominio": "bcra.gob.ar",         "grupo": "BCRA",         "ambito": "nacional",      "tipo": "fuente_primaria", "cuenta": false },
+    { "dominio": "chequeado.com",       "grupo": "Chequeado",    "ambito": "nacional",      "tipo": "chequeador",      "cuenta": false },
+    { "dominio": "factual.afp.com",     "grupo": "AFP Factual",  "ambito": "internacional", "tipo": "chequeador",      "cuenta": false }
+  ]
+}

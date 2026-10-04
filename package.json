@@ -1,0 +1,11 @@
+{
+  "name": "notitan-7m",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Las 7 noticias nacionales + 7 internacionales verificadas en al menos 5 portales, con reglas de entra o no.",
+  "scripts": {
+    "test": "node --test",
+    "demo": "node ejemplos/demo.js"
+  },
+  "engines": { "node": ">=20" }
+}

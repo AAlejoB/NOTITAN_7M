@@ -1,0 +1,27 @@
+{
+  "minGrupos": 5,
+  "cupoPorBloque": 7,
+  "ventanaFrescoHoras": 24,
+  "ventanaRecoleccionHoras": 48,
+  "ventanaMismoHechoHoras": 24,
+  "umbralSimilitud": 0.5,
+  "maxPorSeccion": 3,
+  "maxPorPais": 2,
+  "criterio1": {
+    "urlsExcluidas": [
+      "/opinion/", "/columnistas/", "/editorial/", "/blogs/",
+      "/patrocinado/", "/contenido-de-marca/", "/espacio-de-marca/",
+      "/horoscopo/", "/quiniela/", "/clima/"
+    ],
+    "titulosExcluidos": [
+      "^dolar (blue )?hoy",
+      "horoscopo",
+      "quiniela",
+      "contenido (de marca|patrocinado)",
+      "publinota"
+    ],
+    "etiquetasExcluidas": [
+      "opinion", "columna", "editorial", "patrocinado", "contenido de marca", "publinota"
+    ]
+  }
+}
