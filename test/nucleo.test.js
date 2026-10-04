@@ -103,9 +103,64 @@ test('criterio 1: las columnas no cuentan para llegar a 5', () => {
   assert.equal(p.descartadas.filter(d => d.tipo === 'nota').length, 2);
 });
 
+test('criterio 1: notas de servicio con plantilla (horario de partido, efemérides, lotería) quedan afuera con su motivo', () => {
+  const r = reglas.criterio1;
+  const casos = [
+    ['A qué hora juegan Talleres vs. Belgrano y cómo ver hoy EN VIVO el Torneo Clausura', 'nota_de_servicio (horario de partido)'],
+    ['Efemérides de hoy: qué pasó un 3 de octubre', 'nota_de_servicio (efemérides)'],
+    ['Boca vs. River: a qué hora juega el Superclásico y cómo verlo', 'nota_de_servicio (horario de partido)'],
+    ['Efemérides del 4 de octubre: qué pasó un día como hoy', 'nota_de_servicio (efemérides)'],
+    ['Resultados de la Lotería del Cauca del 3 de octubre', 'nota_de_servicio (resultados de lotería)'],
+    ['Lotería de Medellín: resultados y números ganadores del sorteo', 'nota_de_servicio (resultados de lotería)'],
+  ];
+  for (const [titulo, motivo] of casos) {
+    const e = N.esInformativa({ titulo, url: 'https://x.com/deportes/a' }, r);
+    assert.equal(e.ok, false, titulo);
+    assert.equal(e.motivo, motivo, titulo);
+  }
+});
+
+test('criterio 1: los moldes de servicio no se llevan noticias de verdad', () => {
+  const r = reglas.criterio1;
+  const titulos = [
+    'Talleres le ganó 2 a 1 a Belgrano en el clásico',
+    'Detienen a dos funcionarios de la Lotería por fraude',
+    'A qué hora votan en Brasil y cuándo se conocen los resultados',
+    'Polémica por las efemérides que el Gobierno sacó del calendario escolar',
+    'Resultado de la auditoría en la Lotería de la Ciudad: hallaron irregularidades',
+    'Quini 6: resultados del sorteo del domingo',
+    'Polémica por los resultados de la Lotería de la Ciudad',
+    'Escándalo en la Lotería de Santa Fe: los resultados del sorteo fueron anulados',
+  ];
+  for (const titulo of titulos) {
+    assert.equal(N.esInformativa({ titulo, url: 'https://x.com/politica/a' }, r).ok, true, titulo);
+  }
+});
+
+test('criterio 1: sin notasDeServicio en la config, todo queda como antes', () => {
+  const { notasDeServicio, ...sinMoldes } = reglas.criterio1;
+  assert.equal(notasDeServicio.length, 3);
+  const e = N.esInformativa({ titulo: 'A qué hora juegan Talleres vs. Belgrano', url: 'https://x.com/deportes/a' }, sinMoldes);
+  assert.equal(e.ok, true);
+});
+
+test('criterio 1: una nota de servicio no cuenta para verificar y queda en descartadas con su motivo', () => {
+  const notas = cinco5Servicio();
+  const p = N.preparar(notas, ctx);
+  assert.equal(p.candidatos.length, 0);
+  assert.equal(p.enObservacion.length, 0);
+  assert.equal(p.resumen.notasDescartadas, 5);
+  assert.deepEqual([...new Set(p.descartadas.map(d => d.motivo))], ['nota_de_servicio (efemérides)']);
+});
+
+function cinco5Servicio() {
+  return ['clarin.com', 'lanacion.com.ar', 'infobae.com', 'perfil.com', 'ambito.com']
+    .map((portal, i) => nota(`s${i}`, portal, 'Efemérides de hoy: qué pasó un 4 de octubre'));
+}
+
 /* ───────── preparar ───────── */
 
-const cinco = ['clarin.com', 'lanacion.com.ar', 'infobae.com', 'perfil.com', 'ambito.com'];
+const cinco =['clarin.com', 'lanacion.com.ar', 'infobae.com', 'perfil.com', 'ambito.com'];
 
 test('preparar: con 5 grupos el hecho pasa a candidato', () => {
   const p = N.preparar(cinco.map((d, i) => nota('n' + i, d, 'Paro general de la CGT paraliza el transporte')), ctx);

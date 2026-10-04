@@ -119,6 +119,9 @@ function esInformativa(nota, regla) {
   for (const t of regla.titulosExcluidos || []) {
     if (new RegExp(t).test(titulo)) return { ok: false, motivo: `no_informativa (título ${t})` };
   }
+  for (const m of regla.notasDeServicio || []) {
+    if (new RegExp(m.molde).test(titulo)) return { ok: false, motivo: `nota_de_servicio (${m.nombre})` };
+  }
   for (const e of regla.etiquetasExcluidas || []) {
     if (etiqueta && etiqueta.includes(e)) return { ok: false, motivo: `no_informativa (etiqueta ${e})` };
   }

@@ -24,6 +24,11 @@
       "contenido (de marca|patrocinado)",
       "publinota"
     ],
+    "notasDeServicio": [
+      { "nombre": "horario de partido", "molde": "a que hora (juega|juegan|jugara|jugaran)\\b" },
+      { "nombre": "efemérides", "molde": "^efemerides\\b" },
+      { "nombre": "resultados de lotería", "molde": "^resultados? de (la )?loteria\\b|^loteria\\b.*\\b(resultados?|numeros? ganador(es)?)\\b" }
+    ],
     "etiquetasExcluidas": [
       "opinion", "columna", "editorial", "patrocinado", "contenido de marca", "publinota"
     ]
