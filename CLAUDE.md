@@ -20,11 +20,13 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 102 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 123 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--acumular <archivo>` y `--sin-leer`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
 - Perilla del agrupador (2026-10-04): `umbralSimilitud` 0.3, `umbralSeguro` 0.5 y `minPalabrasComunes` 3 en `config/reglas.json`. Una nota entra a un grupo si se parece al menos 0.5, o si se parece entre 0.3 y 0.5 y comparten 3 palabras. El día de ejemplo da lo mismo con 0.3 que con 0.5 (se comparó la salida de `npm run demo`); el test #22 (misma noticia) no se tocó.
+- Notas de servicio con plantilla (2026-10-04): salen en el criterio 1, antes de agrupar y sin contar para verificar. Son 3 moldes en `criterio1.notasDeServicio` de `config/reglas.json` (horario de partido, efemérides, resultados de lotería); en lo descartado llevan el motivo `nota_de_servicio (<nombre>)`. Los moldes son precisos a propósito: no se llevan "a qué hora votan en Brasil" ni "Detienen a funcionarios de la Lotería". `npm run leer` muestra qué sacó el criterio 1 por motivo y tiene `--sin-notas-de-servicio` para comparar antes y después.
+- Excepción a mano para una 4/5 (2026-10-04, solo el núcleo): `preparar` devuelve `elegiblesAMano` (hechos en observación a los que les falta 1 medio, sin firma que los haga entrar por la vía B; `aMano` en `config/reglas.json`: `activa` y `faltanMedios`, hoy 1) y `resumen.elegiblesAMano`. La IA juzga `candidatos` **y** `elegiblesAMano`. `decidir` recibe `elegiblesAMano` y devuelve `aMano: { nacional, internacional }`: los que pasan los criterios 3 a 6, sin cupo, sin topes y sin reserva, con la etiqueta "Confirmada por N medios · elegida a mano". Nunca entran solos a `nacionales` ni a `internacionales`, ni para llegar al mínimo de 3. La vista (el menú "En observación · les falta 1 medio" con "Llevármela igual") es capa 5 y espera el diseño de la entrega.
 - Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false` en `portales.json`: no suman a la verificación y no avisan "feed roto". El día de ejemplo usa medios argentinos para lo internacional.
 - Paquetes para pegar en Cowork (2026-10-04): cuando un chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_DISENADOR.md` o `buzon/paquetes/PEGAR_PREPARADOR.md`. Los arma `npm run paquete` (`scripts/armar-paquete.js`) con los archivos tal cual del repo. Son una foto: se rearman al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
@@ -59,9 +61,28 @@ Cuántos hechos hay según en cuántos grupos salieron (V3): 897 con 1 grupo, 35
 - **Brasil se verifica solo con medios argentinos** (los 6 grupos son argentinos; ningún internacional): 0 de 2 verificados tienen 2 o más notas de feeds internacionales. Sigue siendo la opción C de `buzon/pendientes.md`.
 - Con lo acumulado la ventana de Clarín pasa de 0,5 h a 2,1 h e Infobae de 1,2 h a 2,8 h; los dos todavía son cortos. Hace falta leer seguido (cada 15 a 30 minutos) para que no queden huecos: eso es la capa 4.
 
+### Con las notas de servicio afuera y la 4/5 (2026-10-04, 18:02; 1.277 notas acumuladas, de 2/10 18:12 a 4/10 18:02)
+
+Dos corridas seguidas sobre lo guardado (`--sin-leer`): A sin los moldes, B con los moldes.
+
+| Hechos según cuántos grupos | A (sin moldes) | B (con moldes) |
+|---|---|---|
+| 1 grupo | 982 | 983 |
+| 2 grupos | 37 | 37 |
+| 3 grupos | 10 | **8** |
+| 4 grupos | 4 | 4 |
+| 5 o más (verificados) | 2 | 2 |
+| Notas sacadas por el criterio 1 | 58 | 65 |
+
+- Los moldes sacaron 7 notas: 3 de horario de partido, 3 de efemérides y 1 de lotería. Ninguna era noticia de verdad.
+- **Las 2 uniones falsas de 3 grupos desaparecen.** "A qué hora juegan Talleres vs. Belgrano… EN VIVO" (que juntaba otros 3 partidos) y "Efemérides de hoy" (que juntaba la Lotería del Cauca) ya no salen. Lo que quedaba del clásico de Talleres y Belgrano se junta limpio con las notas del partido.
+- Los hechos de 4 grupos no cambian. Son 4 y los 4 son 4/5 frescos, o sea elegibles a mano: Colapinto en Malasia (dos hechos que son la misma carrera), las ventas minoristas de septiembre y Milei siguiendo la elección en Brasil.
+- Hubo que ajustar el molde de lotería: "Resultado Lotería del Cauca hoy 3 de octubre" (Infobae, ruta `/colombia/`) no lleva "de" y el molde de la carta no la agarraba.
+- **El feed de Infobae mezcla ediciones de otros países:** de 341 notas, 282 (83 %) son de `/espana/` (76), `/peru/` (72), `/america/` (69), `/mexico/` (38) y `/colombia/` (27). Cuentan como Infobae para verificar. No se excluyó nada: lo decide el DISEÑADOR (ver `buzon/pendientes.md`).
+
 ## Siguiente paso
 
-Está en `buzon/pendientes.md`. Con lo hecho (acumular, perilla del agrupador, 6 portales inactivos) quedan, en este orden: la capa 4 (cada cuánto leer y dónde se guarda lo acumulado, con Don Julio), la memoria de lo ya entregado (espera el diseño de la entrega) y la IA que juzga. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`, con `portal` tomado del campo `dominio` de `feeds.json` y las rutas de otros países del Cronista descartadas con `excluirRutas`. Proponer al DISEÑADOR: excluir en el criterio 1 las notas de servicio con plantilla (a qué hora juega, efemérides, lotería), que hoy se juntan de forma falsa a 3 grupos.
+Está en `buzon/pendientes.md`. Lo que queda, en este orden: la capa 4 (cada cuánto leer y dónde se guarda lo acumulado, con Don Julio), el diseño de la entrega (que incluye la vista de las 4/5 y la memoria de lo ya entregado) y la IA que juzga (que ahora juzga también las 4/5). El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`, con `portal` tomado del campo `dominio` de `feeds.json` y las rutas de otros países del Cronista descartadas con `excluirRutas`. Para el DISEÑADOR, con números: las reglas viejas `quiniela` y `horoscopo`, las variantes de servicio que los moldes no agarran, y las ediciones de otros países en el feed de Infobae.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -75,7 +96,9 @@ Está en `buzon/pendientes.md`. Con lo hecho (acumular, perilla del agrupador, 6
   - Una firma suma solo si su nota es informativa (la opinión se descarta en el criterio 1) y salió en un portal que cuenta de `portales.json`. Un autor vale 1 aunque firme en varios portales. Cada autor tiene `ambitos`: nacional, internacional o los dos.
   - Sigue pasando por fuente con nombre, interés público y no desmentido.
   - El lector (`src/lector.js`) tiene que llenar `nota.firma` con el autor del feed (`dc:creator`, `author`); elDiarioAR ya lo trae.
-- Dos ideas sin resolver (para el DISEÑADOR, ver `buzon/pendientes.md`): (1) que la verificación no sea "5 fijos" sino un cálculo, por ejemplo con peso por portal, para tratar distinto una noticia confirmada por 4 portales grandes que por 3 chicos; (2) otras formas de armar la lista de firmas, porque Alejo no tiene nombres a mano. Dejó ambas pendientes.
+- Dos ideas, una descartada y una sin resolver (para el DISEÑADOR, ver `buzon/pendientes.md`): (1) que la verificación no sea "5 fijos" sino un cálculo, por ejemplo con peso por portal: **descartada por Alejo el 04-10-2026: la verificación queda en 5 grupos fijos. Sin peso por portal, sin umbral de puntaje y sin segunda página automática con "Confirmada por 4 medios".** (2) Otras formas de armar la lista de firmas, porque Alejo no tiene nombres a mano: sigue pendiente.
+- **Excepción a mano para una 4/5, decidida por Alejo (carta del DISEÑADOR `a`, 04-10-2026), hecha en el núcleo.** No contradice los 5 fijos: la 4/5 nunca entra sola ni cuenta como verificada; la persona la elige a mano y sale marcada "Confirmada por 4 medios · elegida a mano". Los detalles (solo les falta 1 medio, sin cupo ni topes, pasan por la IA y los criterios 3 a 6, en un menú por bloque) son valores por defecto del DISEÑADOR, no decisiones de Alejo. Se cambian en `aMano` de `config/reglas.json`. La vista espera el diseño de la entrega.
+- **Notas de servicio con plantilla, decidido por Alejo (04-10-2026), hecho:** salen en el criterio 1 con 3 moldes en `criterio1.notasDeServicio`. No decide deportes: los resultados de los partidos siguen entrando.
 - Con corridas cada 4 horas, la misma noticia vuelve a salir en la corrida siguiente: el motor no recuerda lo ya entregado. Hace falta esa memoria antes de automatizar. Las ventanas de 48 h y 24 h también están pensadas para una corrida por día.
 - Futuro: portales y firmas por país (venta a otros países, por ejemplo Uruguay). Las fotos de los portales tienen derechos: antes de automatizar imágenes hay que definir de dónde salen.
 - Etiqueta para el cliente: "confirmada por N medios", no "verificada". Cinco medios que repiten el mismo error pasan igual, y el agrupador compara palabras (le cuesta con notas en otro idioma).
@@ -91,7 +114,7 @@ Veredicto de la comparación: **n8n, con el código de reglas y agrupado en este
 
 ## Decisiones que solo Alejo puede tomar (no urgentes)
 
-Lista blanca de medios · qué ordena el top (impacto o cantidad de medios) · deportes y espectáculos · qué es INTERNACIONAL · topes por sección y por país · argentinos afuera (¿NACIONAL o INTERNACIONAL?) · excepción manual para una 4/5 · horarios de las corridas · policiales sensibles · si se entrega solo título y links o también un resumen con IA.
+Lista blanca de medios · qué ordena el top (impacto o cantidad de medios) · deportes y espectáculos · qué es INTERNACIONAL · topes por sección y por país · argentinos afuera (¿NACIONAL o INTERNACIONAL?) · horarios de las corridas · policiales sensibles · si se entrega solo título y links o también un resumen con IA.
 
 ## Notas del entorno
 
