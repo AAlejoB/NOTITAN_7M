@@ -112,6 +112,7 @@ test('criterio 1: notas de servicio con plantilla (horario de partido, efemérid
     ['Efemérides del 4 de octubre: qué pasó un día como hoy', 'nota_de_servicio (efemérides)'],
     ['Resultados de la Lotería del Cauca del 3 de octubre', 'nota_de_servicio (resultados de lotería)'],
     ['Lotería de Medellín: resultados y números ganadores del sorteo', 'nota_de_servicio (resultados de lotería)'],
+    ['Resultado Lotería del Cauca hoy 3 de octubre', 'nota_de_servicio (resultados de lotería)'], // título real de Infobae del 04-10
   ];
   for (const [titulo, motivo] of casos) {
     const e = N.esInformativa({ titulo, url: 'https://x.com/deportes/a' }, r);

@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const { mkdtempSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync } = require('node:fs');
 const { join } = require('node:path');
 const { tmpdir } = require('node:os');
-const { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, detalleDeHechos, leerOpciones, ErrorDeUso } = require('../scripts/leer.js');
+const { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, detalleDeHechos, motivosCriterio1, detalleCriterio1, leerOpciones, ErrorDeUso } = require('../scripts/leer.js');
 const reglas = require('../config/reglas.json');
 const { portales } = require('../config/portales.json');
 
@@ -111,4 +111,46 @@ test('detalleDeHechos: respeta las reglas del agrupador que se le pasan', () => 
   const bajaSola = { ...reglas, umbralSimilitud: 0.3, minPalabrasComunes: 0 };
   assert.equal(detalleDeHechos(notas, bajaSola, portales, AHORA_DET).cantidad, 1, '0,3 sola junta las etapas');
   assert.equal(detalleDeHechos(notas, { ...bajaSola, minPalabrasComunes: 3 }, portales, AHORA_DET).cantidad, 0, 'con 3 palabras en común, no');
+});
+
+test('--sin-notas-de-servicio: para esa corrida los moldes quedan vacíos y la config compartida no se toca', () => {
+  assert.equal(reglas.criterio1.notasDeServicio.length, 3);
+  const o = leerOpciones(['--sin-notas-de-servicio'], reglas);
+  assert.deepEqual(o.reglas.criterio1.notasDeServicio, []);
+  assert.deepEqual(o.reglas.criterio1.titulosExcluidos, reglas.criterio1.titulosExcluidos, 'el resto del criterio 1 sigue');
+  assert.equal(reglas.criterio1.notasDeServicio.length, 3, 'reglasBase sigue con los 3 moldes');
+  assert.equal(leerOpciones([], reglas).reglas.criterio1.notasDeServicio.length, 3, 'sin la opción, valen los 3');
+});
+
+test('motivosCriterio1: cuenta por motivo, de mayor a menor, y solo mira las notas', () => {
+  const nota3 = motivo => ({ tipo: 'nota', id: 'x', titulo: 't', portal: 'p', motivo });
+  const r = motivosCriterio1([
+    nota3('nota_de_servicio (efemérides)'), nota3('no_informativa (url /opinion/)'), nota3('nota_de_servicio (efemérides)'),
+    { tipo: 'hecho', id: 'h', titulo: 't', motivo: 'no_llego_a_5 (2/5, pasaron más de 24 h)' },
+    nota3('nota_de_servicio (efemérides)'),
+  ]);
+  assert.deepEqual(r, [['nota_de_servicio (efemérides)', 3], ['no_informativa (url /opinion/)', 1]]);
+});
+
+test('motivosCriterio1: si empatan, por orden alfabético', () => {
+  const nota3 = motivo => ({ tipo: 'nota', id: 'x', titulo: 't', portal: 'p', motivo });
+  assert.deepEqual(motivosCriterio1([nota3('b'), nota3('a')]), [['a', 1], ['b', 1]]);
+  assert.deepEqual(motivosCriterio1([]), []);
+});
+
+test('detalleCriterio1: solo las notas sacadas por una regla de título, agrupadas por motivo', () => {
+  const nota3 = (motivo, titulo, portal = 'clarin.com') => ({ tipo: 'nota', id: titulo, titulo, portal, motivo });
+  const lineas = detalleCriterio1([
+    nota3('nota_de_servicio (efemérides)', 'Efemérides de hoy'),
+    nota3('no_informativa (url /opinion/)', 'Una columna'),
+    nota3('no_informativa (título quiniela)', 'Quiniela de hoy', 'infobae.com'),
+    nota3('nota_de_servicio (efemérides)', 'Efemérides del 4 de octubre', 'lanacion.com.ar'),
+    { tipo: 'hecho', id: 'h', titulo: 'Un hecho', motivo: 'nota_de_servicio (x)' },
+  ]);
+  const texto = lineas.join('\n');
+  assert.match(texto, /nota_de_servicio \(efemérides\)\n\s+· clarin\.com\s+Efemérides de hoy\n\s+· lanacion\.com\.ar\s+Efemérides del 4 de octubre/);
+  assert.match(texto, /no_informativa \(título quiniela\)\n\s+· infobae\.com\s+Quiniela de hoy/);
+  assert.doesNotMatch(texto, /columna/i, 'la de url no es una regla de título');
+  assert.doesNotMatch(texto, /Un hecho/, 'los hechos no son notas');
+  assert.deepEqual(detalleCriterio1([]), []);
 });

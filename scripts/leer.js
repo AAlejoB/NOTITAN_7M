@@ -1,10 +1,11 @@
 'use strict';
 // Lee los feeds de config/feeds.json, arma las notas con src/lector.js y corre preparar() del núcleo
 // para ver el embudo con datos reales. No juzga (falta la IA): muestra hechos, candidatos y En observación.
-// Uso: node scripts/leer.js [--json notas.json] [--umbral 0.3] [--min-comunes 3] [--detalle] [--acumular datos/notas.json [--sin-leer]]
+// Uso: node scripts/leer.js [--json notas.json] [--umbral 0.3] [--min-comunes 3] [--detalle] [--sin-notas-de-servicio] [--acumular datos/notas.json [--sin-leer]]
 //   --umbral         prueba otro umbralSimilitud solo para esta corrida, sin tocar config/reglas.json.
 //   --min-comunes N  prueba otro minPalabrasComunes solo para esta corrida (0 = el umbral solo, sin mínimo).
-//   --detalle        lista cada hecho con 3 o más grupos: los grupos, y el portal y el título de cada nota.
+//   --detalle        lista cada hecho con 3 o más grupos (los grupos, y el portal y el título de cada nota) y las notas que sacó una regla de título del criterio 1.
+//   --sin-notas-de-servicio  para esta corrida, el criterio 1 no usa los moldes de notasDeServicio (sirve para medir antes y después).
 //   --acumular <f>   guarda lo leído en <f> y verifica sobre todo lo juntado en las últimas 48 h, no solo sobre esta lectura.
 //   --sin-leer       solo con --acumular: no lee los feeds, trabaja con lo que ya está en <f> y no lo modifica.
 //   --json <f>       guarda las notas de esta lectura (con --sin-leer, las del archivo acumulado).
@@ -94,7 +95,29 @@ function detalleDeHechos(notas, reglas, portales, ahora) {
   return { cantidad: hechos.length, lineas };
 }
 
+/* ───────────── el criterio 1 ───────────── */
+
+// Cuántas notas sacó el criterio 1 por cada motivo: [[motivo, cantidad], ...], de mayor a menor y, si empatan, por orden alfabético.
+function motivosCriterio1(descartadas) {
+  const cuenta = new Map();
+  for (const d of descartadas) if (d.tipo === 'nota') cuenta.set(d.motivo, (cuenta.get(d.motivo) || 0) + 1);
+  return [...cuenta].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+
+// Las notas sacadas por una regla de título (un molde de servicio o un título excluido), agrupadas por motivo: el portal y el título de cada una.
+function detalleCriterio1(descartadas) {
+  const porTitulo = d => d.tipo === 'nota' && (d.motivo.startsWith('nota_de_servicio') || d.motivo.includes('(título '));
+  const lineas = [];
+  for (const [motivo] of motivosCriterio1(descartadas.filter(porTitulo))) {
+    lineas.push('', `  ${motivo}`);
+    for (const d of descartadas.filter(x => porTitulo(x) && x.motivo === motivo)) lineas.push(`    · ${String(d.portal).padEnd(20)} ${corto(String(d.titulo), 100)}`);
+  }
+  return lineas;
+}
+
 /* ───────────── opciones ───────────── */
+
+
 
 function leerOpciones(args, reglasBase) {
   const valor = bandera => {
@@ -113,6 +136,8 @@ function leerOpciones(args, reglasBase) {
     if (!Number.isFinite(Number(umbral))) throw new ErrorDeUso(`--umbral tiene que ser un número, no "${umbral}".`);
     reglas.umbralSimilitud = Number(umbral);
   }
+  // reglasBase es compartida: se arma un criterio1 nuevo, no se vacía el de la config.
+  if (args.includes('--sin-notas-de-servicio')) reglas.criterio1 = { ...reglasBase.criterio1, notasDeServicio: [] };
   const minComunes = valor('--min-comunes');
   if (minComunes !== null) {
     if (!/^\d+$/.test(minComunes)) throw new ErrorDeUso(`--min-comunes tiene que ser un número entero, 0 o más, no "${minComunes}".`);
@@ -124,7 +149,8 @@ function leerOpciones(args, reglasBase) {
 /* ───────────── el comando ───────────── */
 
 async function main() {
-  const { reglas, archivoAcum, sinLeer, salidaJson, detalle } = leerOpciones(process.argv.slice(2), reglasBase);
+  const args = process.argv.slice(2);
+  const { reglas, archivoAcum, sinLeer, salidaJson, detalle } = leerOpciones(args, reglasBase);
   const ahora = new Date().toISOString();
   const hora = new Date().toLocaleString('es-AR', { timeZone: ZONA, dateStyle: 'short', timeStyle: 'short' });
 
@@ -176,6 +202,12 @@ async function main() {
   console.log('\nHECHOS SEGÚN EN CUÁNTOS GRUPOS SALIERON');
   for (let k = 1; k <= 5; k++) fila(`  ${k === 5 ? '5 o más' : k + ' grupo' + (k > 1 ? 's' : '')}`, porGrupos[k] || 0, r.hechos);
 
+  const motivos1 = motivosCriterio1(p.descartadas);
+  console.log(`\nCRITERIO 1 · NOTAS SACADAS POR MOTIVO${args.includes('--sin-notas-de-servicio') ? ' (sin los moldes de notas de servicio)' : ''}`);
+  if (!motivos1.length) console.log('  (ninguna)');
+  for (const [motivo, n] of motivos1) fila(`  ${motivo}`, n, r.notasDescartadas);
+  if (detalle) detalleCriterio1(p.descartadas).forEach(l => console.log(l));
+
   // Aproximado: el ámbito real lo decide la IA. Acá se cuenta si lo cubren al menos 2 feeds internacionales.
   const internacionales = new Set(feeds.filter(f => f.ambito === 'internacional').map(f => f.dominio));
   const conInternacional = p.candidatos.filter(c => c.notas.filter(n => internacionales.has(n.portal)).length >= 2);
@@ -204,4 +236,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, detalleDeHechos, leerOpciones, ErrorDeUso };
+module.exports = { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, detalleDeHechos, motivosCriterio1, detalleCriterio1, leerOpciones, ErrorDeUso };

@@ -26,7 +26,8 @@ npm run leer    # lee los 19 feeds y dibuja el embudo con datos reales (sin la I
                #   --acumular datos/notas.json   guarda lo leído y verifica sobre las últimas 48 h juntadas (datos/ no se sube al repo)
                #   --sin-leer           con --acumular: no lee los feeds, usa lo que ya está en el archivo
                #   --min-comunes 0      prueba otro mínimo de palabras en común del agrupador (0 = el umbral solo)
-               #   --detalle            lista cada hecho con 3 o más grupos, con el portal y el título de cada nota
+               #   --detalle            lista cada hecho con 3 o más grupos y las notas que sacó una regla de título del criterio 1
+               #   --sin-notas-de-servicio   para esa corrida, el criterio 1 no usa los moldes de notas de servicio (para medir antes y después)
 npm run demo   # corre un día inventado y dibuja el embudo
 ```
 
