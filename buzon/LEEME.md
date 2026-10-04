@@ -4,6 +4,8 @@ Tres roles, como en ST. Alejo es el relé: cada agente trabaja a su ritmo y Alej
 
 Borrador armado por Claude Code el 04-10-2026 a partir de lo que Alejo usa en ST. Alejo lo ajusta.
 
+**Cada tanda arranca en limpio** (`/clear` en Claude Code y chats de Cowork nuevos). Ver `ARRANQUE.md`.
+
 ## Los tres roles
 
 | Rol | Dónde trabaja | Qué hace | A quién le escribe |
