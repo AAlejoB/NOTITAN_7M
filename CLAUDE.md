@@ -20,9 +20,12 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 69 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 102 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
-- Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json` y `--umbral`). Con proxy: `NODE_USE_ENV_PROXY=1`.
+- Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--acumular <archivo>` y `--sin-leer`). Con proxy: `NODE_USE_ENV_PROXY=1`.
+- Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
+- Perilla del agrupador (2026-10-04): `umbralSimilitud` 0.3, `umbralSeguro` 0.5 y `minPalabrasComunes` 3 en `config/reglas.json`. Una nota entra a un grupo si se parece al menos 0.5, o si se parece entre 0.3 y 0.5 y comparten 3 palabras. El día de ejemplo da lo mismo con 0.3 que con 0.5 (se comparó la salida de `npm run demo`); el test #22 (misma noticia) no se tocó.
+- Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false` en `portales.json`: no suman a la verificación y no avisan "feed roto". El día de ejemplo usa medios argentinos para lo internacional.
 - Paquetes para pegar en Cowork (2026-10-04): cuando un chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_DISENADOR.md` o `buzon/paquetes/PEGAR_PREPARADOR.md`. Los arma `npm run paquete` (`scripts/armar-paquete.js`) con los archivos tal cual del repo. Son una foto: se rearman al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -35,18 +38,30 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - 10 feeds internacionales extra andan (Euronews, RFI, NYT, Sky, NPR, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos) pero su portal no está en la lista blanca: los decide Alejo. Hoy hay 6 grupos internacionales con feed, y dos (The Guardian y Al Jazeera) publican en inglés. El motor cuenta cualquier medio de la lista para cualquier noticia, también los argentinos para una internacional; si eso es lo que Alejo quiere es decisión suya (ver `buzon/pendientes.md`).
 - El feed de El Cronista mezcla ediciones de otros países (37 de 100 notas: /espana/, /mexico/, /colombia/, /usa/). Clarín solo trae 10 notas; Olé es solo deportes.
 
-## Hallazgo con datos reales (2026-10-04, 14:00): casi no se verifica nada
+## Hallazgo con datos reales (2026-10-04): lo medido sobre lo acumulado
 
-Con el lector corriendo sobre los 19 feeds (1.018 notas, 735 hechos), con el umbral actual de 0.5 hay **0 verificados**. Hay dos causas, que se suman:
+**Primera medición (14:00, una sola lectura de 19 feeds, 1.018 notas):** con 0.5, 0 verificados de 735 hechos. Dos causas: (1) los feeds muestran ventanas de tiempo muy distintas (Clarín 0,5 h, Infobae 1,2 h, el resto de 11 h a varios días), y en una sola lectura coinciden solo en la última hora; (2) el agrupador por palabras casi no junta las notas reales (la noticia de Brasil, con 14 medios, se partía en 45 pedazos con 0.5).
 
-1. **Los feeds muestran ventanas de tiempo muy distintas.** Clarín abarca 0,5 h, Infobae 1,2 h, Olé 3 h, Noticias Argentinas 4,2 h y Al Jazeera 5,4 h; La Nación, Perfil y La Gaceta, 11 a 13 h; el resto, de 20 h a varios días. En una sola lectura los 19 coinciden solo en la última hora. Hace falta guardar lo leído y verificar sobre las últimas 24 h acumuladas, leyendo los feeds seguido (por ejemplo cada 15 o 30 minutos). Va junto con la memoria de lo ya entregado.
-2. **El agrupador por palabras casi no junta las notas reales.** La noticia del día (las elecciones de Brasil) la cubren 14 medios, y con 0.5 se parte en 45 pedazos. Con `umbralSimilitud` 0.3 se junta en un hecho de 6 o 7 grupos y aparecen 2 verificados (Brasil y el mensaje de García Cuerva en Luján, con 5 grupos). Los grupos de 3 o más notas, revisados a ojo, son casi todos la misma noticia. Con 0.25 ya aparecen uniones falsas (partidos de fútbol distintos). Una variante con peso por rareza de las palabras (IDF) no mejoró. Cambiar el umbral es un número en `config/reglas.json`; no se tocó porque el día de ejemplo y varios tests asumen 0.5.
+**Segunda medición (15:07 a 17:00, 5 lecturas separadas por unos 28 minutos, acumuladas en `datos/notas.json`: 1.150 notas, 58 descartadas por criterio 1).** Se midieron tres variantes sobre lo mismo (`--sin-leer`):
 
-Además se confirmó que la noticia de Brasil solo se verifica porque el motor cuenta a los medios argentinos: en las notas leídas la cubren 10 grupos argentinos y 4 internacionales, y dos de esos 4 están en inglés. Es la opción C de `buzon/pendientes.md`.
+| Variante | `umbralSimilitud` | Mínimo de palabras en común | Hechos | Con 3 o más grupos | Con 5 o más grupos (verificados) |
+|---|---|---|---|---|---|
+| V1 (la de antes) | 0.5 | 3 (no se mira) | 1.036 | 0 | **0** |
+| V2 | 0.3 | 0 | 941 | 9 | **2** |
+| V3 (la elegida) | 0.3 | 3 | 941 | 9 | **2** |
+
+Cuántos hechos hay según en cuántos grupos salieron (V3): 897 con 1 grupo, 35 con 2, 6 con 3, 1 con 4 y 2 con 5 o más.
+
+- **V2 y V3 dan exactamente lo mismo con estos datos.** La regla de 3 palabras en común no cambió nada: quedó como red de seguridad, no se vio que haga falta todavía.
+- **Los dos hechos verificados son de verdad la misma noticia**, revisados a ojo: Brasil (6 grupos, 12 notas: la jornada electoral, con avances, votación y resultados en vivo; es el caso límite) y el mensaje de García Cuerva en Luján (6 grupos, 6 notas). Entre los hechos de 5 o más grupos, **0 uniones falsas**, por eso `umbralSimilitud` queda en 0.3.
+- **Las uniones falsas están en hechos de 3 grupos, que no llegan a 5:** "A qué hora juegan Talleres vs. Belgrano… EN VIVO" junta también otros partidos (Argentinos-Tigre, Racing, Vélez), y "Efemérides de hoy" junta con la Lotería del Cauca. Son notas de servicio con plantilla; la regla de 3 palabras no las frena. En una jornada con más medios podrían llegar a 5. Propuesta (no hecha): excluir esas plantillas en el criterio 1 (ver `buzon/pendientes.md`).
+- **Hechos partidos:** Colapinto en Malasia/Bahréin sale como un hecho de 4 grupos y otro de 3 que son la misma carrera; juntos serían 5 o 6. El agrupador por palabras todavía deja notas sueltas.
+- **Brasil se verifica solo con medios argentinos** (los 6 grupos son argentinos; ningún internacional): 0 de 2 verificados tienen 2 o más notas de feeds internacionales. Sigue siendo la opción C de `buzon/pendientes.md`.
+- Con lo acumulado la ventana de Clarín pasa de 0,5 h a 2,1 h e Infobae de 1,2 h a 2,8 h; los dos todavía son cortos. Hace falta leer seguido (cada 15 a 30 minutos) para que no queden huecos: eso es la capa 4.
 
 ## Siguiente paso
 
-Está en `buzon/pendientes.md`: decidir el umbral del agrupador, guardar lo leído entre corridas (y lo ya entregado), y recién después la IA que juzga. El lector (`src/lector.js`) ya está hecho: devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`, con `portal` tomado del campo `dominio` de `feeds.json` y las rutas de otros países del Cronista descartadas con `excluirRutas`. Falta marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; no se tocó porque el día de ejemplo y un test usan esas agencias.
+Está en `buzon/pendientes.md`. Con lo hecho (acumular, perilla del agrupador, 6 portales inactivos) quedan, en este orden: la capa 4 (cada cuánto leer y dónde se guarda lo acumulado, con Don Julio), la memoria de lo ya entregado (espera el diseño de la entrega) y la IA que juzga. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`, con `portal` tomado del campo `dominio` de `feeds.json` y las rutas de otros países del Cronista descartadas con `excluirRutas`. Proponer al DISEÑADOR: excluir en el criterio 1 las notas de servicio con plantilla (a qué hora juega, efemérides, lotería), que hoy se juntan de forma falsa a 3 grupos.
 
 ## Lo que Alejo pidió el 2026-10-04
 

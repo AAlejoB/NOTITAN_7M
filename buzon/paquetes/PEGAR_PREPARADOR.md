@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · PREPARADOR de NOTITAN_7M
-Armado el 4/10/26, 14:34 (hora de Argentina) con "npm run paquete".
+Armado el 4/10/26, 17:06 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_PREPARADOR.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_PREPARADOR_2026-10-04_h.md
+5. buzon/ClaudeCode_para_PREPARADOR_2026-10-04_i.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_PREPARADOR.md
@@ -136,16 +136,16 @@ La memoria es el repo, no el chat. Lo que no quedó escrito se pierde con el `/c
 
 Hay una sola sesión de Claude Code y trabaja en la rama `claude/trusting-knuth-brmpsy`, que es la rama principal del repo en GitHub. Los chats de Cowork leen `buzon/` de ahí. No hay nada que igualar.
 
-1. **Hacia Cowork:** lo leen del repo. Si un chat no puede abrir el repo (dice "no hay nada conectado"), Alejo le pega el paquete de su rol: `buzon/paquetes/PEGAR_DISENADOR.md` o `buzon/paquetes/PEGAR_PREPARADOR.md`. Lo arma Claude Code con `npm run paquete` y trae, en un solo texto, el LEEME del rol, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y la carta más nueva que ese rol tiene que leer.
+1. **Hacia Cowork:** lo leen del repo. Un chat de Cowork puede clonar el repo si la línea trae el link (probado el 04-10 por el PREPARADOR). El paquete queda para cuando eso no ande: si un chat no puede abrir el repo (dice "no hay nada conectado"), Alejo le pega el paquete de su rol: `buzon/paquetes/PEGAR_DISENADOR.md` o `buzon/paquetes/PEGAR_PREPARADOR.md`. Lo arma Claude Code con `npm run paquete` y trae, en un solo texto, el LEEME del rol, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y la carta más nueva que ese rol tiene que leer.
 2. **Desde Cowork:** lo que escriben (`Disenador_para_PREPARADOR_*`, `PREPARADOR_para_ClaudeCode_*`) lo pega Alejo en el chat de Claude Code, que lo guarda en `buzon/` con el nombre correcto, lo commitea y lo pushea. Queda en el repo apenas se pushea.
 
-La línea corta para pegar sigue siendo la de abajo; si el chat no puede abrir el archivo, se pega el paquete en vez de la línea.
+Las líneas para pegar traen el link del repo. Si el chat no puede clonarlo, se pega el paquete en vez de la línea. Si el repo pasa a privado, la línea con el link deja de andar y se vuelve al paquete.
 
 Para el DISEÑADOR:
 
 ```
 DESDE ACÁ
-Chat nuevo. Leé buzon/LEEME_DISENADOR.md y arrancá de ahí.
+Chat nuevo. Cloná https://github.com/AAlejoB/NOTITAN_7M (rama claude/trusting-knuth-brmpsy), leé buzon/LEEME_DISENADOR.md y arrancá de ahí.
 HASTA ACÁ
 ```
 
@@ -153,7 +153,7 @@ Para el PREPARADOR:
 
 ```
 DESDE ACÁ
-Chat nuevo. Leé buzon/LEEME_PREPARADOR.md y arrancá de ahí.
+Chat nuevo. Cloná https://github.com/AAlejoB/NOTITAN_7M (rama claude/trusting-knuth-brmpsy), leé buzon/LEEME_PREPARADOR.md y arrancá de ahí.
 HASTA ACÁ
 ```
 
@@ -191,9 +191,12 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 69 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 102 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
-- Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json` y `--umbral`). Con proxy: `NODE_USE_ENV_PROXY=1`.
+- Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--acumular <archivo>` y `--sin-leer`). Con proxy: `NODE_USE_ENV_PROXY=1`.
+- Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
+- Perilla del agrupador (2026-10-04): `umbralSimilitud` 0.3, `umbralSeguro` 0.5 y `minPalabrasComunes` 3 en `config/reglas.json`. Una nota entra a un grupo si se parece al menos 0.5, o si se parece entre 0.3 y 0.5 y comparten 3 palabras. El día de ejemplo da lo mismo con 0.3 que con 0.5 (se comparó la salida de `npm run demo`); el test #22 (misma noticia) no se tocó.
+- Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false` en `portales.json`: no suman a la verificación y no avisan "feed roto". El día de ejemplo usa medios argentinos para lo internacional.
 - Paquetes para pegar en Cowork (2026-10-04): cuando un chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_DISENADOR.md` o `buzon/paquetes/PEGAR_PREPARADOR.md`. Los arma `npm run paquete` (`scripts/armar-paquete.js`) con los archivos tal cual del repo. Son una foto: se rearman al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -206,18 +209,30 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - 10 feeds internacionales extra andan (Euronews, RFI, NYT, Sky, NPR, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos) pero su portal no está en la lista blanca: los decide Alejo. Hoy hay 6 grupos internacionales con feed, y dos (The Guardian y Al Jazeera) publican en inglés. El motor cuenta cualquier medio de la lista para cualquier noticia, también los argentinos para una internacional; si eso es lo que Alejo quiere es decisión suya (ver `buzon/pendientes.md`).
 - El feed de El Cronista mezcla ediciones de otros países (37 de 100 notas: /espana/, /mexico/, /colombia/, /usa/). Clarín solo trae 10 notas; Olé es solo deportes.
 
-## Hallazgo con datos reales (2026-10-04, 14:00): casi no se verifica nada
+## Hallazgo con datos reales (2026-10-04): lo medido sobre lo acumulado
 
-Con el lector corriendo sobre los 19 feeds (1.018 notas, 735 hechos), con el umbral actual de 0.5 hay **0 verificados**. Hay dos causas, que se suman:
+**Primera medición (14:00, una sola lectura de 19 feeds, 1.018 notas):** con 0.5, 0 verificados de 735 hechos. Dos causas: (1) los feeds muestran ventanas de tiempo muy distintas (Clarín 0,5 h, Infobae 1,2 h, el resto de 11 h a varios días), y en una sola lectura coinciden solo en la última hora; (2) el agrupador por palabras casi no junta las notas reales (la noticia de Brasil, con 14 medios, se partía en 45 pedazos con 0.5).
 
-1. **Los feeds muestran ventanas de tiempo muy distintas.** Clarín abarca 0,5 h, Infobae 1,2 h, Olé 3 h, Noticias Argentinas 4,2 h y Al Jazeera 5,4 h; La Nación, Perfil y La Gaceta, 11 a 13 h; el resto, de 20 h a varios días. En una sola lectura los 19 coinciden solo en la última hora. Hace falta guardar lo leído y verificar sobre las últimas 24 h acumuladas, leyendo los feeds seguido (por ejemplo cada 15 o 30 minutos). Va junto con la memoria de lo ya entregado.
-2. **El agrupador por palabras casi no junta las notas reales.** La noticia del día (las elecciones de Brasil) la cubren 14 medios, y con 0.5 se parte en 45 pedazos. Con `umbralSimilitud` 0.3 se junta en un hecho de 6 o 7 grupos y aparecen 2 verificados (Brasil y el mensaje de García Cuerva en Luján, con 5 grupos). Los grupos de 3 o más notas, revisados a ojo, son casi todos la misma noticia. Con 0.25 ya aparecen uniones falsas (partidos de fútbol distintos). Una variante con peso por rareza de las palabras (IDF) no mejoró. Cambiar el umbral es un número en `config/reglas.json`; no se tocó porque el día de ejemplo y varios tests asumen 0.5.
+**Segunda medición (15:07 a 17:00, 5 lecturas separadas por unos 28 minutos, acumuladas en `datos/notas.json`: 1.150 notas, 58 descartadas por criterio 1).** Se midieron tres variantes sobre lo mismo (`--sin-leer`):
 
-Además se confirmó que la noticia de Brasil solo se verifica porque el motor cuenta a los medios argentinos: en las notas leídas la cubren 10 grupos argentinos y 4 internacionales, y dos de esos 4 están en inglés. Es la opción C de `buzon/pendientes.md`.
+| Variante | `umbralSimilitud` | Mínimo de palabras en común | Hechos | Con 3 o más grupos | Con 5 o más grupos (verificados) |
+|---|---|---|---|---|---|
+| V1 (la de antes) | 0.5 | 3 (no se mira) | 1.036 | 0 | **0** |
+| V2 | 0.3 | 0 | 941 | 9 | **2** |
+| V3 (la elegida) | 0.3 | 3 | 941 | 9 | **2** |
+
+Cuántos hechos hay según en cuántos grupos salieron (V3): 897 con 1 grupo, 35 con 2, 6 con 3, 1 con 4 y 2 con 5 o más.
+
+- **V2 y V3 dan exactamente lo mismo con estos datos.** La regla de 3 palabras en común no cambió nada: quedó como red de seguridad, no se vio que haga falta todavía.
+- **Los dos hechos verificados son de verdad la misma noticia**, revisados a ojo: Brasil (6 grupos, 12 notas: la jornada electoral, con avances, votación y resultados en vivo; es el caso límite) y el mensaje de García Cuerva en Luján (6 grupos, 6 notas). Entre los hechos de 5 o más grupos, **0 uniones falsas**, por eso `umbralSimilitud` queda en 0.3.
+- **Las uniones falsas están en hechos de 3 grupos, que no llegan a 5:** "A qué hora juegan Talleres vs. Belgrano… EN VIVO" junta también otros partidos (Argentinos-Tigre, Racing, Vélez), y "Efemérides de hoy" junta con la Lotería del Cauca. Son notas de servicio con plantilla; la regla de 3 palabras no las frena. En una jornada con más medios podrían llegar a 5. Propuesta (no hecha): excluir esas plantillas en el criterio 1 (ver `buzon/pendientes.md`).
+- **Hechos partidos:** Colapinto en Malasia/Bahréin sale como un hecho de 4 grupos y otro de 3 que son la misma carrera; juntos serían 5 o 6. El agrupador por palabras todavía deja notas sueltas.
+- **Brasil se verifica solo con medios argentinos** (los 6 grupos son argentinos; ningún internacional): 0 de 2 verificados tienen 2 o más notas de feeds internacionales. Sigue siendo la opción C de `buzon/pendientes.md`.
+- Con lo acumulado la ventana de Clarín pasa de 0,5 h a 2,1 h e Infobae de 1,2 h a 2,8 h; los dos todavía son cortos. Hace falta leer seguido (cada 15 a 30 minutos) para que no queden huecos: eso es la capa 4.
 
 ## Siguiente paso
 
-Está en `buzon/pendientes.md`: decidir el umbral del agrupador, guardar lo leído entre corridas (y lo ya entregado), y recién después la IA que juzga. El lector (`src/lector.js`) ya está hecho: devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`, con `portal` tomado del campo `dominio` de `feeds.json` y las rutas de otros países del Cronista descartadas con `excluirRutas`. Falta marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; no se tocó porque el día de ejemplo y un test usan esas agencias.
+Está en `buzon/pendientes.md`. Con lo hecho (acumular, perilla del agrupador, 6 portales inactivos) quedan, en este orden: la capa 4 (cada cuánto leer y dónde se guarda lo acumulado, con Don Julio), la memoria de lo ya entregado (espera el diseño de la entrega) y la IA que juzga. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`, con `portal` tomado del campo `dominio` de `feeds.json` y las rutas de otros países del Cronista descartadas con `excluirRutas`. Proponer al DISEÑADOR: excluir en el criterio 1 las notas de servicio con plantilla (a qué hora juega, efemérides, lotería), que hoy se juntan de forma falsa a 3 grupos.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -267,14 +282,16 @@ ARCHIVO 4 de 5 · buzon/pendientes.md
 
 Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
-**URGENTE para PREPARADOR y DISEÑADOR: con datos reales casi no se verifica nada** (medido con `npm run leer` el 04-10 a las 14:00, ver `CLAUDE.md`)
-- [ ] **Umbral del agrupador.** Con `umbralSimilitud` 0.5 hay 0 verificados de 795 hechos. Con 0.3, 2 verificados y los grupos grandes son casi todos la misma noticia; con 0.25 aparecen uniones falsas (partidos distintos). **Valor por defecto propuesto: 0.3**, y más adelante una IA que confirme los grupos dudosos. Para Claude Code es un número en `config/reglas.json` más ajustar el día de ejemplo y los tests que asumen 0.5. Se puede probar sin tocar nada con `npm run leer -- --umbral 0.3`.
-- [ ] **Guardar lo leído entre corridas.** Cada feed muestra una ventana distinta (Clarín 0,5 h, Infobae 1,2 h, Olé 3 h; otros, días). En una sola lectura casi no se solapan. Diseñar: leer los feeds cada 15 o 30 minutos, guardar las notas y verificar sobre las últimas 24 h acumuladas. Es la misma pieza que la memoria de lo ya entregado, y es trabajo de la capa 4 (n8n y Don Julio).
+**Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
+- [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
+- [ ] **Notas de servicio con plantilla (propuesta para el DISEÑADOR).** A 3 grupos ya se juntan de forma falsa: "A qué hora juegan… EN VIVO" une partidos distintos y "Efemérides de hoy" une con la Lotería del Cauca. En un día con más medios podrían llegar a 5 y pasar como verificados. Opción: sumarlas al criterio 1 (como la opinión), con una lista de patrones en `config/reglas.json` (por ejemplo "a qué hora juega", "efemérides", "lotería"). **Valor por defecto:** no se hace hasta que el DISEÑADOR lo apruebe; Claude Code lo implementa con tests.
+- [ ] **Hechos partidos.** Colapinto en Malasia/Bahréin sale como un hecho de 4 grupos y otro de 3 que son la misma carrera. Es el límite del agrupador por palabras; lo resuelve el agrupado por significado (opción B de abajo) o la IA que juzga los grupos dudosos.
+- [ ] **Guardar lo leído entre corridas: queda solo lo de capa 4.** Cada cuánto leer (valor por defecto: cada 30 minutos) y dónde se guarda el archivo (n8n). Le toca al DISEÑADOR con Don Julio. La pieza para acumular ya está hecha: `acumular` y `npm run leer -- --acumular datos/notas.json` (48 h, `datos/` no se sube al repo).
 
 **Alejo**
 - [ ] Nombres para la lista de firmas (`config/firmas.json`): nombre y si vale para nacional, internacional o los dos. **Sin apuro**: Alejo no los tiene a mano. Mientras esté vacía, la vía B no hace nada. Hay alternativas para el DISEÑADOR (abajo).
 - [ ] Opcional: borrar la rama vieja `claude/quirky-bell-pkumz7`, que ya no se usa. Se hace desde GitHub; Claude Code no la toca.
-- [ ] **El repo es público.** Alejo decide si pasa a privado. Revisado el 04-10-2026: no hay claves ni tokens; el historial solo tiene como autor a "Claude <noreply@anthropic.com>" (ningún correo personal); los correos de los tests son inventados; el único workflow de GitHub solo corre `npm test`. Sí se ve: la lógica de verificación y las reglas (lo que se piensa vender), las decisiones de Alejo, y menciones a su hermana, a Don Julio y al plan de vender el programa. La lista de firmas, cuando se llene, también sería pública. Si pasa a privado, confirmar que la app de Claude en GitHub y los chats de Cowork sigan teniendo acceso. **Valor por defecto:** sigue público hasta que Alejo decida.
+- [ ] **El repo es público.** Alejo decide si pasa a privado. Revisado el 04-10-2026: no hay claves ni tokens; el historial solo tiene como autor a "Claude <noreply@anthropic.com>" (ningún correo personal); los correos de los tests son inventados; el único workflow de GitHub solo corre `npm test`. Sí se ve: la lógica de verificación y las reglas (lo que se piensa vender), las decisiones de Alejo, y menciones a su hermana, a Don Julio y al plan de vender el programa. La lista de firmas, cuando se llene, también sería pública. Si pasa a privado, confirmar que la app de Claude en GitHub y los chats de Cowork sigan teniendo acceso. **Valor por defecto:** sigue público hasta que Alejo decida. Si pasa a privado, la línea de arranque con el link deja de andar y se vuelve al paquete.
 - [ ] Decidir si los 10 feeds internacionales extra entran a la lista blanca (`config/feeds.json`, sección `extras`). Va junto con el riesgo de abajo.
 - [ ] **Riesgo en INTERNACIONAL: margen e idioma.** Con solo medios internacionales hay 6 grupos con feed y se exigen 5. Dos de esos 6 (The Guardian y Al Jazeera) publican en inglés y el agrupador compara palabras: sin ellos quedan 4 en español. El motor cuenta hoy cualquier medio de la lista para cualquier noticia (verificado: 3 internacionales + 2 argentinos dan 5 de 5), así que una internacional puede sumar los 11 grupos argentinos. Opciones:
   - A: sumar a la lista blanca los 7 extras en español (Euronews, RFI, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos). Cuesta poco, los feeds ya andan. Ojo: 5 son de España.
@@ -300,8 +317,8 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [ ] Decidir las ventanas de tiempo para corridas cada 4 horas. Hoy son 48 h de recolección y 24 h de frescura, pensadas para una corrida por día.
 
 **PREPARADOR → Claude Code**
-- [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida.
-- [ ] Marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE (sin feed) para que no avisen "feed roto" en cada corrida. Hay que ajustar el día de ejemplo y un test que usan esas agencias.
+- [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida. **Espera el diseño de la entrega (DISEÑADOR): ocultar o marcar, por persona, cuánto dura.**
+- [ ] LN+: reintentar el feed con Network access en Full. Si anda, sacarle `activo: false`, sumarlo a `config/feeds.json` y sacarlo de `sinFeed`.
 
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
@@ -310,6 +327,9 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 04-10-2026 · Perilla del agrupador (`umbralSeguro`, `minPalabrasComunes`) y `--min-comunes`/`--detalle` en `npm run leer`; `umbralSimilitud` baja de 0.5 a 0.3 con el resultado de la medición (V1, V2 y V3; ver `ClaudeCode_para_PREPARADOR_2026-10-04_i.md`).
+- [x] 04-10-2026 · Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false`: el aviso de "¿feed roto?" ya no los nombra. El día de ejemplo usa medios argentinos para lo internacional (opción C).
+- [x] 04-10-2026 · `acumular` y `npm run leer -- --acumular datos/notas.json`: lo leído se junta entre lecturas y se verifica sobre 48 h.
 - [x] 04-10-2026 · Paquetes para pegar en Cowork (`npm run paquete`): un archivo por rol en `buzon/paquetes/`, para cuando el chat no tiene el repo conectado.
 - [x] 04-10-2026 · Feeds probados y lista real en `config/feeds.json`.
 - [x] 04-10-2026 · Vía B (firma reconocida) en el núcleo, con `config/firmas.json` vacía.
@@ -320,40 +340,87 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_PREPARADOR_2026-10-04_h.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_PREPARADOR_2026-10-04_i.md
 ============================================================
 
-# Claude Code → PREPARADOR · 04-10-2026 · 14:34 (hora de Argentina) · letra h
+# Claude Code → PREPARADOR · 04-10-2026 · 17:05 (hora de Argentina) · letra i
 
-**Veredicto:** un chat de Cowork le dijo a Alejo "no hay nada conectado" (no puede abrir el repo). El buzón estaba bien: `buzon/` está pusheado en la rama principal y el repo es público (se abrió un link directo sin login). Se armó un paquete por rol para pegar de una sola vez. Sin cambios en la lógica; `npm test` pasó de 69 a 73 bien y sigue 1 pendiente a propósito.
+**Veredicto:** hechos los 4 pasos de tu carta (`PREPARADOR_para_ClaudeCode_2026-10-04_a.md`) y la medición con datos reales. Con 0.5 hay **0 verificados** sobre lo acumulado; con 0.3 hay **2**, y entre esos dos hechos hay 0 uniones falsas, así que `umbralSimilitud` quedó en **0.3**. `npm test` pasó de 73 a **102 bien** y sigue 1 pendiente a propósito.
 
 ## Qué cambió
 
-| Archivo | Cambio |
-|---|---|
-| `scripts/armar-paquete.js` (nuevo) | Arma `buzon/paquetes/PEGAR_DISENADOR.md` y `buzon/paquetes/PEGAR_PREPARADOR.md`. Los textos salen tal cual del repo. |
-| `test/armar-paquete.test.js` (nuevo) | 4 tests: elige la carta más nueva, el orden de los archivos, no mezcla roles, y anda con el repo real. |
-| `package.json` | `npm run paquete`. |
-| `buzon/paquetes/PEGAR_*.md` (nuevos) | Los dos paquetes, armados el 04-10 a las 14:34. |
-| `buzon/LEEME.md`, `buzon/LEEME_CLAUDECODE.md` | Dicen cuándo se pega el paquete y que se rearma al cerrar cada tanda. |
-| `CLAUDE.md`, `buzon/pendientes.md` | Una línea en Estado y una en Hecho. |
+| Paso | Commit | Cambio |
+|---|---|---|
+| 1 | `b8a533d` | Reuters, AP, AFP, EFE, La Voz y LN+ quedan `activo: false` en `config/portales.json`. Ya no avisan "feed roto" ni suman a la verificación. El día de ejemplo usa medios argentinos para lo internacional. 1 test nuevo. |
+| 2 | `d517194` | `acumular(guardadas, nuevas, {reglas, ahora})` en el núcleo. `npm run leer -- --acumular datos/notas.json` y `--sin-leer`. Guarda 48 h. `datos/` en `.gitignore` (el repo es público). |
+| 3 | `bc16e90` | Perilla del agrupador: `umbralSeguro` y `minPalabrasComunes` en `reglas.json`; `--min-comunes` y `--detalle` en `npm run leer`. Una nota entra al grupo si se parece ≥ `umbralSeguro`, o si se parece entre `umbralSimilitud` y `umbralSeguro` y comparten `minPalabrasComunes` palabras. |
+| 4 | `d50ca3d` | `pendientes.md` y línea de arranque con el link para clonar en `LEEME.md`. |
+| medición | `88b217e` | `umbralSimilitud` de 0.5 a 0.3. |
+| cierre | este commit | `CLAUDE.md`, `pendientes.md`, este reporte y los paquetes. |
 
-## Qué lleva cada paquete
+El test #22 ("misma noticia: el mismo hecho se junta y otro hecho del mismo tema no") no se tocó y pasa con 0.3. Dos tests míos asumían 0.5; los hice independientes de la config. El día de ejemplo (`npm run demo`) da lo mismo con 0.3 que con 0.5.
 
-| Rol | Archivos, en este orden |
-|---|---|
-| DISEÑADOR | `LEEME_DISENADOR.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el `PREPARADOR_para_Disenador_*` más nuevo (hoy no hay) |
-| PREPARADOR | `LEEME_PREPARADOR.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md`, el `Disenador_para_PREPARADOR_*` más nuevo (hoy no hay) y el `ClaudeCode_para_PREPARADOR_*` más nuevo (esta carta) |
+## Medición con datos reales
+
+5 lecturas de los 19 feeds, entre las 15:07 y las 17:00, separadas unos 28 minutos, acumuladas en `datos/notas.json`. Se midió sobre lo mismo con `--sin-leer`. Total: **1.150 notas**, 58 descartadas por criterio 1.
+
+| Variante | `umbralSimilitud` | Mínimo de palabras | Hechos | Con 3 o más grupos | Con 5 o más grupos |
+|---|---|---|---|---|---|
+| V1 | 0.5 | 3 (no se mira) | 1.036 | 0 | **0** |
+| V2 | 0.3 | 0 | 941 | 9 | **2** |
+| V3 (elegida) | 0.3 | 3 | 941 | 9 | **2** |
+
+Hechos según en cuántos grupos salieron, con V3:
+
+```
+1 grupo   897  ██████████████████████████████
+2 grupos   35  █
+3 grupos    6  ▏
+4 grupos    1  ▏
+5 o más     2  ▏  ← Brasil y García Cuerva
+```
+
+- **V2 y V3 dan lo mismo.** La regla de 3 palabras no cambió nada con estos datos: es una red de seguridad que todavía no se vio necesaria. La dejé porque tu carta la pedía.
+- **Regla de decisión de tu carta:** V3 tiene 0 uniones falsas entre sus hechos de 5 o más grupos (revisé a ojo las 18 notas), así que 0.3. No probé otros números.
+- Los dos verificados: **Brasil** (6 grupos, 12 notas: la jornada electoral, con avances, votación y resultados en vivo) y **García Cuerva en Luján** (6 grupos, 6 notas). Brasil es el caso límite porque junta cosas distintas del mismo día; lo juzgué la misma noticia. Si el DISEÑADOR piensa distinto, hay que decirlo.
+- **Ninguno de los dos tiene un solo grupo internacional.** Brasil se verifica con 6 grupos argentinos. Es la opción C de `pendientes.md`, ahora medida: hoy una internacional se verifica porque cuentan los medios argentinos.
+
+## Qué encontré (para subir al DISEÑADOR)
+
+| Hallazgo | Dónde se ve | Riesgo |
+|---|---|---|
+| **Notas de servicio con plantilla se juntan mal.** "A qué hora juegan Talleres vs. Belgrano… EN VIVO" une partidos distintos (Argentinos-Tigre, Racing, Vélez). "Efemérides de hoy" une con la Lotería del Cauca. | 2 hechos de 3 grupos | Con más medios podrían llegar a 5 y pasar como verificados. La regla de 3 palabras no las frena. |
+| **Hechos partidos.** Colapinto en Malasia/Bahréin sale como un hecho de 4 grupos y otro de 3: es la misma carrera. | 2 hechos | Juntos serían 5 o 6 grupos y verificarían. Hoy se pierde una noticia. |
+| **Clarín e Infobae siguen cortos.** Con lo acumulado abarcan 2,1 h y 2,8 h. | tabla de ventanas | Hace falta leer cada 15 a 30 minutos para que no queden huecos (capa 4). |
+
+Propuesta que **no implementé**: excluir las notas de servicio con plantilla en el criterio 1, con una lista de patrones en `reglas.json`. Está en `pendientes.md` con valor por defecto "no se hace hasta que el DISEÑADOR lo apruebe".
 
 ## Qué decidió Claude Code por su cuenta (para revisar)
 
-- `pendientes.md` va completo y no solo la sección del rol: pesa 8 KB y evita recortar mal.
-- Claude Code no tiene paquete: lee el repo directo.
-- Los paquetes están commiteados para que se puedan bajar de GitHub. Son una foto y se desactualizan: por eso el último paso de cerrar una tanda es `npm run paquete`.
+- `minPalabrasComunes` por defecto 3 y `umbralSeguro` por defecto igual a `umbralSimilitud` cuando faltan en la config (así una config vieja se comporta como antes). Tests cubren las dos combinaciones.
+- "Palabras en común" cuenta las mismas raíces (primeras 5 letras, sin palabras vacías) que usa el agrupador, sobre título más bajada. Por eso "juegan" y "jugará" cuentan como una.
+- `--acumular` guarda las notas ordenadas por fecha y por id, para que el archivo no cambie de orden entre corridas.
+- La línea de arranque con el link para clonar quedó en `LEEME.md`, con valor por defecto "sí". Si Alejo dice que no, se saca.
+- El conteo de "nuevas" en `--acumular` puede parecer alto en la primera lectura de cada feed porque algunos devuelven notas viejas que nunca vimos: son nuevas para el archivo aunque no sean de hoy.
 
 ## Qué quedó pendiente
 
-- Nada nuevo. Si el chat de Cowork sigue sin ver el repo, es un tema de conexión de Cowork (no del repo): el paquete lo resuelve sin conectar nada.
+| A quién | Qué |
+|---|---|
+| DISEÑADOR (por el PREPARADOR) | Aprobar o no excluir las notas de servicio con plantilla en el criterio 1. |
+| DISEÑADOR con Don Julio | Capa 4: cada cuánto leer (por defecto 30 min) y dónde se guarda `datos/notas.json`. |
+| DISEÑADOR | Memoria de lo ya entregado: espera el diseño de la entrega. |
+| Alejo | Lista de firmas, lista blanca, repo público o privado: sin apuro. |
+| Claude Code | LN+: reintentar el feed con Network access en Full. |
+
+No se hizo, como pedía la carta: memoria de lo ya entregado, capa 4, la IA que juzga, lista blanca y `firmas.json`.
+
+## QUÉ HACÉS AHORA
+
+| A quién | Qué le pasa | Qué espera | Cuándo | Quién ejecuta |
+|---|---|---|---|---|
+| PREPARADOR | Recibe este reporte con la medición | Leerlo y subir al DISEÑADOR los dos hallazgos (plantillas y hechos partidos) | Cuando Alejo se lo pase | Alejo lleva el archivo |
+| Alejo | Nada se rompió; los paquetes están al día | Si quiere, decir "no" a la línea de arranque con link en `LEEME.md` | Cuando quiera | Alejo |
 
 ============================================================
 FIN DEL PAQUETE

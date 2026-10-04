@@ -4,8 +4,10 @@
 
 Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
-**URGENTE para PREPARADOR y DISEÑADOR: con datos reales casi no se verifica nada** (medido con `npm run leer` el 04-10 a las 14:00, ver `CLAUDE.md`)
-- [ ] **Umbral del agrupador.** Con `umbralSimilitud` 0.5 hay 0 verificados de 795 hechos. Con 0.3, 2 verificados y los grupos grandes son casi todos la misma noticia; con 0.25 aparecen uniones falsas (partidos distintos). **Valor por defecto propuesto: 0.3**, y más adelante una IA que confirme los grupos dudosos. Para Claude Code es un número en `config/reglas.json` más ajustar el día de ejemplo y los tests que asumen 0.5. Se puede probar sin tocar nada con `npm run leer -- --umbral 0.3`.
+**Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
+- [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
+- [ ] **Notas de servicio con plantilla (propuesta para el DISEÑADOR).** A 3 grupos ya se juntan de forma falsa: "A qué hora juegan… EN VIVO" une partidos distintos y "Efemérides de hoy" une con la Lotería del Cauca. En un día con más medios podrían llegar a 5 y pasar como verificados. Opción: sumarlas al criterio 1 (como la opinión), con una lista de patrones en `config/reglas.json` (por ejemplo "a qué hora juega", "efemérides", "lotería"). **Valor por defecto:** no se hace hasta que el DISEÑADOR lo apruebe; Claude Code lo implementa con tests.
+- [ ] **Hechos partidos.** Colapinto en Malasia/Bahréin sale como un hecho de 4 grupos y otro de 3 que son la misma carrera. Es el límite del agrupador por palabras; lo resuelve el agrupado por significado (opción B de abajo) o la IA que juzga los grupos dudosos.
 - [ ] **Guardar lo leído entre corridas: queda solo lo de capa 4.** Cada cuánto leer (valor por defecto: cada 30 minutos) y dónde se guarda el archivo (n8n). Le toca al DISEÑADOR con Don Julio. La pieza para acumular ya está hecha: `acumular` y `npm run leer -- --acumular datos/notas.json` (48 h, `datos/` no se sube al repo).
 
 **Alejo**
@@ -47,6 +49,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 04-10-2026 · Perilla del agrupador (`umbralSeguro`, `minPalabrasComunes`) y `--min-comunes`/`--detalle` en `npm run leer`; `umbralSimilitud` baja de 0.5 a 0.3 con el resultado de la medición (V1, V2 y V3; ver `ClaudeCode_para_PREPARADOR_2026-10-04_i.md`).
 - [x] 04-10-2026 · Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false`: el aviso de "¿feed roto?" ya no los nombra. El día de ejemplo usa medios argentinos para lo internacional (opción C).
 - [x] 04-10-2026 · `acumular` y `npm run leer -- --acumular datos/notas.json`: lo leído se junta entre lecturas y se verifica sobre 48 h.
 - [x] 04-10-2026 · Paquetes para pegar en Cowork (`npm run paquete`): un archivo por rol en `buzon/paquetes/`, para cuando el chat no tiene el repo conectado.
