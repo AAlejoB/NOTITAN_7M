@@ -6,7 +6,12 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Alejo**
 - [ ] Nombres para la lista de firmas (`config/firmas.json`): nombre y si vale para nacional, internacional o los dos. **Sin apuro**: Alejo no los tiene a mano. Mientras esté vacía, la vía B no hace nada. Hay alternativas para el DISEÑADOR (abajo).
-- [ ] Decidir si los 10 feeds internacionales extra entran a la lista blanca (`config/feeds.json`, sección `extras`).
+- [ ] Decidir si los 10 feeds internacionales extra entran a la lista blanca (`config/feeds.json`, sección `extras`). Va junto con el riesgo de abajo.
+- [ ] **Riesgo en INTERNACIONAL: margen e idioma.** Con solo medios internacionales hay 6 grupos con feed y se exigen 5. Dos de esos 6 (The Guardian y Al Jazeera) publican en inglés y el agrupador compara palabras: sin ellos quedan 4 en español. El motor cuenta hoy cualquier medio de la lista para cualquier noticia (verificado: 3 internacionales + 2 argentinos dan 5 de 5), así que una internacional puede sumar los 11 grupos argentinos. Opciones:
+  - A: sumar a la lista blanca los 7 extras en español (Euronews, RFI, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos). Cuesta poco, los feeds ya andan. Ojo: 5 son de España.
+  - B: agrupado multilengua, comparar significado y no palabras. Resuelve también The Guardian, Al Jazeera y los extras en inglés (NYT, Sky News, NPR). Más caro: hace falta embeddings o una IA. Es el pendiente de los sinónimos.
+  - C: que cuenten los medios argentinos para una internacional, como está hoy, o decidir que no. Es la decisión "argentinos afuera / qué es INTERNACIONAL" de `CLAUDE.md`.
+  - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **DISEÑADOR**
 - [ ] Diseñar la entrega para quien lo usa cada 4 horas (el caso de la hermana de Alejo, canal de comunicaciones): qué ve, en qué orden, cómo elige cuántas noticias (3 a 7), cómo se ve la segunda página.
@@ -25,7 +30,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [ ] Decidir las ventanas de tiempo para corridas cada 4 horas. Hoy son 48 h de recolección y 24 h de frescura, pensadas para una corrida por día.
 
 **PREPARADOR → Claude Code**
-- [ ] `src/lector.js`: bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion, firma}`. Descartar `/espana/`, `/mexico/`, `/colombia/` y `/usa/` del feed de El Cronista.
+- [ ] `src/lector.js`: bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion, firma}`. Descartar `/espana/`, `/mexico/`, `/colombia/` y `/usa/` del feed de El Cronista. **`portal` sale del campo `dominio` de `feeds.json`, no del host del feed**: BBC Mundo se lee en `feeds.bbci.co.uk` pero sus notas caen en `bbc.com` (verificado: 34 de 34 links), que es el dominio de `portales.json`.
 - [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida.
 - [ ] Marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE (sin feed) para que no avisen "feed roto" en cada corrida. Hay que ajustar el día de ejemplo y un test que usan esas agencias.
 

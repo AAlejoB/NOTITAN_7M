@@ -27,15 +27,15 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Capa 3 · lo que se probó de los feeds (2026-10-04)
 
-- Andan 19: 13 nacionales + 6 internacionales. Los links de cada feed caen en el dominio que ya está en `portales.json`.
+- Andan 19: 13 nacionales + 6 internacionales. Son 17 de los 20 probados (12 tal cual y 5 corregidos) más Noticias Argentinas y Olé, que salieron de `portales.json` y no estaban entre los 20. Los links de cada feed caen en el dominio que ya está en `portales.json`.
 - Se corrigieron 5 direcciones de memoria: Infobae, Página/12, El Cronista, La Capital y DW (el español es `rss-sp-all`, no `es`).
 - **Sin feed alcanzable:** Reuters (401, DataDome), AP (403, Cloudflare), AFP (solo RSS corporativo, viejo), EFE ("No feed available"), La Voz (403) y LN+ (timeout: reintentar con Network access en Full). Se confirmó la sospecha de Reuters, AP y AFP.
-- 10 feeds internacionales extra andan (Euronews, RFI, NYT, Sky, NPR, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos) pero su portal no está en la lista blanca: los decide Alejo. Hoy hay 6 grupos internacionales con feed, y una nota necesita estar en 5 de esos 6.
+- 10 feeds internacionales extra andan (Euronews, RFI, NYT, Sky, NPR, Europa Press, El Mundo, La Vanguardia, ABC, 20minutos) pero su portal no está en la lista blanca: los decide Alejo. Hoy hay 6 grupos internacionales con feed, y dos (The Guardian y Al Jazeera) publican en inglés. El motor cuenta cualquier medio de la lista para cualquier noticia, también los argentinos para una internacional; si eso es lo que Alejo quiere es decisión suya (ver `buzon/pendientes.md`).
 - El feed de El Cronista mezcla ediciones de otros países (37 de 100 notas: /espana/, /mexico/, /colombia/, /usa/). Clarín solo trae 10 notas; Olé es solo deportes.
 
 ## Siguiente paso: `src/lector.js`
 
-Bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion, firma}` para `preparar` (`firma` = autor del feed, la usa la vía B). Hay que descartar las rutas de otros países del Cronista. Al armarlo, marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; hoy no se tocó porque el día de ejemplo y un test usan esas agencias.
+Bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion, firma}` para `preparar` (`firma` = autor del feed, la usa la vía B). Hay que descartar las rutas de otros países del Cronista. `portal` sale del campo `dominio` de `feeds.json`, no del host del feed (BBC Mundo se lee en `feeds.bbci.co.uk` y sus notas caen en `bbc.com`). Al armarlo, marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; hoy no se tocó porque el día de ejemplo y un test usan esas agencias.
 Sospecha sin confirmar: el agrupador compara palabras, así que The Guardian (en inglés) solo se va a juntar con los medios en español cuando coincidan nombres propios y cifras.
 
 ## Lo que Alejo pidió el 2026-10-04
