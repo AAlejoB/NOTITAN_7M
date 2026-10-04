@@ -10,7 +10,8 @@
  *   1. preparar(notas, ctx)            → agrupa, cuenta grupos, descarta lo barato
  *   2. decidir(candidatos, juicios, ctx) → aplica "entra o no" y arma las listas
  *
- * ctx = { portales, reglas, ahora }  (ver config/portales.json y config/reglas.json)
+ * ctx = { portales, reglas, firmas, ahora }
+ *   (ver config/portales.json, config/reglas.json y config/firmas.json; firmas es opcional)
  */
 
 const HORA = 3600 * 1000;
@@ -154,10 +155,44 @@ function agrupar(notas, { umbralSimilitud, ventanaMismoHechoHoras }) {
   return grupos.map(({ firmas, ...g }) => g);
 }
 
+/* ───────────── vía B: firma reconocida ───────────── */
+
+// Segunda línea de verificación. Si un hecho no llega a reglas.minGrupos, lo puede
+// respaldar un mínimo de autores distintos de la lista que arma Alejo (config/firmas.json).
+// Una firma suma solo si su nota es informativa (ya pasó el criterio 1, así que una
+// columna de opinión no cuenta) y salió en un portal que cuenta. Un autor vale 1 aunque
+// firme en varios portales. La coincidencia es por nombre completo o alias, sin tildes.
+function firmasDelHecho(notas, firmas, portales) {
+  const halladas = new Map();
+  for (const n of notas) {
+    const portal = buscarPortal(dominioDe(n), portales);
+    if (!portal || portal.cuenta === false || portal.activo === false) continue;
+    const texto = ` ${normalizar(n.firma)} `;
+    for (const f of firmas) {
+      if (halladas.has(f.nombre)) continue;
+      const nombres = [f.nombre, ...(f.alias || [])].map(normalizar).filter(Boolean);
+      if (nombres.some(k => texto.includes(` ${k} `))) halladas.set(f.nombre, f);
+    }
+  }
+  return [...halladas.values()];
+}
+
+// Sin reglas.viaB, o con activa:false, la vía B no existe.
+function minimoFirmas(reglas) {
+  const v = reglas.viaB;
+  return v && v.activa !== false ? (v.minFirmas || 2) : Infinity;
+}
+
+// "A", "A y B", "A, B y C"
+function unir(lista) {
+  return lista.length < 2 ? lista.join('') : `${lista.slice(0, -1).join(', ')} y ${lista[lista.length - 1]}`;
+}
+
 /* ───────────── paso 1: preparar ───────────── */
 
-function preparar(notas, { portales, reglas, ahora }) {
+function preparar(notas, { portales, reglas, ahora, firmas = [] }) {
   const t0 = Date.parse(ahora);
+  const minFirmas = minimoFirmas(reglas);
   const descartadas = [];
   const avisos = [];
 
@@ -180,20 +215,27 @@ function preparar(notas, { portales, reglas, ahora }) {
   for (const g of grupos) {
     const verif = gruposIndependientes(g.notas, portales);
     const base = g.notas[0];
+    const reconocidas = firmasDelHecho(g.notas, firmas, portales);
     const ficha = {
       id: g.id,
       titulo: base.titulo,
       bajada: base.bajada || '',
       primera: new Date(g.primera).toISOString(),
       gruposIndependientes: verif.cantidad,
+      firmasReconocidas: reconocidas.map(f => ({ nombre: f.nombre, ambitos: f.ambitos || BLOQUES })),
       notas: g.notas.map(n => ({ id: n.id, titulo: n.titulo, bajada: n.bajada || '', url: n.url, portal: dominioDe(n), seccion: n.seccion || '' })),
     };
     const viejo = t0 - g.primera > reglas.ventanaFrescoHoras * HORA;
-    if (verif.cantidad < reglas.minGrupos) {
-      if (viejo) descartadas.push({ tipo: 'hecho', id: g.id, titulo: ficha.titulo, motivo: `no_llego_a_${reglas.minGrupos} (${verif.cantidad}/${reglas.minGrupos}, pasaron más de ${reglas.ventanaFrescoHoras} h)` });
-      else enObservacion.push({ ...ficha, contador: `${verif.cantidad}/${reglas.minGrupos}` });
+    if (verif.cantidad >= reglas.minGrupos) {
+      candidatos.push({ ...ficha, via: 'A', viejo });
+    } else if (reconocidas.length >= minFirmas) {
+      candidatos.push({ ...ficha, via: 'B', viejo });
+    } else if (viejo) {
+      descartadas.push({ tipo: 'hecho', id: g.id, titulo: ficha.titulo, motivo: `no_llego_a_${reglas.minGrupos} (${verif.cantidad}/${reglas.minGrupos}, pasaron más de ${reglas.ventanaFrescoHoras} h)` });
     } else {
-      candidatos.push({ ...ficha, viejo });
+      const obs = { ...ficha, contador: `${verif.cantidad}/${reglas.minGrupos}` };
+      if (reconocidas.length) obs.contadorFirmas = `${reconocidas.length}/${minFirmas}`;
+      enObservacion.push(obs);
     }
   }
 
@@ -217,6 +259,7 @@ function preparar(notas, { portales, reglas, ahora }) {
       hechos: grupos.length,
       enObservacion: enObservacion.length,
       candidatos: candidatos.length,
+      viaB: candidatos.filter(c => c.via === 'B').length,
     },
   };
 }
@@ -234,6 +277,7 @@ function decidir(candidatos, juicios, { reglas }) {
   const descartadas = [];
   const avisos = [];
   const sobreviven = { nacional: [], internacional: [] };
+  const minFirmas = minimoFirmas(reglas);
   const baja = (c, motivo) => descartadas.push({ tipo: 'hecho', id: c.id, titulo: c.titulo, motivo });
 
   let sinJuicio = 0;
@@ -246,30 +290,44 @@ function decidir(candidatos, juicios, { reglas }) {
     if (!j.interesPublico) { baja(c, 'no_interes_publico (criterio 4)'); continue; }
     if (!BLOQUES.includes(j.bloque)) { baja(c, 'fuera_de_bloque (criterio 5)'); continue; }
     if (j.desmentido) { baja(c, 'desmentido (criterio 6)'); continue; }
-    sobreviven[j.bloque].push({ c, j });
+    // Vía B: cada autor está habilitado para nacional, internacional o los dos (config/firmas.json).
+    // Con el bloque ya decidido tienen que seguir siendo suficientes.
+    let firmasDelBloque = [];
+    if (c.via === 'B') {
+      firmasDelBloque = (c.firmasReconocidas || []).filter(f => (f.ambitos || BLOQUES).includes(j.bloque));
+      if (firmasDelBloque.length < minFirmas) { baja(c, `firmas_no_habilitadas_para_${j.bloque} (vía B)`); continue; }
+    }
+    sobreviven[j.bloque].push({ c, j, firmasDelBloque });
   }
   if (sinJuicio) avisos.push(`${sinJuicio} hecho(s) sin juicio de la IA: no se pudieron evaluar. ¿Falló ese paso?`);
 
   const listas = { nacional: [], internacional: [] };
   const reserva = [];
   for (const bloque of BLOQUES) {
-    // Criterio 7: impacto; empate → más grupos independientes → más reciente.
+    // La vía B es la segunda línea: va después de todo lo confirmado por la vía A.
+    // Criterio 7, dentro de cada vía: impacto; empate → más grupos independientes → más reciente.
     const orden = sobreviven[bloque].sort((a, b) =>
+      (a.c.via === 'B') - (b.c.via === 'B') ||
       (b.j.impacto || 0) - (a.j.impacto || 0) ||
       b.c.gruposIndependientes - a.c.gruposIndependientes ||
       Date.parse(b.c.primera) - Date.parse(a.c.primera));
     const porSeccion = {};
     const porPais = {};
     // Criterio 8: variedad, de arriba hacia abajo hasta llenar el cupo.
-    for (const { c, j } of orden) {
+    for (const { c, j, firmasDelBloque } of orden) {
       const seccion = j.seccion || '';
       const pais = j.pais || '';
       let motivo = null;
       if (listas[bloque].length >= reglas.cupoPorBloque) motivo = 'cupo';
       else if (seccion && (porSeccion[seccion] || 0) >= reglas.maxPorSeccion) motivo = `tope_seccion (${seccion})`;
       else if (bloque === 'internacional' && pais && (porPais[pais] || 0) >= reglas.maxPorPais) motivo = `tope_pais (${pais})`;
+      const viaB = c.via === 'B';
       const salida = {
         id: c.id, titulo: c.titulo, bloque, impacto: j.impacto || 0, seccion, pais,
+        via: viaB ? 'B' : 'A',
+        etiqueta: viaB
+          ? `Respaldada por ${unir(firmasDelBloque.map(f => f.nombre))}`
+          : `Confirmada por ${c.gruposIndependientes} medios`,
         gruposIndependientes: c.gruposIndependientes,
         links: c.notas.map(n => ({ portal: n.portal, url: n.url })),
       };

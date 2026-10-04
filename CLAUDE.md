@@ -15,7 +15,8 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 33 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 44 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3, primera mitad hecha: `config/feeds.json` (19 feeds probados el 2026-10-04) y `scripts/probar-feeds.js`. `npm run feeds` los vuelve a probar (con proxy: `NODE_USE_ENV_PROXY=1`).
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -30,14 +31,20 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Siguiente paso: `src/lector.js`
 
-Bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion}` para `preparar`. Hay que descartar las rutas de otros países del Cronista. Al armarlo, marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; hoy no se tocó porque el día de ejemplo y un test usan esas agencias.
+Bajar los feeds de `config/feeds.json` y convertirlos en notas `{id, titulo, bajada, url, portal, fecha, seccion, firma}` para `preparar` (`firma` = autor del feed, la usa la vía B). Hay que descartar las rutas de otros países del Cronista. Al armarlo, marcar `activo: false` en `portales.json` a Reuters, AP, AFP y EFE para que no avisen "feed roto" en cada corrida; hoy no se tocó porque el día de ejemplo y un test usan esas agencias.
 Sospecha sin confirmar: el agrupador compara palabras, así que The Guardian (en inglés) solo se va a juntar con los medios en español cuando coincidan nombres propios y cifras.
 
-## Lo que Alejo pidió el 2026-10-04 (todavía sin construir)
+## Lo que Alejo pidió el 2026-10-04
 
 - Meta: que quien apriete el botón (él, su hermana o un cliente desconocido) confíe en que las noticias pasaron por varios filtros. Entrega: título, breve descripción y links. Para la "breve descripción" se asume la bajada del propio medio, sin IA, salvo que diga otra cosa.
-- A futuro: 10 noticias, 5 nacionales + 5 internacionales. Hoy son 7 + 7; se cambia con `cupoPorBloque` en `config/reglas.json`. No se tocó.
-- Vía B para internacionales: que una nota entre sin llegar a 5 grupos si la firma alguien reconocido (biógrafo, escritor, periodista). Propuesta de Claude, a confirmar con Alejo: lista de firmas que arma él, solo reportaje, investigación o biografía con fuentes con nombre (la opinión se descarta en el criterio 1), etiqueta distinta ("Respaldada por [nombre]") y que siga pasando por fuente con nombre, interés público y no desmentido.
+- A futuro, sin tocar todavía: 10 noticias, 5 nacionales + 5 internacionales. Hoy son 7 + 7; se cambia con `cupoPorBloque` en `config/reglas.json`.
+- **Vía B, hecha** (confirmada por Alejo: "que sea así tal cual"): segunda línea de verificación, para internacionales y también nacionales. Si un hecho no llega a 5 grupos, lo respaldan al menos `minFirmas` autores distintos de `config/firmas.json`. Su razonamiento: un hecho público con miles de testigos (una conferencia de dos presidentes) lo confirman muchos medios solos; la información más reservada (un tratado) tiene pocos medios con acceso, y ahí entran las firmas.
+  - `minFirmas` es 2: Alejo dijo "dos o tres", queda el valor más bajo. Subirlo es un número en `config/reglas.json`.
+  - La lista de firmas la arma Alejo; Claude no inventa nombres. Está vacía, así que hoy la vía B no hace nada.
+  - Una firma suma solo si su nota es informativa (la opinión se descarta en el criterio 1) y salió en un portal que cuenta de `portales.json`. Un autor vale 1 aunque firme en varios portales. Cada autor tiene `ambitos`: nacional, internacional o los dos.
+  - Sale con la etiqueta "Respaldada por [nombres]" y va después de todo lo de la vía A. Sigue pasando por fuente con nombre, interés público y no desmentido.
+  - El lector (`src/lector.js`) tiene que llenar `nota.firma` con el autor del feed (`dc:creator`, `author`); elDiarioAR ya lo trae.
+  - Pendiente a futuro (venta a otros países, por ejemplo Uruguay): portales y firmas por país.
 - Etiqueta para el cliente: "confirmada por N medios", no "verificada". Cinco medios que repiten el mismo error pasan igual, y el agrupador compara palabras (le cuesta con notas en otro idioma).
 - Dibujo del embudo: https://claude.ai/artifact/1x8EynL8rEGJV9i6DyiHFi
 

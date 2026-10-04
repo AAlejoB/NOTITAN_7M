@@ -1,0 +1,10 @@
+{
+  "_aviso": "Lista de firmas reconocidas para la vía B (segunda línea de verificación). La arma Alejo; Claude no inventa nombres. Vacía, la vía B no hace nada. Una firma suma si su nota es informativa (la opinión se descarta antes) y salió en un portal de portales.json. Para sumar a alguien: copiar el _ejemplo dentro de 'firmas'.",
+  "_ejemplo": {
+    "nombre": "Nombre Apellido",
+    "alias": ["N. Apellido"],
+    "ambitos": ["internacional", "nacional"],
+    "nota": "Por qué la reconocés (para acordarte vos)"
+  },
+  "firmas": []
+}

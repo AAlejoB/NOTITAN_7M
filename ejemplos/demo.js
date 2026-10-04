@@ -5,7 +5,7 @@ const reglas = require('../config/reglas.json');
 const { portales } = require('../config/portales.json');
 const dia = require('./dia-de-ejemplo.js');
 
-const ctx = { portales, reglas, ahora: dia.ahora };
+const ctx = { portales, reglas, firmas: dia.firmas, ahora: dia.ahora };
 const p = preparar(dia.notas, ctx);
 const d = decidir(p.candidatos, dia.juicios, ctx);
 
@@ -17,21 +17,23 @@ console.log('\nEMBUDO · día de ejemplo (inventado)\n');
 fila('Notas que llegaron', r.notasEntrada, r.notasEntrada);
 fila('  − criterio 1 (opinión, servicio)', r.notasDescartadas, r.notasEntrada, 'no cuentan para verificar');
 fila('Hechos (misma noticia agrupada)', r.hechos, r.notasEntrada);
-fila('  − menos de 5 grupos', r.enObservacion, r.notasEntrada, '→ En observación');
-fila('Verificados (≥ 5 grupos)', r.candidatos, r.notasEntrada);
+fila('  − sin 5 grupos ni 2 firmas', r.enObservacion, r.notasEntrada, '→ En observación');
+fila('Verificados', r.candidatos, r.notasEntrada);
+fila('    vía A: 5 grupos de medios', r.candidatos - r.viaB, r.notasEntrada);
+fila('    vía B: 2 firmas reconocidas', r.viaB, r.notasEntrada, '→ segunda línea, va después');
 fila('  − criterios 2 a 6', d.descartadas.length, r.notasEntrada, '→ Descartadas, con motivo');
 fila('  − variedad y cupo', d.reserva.length, r.notasEntrada, '→ Reserva');
 fila('ENTRAN', d.nacionales.length + d.internacionales.length, r.notasEntrada, d.aviso || '');
 
 const lista = (titulo, items) => {
   console.log(`\n${titulo}`);
-  items.forEach((x, i) => console.log(`  ${i + 1}. [${x.impacto}] ${x.titulo}  (${x.gruposIndependientes} grupos)`));
+  items.forEach((x, i) => console.log(`  ${i + 1}. [${x.impacto}] ${x.titulo}  · ${x.etiqueta}`));
 };
 lista('NACIONALES', d.nacionales);
 lista('INTERNACIONALES', d.internacionales);
 
 console.log('\nEN OBSERVACIÓN');
-p.enObservacion.forEach(x => console.log(`  ${x.contador}  ${x.titulo}`));
+p.enObservacion.forEach(x => console.log(`  ${x.contador}${x.contadorFirmas ? ` (firmas ${x.contadorFirmas})` : ''}  ${x.titulo}`));
 
 console.log('\nRESERVA');
 d.reserva.forEach(x => console.log(`  ${x.titulo}  → ${x.motivo}`));

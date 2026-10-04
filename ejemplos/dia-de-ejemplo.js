@@ -19,7 +19,7 @@ const juicios = {};
 
 const J = o => ({ datoNuevo: true, fuenteConNombre: true, interesPublico: true, desmentido: false, bloque: 'nacional', impacto: 1, seccion: '', pais: '', ...o });
 
-function hecho(id, portales, titulos, { hace = 4, seccion = 'actualidad', bajada = '', etiqueta, juicio } = {}) {
+function hecho(id, portales, titulos, { hace = 4, seccion = 'actualidad', bajada = '', etiqueta, juicio, firmas = [] } = {}) {
   portales.forEach((p, i) => {
     notas.push({
       id: `${id}-${i + 1}`,
@@ -28,6 +28,7 @@ function hecho(id, portales, titulos, { hace = 4, seccion = 'actualidad', bajada
       titulo: titulos[i % titulos.length],
       bajada,
       etiqueta,
+      ...(firmas[i] ? { firma: firmas[i] } : {}),
       fecha: iso(hace - i * 0.15),
       seccion,
     });
@@ -151,4 +152,33 @@ hecho('I6', INT.slice(0, 7), [
   'Terremoto de magnitud 7 en el norte de Japón',
 ], { hace: 3, seccion: 'sociedad', juicio: J({ bloque: 'internacional', impacto: 2, seccion: 'sociedad', pais: 'Japón' }) });
 
-module.exports = { ahora, notas, juicios };
+/* ── VÍA B: firma reconocida (segunda línea) ── */
+
+// Autores inventados. La lista real la arma Alejo en config/firmas.json.
+const firmas = [
+  { nombre: 'Autora Ficticia Uno', ambitos: ['nacional', 'internacional'] },
+  { nombre: 'Autor Ficticio Dos', ambitos: ['internacional'] },
+  { nombre: 'Autor Ficticio Tres', ambitos: ['nacional'] },
+];
+
+// Información reservada: solo 3 grupos, pero la respaldan 2 firmas habilitadas para internacional.
+hecho('IB', ['bbc.com', 'theguardian.com', 'elpais.com'], [
+  'Se filtró el texto de un tratado reservado entre dos países europeos',
+  'El texto del tratado reservado entre dos países europeos se filtró',
+], { hace: 4, seccion: 'politica', firmas: ['Por Autora Ficticia Uno', 'Autor Ficticio Dos'],
+  juicio: J({ bloque: 'internacional', impacto: 2, seccion: 'política', pais: 'Suiza' }) });
+
+// Investigación nacional: 2 grupos y 2 firmas habilitadas para nacional.
+hecho('NB', ['lanacion.com.ar', 'pagina12.com.ar'], [
+  'Una investigación revela cómo se adjudicó la obra de un puente en el Litoral',
+  'Cómo se adjudicó la obra de un puente en el Litoral: la investigación',
+], { hace: 3, seccion: 'politica', firmas: ['Autora Ficticia Uno', 'Autor Ficticio Tres'],
+  juicio: J({ impacto: 2, seccion: 'justicia' }) });
+
+// Una sola firma de dos que hacen falta: queda "En observación" con 2/5 grupos y 1/2 firmas.
+hecho('IC', ['dw.com', 'france24.com'], [
+  'Un escritor propone un nuevo marco legal para la pesca en el Ártico',
+  'Propuesta de un nuevo marco legal para la pesca en el Ártico',
+], { hace: 3, seccion: 'sociedad', firmas: ['Autor Ficticio Dos'] });
+
+module.exports = { ahora, notas, juicios, firmas };
