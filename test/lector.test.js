@@ -96,6 +96,37 @@ test('excluirRutas: se descartan las ediciones de otros países del Cronista', (
   assert.deepEqual(descartadas.map(d => d.motivo), ['ruta_excluida (/espana/)', 'ruta_excluida (/mexico/)']);
 });
 
+const INFOBAE_RUTAS = ['/espana/', '/peru/', '/mexico/', '/colombia/'];
+const EJEMPLOS_RUTAS = [
+  ['https://www.infobae.com/colombia/2026/10/04/resultado-loteria-del-cauca-hoy-3-de-octubre/', '/colombia/'], // real
+  ['https://www.infobae.com/america/america-latina/2026/10/04/brasil/', null],
+  ['https://www.infobae.com/america/mexico/2026/10/04/x/', null], // "/mexico/" aparece en la dirección pero no la abre
+  ['https://www.infobae.com/politica/2026/10/04/x/', null],
+  ['https://www.infobae.com/ESPANA/2026/10/04/x/', '/espana/'],
+];
+
+test('rutaExcluida: solo cuenta la ruta con la que EMPIEZA la dirección, sin mirar mayúsculas', () => {
+  for (const [url, esperada] of EJEMPLOS_RUTAS) assert.equal(L.rutaExcluida(url, INFOBAE_RUTAS), esperada, url);
+  assert.equal(L.rutaExcluida('https://www.cronista.com/espana/lluvias-2', ['/espana/', '/mexico/', '/colombia/', '/usa/']), '/espana/');
+  assert.equal(L.rutaExcluida('https://www.infobae.com/peru/x/', ['/PERU/']), '/peru/', 'la ruta de la config también va sin mayúsculas');
+});
+
+test('rutaExcluida: sin lista, con una dirección que no se puede leer, o con la ruta a mitad de camino, no saca nada', () => {
+  assert.equal(L.rutaExcluida('https://www.infobae.com/espana/x/', undefined), null);
+  assert.equal(L.rutaExcluida('https://www.infobae.com/espana/x/', []), null);
+  assert.equal(L.rutaExcluida('esto no es una dirección', INFOBAE_RUTAS), null);
+  assert.equal(L.rutaExcluida('https://www.infobae.com/politica/peru/x/', INFOBAE_RUTAS), null);
+  assert.equal(L.rutaExcluida('https://www.infobae.com/espanamania/x/', INFOBAE_RUTAS), null, 'la ruta lleva barra al final: "/espanamania/" no es "/espana/"');
+});
+
+test('excluirRutas en Infobae: salen España, Perú, México y Colombia; /america/ queda, también /america/mexico/', () => {
+  const infobae = feed({ nombre: 'Infobae', dominio: 'infobae.com', excluirRutas: INFOBAE_RUTAS });
+  const { notas, descartadas } = una(rss(
+    EJEMPLOS_RUTAS.map(([url], i) => item(`Nota ${i + 1}`, url)).join('')), infobae);
+  assert.deepEqual(notas.map(n => n.titulo), ['Nota 2', 'Nota 3', 'Nota 4']);
+  assert.deepEqual(descartadas.map(d => d.motivo), ['ruta_excluida (/colombia/)', 'ruta_excluida (/espana/)']);
+});
+
 test('lo que no se puede usar se descarta con su motivo: sin título, sin link, sin fecha, fecha futura', () => {
   const xml = rss([
     '<item><title></title><link>https://www.infobae.com/a/1</link><pubDate>Sun, 04 Oct 2026 09:00:00 +0000</pubDate></item>',
@@ -226,4 +257,10 @@ test('config/feeds.json: excluirRutas, si existe, es una lista de rutas que empi
     for (const r of f.excluirRutas) assert.match(r, /^\/.+\/$/, `${f.nombre}: ${r}`);
   }
   assert.ok(feedsJson.feeds.find(f => f.nombre === 'El Cronista').excluirRutas.includes('/espana/'));
+});
+
+test('config/feeds.json: Infobae excluye España, Perú, México y Colombia, y deja /america/', () => {
+  const rutas = feedsJson.feeds.find(f => f.nombre === 'Infobae').excluirRutas;
+  assert.deepEqual([...rutas].sort(), ['/colombia/', '/espana/', '/mexico/', '/peru/']);
+  assert.ok(!rutas.includes('/america/'));
 });

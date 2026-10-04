@@ -160,12 +160,23 @@ function idDe(dominio, url) {
 
 /* ───────────── un feed ───────────── */
 
+// De la lista `excluirRutas` de un feed, la ruta (en minúsculas) con la que EMPIEZA la dirección, o null.
+// Tiene que ser el primer tramo: "/america/mexico/…" es internacional de verdad y no sale por "/mexico/".
+function rutaExcluida(url, excluirRutas) {
+  let ruta;
+  try { ruta = new URL(url).pathname.toLowerCase(); } catch { return null; }
+  for (const r of excluirRutas || []) {
+    const minuscula = String(r).toLowerCase();
+    if (ruta.startsWith(minuscula)) return minuscula;
+  }
+  return null;
+}
+
 // feed = una entrada de config/feeds.json: { nombre, dominio, url, excluirRutas? }
 // Devuelve { items, notas, descartadas: [{ motivo, titulo, url }] }.
 function parsearFeed(xml, feed, { ahora } = {}) {
   const bloques = String(xml ?? '').match(/<(item|entry)[\s>][\s\S]*?<\/\1>/gi) || [];
   const tope = ahora ? Date.parse(ahora) + FECHA_FUTURA_HORAS * 3600 * 1000 : Infinity;
-  const excluidas = (feed.excluirRutas || []).map(r => r.toLowerCase());
   const vistas = new Set();
   const notas = [];
   const descartadas = [];
@@ -181,9 +192,8 @@ function parsearFeed(xml, feed, { ahora } = {}) {
     const fecha = fechaDe(bloque);
     if (!fecha) { baja('sin_fecha'); continue; }
     if (Date.parse(fecha) > tope) { baja('fecha_futura'); continue; }
-    const ruta = new URL(url).pathname.toLowerCase();
-    const rutaExcluida = excluidas.find(r => ruta.includes(r));
-    if (rutaExcluida) { baja(`ruta_excluida (${rutaExcluida})`); continue; }
+    const excluida = rutaExcluida(url, feed.excluirRutas);
+    if (excluida) { baja(`ruta_excluida (${excluida})`); continue; }
     const clave = claveUrl(url);
     if (vistas.has(clave)) { baja('url_repetida'); continue; }
     vistas.add(clave);
@@ -272,4 +282,4 @@ async function leerFeeds(feeds, { fetch = globalThis.fetch, ahora, timeoutMs = 2
   };
 }
 
-module.exports = { decodificar, limpiarHtml, limpiarFirma, claveUrl, urlLimpia, idDe, parsearFeed, leerFeeds };
+module.exports = { decodificar, limpiarHtml, limpiarFirma, claveUrl, urlLimpia, idDe, rutaExcluida, parsearFeed, leerFeeds };

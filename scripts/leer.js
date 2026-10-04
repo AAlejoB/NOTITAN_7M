@@ -1,18 +1,19 @@
 'use strict';
 // Lee los feeds de config/feeds.json, arma las notas con src/lector.js y corre preparar() del núcleo
 // para ver el embudo con datos reales. No juzga (falta la IA): muestra hechos, candidatos y En observación.
-// Uso: node scripts/leer.js [--json notas.json] [--umbral 0.3] [--min-comunes 3] [--detalle] [--sin-notas-de-servicio] [--acumular datos/notas.json [--sin-leer]]
+// Uso: node scripts/leer.js [--json notas.json] [--umbral 0.3] [--min-comunes 3] [--detalle] [--sin-notas-de-servicio] [--acumular datos/notas.json [--sin-leer [--sin-excluir-rutas]]]
 //   --umbral         prueba otro umbralSimilitud solo para esta corrida, sin tocar config/reglas.json.
 //   --min-comunes N  prueba otro minPalabrasComunes solo para esta corrida (0 = el umbral solo, sin mínimo).
 //   --detalle        lista cada hecho con 3 o más grupos (los grupos, y el portal y el título de cada nota) y las notas que sacó una regla de título del criterio 1.
 //   --sin-notas-de-servicio  para esta corrida, el criterio 1 no usa los moldes de notasDeServicio (sirve para medir antes y después).
 //   --acumular <f>   guarda lo leído en <f> y verifica sobre todo lo juntado en las últimas 48 h, no solo sobre esta lectura.
 //   --sin-leer       solo con --acumular: no lee los feeds, trabaja con lo que ya está en <f> y no lo modifica.
+//   --sin-excluir-rutas  solo con --sin-leer: no saca de lo guardado las notas de las rutas que cada feed excluye (excluirRutas). Sirve para el "antes".
 //   --json <f>       guarda las notas de esta lectura (con --sin-leer, las del archivo acumulado).
 // Con proxy: NODE_USE_ENV_PROXY=1 node scripts/leer.js
 const { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } = require('node:fs');
 const { dirname } = require('node:path');
-const { leerFeeds } = require('../src/lector.js');
+const { leerFeeds, rutaExcluida } = require('../src/lector.js');
 const { preparar, acumular, agrupar, esInformativa, gruposIndependientes } = require('../src/nucleo.js');
 const reglasBase = require('../config/reglas.json');
 const { portales } = require('../config/portales.json');
@@ -47,6 +48,21 @@ function guardarNotas(archivo, notas) {
   renameSync(temporal, archivo);
 }
 
+// Lo guardado puede traer notas de rutas que hoy se excluyen (se leyeron antes de excluirlas): se sacan al cargarlo.
+// Cada nota se mira con el excluirRutas de su propio feed. Sin `feed`, o con un feed que ya no existe, queda. No modifica la lista que recibe.
+function filtrarRutas(notas, feeds) {
+  const porNombre = new Map(feeds.map(f => [f.nombre, f]));
+  const quedan = [];
+  const sacadas = [];
+  for (const n of notas) {
+    const f = n.feed ? porNombre.get(n.feed) : null;
+    const ruta = f && f.excluirRutas ? rutaExcluida(n.url, f.excluirRutas) : null;
+    if (ruta) sacadas.push({ id: n.id, ruta });
+    else quedan.push(n);
+  }
+  return { notas: quedan, sacadas };
+}
+
 /* ───────────── texto ───────────── */
 
 const miles = n => n.toLocaleString('es-AR');
@@ -62,6 +78,15 @@ function fechaCorta(iso) {
 function lineaAcumulado(archivo, { notas, agregadas, repetidas, borradas }, reglas) {
   const vieja = notas.length ? ` · la más vieja: ${fechaCorta(notas[0].fecha)}` : '';
   return `ACUMULADO · ${miles(notas.length)} notas en ${archivo} (${miles(agregadas.length)} nuevas, ${miles(repetidas.length)} repetidas, ${miles(borradas.length)} borradas por tener más de ${reglas.ventanaRecoleccionHoras} h)${vieja}`;
+}
+
+// "RUTAS EXCLUIDAS · 213 notas guardadas sacadas (/espana/ 76, /peru/ 72, …)", de mayor a menor; null si no se sacó ninguna.
+function lineaRutasExcluidas(sacadas) {
+  if (!sacadas.length) return null;
+  const cuenta = new Map();
+  for (const { ruta } of sacadas) cuenta.set(ruta, (cuenta.get(ruta) || 0) + 1);
+  const detalle = [...cuenta].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([r, n]) => `${r} ${n}`).join(', ');
+  return `RUTAS EXCLUIDAS · ${miles(sacadas.length)} ${sacadas.length === 1 ? 'nota guardada sacada' : 'notas guardadas sacadas'} (${detalle})`;
 }
 
 const corto = (t, n) => (t.length > n ? t.slice(0, n - 1) + '…' : t);
@@ -130,6 +155,8 @@ function leerOpciones(args, reglasBase) {
   const archivoAcum = valor('--acumular');
   const sinLeer = args.includes('--sin-leer');
   if (sinLeer && !archivoAcum) throw new ErrorDeUso('--sin-leer solo vale junto con --acumular <archivo>.');
+  const sinExcluirRutas = args.includes('--sin-excluir-rutas');
+  if (sinExcluirRutas && !sinLeer) throw new ErrorDeUso('--sin-excluir-rutas solo vale junto con --sin-leer.');
   const umbral = valor('--umbral');
   const reglas = { ...reglasBase };
   if (umbral !== null) {
@@ -143,19 +170,20 @@ function leerOpciones(args, reglasBase) {
     if (!/^\d+$/.test(minComunes)) throw new ErrorDeUso(`--min-comunes tiene que ser un número entero, 0 o más, no "${minComunes}".`);
     reglas.minPalabrasComunes = Number(minComunes);
   }
-  return { reglas, archivoAcum, sinLeer, salidaJson: valor('--json'), detalle: args.includes('--detalle') };
+  return { reglas, archivoAcum, sinLeer, sinExcluirRutas, salidaJson: valor('--json'), detalle: args.includes('--detalle') };
 }
 
 /* ───────────── el comando ───────────── */
 
 async function main() {
   const args = process.argv.slice(2);
-  const { reglas, archivoAcum, sinLeer, salidaJson, detalle } = leerOpciones(args, reglasBase);
+  const { reglas, archivoAcum, sinLeer, sinExcluirRutas, salidaJson, detalle } = leerOpciones(args, reglasBase);
   const ahora = new Date().toISOString();
   const hora = new Date().toLocaleString('es-AR', { timeZone: ZONA, dateStyle: 'short', timeStyle: 'short' });
 
   // Se carga antes de salir a internet: si el archivo está roto, se corta sin gastar una lectura.
-  const guardadas = archivoAcum ? cargarNotas(archivoAcum) : [];
+  const crudas = archivoAcum ? cargarNotas(archivoAcum) : [];
+  const { notas: guardadas, sacadas: rutasSacadas } = sinExcluirRutas ? { notas: crudas, sacadas: [] } : filtrarRutas(crudas, feeds);
   if (sinLeer && !existsSync(archivoAcum)) throw new ErrorDeUso(`--sin-leer necesita un archivo que ya exista: ${archivoAcum} no está.`);
 
   const lectura = sinLeer ? null : await leerFeeds(feeds, { ahora });
@@ -178,6 +206,8 @@ async function main() {
     console.log(`\nSin leer: se usan las ${miles(notas.length)} notas de ${archivoAcum}\n`);
     for (const f of feeds) console.log(`    ${f.nombre.padEnd(20)} ${String(notas.filter(n => n.feed === f.nombre).length).padStart(4)} notas  ${abarca(notas, f.nombre)}`);
   }
+  const lineaRutas = lineaRutasExcluidas(rutasSacadas);
+  if (lineaRutas) console.log(`\n${lineaRutas}`);
   if (acumulado) console.log(`\n${lineaAcumulado(archivoAcum, acumulado, reglas)}`);
 
   const p = preparar(notas, { portales, reglas, firmas, ahora });
@@ -236,4 +266,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, detalleDeHechos, motivosCriterio1, detalleCriterio1, leerOpciones, ErrorDeUso };
+module.exports = { cargarNotas, guardarNotas, filtrarRutas, lineaRutasExcluidas, lineaAcumulado, fechaCorta, detalleDeHechos, motivosCriterio1, detalleCriterio1, leerOpciones, ErrorDeUso };

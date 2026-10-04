@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const { mkdtempSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync } = require('node:fs');
 const { join } = require('node:path');
 const { tmpdir } = require('node:os');
-const { cargarNotas, guardarNotas, lineaAcumulado, fechaCorta, detalleDeHechos, motivosCriterio1, detalleCriterio1, leerOpciones, ErrorDeUso } = require('../scripts/leer.js');
+const { cargarNotas, guardarNotas, filtrarRutas, lineaRutasExcluidas, lineaAcumulado, fechaCorta, detalleDeHechos, motivosCriterio1, detalleCriterio1, leerOpciones, ErrorDeUso } = require('../scripts/leer.js');
 const reglas = require('../config/reglas.json');
 const { portales } = require('../config/portales.json');
 
@@ -153,4 +153,55 @@ test('detalleCriterio1: solo las notas sacadas por una regla de título, agrupad
   assert.doesNotMatch(texto, /columna/i, 'la de url no es una regla de título');
   assert.doesNotMatch(texto, /Un hecho/, 'los hechos no son notas');
   assert.deepEqual(detalleCriterio1([]), []);
+});
+
+/* ───────── rutas excluidas de lo guardado ───────── */
+
+const FEEDS_RUTAS = [
+  { nombre: 'Infobae', dominio: 'infobae.com', excluirRutas: ['/espana/', '/peru/', '/mexico/', '/colombia/'] },
+  { nombre: 'Clarín', dominio: 'clarin.com' },
+];
+const deRuta = (id, url, feed) => ({ id, url, feed, titulo: id, fecha: '2026-10-04T10:00:00.000Z' });
+
+test('filtrarRutas: saca solo lo que el feed de la nota excluye, deja lo que no tiene feed o su feed no existe, y no toca la lista', () => {
+  const notas = [
+    deRuta('peru', 'https://www.infobae.com/peru/2026/10/04/a/', 'Infobae'),
+    deRuta('america', 'https://www.infobae.com/america/2026/10/04/b/', 'Infobae'),
+    deRuta('sinfeed', 'https://www.infobae.com/peru/2026/10/04/c/', undefined),
+    deRuta('feedfantasma', 'https://www.infobae.com/peru/2026/10/04/d/', 'Un feed que ya no existe'),
+  ];
+  const copia = structuredClone(notas);
+  const r = filtrarRutas(notas, FEEDS_RUTAS);
+  assert.deepEqual(r.notas.map(n => n.id), ['america', 'sinfeed', 'feedfantasma']);
+  assert.deepEqual(r.sacadas, [{ id: 'peru', ruta: '/peru/' }]);
+  assert.deepEqual(notas, copia, 'la lista que recibe queda como estaba');
+});
+
+test('filtrarRutas: un feed sin excluirRutas no pierde nada, aunque la dirección diga /peru/', () => {
+  const r = filtrarRutas([deRuta('x', 'https://www.clarin.com/peru/a/', 'Clarín')], FEEDS_RUTAS);
+  assert.equal(r.notas.length, 1);
+  assert.deepEqual(r.sacadas, []);
+});
+
+test('filtrarRutas: no saca /america/mexico/ (la ruta tiene que abrir la dirección)', () => {
+  const r = filtrarRutas([deRuta('am', 'https://www.infobae.com/america/mexico/2026/10/04/x/', 'Infobae')], FEEDS_RUTAS);
+  assert.deepEqual(r.notas.map(n => n.id), ['am']);
+});
+
+test('lineaRutasExcluidas: el formato de la carta, de mayor a menor; sin notas sacadas no dice nada', () => {
+  const rep = (ruta, n) => Array.from({ length: n }, (_, k) => ({ id: ruta + k, ruta }));
+  assert.equal(
+    lineaRutasExcluidas([...rep('/mexico/', 38), ...rep('/espana/', 76), ...rep('/colombia/', 27), ...rep('/peru/', 72)]),
+    'RUTAS EXCLUIDAS · 213 notas guardadas sacadas (/espana/ 76, /peru/ 72, /mexico/ 38, /colombia/ 27)');
+  assert.equal(lineaRutasExcluidas(rep('/peru/', 1)), 'RUTAS EXCLUIDAS · 1 nota guardada sacada (/peru/ 1)');
+  assert.equal(lineaRutasExcluidas([]), null);
+});
+
+test('--sin-excluir-rutas: solo vale junto con --sin-leer', () => {
+  assert.throws(() => leerOpciones(['--sin-excluir-rutas'], reglas),
+    e => e instanceof ErrorDeUso && e.message === '--sin-excluir-rutas solo vale junto con --sin-leer.');
+  assert.throws(() => leerOpciones(['--acumular', 'datos/notas.json', '--sin-excluir-rutas'], reglas),
+    e => e instanceof ErrorDeUso && e.message === '--sin-excluir-rutas solo vale junto con --sin-leer.');
+  assert.equal(leerOpciones(['--acumular', 'datos/notas.json', '--sin-leer', '--sin-excluir-rutas'], reglas).sinExcluirRutas, true);
+  assert.equal(leerOpciones(['--acumular', 'datos/notas.json', '--sin-leer'], reglas).sinExcluirRutas, false);
 });
