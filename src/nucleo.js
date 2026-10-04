@@ -29,7 +29,7 @@ const CABLE = /\((efe|afp|ap|reuters|na|dpa|europa press|ansa)\)|con informaci[o
 function normalizar(texto) {
   return String(texto || '')
     .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9%\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
