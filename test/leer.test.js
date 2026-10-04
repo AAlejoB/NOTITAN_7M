@@ -64,9 +64,10 @@ test('leerOpciones: --sin-leer solo vale con --acumular, y los valores tienen qu
 });
 
 test('leerOpciones: --umbral pisa solo la copia, y sin opciones todo queda como hoy', () => {
-  const o = leerOpciones(['--umbral', '0.3', '--acumular', 'datos/notas.json', '--sin-leer'], reglas);
-  assert.equal(o.reglas.umbralSimilitud, 0.3);
-  assert.equal(reglas.umbralSimilitud, 0.5, 'config/reglas.json no se toca');
+  const umbralDeLaConfig = reglas.umbralSimilitud;
+  const o = leerOpciones(['--umbral', '0.42', '--acumular', 'datos/notas.json', '--sin-leer'], reglas);
+  assert.equal(o.reglas.umbralSimilitud, 0.42);
+  assert.equal(reglas.umbralSimilitud, umbralDeLaConfig, 'config/reglas.json no se toca');
   assert.equal(o.archivoAcum, 'datos/notas.json');
   assert.equal(o.sinLeer, true);
   const vacio = leerOpciones([], reglas);
@@ -77,7 +78,7 @@ test('leerOpciones: --umbral pisa solo la copia, y sin opciones todo queda como 
 test('leerOpciones: --min-comunes pisa solo la copia y tiene que ser un entero; --detalle se activa solo si se pide', () => {
   assert.equal(leerOpciones(['--min-comunes', '0'], reglas).reglas.minPalabrasComunes, 0);
   assert.equal(leerOpciones(['--min-comunes', '5'], reglas).reglas.minPalabrasComunes, 5);
-  assert.equal(reglas.minPalabrasComunes, 3, 'config/reglas.json no se toca');
+  assert.equal(reglas.minPalabrasComunes, 3, 'config/reglas.json no se toca (la perilla vale 3)');
   assert.throws(() => leerOpciones(['--min-comunes', '2.5'], reglas), /entero/);
   assert.throws(() => leerOpciones(['--min-comunes', '-1'], reglas), /entero/);
   assert.equal(leerOpciones(['--detalle'], reglas).detalle, true);

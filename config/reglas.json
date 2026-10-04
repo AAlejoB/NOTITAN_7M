@@ -5,7 +5,7 @@
   "ventanaFrescoHoras": 24,
   "ventanaRecoleccionHoras": 48,
   "ventanaMismoHechoHoras": 24,
-  "umbralSimilitud": 0.5,
+  "umbralSimilitud": 0.3,
   "umbralSeguro": 0.5,
   "minPalabrasComunes": 3,
   "maxPorSeccion": 3,

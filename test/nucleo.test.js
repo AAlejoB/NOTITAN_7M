@@ -532,8 +532,8 @@ test('agrupar, ejemplo 2: la misma noticia con otras palabras se junta con 0,3 y
   assert.equal(comunesDe(brasil[0], brasil[1]), 4, 'brasi, lula, bolso y balot');
 });
 
-test('agrupar, ejemplo 2 bis: con 0,5, como hoy, quedan separadas', () => {
-  assert.deepEqual(gruposDe(brasil, reglas), [['p'], ['q']]);
+test('agrupar, ejemplo 2 bis: con 0,5, como antes de bajar el umbral, quedan separadas', () => {
+  assert.deepEqual(gruposDe(brasil, { ...reglas, umbralSimilitud: 0.5 }), [['p'], ['q']]);
 });
 
 test('agrupar, ejemplo 3: sin los valores nuevos el resultado es el de la función de antes', () => {
@@ -545,8 +545,9 @@ test('agrupar, ejemplo 3: sin los valores nuevos el resultado es el de la funci�
   }
 });
 
-test('agrupar: con umbralSeguro igual al umbral, el mínimo de palabras no cambia nada (como hoy con 0,5 y 0,5)', () => {
-  assert.deepEqual(gruposDe(dia.notas, reglas), agruparComoAntes(dia.notas, reglas));
+test('agrupar: con umbralSeguro igual al umbral, el mínimo de palabras no cambia nada (0,5 y 0,5)', () => {
+  const igualesA05 = { ...reglas, umbralSimilitud: 0.5, umbralSeguro: 0.5 };
+  assert.deepEqual(gruposDe(dia.notas, igualesA05), agruparComoAntes(dia.notas, igualesA05));
   const iguales = { ...reglas, umbralSimilitud: 0.3, umbralSeguro: 0.3, minPalabrasComunes: 99 };
   assert.deepEqual(gruposDe(presupuesto, iguales), [['a', 'b', 'c', 'd']]);
 });
