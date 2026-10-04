@@ -20,7 +20,11 @@ Hecho: leer los portales (feeds probados y lector). Falta guardar lo leído entr
 ```
 npm test       # 69 tests + 1 pendiente a propósito (sinónimos)
 npm run feeds  # prueba por internet cada feed de config/feeds.json
-npm run leer    # lee los 19 feeds y dibuja el embudo con datos reales (sin la IA). Opciones: --json notas.json, --umbral 0.3
+npm run leer    # lee los 19 feeds y dibuja el embudo con datos reales (sin la IA)
+               #   --json notas.json    guarda las notas leídas
+               #   --umbral 0.3         prueba otro umbral de similitud, sin tocar config/
+               #   --acumular datos/notas.json   guarda lo leído y verifica sobre las últimas 48 h juntadas (datos/ no se sube al repo)
+               #   --sin-leer           con --acumular: no lee los feeds, usa lo que ya está en el archivo
 npm run demo   # corre un día inventado y dibuja el embudo
 ```
 

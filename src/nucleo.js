@@ -197,6 +197,32 @@ function unir(lista) {
   return lista.length < 2 ? lista.join('') : `${lista.slice(0, -1).join(', ')} y ${lista[lista.length - 1]}`;
 }
 
+/* ───────────── acumular lecturas ───────────── */
+
+// Junta lo ya guardado con lo recién leído y saca lo que pasó de la ventana de recolección.
+// Pura: no toca los arrays que recibe, no lee archivos y no mira el reloj (la hora entra por `ahora`).
+// Si un id está en las dos listas queda la versión de `nuevas`. Las notas salen por fecha y, si empatan, por id.
+// Devuelve { notas, agregadas, repetidas, borradas }: `agregadas` son los ids que no estaban guardados, `repetidas`
+// los que ya estaban y `borradas` las notas sacadas por viejas, vengan de la lista que vengan.
+function acumular(guardadas, nuevas, { reglas, ahora }) {
+  const t0 = Date.parse(ahora);
+  const limite = reglas.ventanaRecoleccionHoras * HORA;
+  const conocidos = new Set(guardadas.map(n => n.id));
+  const porId = new Map(guardadas.map(n => [n.id, n]));
+  const agregadas = [];
+  const repetidas = [];
+  for (const n of nuevas) {
+    if (conocidos.has(n.id)) repetidas.push(n.id);
+    else { agregadas.push(n.id); conocidos.add(n.id); }
+    porId.set(n.id, n);
+  }
+  const notas = [];
+  const borradas = [];
+  for (const n of porId.values()) (t0 - Date.parse(n.fecha) > limite ? borradas : notas).push(n);
+  notas.sort((a, b) => Date.parse(a.fecha) - Date.parse(b.fecha) || String(a.id).localeCompare(String(b.id)));
+  return { notas, agregadas, repetidas, borradas };
+}
+
 /* ───────────── paso 1: preparar ───────────── */
 
 function preparar(notas, { portales, reglas, ahora, firmas = [] }) {
@@ -383,4 +409,4 @@ function decidir(candidatos, juicios, { reglas, cupo }) {
   return { nacionales: listas.nacional, internacionales: listas.internacional, cupo: cupoUsado, reserva, descartadas, avisos, aviso };
 }
 
-module.exports = { normalizar, tokens, similitud, firma, jaccard, dominioDe, emisor, gruposIndependientes, esInformativa, agrupar, preparar, decidir };
+module.exports = { normalizar, tokens, similitud, firma, jaccard, dominioDe, emisor, gruposIndependientes, esInformativa, agrupar, acumular, preparar, decidir };

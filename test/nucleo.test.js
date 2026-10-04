@@ -422,6 +422,63 @@ test('vía B: la segunda página solo ocupa lo que la primera deja libre', () =>
   assert.equal(r.reserva[0].motivo, 'cupo');
 });
 
+/* ───────── acumular lecturas ───────── */
+
+const AHORA_ACUM = '2026-10-04T18:00:00.000Z';
+const ctxAcum = { reglas, ahora: AHORA_ACUM };
+const horaUTC = h => `2026-10-04T${h}:00.000Z`;
+const guardada = (id, fecha, titulo = id) => ({ id, fecha, titulo, portal: 'clarin.com', url: `https://www.clarin.com/${id}` });
+const haceAcum = h => new Date(Date.parse(AHORA_ACUM) - h * 3600e3).toISOString();
+const copia = x => JSON.parse(JSON.stringify(x));
+
+test('acumular: lo que ya estaba queda con la versión nueva, y se cuentan agregadas y repetidas', () => {
+  const guardadas = [guardada('a', horaUTC('10:00'), 'Uno'), guardada('b', horaUTC('09:00'), 'Dos')];
+  const nuevas = [guardada('b', horaUTC('09:00'), 'Dos actualizado'), guardada('c', horaUTC('11:00'))];
+  const r = N.acumular(guardadas, nuevas, ctxAcum);
+  assert.deepEqual(r.notas.map(n => [n.id, n.titulo]), [['b', 'Dos actualizado'], ['a', 'Uno'], ['c', 'c']]);
+  assert.deepEqual(r.agregadas, ['c']);
+  assert.deepEqual(r.repetidas, ['b']);
+  assert.deepEqual(r.borradas, []);
+});
+
+test('acumular: lo que pasó de las 48 h se saca, y cuenta como borrada', () => {
+  const r = N.acumular([guardada('d', haceAcum(50)), guardada('e', haceAcum(2))], [], ctxAcum);
+  assert.deepEqual(r.notas.map(n => n.id), ['e']);
+  assert.deepEqual(r.borradas.map(n => n.id), ['d']);
+  assert.equal(r.agregadas.length + r.repetidas.length, 0);
+});
+
+test('acumular: también se saca lo viejo que llega en las nuevas, y justo 48 h todavía vale', () => {
+  const r = N.acumular([], [guardada('v', haceAcum(49)), guardada('j', haceAcum(48)), guardada('n', haceAcum(1))], ctxAcum);
+  assert.deepEqual(r.notas.map(n => n.id), ['j', 'n']);
+  assert.deepEqual(r.borradas.map(n => n.id), ['v']);
+});
+
+test('acumular: si empatan en fecha, se ordenan por id, igual que agrupar', () => {
+  const r = N.acumular([], [guardada('g', horaUTC('12:00')), guardada('f', horaUTC('12:00'))], ctxAcum);
+  assert.deepEqual(r.notas.map(n => n.id), ['f', 'g']);
+  assert.deepEqual(r.agregadas, ['g', 'f']);
+  assert.equal(r.repetidas.length, 0);
+});
+
+test('acumular: no modifica las listas que recibe', () => {
+  const guardadas = [guardada('a', horaUTC('10:00'), 'Uno'), guardada('b', horaUTC('09:00'), 'Dos'), guardada('x', haceAcum(60))];
+  const nuevas = [guardada('b', horaUTC('09:00'), 'Dos actualizado'), guardada('c', horaUTC('11:00'))];
+  const [g0, n0] = [copia(guardadas), copia(nuevas)];
+  N.acumular(guardadas, nuevas, ctxAcum);
+  assert.deepEqual(guardadas, g0);
+  assert.deepEqual(nuevas, n0);
+});
+
+test('acumular: dos lecturas seguidas iguales no suman nada nuevo', () => {
+  const lectura = [guardada('a', horaUTC('10:00')), guardada('b', horaUTC('11:00'))];
+  const primera = N.acumular([], lectura, ctxAcum);
+  const segunda = N.acumular(primera.notas, lectura, ctxAcum);
+  assert.deepEqual(segunda.notas, primera.notas);
+  assert.equal(segunda.agregadas.length, 0);
+  assert.equal(segunda.repetidas.length, 2);
+});
+
 /* ───────── un día completo ───────── */
 
 test('día de ejemplo: de punta a punta', () => {
