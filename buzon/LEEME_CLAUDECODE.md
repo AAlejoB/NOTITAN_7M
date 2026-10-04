@@ -1,21 +1,22 @@
 # LEEME · Claude Code en NOTITAN_7M
 
-Arrancás de acá. Borrador del 04-10-2026, Alejo lo ajusta. Las reglas generales están en `LEEME.md`. `CLAUDE.md` lo lee Claude Code solo al abrir la sesión.
+Arrancás de acá. Las reglas generales están en `LEEME.md`. `CLAUDE.md` lo lee Claude Code solo al abrir la sesión.
 
 ## Qué sos
 
-El tercer bloque. Ejecutás, probás y reportás. Modelo: Sonnet 5.5.
+El segundo bloque. Ejecutás, probás y reportás. Modelo: Sonnet 5.5.
 
 ## Con quién hablás
 
-- **Solo con el PREPARADOR**, por archivo, en los dos sentidos.
+- **Con Cowork**, por archivo, en los dos sentidos. Alejo lleva los archivos de uno a otro.
 - Con Alejo, en este chat, para lo chico que él te pida directo (un número en `config/`, un texto, un error de tipeo).
-- **Nunca directo con el DISEÑADOR.** Si encontrás algo que pide una decisión de diseño, va en tu reporte al PREPARADOR, marcado, y él lo sube.
+- Si encontrás algo que pide una decisión de diseño o de Alejo, va en tu reporte a Cowork, marcado.
 
 ## Cómo trabajás
 
 - Casi no le preguntás a Alejo. Si falta una decisión suya, ponés un valor por defecto que se cambie con un número y lo anotás en `pendientes.md`.
 - No tomás decisiones que son de Alejo (sección "Decisiones que solo Alejo puede tomar" de `CLAUDE.md`).
+- Cowork escribe el pedido exacto y vos lo ejecutás al pie de la letra. Si algo se puede entender de dos maneras, elegís la más conservadora y lo marcás en el reporte ("qué decidí por mi cuenta").
 - Español rioplatense, breve. Cuando cambiás algo, lo mostrás también en tabla o gráfico. La hora, la de Argentina.
 - Terminás cada entrega con el bloque "QUÉ HACÉS AHORA".
 
@@ -23,11 +24,11 @@ El tercer bloque. Ejecutás, probás y reportás. Modelo: Sonnet 5.5.
 
 1. `CLAUDE.md` (se carga solo) y `buzon/LEEME.md`.
 2. `git pull`, y `buzon/pendientes.md`.
-3. El `PREPARADOR_para_ClaudeCode_*` más nuevo.
+3. La carta más nueva de Cowork: el `Cowork_para_ClaudeCode_*` más nuevo. Si todavía no hay ninguna, no hay nada pendiente: decíselo a Alejo. (Las `PREPARADOR_para_ClaudeCode_*` son la historia de cuando eran tres bloques.)
 
 ## Qué escribís
 
-`ClaudeCode_para_PREPARADOR_<AAAA-MM-DD>_<letra>.md`, con:
+`ClaudeCode_para_Cowork_<AAAA-MM-DD>_<letra>.md`, con:
 
 - Hora de Argentina y veredicto en dos o tres oraciones.
 - Qué cambió, un renglón por cambio.
@@ -37,4 +38,4 @@ El tercer bloque. Ejecutás, probás y reportás. Modelo: Sonnet 5.5.
 
 ## Al cerrar una tanda
 
-Tiene que estar escrito y pusheado: `buzon/pendientes.md` al día, `CLAUDE.md` con el estado y las decisiones nuevas, y tu reporte. Último paso, después del reporte: `npm run paquete`, que rearma `buzon/paquetes/PEGAR_*.md` (la foto que Alejo pega en Cowork); si no, quedan viejos. Después Alejo hace `/clear`. Sos la única sesión de Claude Code: no hay nadie más a quien avisar ni nada que igualar.
+Tiene que estar escrito y pusheado: `buzon/pendientes.md` al día, `CLAUDE.md` con el estado y las decisiones nuevas, y tu reporte. Último paso, después del reporte: `npm run paquete`, que rearma `buzon/paquetes/PEGAR_COWORK.md` (la foto que Alejo pega en Cowork); si no, queda viejo. Después Alejo hace `/clear` y cierra el chat de Cowork. Sos la única sesión de Claude Code: no hay nadie más a quien avisar ni nada que igualar.

@@ -4,6 +4,8 @@
 
 Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
+**Desde el 04-10-2026 hay un solo chat de Cowork** (antes DISEÑADOR y PREPARADOR). Donde un ítem dice DISEÑADOR o PREPARADOR, es Cowork. Lo primero que puede tomar el chat nuevo, en este orden (es una sugerencia, no una decisión de Alejo): las 2 preguntas con valor por defecto sobre Infobae (feeds por sección y las 14 notas de otras ediciones), el diseño de la entrega con la vista de las 4/5, y las 6 preguntas de la IA.
+
 **Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
 - [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
 - [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4.
@@ -22,7 +24,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - Primera medición con datos reales: en las notas leídas, la noticia de Brasil la cubren 10 grupos argentinos y 4 internacionales (2 en inglés, The Guardian y Al Jazeera). Sin contar a los argentinos no se verifica: quedan 2 internacionales en español. Se verifica porque cuentan los medios argentinos.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
-**DISEÑADOR**
+**Cowork (diseño y decisiones; antes DISEÑADOR)**
 - [ ] Diseñar la entrega para quien lo usa cada 4 horas (el caso de la hermana de Alejo, canal de comunicaciones): qué ve, en qué orden, cómo elige cuántas noticias (3 a 7), cómo se ve la segunda página. **Incluye la vista de las 4/5** ("En observación · les falta 1 medio" con "Llevármela igual"): el núcleo ya da `aMano` por bloque, con su etiqueta.
 - [ ] Diseñar las **6 preguntas** de la IA que juzga: las 5 de siempre (fresco o dato nuevo, fuente con nombre, interés público, nacional o internacional, desmentido) más la sexta, "¿estos dos hechos son la misma noticia?" (ver "Hechos partidos"). Ojo: también juzga `elegiblesAMano` (las 4/5), no solo `candidatos`. La sexta va **antes** de armar `candidatos` y `elegiblesAMano` y antes de las otras 5; solo mira pares de hechos con 3 o 4 grupos que comparten persona o lugar; contesta sí o no más una línea de por qué, y en lo que se guarda para revisar queda "unido por la IA: <por qué>". El hecho unido sigue el camino normal (con 5 o más grupos sale "Confirmada por N medios", sin etiqueta distinta). Riesgo aceptado por Alejo: si la IA se equivoca, una noticia podría salir Confirmada sin serlo.
 - [ ] **Reglas viejas de título (`quiniela`, `horoscopo`) sueltas:** sacan cualquier título con esa palabra, también noticias de verdad (ej.: "Detienen al dueño de una agencia de quiniela"). ¿Se vuelven precisas como los moldes nuevos? Medido el 04-10 sobre 1.277 notas: `quiniela` sacó 0, `horoscopo` sacó 2 por título (más 1 por url `/horoscopo/`) y `dolar hoy` sacó 6; ninguna era noticia de verdad. El caso peligroso no apareció en estos datos, pero sigue siendo posible. **Valor por defecto:** quedan como están.
@@ -36,7 +38,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 - [ ] Decidir las ventanas de tiempo para corridas cada 4 horas. Hoy son 48 h de recolección y 24 h de frescura, pensadas para una corrida por día.
 
-**PREPARADOR → Claude Code**
+**Cowork → Claude Code (antes PREPARADOR → Claude Code)**
 - [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida. **Espera el diseño de la entrega (DISEÑADOR): ocultar o marcar, por persona, cuánto dura.**
 
 **Más adelante**
@@ -46,6 +48,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 04-10-2026 · **Alejo pasó de tres bloques a dos: un solo chat de Cowork y Claude Code.** Se juntaron DISEÑADOR y PREPARADOR en `buzon/LEEME_COWORK.md`; las cartas se llaman `Cowork_para_ClaudeCode_*` y `ClaudeCode_para_Cowork_*`; hay un solo paquete (`buzon/paquetes/PEGAR_COWORK.md`); `LEEME.md`, `LEEME_CLAUDECODE.md` y `CLAUDE.md` están al día. `LEEME_DISENADOR.md` y `LEEME_PREPARADOR.md` quedan como avisos que apuntan al nuevo, y las cartas viejas quedan como historia. El motivo: llevar archivos entre tres chats lo mareaba.
 - [x] 04-10-2026 · **Infobae sin las ediciones de España, Perú, México y Colombia** (decidió Alejo). `excluirRutas` en su feed, con la regla "la dirección **empieza con** la ruta" (así `/america/mexico/` no se cae por `/mexico/`), y lo ya guardado se filtra al cargarlo (`filtrarRutas` en `scripts/leer.js`; en n8n, el mismo paso al cargar lo acumulado). `npm run leer -- --acumular datos/notas.json --sin-leer --sin-excluir-rutas` da el "antes". Sobre lo guardado: 213 notas sacadas (`/espana/` 76, `/peru/` 72, `/mexico/` 38, `/colombia/` 27), hechos 1.031 → 865, los 2 confirmados y las 4 de "les falta 1 medio" siguen igual, y de los hechos de 3 o más grupos solo uno pierde a Infobae (El Comidista, de 3 a 2 grupos: era una unión con la edición de España). Ver `ClaudeCode_para_PREPARADOR_2026-10-04_k.md`.
 - [x] 04-10-2026 · LN+ no anda con la red completa: el portal corta la conexión en las 8 direcciones probadas, mientras La Nación responde en 1 s por el mismo camino. Queda `activo: false` y en `sinFeed`, con el motivo. Se reintenta solo si Alejo lo pide.
 - [x] 04-10-2026 · Notas con fecha futura. **Decidido por el PREPARADOR: no se toca.** El lector ya descarta lo que viene con más de 12 h de adelanto (`FECHA_FUTURA_HORAS`); lo de menos de 12 h (Página/12 fecha la edición del lunes a las 00:01) cuenta como fresco un rato más, sin daño visto.

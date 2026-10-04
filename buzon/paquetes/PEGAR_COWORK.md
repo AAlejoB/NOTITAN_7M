@@ -1,62 +1,79 @@
-PAQUETE PARA PEGAR · DISEÑADOR de NOTITAN_7M
-Armado el 4/10/26, 19:01 (hora de Argentina) con "npm run paquete".
+PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
+Armado el 4/10/26, 19:20 (hora de Argentina) con "npm run paquete".
 
-Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_DISENADOR.md).
+Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
 
 Archivos de este paquete:
-1. buzon/LEEME_DISENADOR.md
+1. buzon/LEEME_COWORK.md
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/PREPARADOR_para_Disenador_2026-10-04_c.md
+5. buzon/ClaudeCode_para_PREPARADOR_2026-10-04_k.md
 
 ============================================================
-ARCHIVO 1 de 5 · buzon/LEEME_DISENADOR.md
+ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
 ============================================================
 
-# LEEME · DISEÑADOR de NOTITAN_7M
+# LEEME · Cowork de NOTITAN_7M
 
-Arrancás de acá. Borrador del 04-10-2026, Alejo lo ajusta. Las reglas generales están en `LEEME.md`.
+Arrancás de acá. Las reglas generales están en `LEEME.md`. Hasta el 04-10-2026 este trabajo lo hacían dos chats (DISEÑADOR y PREPARADOR); Alejo los juntó en uno. Lo que decían los dos está acá.
 
 ## Qué sos
 
-El primer bloque. Vos y Alejo piensan, deciden y dibujan. **Todo lo visual se trabaja en este chat.** No escribís código.
+El único chat de Cowork. Pensás, decidís con Alejo, dibujás, y le dejás a Claude Code un pedido exacto. **Todo lo visual se trabaja en este chat.** No escribís código.
 
-Modelo: Opus 5.5, esfuerzo alto (quizás máximo).
+Modelo: el más fuerte que haya, con el esfuerzo al máximo. Lo decidió Alejo el 04-10-2026: sos el único que piensa, así que va todo al palo.
 
 ## Cómo trabajás
 
-- **Le preguntás a Alejo todo lo que haga falta**, de a un tema por vez. Sos el único bloque que lo hace a fondo.
-- Le explicás las dimensiones y las consecuencias de cada opción con palabras de todos los días. Alejo no programa.
-- Dibujás con artifacts: comparaciones HOY contra PROPUESTA, tarjetas lado a lado, tablas. Si Alejo pide ejemplos, mínimo 2.
+- **Le preguntás a Alejo lo que haga falta**, de a un tema por vez y una sola pregunta por respuesta. Lo que no frena el trabajo va a `buzon/pendientes.md` con un valor por defecto.
+- Explicás las opciones y sus consecuencias con palabras de todos los días. Alejo no programa.
+- Dibujás con artifacts: HOY contra PROPUESTA, tarjetas lado a lado, tablas. Si Alejo pide ejemplos, mínimo 2. Cuando se cambia algo, se muestra también en gráfico o tabla, no solo escrito.
 - Español rioplatense, breve.
-- Distinguís lo que decidió Alejo de lo que propusiste vos.
+- Distinguís siempre lo que **decidió Alejo** de lo que **propusiste vos** (valor por defecto).
+- **Sos incisivo antes de que algo llegue al código.** Buscás lo ambiguo y lo cuestionás. Ejemplo de este proyecto: Alejo dijo "dos o tres escritores" y podía ser 2 o 3 autores por noticia, o 2 o 3 noticias. Se aclara acá, no en el código.
+- **Te revisás antes de cerrar la carta.** Antes eran dos chats y el segundo le buscaba los huecos al primero (ejemplo real: una regla de rutas que decía "aparece en cualquier parte" habría tirado `/america/mexico/` por `/mexico/`). Ahora lo hacés vos: releé la carta como si fueras Claude Code con un modelo más chico y fijate si hay algo que se pueda entender de dos maneras.
 
 ## Con quién hablás
 
 - Con Alejo, en este chat.
-- Con el PREPARADOR, por archivo.
-- **No con Claude Code.** Si necesitás algo de él (un dato del repo, el resultado de una prueba, una captura), se lo pedís al PREPARADOR en tu carta.
+- Con Claude Code, por archivo, en los dos sentidos. Alejo lleva los archivos de uno a otro.
+
+Lo chico (un número en `config/`, un texto, un error de tipeo) Alejo se lo pide directo a Claude Code. Pasa por acá lo que toca una decisión de Alejo o más de un archivo.
 
 ## Qué leer al arrancar
 
 1. `CLAUDE.md`: decisiones de Alejo y estado del proyecto.
-2. `buzon/pendientes.md`, sección DISEÑADOR.
-3. El `PREPARADOR_para_Disenador_*` más nuevo, si hay.
-4. El dibujo del embudo, si necesitás verlo: https://claude.ai/artifact/1x8EynL8rEGJV9i6DyiHFi (es privado de Alejo; si no podés abrirlo, pedíselo).
+2. `buzon/pendientes.md`, completo.
+3. El `ClaudeCode_para_Cowork_*` más nuevo. Si todavía no hay ninguno, el `ClaudeCode_para_PREPARADOR_*` más nuevo (así se llamaban antes).
+4. El dibujo del embudo, si lo necesitás: https://claude.ai/artifact/1x8EynL8rEGJV9i6DyiHFi (es privado de Alejo; si no podés abrirlo, pedíselo).
+
+Las cartas con nombre `PREPARADOR_*`, `Disenador_*` y `ClaudeCode_para_PREPARADOR_*` son historia: lo vigente está en `CLAUDE.md` y `pendientes.md`.
 
 ## Qué escribís
 
-`Disenador_para_PREPARADOR_<AAAA-MM-DD>_<letra>.md`, con:
+`Cowork_para_ClaudeCode_<AAAA-MM-DD>_<letra>.md`. Como Claude Code corre con un modelo más chico, no deja nada librado a la interpretación:
 
-- Las decisiones numeradas: qué se ve, qué se toca y por qué.
-- Qué decidió Alejo, con sus palabras si importan, y qué propusiste vos.
-- Lo que quedó pendiente y con qué valor por defecto.
-- Los links a los artifacts.
-- Lo que necesitás saber de Claude Code, para que el PREPARADOR lo pida.
+- Qué cambia, contado como lo vería quien usa el programa.
+- Qué archivos se tocan, con nombre exacto, y cuáles NO.
+- Cuándo está listo: qué tests o qué demo lo prueban.
+- Al menos 2 ejemplos de entrada y salida esperada.
+- Qué decidió Alejo, con sus palabras si importan, y qué valor por defecto se usa mientras tanto.
+- Los pasos, en orden.
+- Lo que sabés que Claude Code tiene que medir o comprobar, con la cuenta exacta que querés en el reporte.
 
-Encabezado con la hora de Argentina (`TZ=America/Argentina/Buenos_Aires date`). Un paquete por ronda; lo ya enviado no se reescribe.
+En ST el pedido lleva además: área en el encabezado, base (commit y blob), checklist con números, orden de despliegue y quién decide qué. Acá va la versión corta; si Alejo prefiere la de ST, manda esa.
+
+Encabezado con la hora de Argentina (`TZ=America/Argentina/Buenos_Aires date`). Un paquete por ronda; lo ya enviado no se reescribe (si cambia algo, archivo nuevo con letra nueva y la primera línea dice qué reemplaza).
+
+## Revisás lo que vuelve
+
+Leés el reporte de Claude Code. Lo que se resuelve con otro pedido, va en tu próxima carta. Lo que pide una decisión de Alejo, se la planteás a él con un valor por defecto.
+
+## Al cerrar la tanda
+
+Cuando Claude Code deja su reporte y pushea, el chat ya cumplió: Alejo lo cierra y abre uno nuevo con la línea de `LEEME.md`. La memoria es el repo, no el chat. Lo que decidiste y no quedó escrito en una carta o en `pendientes.md`, se pierde.
 
 ============================================================
 ARCHIVO 2 de 5 · buzon/LEEME.md
@@ -64,89 +81,73 @@ ARCHIVO 2 de 5 · buzon/LEEME.md
 
 # Buzón de NOTITAN_7M
 
-Tres bloques, como en ST. Alejo es el relé: cada agente trabaja a su ritmo y Alejo lleva los archivos de uno a otro. Esta carpeta es la memoria compartida. Lo que no está acá ni en `CLAUDE.md`, no existe.
+Dos bloques. Alejo es el relé: cada uno trabaja a su ritmo y Alejo lleva los archivos de uno a otro. Esta carpeta es la memoria compartida. Lo que no está acá ni en `CLAUDE.md`, no existe.
 
-Borrador armado por Claude Code el 04-10-2026 a partir de lo que Alejo contó de ST. Alejo lo ajusta.
-
-Cada bloque tiene su propio archivo de arranque: `LEEME_DISENADOR.md`, `LEEME_PREPARADOR.md` y `LEEME_CLAUDECODE.md`.
+El arranque de cada bloque está en su propio archivo: `LEEME_COWORK.md` y `LEEME_CLAUDECODE.md`.
 
 ## Quién habla con quién
 
-El DISEÑADOR nunca habla directo con Claude Code. Todo pasa por el PREPARADOR. Las decisiones empiezan en el DISEÑADOR (con Alejo), el PREPARADOR las vuelve un pedido preciso, y terminan en Claude Code. Lo que Claude Code encuentra sube al DISEÑADOR por el PREPARADOR.
+| | con Alejo | con el otro bloque |
+|---|---|---|
+| **Cowork** | en su chat | por archivo, en los dos sentidos |
+| **Claude Code** | en su chat, solo para lo chico | por archivo, en los dos sentidos |
 
-| | con el DISEÑADOR | con el PREPARADOR | con Claude Code |
-|---|---|---|---|
-| **DISEÑADOR** | | sí | no |
-| **PREPARADOR** | sí | | sí |
-| **Claude Code** | no | sí | |
+Cowork y Claude Code no se hablan directo: Alejo lleva cada archivo. Las decisiones empiezan en Cowork (con Alejo), terminan en Claude Code, y lo que Claude Code encuentra vuelve a Cowork en su reporte.
 
-Alejo habla con los tres, cada uno en su chat.
-
-## Los tres bloques
+## Los dos bloques
 
 | Bloque | Dónde | Modelo | Qué hace |
 |---|---|---|---|
-| 1 · DISEÑADOR | chat de Cowork | Opus 5.5, esfuerzo alto (quizás máximo) | Piensa, pregunta a Alejo todo lo que haga falta y dibuja con artifacts. No escribe código. |
-| 2 · PREPARADOR | chat de Cowork | Opus 5.5, esfuerzo alto (quizás máximo): el más alto de los tres | Organiza y gestiona. Vuelve lo visual y las decisiones un pedido limpio y preciso para Claude Code. |
-| 3 · Claude Code | este repo | Sonnet 5.5 | Ejecuta, prueba y reporta. |
+| 1 · Cowork | un solo chat de Cowork | el más fuerte que haya, esfuerzo al máximo | Piensa, le pregunta a Alejo, dibuja con artifacts y escribe el pedido exacto para Claude Code. No escribe código. |
+| 2 · Claude Code | este repo | Sonnet 5.5 | Ejecuta, prueba y reporta. |
 
-Como Claude Code corre con un modelo más chico, el pedido del PREPARADOR tiene que ser exacto.
+Como Claude Code corre con un modelo más chico, el pedido de Cowork tiene que ser exacto.
 
 ## Nombres de archivo
 
 `<DE>_para_<A>_<AAAA-MM-DD>_<letra>.md`. La letra empieza en `a` y sigue `b`, `c` si hay más de uno el mismo día.
 
-- `Disenador_para_PREPARADOR_...`
-- `PREPARADOR_para_Disenador_...`
-- `PREPARADOR_para_ClaudeCode_...`
-- `ClaudeCode_para_PREPARADOR_...`
+- `Cowork_para_ClaudeCode_...`
+- `ClaudeCode_para_Cowork_...`
 
-No existe `ClaudeCode_para_Disenador_...` ni al revés. En ST las capturas van de Claude Code directo al DISEÑADOR (decidido el 29-09); en 7M todo pasa por el PREPARADOR.
+**Historia.** Hasta el 04-10-2026 eran tres bloques (DISEÑADOR, PREPARADOR y Claude Code) y los archivos se llamaban `Disenador_para_PREPARADOR_...`, `PREPARADOR_para_Disenador_...`, `PREPARADOR_para_ClaudeCode_...` y `ClaudeCode_para_PREPARADOR_...`. Quedan en esta carpeta tal cual, como historia. Donde un documento dice DISEÑADOR o PREPARADOR, hoy es Cowork.
 
 ## Reglas
 
-1. **Al empezar cada turno**, cada agente lee todo lo que sea más nuevo que lo último que leyó, aunque Alejo no se lo haya pegado. Claude Code hace `git pull` antes.
-2. **Un paquete por ronda.** Si el DISEÑADOR y Claude Code trabajan a la vez, el PREPARADOR espera a los dos antes de escribir de nuevo. Excepción: algo que bloquea a otro (un error de seguridad, un dato equivocado).
+1. **Al empezar cada turno**, cada bloque lee todo lo que sea más nuevo que lo último que leyó, aunque Alejo no se lo haya pegado. Claude Code hace `git pull` antes.
+2. **Un paquete por ronda.** Si Cowork y Claude Code trabajan a la vez, se espera a los dos antes de escribir de nuevo. Excepción: algo que bloquea al otro (un error de seguridad, un dato equivocado).
 3. **Lo enviado no se reescribe.** Si algo cambia, va en un archivo nuevo con letra nueva y la primera línea dice qué reemplaza.
 4. **La lista de la próxima ronda vive en `pendientes.md`.** Todo lo que llega y no sale ya se anota ahí en el momento.
 5. **La hora es la de Argentina**, sacada con `TZ=America/Argentina/Buenos_Aires date`. El contenedor muestra UTC (Argentina más 3 h). Va en el encabezado de cada archivo.
-6. **Las preguntas a Alejo se reparten.** El DISEÑADOR le pregunta todo lo que haga falta, de a un tema por vez. El PREPARADOR solo si algo es ambiguo y frena la precisión. Claude Code casi nunca: deja un valor por defecto y lo anota.
+6. **Las preguntas a Alejo se reparten.** Cowork le pregunta lo que haga falta, de a un tema por vez. Claude Code casi nunca: deja un valor por defecto y lo anota.
 7. **Las decisiones de Alejo no las toma nadie más.** Están en `CLAUDE.md`, sección "Decisiones que solo Alejo puede tomar". Si hace falta una, se anota con un valor por defecto que se pueda cambiar con un número.
-8. **Lo chico se le pide directo a Claude Code** en su chat: un número en `config/`, un texto, un error de tipeo. Pasa por los tres bloques lo que toca una decisión de Alejo o más de un archivo.
+8. **Lo chico se le pide directo a Claude Code** en su chat: un número en `config/`, un texto, un error de tipeo. Pasa por Cowork lo que toca una decisión de Alejo o más de un archivo.
 
 ## Cada tanda arranca en limpio
 
-Una tanda es una vuelta completa: el DISEÑADOR decide, el PREPARADOR arma el pedido, Claude Code ejecuta y reporta.
+Una tanda es una vuelta completa: Cowork decide y arma el pedido, Claude Code ejecuta y reporta.
 
 1. **Se cierra la tanda.** Claude Code deja su reporte, actualiza `pendientes.md` y `CLAUDE.md`, y pushea.
 2. **Alejo hace `/clear` en Claude Code.**
-3. **Alejo borra los chats de Cowork** del DISEÑADOR y del PREPARADOR.
-4. **Abre chats nuevos** y pega en cada uno una sola línea.
+3. **Alejo cierra el chat de Cowork** y abre uno nuevo cuando haya algo para decidir.
+4. **Pega en cada uno una sola línea.**
 
 La memoria es el repo, no el chat. Lo que no quedó escrito se pierde con el `/clear`.
 
 ### Cómo llegan los archivos a Cowork
 
-Hay una sola sesión de Claude Code y trabaja en la rama `claude/trusting-knuth-brmpsy`, que es la rama principal del repo en GitHub. Los chats de Cowork leen `buzon/` de ahí. No hay nada que igualar.
+Hay una sola sesión de Claude Code y trabaja en la rama `claude/trusting-knuth-brmpsy`, que es la rama principal del repo en GitHub. El chat de Cowork lee `buzon/` de ahí. No hay nada que igualar.
 
-1. **Hacia Cowork:** lo leen del repo. Un chat de Cowork puede clonar el repo si la línea trae el link (probado el 04-10 por el PREPARADOR). El paquete queda para cuando eso no ande: si un chat no puede abrir el repo (dice "no hay nada conectado"), Alejo le pega el paquete de su rol: `buzon/paquetes/PEGAR_DISENADOR.md` o `buzon/paquetes/PEGAR_PREPARADOR.md`. Lo arma Claude Code con `npm run paquete` y trae, en un solo texto, el LEEME del rol, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y la carta más nueva que ese rol tiene que leer.
-2. **Desde Cowork:** lo que escriben (`Disenador_para_PREPARADOR_*`, `PREPARADOR_para_ClaudeCode_*`) lo pega Alejo en el chat de Claude Code, que lo guarda en `buzon/` con el nombre correcto, lo commitea y lo pushea. Queda en el repo apenas se pushea.
+1. **Hacia Cowork:** lo lee del repo. Un chat de Cowork puede clonar el repo si la línea trae el link (probado el 04-10). El paquete queda para cuando eso no ande: si el chat no puede abrir el repo (dice "no hay nada conectado"), Alejo le pega `buzon/paquetes/PEGAR_COWORK.md`. Lo arma Claude Code con `npm run paquete` y trae, en un solo texto, `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code.
+2. **Desde Cowork:** lo que escribe (`Cowork_para_ClaudeCode_*`) lo pega Alejo en el chat de Claude Code, que lo guarda en `buzon/` con el nombre correcto, lo commitea y lo pushea. Queda en el repo apenas se pushea.
 
 Las líneas para pegar traen el link del repo. Si el chat no puede clonarlo, se pega el paquete en vez de la línea. Si el repo pasa a privado, la línea con el link deja de andar y se vuelve al paquete.
 
-Para el DISEÑADOR:
+Para Cowork:
 
 ```
 DESDE ACÁ
-Chat nuevo. Cloná https://github.com/AAlejoB/NOTITAN_7M (rama claude/trusting-knuth-brmpsy), leé buzon/LEEME_DISENADOR.md y arrancá de ahí.
-HASTA ACÁ
-```
-
-Para el PREPARADOR:
-
-```
-DESDE ACÁ
-Chat nuevo. Cloná https://github.com/AAlejoB/NOTITAN_7M (rama claude/trusting-knuth-brmpsy), leé buzon/LEEME_PREPARADOR.md y arrancá de ahí.
+Chat nuevo. Cloná https://github.com/AAlejoB/NOTITAN_7M (rama claude/trusting-knuth-brmpsy), leé buzon/LEEME_COWORK.md y arrancá de ahí.
 HASTA ACÁ
 ```
 
@@ -154,7 +155,7 @@ Para Claude Code, después del `/clear`:
 
 ```
 DESDE ACÁ
-Leé buzon/LEEME_CLAUDECODE.md y el PREPARADOR_para_ClaudeCode_* más nuevo, y hacelo.
+Leé buzon/LEEME_CLAUDECODE.md y la carta más nueva de Cowork (Cowork_para_ClaudeCode_*), y hacela.
 HASTA ACÁ
 ```
 
@@ -176,15 +177,15 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - Cada entrega termina con el bloque "QUÉ HACÉS AHORA" (a quién, qué le pasa, qué espera, cuándo, quién ejecuta).
 - No poner diagramas con forma de comando dentro de bloques de código: una vez los copió en PowerShell.
 - Dice "andá para adelante": no pedirle permiso por cada paso, solo parar si hay algo que solo él puede hacer.
-- Trabaja con tres bloques, como en su otro proyecto (ST): DISEÑADOR (Cowork, Opus 5.5, esfuerzo alto o máximo) → PREPARADOR (Cowork, Opus 5.5, alto o máximo, el más preciso) → Claude Code (Sonnet 5.5, ejecuta). **Claude Code habla solo con el PREPARADOR, por archivos en `buzon/`, y nunca directo con el DISEÑADOR**: todo pasa por el PREPARADOR. El DISEÑADOR es quien le pregunta mucho a Alejo y dibuja; Claude Code casi no le pregunta. Alejo lleva los archivos de uno a otro. Al empezar: `buzon/LEEME_CLAUDECODE.md` y `buzon/pendientes.md`. Lo chico se le pide directo a Claude Code; pasa por los tres bloques lo que toca una decisión de Alejo o más de un archivo.
+- Trabaja con **dos bloques** (desde el 2026-10-04; antes eran tres, como en su otro proyecto ST: DISEÑADOR, PREPARADOR y Claude Code, y se mareaba llevando archivos entre tres chats): **un solo chat de Cowork** (el modelo más fuerte que haya, esfuerzo al máximo; piensa, le pregunta a Alejo, dibuja con artifacts y escribe el pedido exacto) y **Claude Code** (Sonnet 5.5, ejecuta). **Claude Code habla solo con Cowork, por archivos en `buzon/`** (`Cowork_para_ClaudeCode_*` y `ClaudeCode_para_Cowork_*`). Alejo lleva los archivos de uno a otro. Al empezar: `buzon/LEEME_CLAUDECODE.md` y `buzon/pendientes.md`. Lo chico se le pide directo a Claude Code; pasa por Cowork lo que toca una decisión de Alejo o más de un archivo. Donde este archivo o `pendientes.md` dicen DISEÑADOR o PREPARADOR, hoy es Cowork; las cartas viejas con esos nombres quedan en `buzon/` como historia.
 - Hay **una sola sesión de Claude Code**: la de la rama `claude/trusting-knuth-brmpsy` (decidido por Alejo el 2026-10-04; la sesión original se retiró). Esa rama es la principal del repo, así que nadie tiene que igualar nada.
-- Cada tanda arranca en limpio: Alejo hace `/clear` en Claude Code, borra y reabre los chats de Cowork, y pega en cada uno una línea que apunta a su `LEEME_<ROL>.md` (ver `buzon/LEEME.md`). La memoria es el repo: al cerrar una tanda hay que dejar `pendientes.md`, `CLAUDE.md` y un reporte al día, y pushear.
+- Cada tanda arranca en limpio: Alejo hace `/clear` en Claude Code, cierra el chat de Cowork y abre uno nuevo cuando haya algo para decidir, y pega en cada uno una línea que apunta a su `LEEME_COWORK.md` o `LEEME_CLAUDECODE.md` (ver `buzon/LEEME.md`). La memoria es el repo: al cerrar una tanda hay que dejar `pendientes.md`, `CLAUDE.md` y un reporte al día, y pushear.
 - No llenar a Alejo de preguntas. Las decisiones abiertas van a `buzon/pendientes.md` con un valor por defecto y a él se le pregunta solo lo que es suyo y frena el trabajo. Muchas veces va a contestar "dejalo pendiente": está bien.
 - Los artifacts, para comparar opciones. El del embudo queda como mapa vivo y se sobrescribe. Un artifact es privado: para pasarle el contexto a otra IA sirve este archivo, no el link.
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 132 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 133 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--sin-notas-de-servicio`, `--acumular <archivo>`, `--sin-leer` y `--sin-excluir-rutas`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
@@ -193,7 +194,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - Excepción a mano para una 4/5 (2026-10-04, solo el núcleo): `preparar` devuelve `elegiblesAMano` (hechos en observación a los que les falta 1 medio, sin firma que los haga entrar por la vía B; `aMano` en `config/reglas.json`: `activa` y `faltanMedios`, hoy 1) y `resumen.elegiblesAMano`. La IA juzga `candidatos` **y** `elegiblesAMano`. `decidir` recibe `elegiblesAMano` y devuelve `aMano: { nacional, internacional }`: los que pasan los criterios 3 a 6, sin cupo, sin topes y sin reserva, con la etiqueta "Confirmada por N medios · elegida a mano". Nunca entran solos a `nacionales` ni a `internacionales`, ni para llegar al mínimo de 3. La vista (el menú "En observación · les falta 1 medio" con "Llevármela igual") es capa 5 y espera el diseño de la entrega.
 - Rutas excluidas por feed (2026-10-04): `excluirRutas` en `config/feeds.json` (hoy El Cronista e Infobae). La regla es que la dirección **empiece con** la ruta (`rutaExcluida` en `src/lector.js`). Lo ya guardado se vuelve a filtrar al cargarlo (`filtrarRutas` en `scripts/leer.js`; en n8n, el mismo paso al cargar lo acumulado); el núcleo no sabe de feeds. `--sin-excluir-rutas` (solo con `--sin-leer`) da el "antes" de una medición.
 - Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false` en `portales.json`: no suman a la verificación y no avisan "feed roto". El día de ejemplo usa medios argentinos para lo internacional.
-- Paquetes para pegar en Cowork (2026-10-04): cuando un chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_DISENADOR.md` o `buzon/paquetes/PEGAR_PREPARADOR.md`. Los arma `npm run paquete` (`scripts/armar-paquete.js`) con los archivos tal cual del repo. Son una foto: se rearman al cerrar cada tanda.
+- Paquete para pegar en Cowork (2026-10-04): cuando el chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_COWORK.md` (antes había uno por rol; con un solo chat hay un solo paquete). Lo arma `npm run paquete` (`scripts/armar-paquete.js`) con `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code, tal cual del repo. Es una foto: se rearma al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
 
@@ -273,7 +274,7 @@ Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 
 
 ## Siguiente paso
 
-Está en `buzon/pendientes.md`. Lo que queda, en este orden: la capa 4 (cada cuánto leer y dónde se guarda lo acumulado, con Don Julio), el diseño de la entrega (que incluye la vista de las 4/5 y la memoria de lo ya entregado) y la IA que juzga, que ahora son **6 preguntas**: las 5 de siempre más "¿estos dos hechos son la misma noticia?", y que juzga también las 4/5. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`. Para el DISEÑADOR, con números: si se suman los feeds por sección de Infobae y qué hacer con las 14 notas de otras ediciones que quedan en su feed.
+Está en `buzon/pendientes.md`. Lo que queda, en este orden: la capa 4 (cada cuánto leer y dónde se guarda lo acumulado, con Don Julio), el diseño de la entrega (que incluye la vista de las 4/5 y la memoria de lo ya entregado) y la IA que juzga, que ahora son **6 preguntas**: las 5 de siempre más "¿estos dos hechos son la misma noticia?", y que juzga también las 4/5. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`. Para Cowork, con números: si se suman los feeds por sección de Infobae y qué hacer con las 14 notas de otras ediciones que quedan en su feed.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -287,7 +288,7 @@ Está en `buzon/pendientes.md`. Lo que queda, en este orden: la capa 4 (cada cu�
   - Una firma suma solo si su nota es informativa (la opinión se descarta en el criterio 1) y salió en un portal que cuenta de `portales.json`. Un autor vale 1 aunque firme en varios portales. Cada autor tiene `ambitos`: nacional, internacional o los dos.
   - Sigue pasando por fuente con nombre, interés público y no desmentido.
   - El lector (`src/lector.js`) tiene que llenar `nota.firma` con el autor del feed (`dc:creator`, `author`); elDiarioAR ya lo trae.
-- Dos ideas, una descartada y una sin resolver (para el DISEÑADOR, ver `buzon/pendientes.md`): (1) que la verificación no sea "5 fijos" sino un cálculo, por ejemplo con peso por portal: **descartada por Alejo el 04-10-2026: la verificación queda en 5 grupos fijos. Sin peso por portal, sin umbral de puntaje y sin segunda página automática con "Confirmada por 4 medios".** (2) Otras formas de armar la lista de firmas, porque Alejo no tiene nombres a mano: sigue pendiente.
+- Dos ideas, una descartada y una sin resolver (para Cowork, ver `buzon/pendientes.md`): (1) que la verificación no sea "5 fijos" sino un cálculo, por ejemplo con peso por portal: **descartada por Alejo el 04-10-2026: la verificación queda en 5 grupos fijos. Sin peso por portal, sin umbral de puntaje y sin segunda página automática con "Confirmada por 4 medios".** (2) Otras formas de armar la lista de firmas, porque Alejo no tiene nombres a mano: sigue pendiente.
 - **Excepción a mano para una 4/5, decidida por Alejo (carta del DISEÑADOR `a`, 04-10-2026), hecha en el núcleo.** No contradice los 5 fijos: la 4/5 nunca entra sola ni cuenta como verificada; la persona la elige a mano y sale marcada "Confirmada por 4 medios · elegida a mano". Los detalles (solo les falta 1 medio, sin cupo ni topes, pasan por la IA y los criterios 3 a 6, en un menú por bloque) son valores por defecto del DISEÑADOR, no decisiones de Alejo. Se cambian en `aMano` de `config/reglas.json`. La vista espera el diseño de la entrega.
 - **Notas de servicio con plantilla, decidido por Alejo (04-10-2026), hecho:** salen en el criterio 1 con 3 moldes en `criterio1.notasDeServicio`. No decide deportes: los resultados de los partidos siguen entrando.
 - **Infobae, decidido por Alejo (04-10-2026), hecho:** se descartan sus ediciones de España, Perú, México y Colombia, como en el Cronista; `/america/` queda. No toca "qué es INTERNACIONAL": solo decide qué páginas de Infobae cuentan como Infobae.
@@ -328,6 +329,8 @@ ARCHIVO 4 de 5 · buzon/pendientes.md
 
 Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
+**Desde el 04-10-2026 hay un solo chat de Cowork** (antes DISEÑADOR y PREPARADOR). Donde un ítem dice DISEÑADOR o PREPARADOR, es Cowork. Lo primero que puede tomar el chat nuevo, en este orden (es una sugerencia, no una decisión de Alejo): las 2 preguntas con valor por defecto sobre Infobae (feeds por sección y las 14 notas de otras ediciones), el diseño de la entrega con la vista de las 4/5, y las 6 preguntas de la IA.
+
 **Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
 - [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
 - [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4.
@@ -346,7 +349,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - Primera medición con datos reales: en las notas leídas, la noticia de Brasil la cubren 10 grupos argentinos y 4 internacionales (2 en inglés, The Guardian y Al Jazeera). Sin contar a los argentinos no se verifica: quedan 2 internacionales en español. Se verifica porque cuentan los medios argentinos.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
-**DISEÑADOR**
+**Cowork (diseño y decisiones; antes DISEÑADOR)**
 - [ ] Diseñar la entrega para quien lo usa cada 4 horas (el caso de la hermana de Alejo, canal de comunicaciones): qué ve, en qué orden, cómo elige cuántas noticias (3 a 7), cómo se ve la segunda página. **Incluye la vista de las 4/5** ("En observación · les falta 1 medio" con "Llevármela igual"): el núcleo ya da `aMano` por bloque, con su etiqueta.
 - [ ] Diseñar las **6 preguntas** de la IA que juzga: las 5 de siempre (fresco o dato nuevo, fuente con nombre, interés público, nacional o internacional, desmentido) más la sexta, "¿estos dos hechos son la misma noticia?" (ver "Hechos partidos"). Ojo: también juzga `elegiblesAMano` (las 4/5), no solo `candidatos`. La sexta va **antes** de armar `candidatos` y `elegiblesAMano` y antes de las otras 5; solo mira pares de hechos con 3 o 4 grupos que comparten persona o lugar; contesta sí o no más una línea de por qué, y en lo que se guarda para revisar queda "unido por la IA: <por qué>". El hecho unido sigue el camino normal (con 5 o más grupos sale "Confirmada por N medios", sin etiqueta distinta). Riesgo aceptado por Alejo: si la IA se equivoca, una noticia podría salir Confirmada sin serlo.
 - [ ] **Reglas viejas de título (`quiniela`, `horoscopo`) sueltas:** sacan cualquier título con esa palabra, también noticias de verdad (ej.: "Detienen al dueño de una agencia de quiniela"). ¿Se vuelven precisas como los moldes nuevos? Medido el 04-10 sobre 1.277 notas: `quiniela` sacó 0, `horoscopo` sacó 2 por título (más 1 por url `/horoscopo/`) y `dolar hoy` sacó 6; ninguna era noticia de verdad. El caso peligroso no apareció en estos datos, pero sigue siendo posible. **Valor por defecto:** quedan como están.
@@ -360,7 +363,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 - [ ] Decidir las ventanas de tiempo para corridas cada 4 horas. Hoy son 48 h de recolección y 24 h de frescura, pensadas para una corrida por día.
 
-**PREPARADOR → Claude Code**
+**Cowork → Claude Code (antes PREPARADOR → Claude Code)**
 - [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida. **Espera el diseño de la entrega (DISEÑADOR): ocultar o marcar, por persona, cuánto dura.**
 
 **Más adelante**
@@ -370,6 +373,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 04-10-2026 · **Alejo pasó de tres bloques a dos: un solo chat de Cowork y Claude Code.** Se juntaron DISEÑADOR y PREPARADOR en `buzon/LEEME_COWORK.md`; las cartas se llaman `Cowork_para_ClaudeCode_*` y `ClaudeCode_para_Cowork_*`; hay un solo paquete (`buzon/paquetes/PEGAR_COWORK.md`); `LEEME.md`, `LEEME_CLAUDECODE.md` y `CLAUDE.md` están al día. `LEEME_DISENADOR.md` y `LEEME_PREPARADOR.md` quedan como avisos que apuntan al nuevo, y las cartas viejas quedan como historia. El motivo: llevar archivos entre tres chats lo mareaba.
 - [x] 04-10-2026 · **Infobae sin las ediciones de España, Perú, México y Colombia** (decidió Alejo). `excluirRutas` en su feed, con la regla "la dirección **empieza con** la ruta" (así `/america/mexico/` no se cae por `/mexico/`), y lo ya guardado se filtra al cargarlo (`filtrarRutas` en `scripts/leer.js`; en n8n, el mismo paso al cargar lo acumulado). `npm run leer -- --acumular datos/notas.json --sin-leer --sin-excluir-rutas` da el "antes". Sobre lo guardado: 213 notas sacadas (`/espana/` 76, `/peru/` 72, `/mexico/` 38, `/colombia/` 27), hechos 1.031 → 865, los 2 confirmados y las 4 de "les falta 1 medio" siguen igual, y de los hechos de 3 o más grupos solo uno pierde a Infobae (El Comidista, de 3 a 2 grupos: era una unión con la edición de España). Ver `ClaudeCode_para_PREPARADOR_2026-10-04_k.md`.
 - [x] 04-10-2026 · LN+ no anda con la red completa: el portal corta la conexión en las 8 direcciones probadas, mientras La Nación responde en 1 s por el mismo camino. Queda `activo: false` y en `sinFeed`, con el motivo. Se reintenta solo si Alejo lo pide.
 - [x] 04-10-2026 · Notas con fecha futura. **Decidido por el PREPARADOR: no se toca.** El lector ya descarta lo que viene con más de 12 h de adelanto (`FECHA_FUTURA_HORAS`); lo de menos de 12 h (Página/12 fecha la edición del lunes a las 00:01) cuenta como fresco un rato más, sin daño visto.
@@ -390,94 +394,159 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/PREPARADOR_para_Disenador_2026-10-04_c.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_PREPARADOR_2026-10-04_k.md
 ============================================================
 
-# PREPARADOR → DISEÑADOR · 04-10-2026 · 18:20 (hora de Argentina) · letra c
+# Claude Code → PREPARADOR · 04-10-2026 · 19:01 (hora de Argentina) · letra k
 
-Traduce `ClaudeCode_para_PREPARADOR_2026-10-04_j.md`. Si no leíste la letra `b`, leela antes: esta la continúa.
+Responde a `PREPARADOR_para_ClaudeCode_2026-10-04_c.md`.
 
-**Veredicto:** tus 3 decisiones ya están hechas y probadas (123 tests bien). Los moldes funcionan: sacaron 7 notas, ninguna era noticia, y las 2 uniones falsas desaparecieron. Pero la medición deja ver dos problemas más grandes que los moldes: **la misma carrera de Colapinto aparece dos veces en el menú de las 4/5**, y **el 83 % del feed de Infobae es de otros países**. Te pido dos decisiones, cada una con su valor por defecto. El resto lo cierro yo.
+**Veredicto:** hechos los 6 pasos. Infobae ya no cuenta sus ediciones de España, Perú, México y Colombia, tampoco en lo guardado: 213 notas menos, y los 2 confirmados y las 4 de "les falta 1 medio" siguen igual. La IA que une hechos partidos tendría pocos pares para mirar (2, con un control que da lo que decía la carta). Los feeds por sección de Infobae andan y traen mucho más material argentino. LN+ no anda ni con la red completa. `npm test` pasó de 123 a **132 bien** y sigue 1 pendiente a propósito.
 
-## 1 · Qué daría el botón hoy
+## Qué cambió
 
-Sobre 1.277 notas reales acumuladas (de 2/10 18:12 a 4/10 18:02, un fin de semana), sin la IA:
-
-| Qué | Cuántas | Cuáles |
+| Paso | Commit | Cambio |
 |---|---|---|
-| Confirmadas (5 o más medios) | **2** | Brasil (6 medios) y García Cuerva en Luján (6) |
-| Para elegir a mano (4 de 5) | **4** | Colapinto en Malasia · "Una carrera loca…" de Colapinto en Sepang · ventas minoristas de septiembre · Milei siguiendo la elección en Brasil |
-| Hechos en total | 1.034 | 983 salieron en un solo medio |
+| guardar | `74f260c` | La carta `c`, en `buzon/`. |
+| 1 | `86b2acb` | `rutaExcluida` en el lector ("la dirección empieza con la ruta"); `excluirRutas` de Infobae con su nota; `filtrarRutas` y `--sin-excluir-rutas` en `scripts/leer.js`; línea `RUTAS EXCLUIDAS`; README. |
+| 2, 3, 4 | (nada) | Mediciones; scripts fuera del repo. |
+| 5 | `584a0e0` | LN+ no anda: el `motivo` de `sinFeed` dice qué dio el 04-10. |
+| 6 | este commit | `CLAUDE.md`, `pendientes.md`, este reporte y los paquetes. |
 
-Dos de las 4 del menú son **la misma carrera**: quien use el botón la vería repetida. Juntas sumarían 5 o 6 medios y saldrían solas como "Confirmada", sin necesidad de elegirlas a mano.
+## Tests, antes y después
 
-Lo que cambiaron los moldes (A sin moldes, B con moldes):
-
-| Hechos según cuántos medios | A | B |
+| | Antes | Después |
 |---|---|---|
-| 1 | 982 | 983 |
-| 2 | 37 | 37 |
-| 3 | 10 | **8** (las 2 uniones falsas desaparecieron) |
+| Bien | 123 | **132** |
+| Pendiente a propósito | 1 | 1 |
+| `test/lector.test.js` | | +4 (`rutaExcluida` con los 6 ejemplos, `rutaExcluida` con los bordes, `parsearFeed` de Infobae, config) |
+| `test/leer.test.js` | | +5 (`filtrarRutas` ×3, `lineaRutasExcluidas`, `--sin-excluir-rutas`) |
+
+El test del Cronista que ya existía pasa sin tocarlo. `npm run demo` sale **idéntica** (`diff` vacío). Doble pasada: rompí a propósito el código en 9 lugares (`includes` en vez de `startsWith`, sin minúsculas en la dirección o en la config, una dirección ilegible que sale, un feed sin lista que usa una por defecto, sin el corte de `--sin-excluir-rutas`, `filtrarRutas` que no saca nada, la línea que cuenta mal). Los tests atraparon las 9. Un error mío en un test (el viaje por JSON borra `feed: undefined`) lo vi al correrlo y lo arreglé con `structuredClone`.
+
+## Paso 1 · los 6 ejemplos de tu tabla
+
+| # | Dirección | Resultado |
+|---|---|---|
+| 1 | `/colombia/2026/10/04/resultado-loteria-del-cauca-…` (real) | Sale: `ruta_excluida (/colombia/)` |
+| 2 | `/america/america-latina/…/brasil/` | Queda |
+| 3 | `/america/mexico/…/x/` | **Queda** (no empieza con `/mexico/`) |
+| 4 | `/politica/…/x/` | Queda |
+| 5 | `/ESPANA/…/x/` | Sale: `ruta_excluida (/espana/)` |
+| 6 | `cronista.com/espana/lluvias-2` | Sale, como hoy |
+
+**Ojo con una cosa operativa:** `datos/notas.json` **no se tocó** (hice las mediciones sin leer nada antes, como pedía el paso 2). Sigue con las 1.277 notas de antes, incluidas las 213 que ya no cuentan. La primera lectura con `--acumular` lo reescribe ya filtrado, y con `--sin-leer` cada corrida las saca al cargar.
+
+## Paso 2 · antes y después (A = `--sin-excluir-rutas`, B = con el filtro)
+
+Archivo: 1.277 notas, de 2/10 18:12 a 5/10 00:01 (la última es una de las 3 con fecha futura: Página/12 pone la fecha de la edición del lunes). A corrió a las 18:55:34 y B a las 18:55:36.
+
+**a · Hechos según cuántos grupos**
+
+| Grupos | A | B |
+|---|---|---|
+| 1 | 980 | 819 |
+| 2 | 37 | 33 |
+| 3 | 8 | 7 |
 | 4 | 4 | 4 |
 | 5 o más | 2 | 2 |
+| Hechos en total | 1.031 | 865 |
+| Notas | 1.277 | 1.064 |
+| Hechos con 3 o más grupos | 14 | 13 |
 
-## 2 · Decisiones que te pido
+(Hay 3 notas fuera de la ventana de 48 h en las dos corridas: es la hora, no el filtro. En A, la nota de lotería de `/colombia/` se contaba entre las 65 del criterio 1; en B no está.)
 
-### 2.1 · Hechos partidos: ahora se ven, y repetidos
+**b · Hechos de 3 o más grupos que pierden a Infobae: 2.**
 
-Ya estaba en `pendientes.md`, pero cambió de peso: antes solo se perdía una confirmada; con el menú de las 4/5, además, la misma noticia sale dos veces. El agrupador compara palabras, y los dos títulos de Colapinto casi no comparten ninguna ("Gran Premio de Malasia" contra "Sepang", "13°" contra "carrera loca"). Ninguna regla de palabras lo arregla sin juntar cosas que no son.
+| Hecho | A | B | Qué pasa |
+|---|---|---|---|
+| "Tras el cierre de los comicios, Lula Da Silva y Flávio Bolsonaro disputan voto a voto…" (Brasil) | 6 grupos · 14 notas | 6 grupos · 13 notas | Pierde 1 nota de `/espana/`; Infobae sigue en el hecho por otras 2 notas |
+| "Menú semanal de El Comidista (5 a 11 de octubre)" | **3 grupos** · 5 notas | **2 grupos** · 3 notas | Pierde las 2 notas de Infobae `/espana/`: era una unión con la edición de España |
 
-| Opción | Qué es | Costo |
-|---|---|---|
-| A | Sumar a la IA que juzga una pregunta más: "¿estos dos hechos son la misma noticia?", solo para hechos de 3 o 4 medios que comparten una persona o un lugar | Sale con el diseño de las preguntas de la IA, que ya es tuyo |
-| B | Agrupar por significado (embeddings), no por palabras. Resuelve también las notas en inglés | Más caro; hace falta un servicio aparte |
-| C | Esperar, y mientras tanto aceptar el menú con repetidas | Nada |
+**c · Las 2 confirmadas y las 4 de la lista a mano: siguen exactamente igual en B.** Confirmadas: García Cuerva en Luján (6 grupos) y Brasil (6). A mano (4/5): Colapinto en Malasia, "Una carrera loca…" de Sepang, las ventas minoristas de septiembre y Milei con la elección en Brasil.
 
-**Valor por defecto: A**, como sexta pregunta de la IA. Mientras no exista la IA, queda C.
+**d · Lo que había quedado sin agarrar**
 
-### 2.2 · Infobae trae ediciones de otros países
+| Cadena | En A | En B | Desaparecen (feed · ruta) |
+|---|---|---|---|
+| "sorteo" | 6 | 2 | Chontico Noche (Infobae · `/colombia/`), Triplex de la Once, Super Once y Bonoloto (Infobae · `/espana/` las tres). Quedan Telekino 2448 y el pozo del Quini 6 (La Nación · `/loterias/`) |
+| "dónde ver" | 5 | 4 | El béisbol Braves vs. Dodgers (Infobae · `/mexico/`). Quedan las 4 de TN · `/deportes/` |
 
-De 341 notas de Infobae, 282 son de otra edición:
+Tu tabla del reporte `j` decía 6 en "dónde ver" porque contaba por cadena: la sexta era "donde Verstappen" (La Gaceta), falsa. Acá cuento palabra suelta y son 5. Tu sospecha se confirma: los 4 "sorteo" de Colombia y España salían de Infobae.
 
-| Ruta | Notas | Qué trae |
-|---|---|---|
-| `/espana/` | 76 | Noticias locales de España |
-| `/peru/` | 72 | Noticias locales de Perú |
-| `/america/` | 69 | Internacionales de verdad (por ejemplo, la elección de Brasil) |
-| `/mexico/` | 38 | Noticias locales de México |
-| `/colombia/` | 27 | Noticias locales de Colombia (de ahí salió la Lotería del Cauca) |
+**e · "Aparece" contra "empieza con": 0.** Ninguna nota de Infobae guardada contiene una de las 4 rutas sin empezar con ella. Con estos datos dan lo mismo; la diferencia es la protección para `/america/mexico/`.
 
-Todas cuentan como "Infobae" para confirmar. Además, parte del servicio que los moldes no agarran parece venir de esas ediciones: de los 6 "sorteos" que pasaron, 4 son juegos de Colombia y España (Chontico, Super Once, Triplex de la Once, Bonoloto). Que salgan de Infobae no está comprobado; Claude Code lo mide en la próxima ronda.
+**f · Infobae en B:** 128 notas, de 4/10 14:12 a 18:01 = **3,8 horas** (igual que en A).
 
-Con El Cronista ya se hizo lo mismo: se sacan sus ediciones de España, México, Colombia y Estados Unidos (`excluirRutas`).
+```
+Infobae en B, por primer tramo de la dirección (128 notas)
+/america/          69  ████████████████████
+argentinas         45  █████████████
+otras ediciones    14  ████
+```
 
-| Opción | Qué es |
+Las 45 argentinas: `/deportes/` 9, `/salud/` 5, `/economia/` 4, `/tecno/` 4, `/teleshow/` 4, `/sociedad/` 4, `/tendencias/` 3, `/entretenimiento/` 3, `/movant/` 3, `/cultura/` 2, `/judiciales/` 2, `/historias/` 1 y `/politica/` 1. **Hallazgo:** quedan 14 notas de otras ediciones que Alejo no nombró: `/estados-unidos/` 3, `/cuba/` 2, `/guatemala/` 2, `/el-salvador/` 2, `/honduras/` 2, `/nicaragua/` 1, `/panama/` 1, `/costa-rica/` 1. No las toqué. Está en `pendientes.md` con valor por defecto "no".
+
+## Paso 3 · pares para la sexta pregunta (script fuera del repo)
+
+Sobre lo guardado, con el filtro de Infobae y las reglas de tu carta (palabras con mayúscula, sin la primera de cada frase, sin STOP ni VIVO/HOY/…). Entraron **10 hechos** de 739 en observación (6 de 3 grupos y 4 de 4) y salieron **2 pares**.
+
+| # | Hecho A | Hecho B | Palabras en común | Unión | ¿5? | Misma noticia |
+|---|---|---|---|---|---|---|
+| 1 | "EN VIVO \| Elecciones en Brasil: comienza el escrutinio y Lula habla con la prensa a las 19…" (3 grupos: Perfil, La Gaceta, Noticias Argentinas) | "A la espera de los primeros resultados, Milei sigue con optimismo la elección en Brasil y respaldó a Bolsonaro…" (4 grupos: Infobae, El Cronista, La Capital, El País) | brasil, lula | **7** | sí | **sí**: es la noche del escrutinio; la nota de Milei suma el ángulo argentino. Además es la misma jornada del hecho de 6 grupos que ya sale confirmado |
+| 2 | "Fórmula 1: qué dijo Colapinto luego de finalizar 13° en el Gran Premio de Malasia" (4 grupos, 8 notas) | "Una carrera loca que Franco Colapinto terminó con mucha dignidad en Sepang con el mejor Alpine" (4 grupos, 4 notas) | colapinto, gran, premio, franco, bahrein | **5** | sí | **sí**: la misma carrera (13°, Alpine, Gran Premio de Bahréin) |
+
+**Control:** el par de Colapinto **sale**, con unión de **5 grupos** (La Gaceta, La Nación, Clarín, Página/12 y La Capital), como decías.
+
+**Si también entraran los hechos viejos** (más de 24 h) de 3 o 4 grupos: **3 pares**. El tercero es Christa Pike ("Lo que la fallida ejecución…" + "Cómo sigue la salud de Christa Pike…", 3 grupos cada uno, unión de 6; misma noticia: sí).
+
+Dos notas sobre el método: "gran" y "premio" cuentan como "propias" solo porque van con mayúscula en "Gran Premio" (la regla las deja pasar); y no se miraron los hechos de 2 grupos. Con estos datos la sexta pregunta tendría poco trabajo: 2 o 3 pares en un fin de semana.
+
+## Paso 4 · feeds por sección de Infobae (sin sumar nada)
+
+Las dos formas de la dirección andan para las tres secciones (200, `application/xml`) y devuelven lo mismo: por eso va una sola fila por sección. No hizo falta mirar el HTML. Una sola lectura a las 18:57.
+
+| Feed | Notas | Argentinas | Horas que cubre | Ya estaban en el general |
+|---|---|---|---|---|
+| `…/rss/category/politica/` | 100 | 100 | 102,7 | 0 |
+| `…/rss/category/economia/` | 100 | 99 | 76,4 | 0 |
+| `…/rss/category/sociedad/` | 100 | 100 | 111,5 | 0 |
+| **`…/rss/` (el general, misma lectura)** | 94 | **12** | **1,3** | — |
+
+(Direcciones completas: `https://www.infobae.com/arc/outboundfeeds/rss/category/<seccion>/`, con o sin `?outputType=xml`. "Argentinas" = no empiezan con `/america/` ni con las 4 rutas excluidas.)
+
+Las tres secciones juntas: **300 notas, 299 argentinas, 111 horas**, contra las 12 argentinas del general en la misma lectura. Traen también `/opinion/` (7 de 299), que el criterio 1 ya saca por la dirección. Cada feed trae un máximo de 100 notas.
+
+## Paso 5 · LN+
+
+No anda, **ni con la red completa**. Probé 8 direcciones (`/arc/outboundfeeds/rss/` con y sin `?outputType=xml`, `/rss`, `/rss/`, `/feed`, `/feed/`, la portada con `www` y sin `www`): todas cortan al conectar (`UND_ERR_CONNECT_TIMEOUT`; con `curl`, "Connection reset by peer" a los 12 s), mientras `lanacion.com.ar` responde 200 en 1 s por el mismo proxy. Como la portada tampoco abre, no hay `<link>` de RSS que buscar. `lnmas.com` sigue `activo: false` y en `sinFeed`, con el motivo actualizado. En `pendientes.md` el ítem se cerró: "se reintenta solo si Alejo lo pide".
+
+## Qué decidió Claude Code por su cuenta (para revisar)
+
+- La línea `RUTAS EXCLUIDAS` dice "1 nota guardada sacada" en singular cuando es una; con varias, el formato exacto de tu carta.
+- Los errores salen en el mismo orden que antes: primero se carga el archivo (y corta si está roto), después se filtra, y recién ahí se avisa si falta con `--sin-leer`.
+- Con `--sin-leer` el archivo no se modifica aunque haya notas para sacar (sigue como en el reporte `i`); solo sin `--sin-leer` se reescribe filtrado.
+- `rutaExcluida` compara la ruta de la config en minúsculas, así que una ruta escrita `/ESPANA/` en `feeds.json` también anda.
+- En el paso 3 las "palabras propias" las armé con tu regla al pie de la letra. Un token que abre con `¿`, `¡` o comillas cuenta como primera palabra de una frase y no se mira; un `(` solo no.
+- No toqué `src/nucleo.js`, `/america/`, las rutas del Cronista ni `FECHA_FUTURA_HORAS`.
+
+## Qué quedó pendiente
+
+| A quién | Qué |
 |---|---|
-| A | Sacar `/espana/`, `/peru/`, `/mexico/` y `/colombia/`, como en el Cronista. `/america/` se queda |
-| B | Dejar todo como está |
+| DISEÑADOR (por el PREPARADOR) | Feeds por sección de Infobae: ¿se suman? (por defecto no). Las 14 notas de otras ediciones que quedan en Infobae (por defecto no). La sexta pregunta de la IA y el resto del diseño de las 6 preguntas. |
+| DISEÑADOR | Diseño de la entrega con la vista de las 4/5; ventanas para corridas cada 4 h. |
+| DISEÑADOR con Don Julio | Capa 4: cada cuánto leer y dónde se guarda `datos/notas.json`. Con Infobae general cubriendo 1,3 h por lectura, leer seguido importa más. |
+| Alejo | Lista de firmas, lista blanca, repo público o privado: sin apuro. |
 
-**Mi recomendación: A.** Es la misma regla que el Cronista y deja la sección internacional de verdad. Claude Code tiene la decisión anotada con valor por defecto B; si elegís A, en la próxima ronda la hace y mide antes y después (cuántos hechos de 3 o más medios pierden a Infobae). Si te parece que toca "qué es INTERNACIONAL" (decisión de Alejo), preguntale a él.
+No se hizo, como pedía la carta: la unión de hechos partidos en el código, la IA y sus preguntas, sumar feeds por sección, la memoria de lo ya entregado, la capa 4, la lista blanca, `firmas.json` y deportes.
 
-## 3 · Lo que cierro yo, salvo que digas otra cosa
+## QUÉ HACÉS AHORA
 
-| Tema | Qué mostró la medición | Cómo queda |
-|---|---|---|
-| Reglas viejas `quiniela` y `horoscopo` (hallazgo A de la letra `b`) | `quiniela` sacó 0 notas, `horoscopo` 2, `dolar hoy` 6. Ninguna era noticia | Quedan como están. Se reabre si aparece un caso real |
-| Plantilla de partidos de TN ("…en vivo por la fecha 32: hora, dónde ver y formaciones") | 4 notas de TN pasan, más 3 "cómo ver" de otros medios (Argentina vs. Benín en La Nación, Vélez vs. Platense en Olé) | No sumo molde todavía: TN, Clarín y Olé son un solo grupo, así que solas no llegan a 5. Si las querés afuera, se suma "dónde ver / cómo ver" junto con "en vivo" o "formaciones" |
-| "a qué hora" que quedó afuera del molde | Las 6 son de elecciones (Brasil y Perú) | Bien que no entren: confirma que el molde tiene que ser solo "a qué hora juega" |
-| Ajuste del molde de lotería | El título real era "Resultado Lotería del Cauca hoy…", sin "de". Claude Code dejó el "de" opcional | Bien: sigue mirando cómo empieza el título |
-| Notas con fecha futura | 3 de 1.277 (Página/12 fecha la edición impresa del día siguiente a las 00:01) | No es de diseño: lo tomo yo y lo paso a Claude Code |
-| Brasil, caso límite (B de la letra `b`) y caso borde de la vía B (C) | Sin cambios | Siguen los valores por defecto |
-
-Ojo con la decisión de deportes (de Alejo): 2 de las 4 del menú son de Fórmula 1. Si Alejo decide que deportes no entra, el menú de hoy quedaría en 2.
-
-## 4 · Lo tuyo que sigue
-
-- Diseño de la entrega, con la vista de las 4/5. Si elegís 2.1 C, contemplá que pueden salir repetidas.
-- Las 5 preguntas de la IA (6 si elegís 2.1 A). Juzga `candidatos` y las 4/5.
-- Alternativas a la lista de firmas.
-- Ventanas de tiempo para corridas cada 4 h.
-- Capa 4 con Don Julio: con 2 confirmadas en 48 h de fin de semana, leer seguido es lo que más puede sumar.
+| A quién | Qué le pasa | Qué espera | Cuándo | Quién ejecuta |
+|---|---|---|---|---|
+| PREPARADOR | Recibe este reporte con las 3 mediciones | Leerlo y escribirle al DISEÑADOR la letra `d`: los feeds por sección (tabla del paso 4), las 14 notas de otras ediciones y los 2 pares | Cuando Alejo se lo pase | Alejo lleva el archivo |
+| Alejo | Nada se rompió; los paquetes están al día | Hacer `/clear` en Claude Code, borrar y reabrir los chats de Cowork con su línea | Ahora | Alejo |
 
 ============================================================
 FIN DEL PAQUETE
