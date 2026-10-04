@@ -10,6 +10,12 @@
  *   1. preparar(notas, ctx)            → agrupa, cuenta grupos, descarta lo barato
  *   2. decidir(candidatos, juicios, ctx) → aplica "entra o no" y arma las listas
  *
+ * Flujo con la excepción a mano (una noticia a la que le falta 1 medio, "4 de 5"):
+ *   preparar devuelve `candidatos` (5 grupos o firma) y `elegiblesAMano` (les falta 1 medio).
+ *   La IA juzga las dos listas. decidir recibe `elegiblesAMano` en ctx y devuelve, además de
+ *   las listas de siempre, `aMano` por bloque: un menú de donde la persona elige. Nunca entran
+ *   solas a nacionales ni a internacionales.
+ *
  * ctx = { portales, reglas, firmas, ahora }
  *   (ver config/portales.json, config/reglas.json y config/firmas.json; firmas es opcional)
  */
@@ -191,6 +197,14 @@ function firmasDelHecho(notas, firmas, portales) {
   return [...halladas.values()];
 }
 
+// Excepción a mano: un hecho en observación al que le faltan entre 1 y reglas.aMano.faltanMedios
+// medios para llegar a minGrupos se puede elegir a mano. Sin reglas.aMano, o con activa:false, no hay.
+function faltaPocoParaElegirAMano(faltan, reglas) {
+  const a = reglas.aMano;
+  if (!a || a.activa === false) return false;
+  return faltan >= 1 && faltan <= (a.faltanMedios || 1);
+}
+
 // Sin reglas.viaB, o con activa:false, la vía B no existe.
 function minimoFirmas(reglas) {
   const v = reglas.viaB;
@@ -284,9 +298,11 @@ function preparar(notas, { portales, reglas, ahora, firmas = [] }) {
     } else {
       const obs = { ...ficha, contador: `${verif.cantidad}/${reglas.minGrupos}` };
       if (reconocidas.length) obs.contadorFirmas = `${reconocidas.length}/${minFirmas}`;
+      obs.elegibleAMano = faltaPocoParaElegirAMano(reglas.minGrupos - verif.cantidad, reglas);
       enObservacion.push(obs);
     }
   }
+  const elegiblesAMano = enObservacion.filter(o => o.elegibleAMano);
 
   // Salud de los datos: un portal en 0 notas casi siempre es un feed roto, no un día sin noticias.
   const conNotas = new Set();
@@ -300,13 +316,14 @@ function preparar(notas, { portales, reglas, ahora, firmas = [] }) {
   if (sinNotas.length) avisos.push(`Portales sin notas en esta corrida (¿feed roto?): ${sinNotas.join(', ')}`);
 
   return {
-    candidatos, enObservacion, descartadas, avisos,
+    candidatos, enObservacion, elegiblesAMano, descartadas, avisos,
     resumen: {
       notasEntrada: notas.length,
       fueraDeVentana,
       notasDescartadas: descartadas.filter(d => d.tipo === 'nota').length,
       hechos: grupos.length,
       enObservacion: enObservacion.length,
+      elegiblesAMano: elegiblesAMano.length,
       candidatos: candidatos.length,
       viaB: candidatos.filter(c => c.via === 'B').length,
     },
@@ -343,14 +360,24 @@ function cupoElegido(reglas, cupo, avisos) {
 //   bloque: 'nacional' | 'internacional' | null,
 //   impacto: 0..3, seccion: 'economía', pais: 'EEUU'
 // }
-function decidir(candidatos, juicios, { reglas, cupo }) {
+// Criterios 3, 4, 5 y 6 sobre el juicio de la IA. Devuelve el motivo del primer NO, o null si pasa.
+function motivoCriterios3a6(j) {
+  if (!j.fuenteConNombre) return 'sin_fuente_con_nombre (criterio 3)';
+  if (!j.interesPublico) return 'no_interes_publico (criterio 4)';
+  if (!BLOQUES.includes(j.bloque)) return 'fuera_de_bloque (criterio 5)';
+  if (j.desmentido) return 'desmentido (criterio 6)';
+  return null;
+}
+
+function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
   const descartadas = [];
   const avisos = [];
   const cupoUsado = cupoElegido(reglas, cupo, avisos);
   const topeViaB = reglas.viaB && reglas.viaB.maxNoticiasPorBloque;
   const sobreviven = { nacional: [], internacional: [] };
   const minFirmas = minimoFirmas(reglas);
-  const baja = (c, motivo) => descartadas.push({ tipo: 'hecho', id: c.id, titulo: c.titulo, motivo });
+  const baja = (c, motivo, aMano = false) =>
+    descartadas.push({ tipo: 'hecho', id: c.id, titulo: c.titulo, motivo, ...(aMano ? { aMano: true } : {}) });
 
   let sinJuicio = 0;
   for (const c of candidatos) {
@@ -358,10 +385,8 @@ function decidir(candidatos, juicios, { reglas, cupo }) {
     if (!j) { sinJuicio++; baja(c, 'sin_juicio'); continue; }
     // Criterios 2, 3, 4, 5 y 6: con un solo NO queda afuera, y se dice cuál.
     if (c.viejo && !j.datoNuevo) { baja(c, 'no_fresco (criterio 2)'); continue; }
-    if (!j.fuenteConNombre) { baja(c, 'sin_fuente_con_nombre (criterio 3)'); continue; }
-    if (!j.interesPublico) { baja(c, 'no_interes_publico (criterio 4)'); continue; }
-    if (!BLOQUES.includes(j.bloque)) { baja(c, 'fuera_de_bloque (criterio 5)'); continue; }
-    if (j.desmentido) { baja(c, 'desmentido (criterio 6)'); continue; }
+    const motivo3a6 = motivoCriterios3a6(j);
+    if (motivo3a6) { baja(c, motivo3a6); continue; }
     // Vía B: cada autor está habilitado para nacional, internacional o los dos (config/firmas.json).
     // Con el bloque ya decidido tienen que seguir siendo suficientes.
     let firmasDelBloque = [];
@@ -371,7 +396,33 @@ function decidir(candidatos, juicios, { reglas, cupo }) {
     }
     sobreviven[j.bloque].push({ c, j, firmasDelBloque });
   }
+
+  // Excepción a mano: les falta 1 medio. Mismos controles que un candidato (el 2 no se mira: son
+  // frescos por definición) y van a un menú aparte, sin cupo, sin topes y sin reserva.
+  const menu = { nacional: [], internacional: [] };
+  for (const c of elegiblesAMano || []) {
+    const j = juicios && juicios[c.id];
+    if (!j) { sinJuicio++; baja(c, 'sin_juicio', true); continue; }
+    const motivo = motivoCriterios3a6(j);
+    if (motivo) { baja(c, motivo, true); continue; }
+    menu[j.bloque].push({ c, j });
+  }
   if (sinJuicio) avisos.push(`${sinJuicio} hecho(s) sin juicio de la IA: no se pudieron evaluar. ¿Falló ese paso?`);
+  const aMano = {};
+  for (const bloque of BLOQUES) {
+    aMano[bloque] = menu[bloque]
+      .sort((a, b) =>
+        (b.j.impacto || 0) - (a.j.impacto || 0) ||
+        b.c.gruposIndependientes - a.c.gruposIndependientes ||
+        Date.parse(b.c.primera) - Date.parse(a.c.primera))
+      .map(({ c, j }) => ({
+        id: c.id, titulo: c.titulo, bloque, impacto: j.impacto || 0, seccion: j.seccion || '', pais: j.pais || '',
+        via: 'mano',
+        etiqueta: `Confirmada por ${c.gruposIndependientes} medios · elegida a mano`,
+        gruposIndependientes: c.gruposIndependientes,
+        links: c.notas.map(n => ({ portal: n.portal, url: n.url })),
+      }));
+  }
 
   const listas = { nacional: [], internacional: [] };
   const reserva = [];
@@ -420,7 +471,7 @@ function decidir(candidatos, juicios, { reglas, cupo }) {
   const aviso = (n < cupoUsado.nacional || i < cupoUsado.internacional)
     ? `Hoy: ${n} ${n === 1 ? 'nacional' : 'nacionales'}, ${i} ${i === 1 ? 'internacional' : 'internacionales'}` : null;
 
-  return { nacionales: listas.nacional, internacionales: listas.internacional, cupo: cupoUsado, reserva, descartadas, avisos, aviso };
+  return { nacionales: listas.nacional, internacionales: listas.internacional, aMano, cupo: cupoUsado, reserva, descartadas, avisos, aviso };
 }
 
 module.exports = { normalizar, tokens, similitud, firma, jaccard, dominioDe, emisor, gruposIndependientes, esInformativa, agrupar, acumular, preparar, decidir };

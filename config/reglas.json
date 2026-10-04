@@ -11,6 +11,7 @@
   "maxPorSeccion": 3,
   "maxPorPais": 2,
   "viaB": { "activa": true, "minFirmas": 1, "maxFirmasEnEtiqueta": 2 },
+  "aMano": { "activa": true, "faltanMedios": 1 },
   "criterio1": {
     "urlsExcluidas": [
       "/opinion/", "/columnistas/", "/editorial/", "/blogs/",

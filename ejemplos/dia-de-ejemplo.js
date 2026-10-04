@@ -112,6 +112,9 @@ hecho('O1', NAC.slice(0, 3), [
   'Zárate: incendio en una planta industrial y evacuaron a 200 trabajadores',
 ], { hace: 1.5, seccion: 'sociedad' });
 
+// Les falta 1 medio (4 de 5 grupos), sin firma: no entran solas; se pueden elegir a mano.
+hecho('M1', NAC.slice(0, 4), ['Rescataron a tres andinistas perdidos en el cerro Aconcagua', 'Tres andinistas perdidos en el Aconcagua fueron rescatados'], { hace: 2, seccion: 'sociedad', juicio: J({ impacto: 2, seccion: 'sociedad' }) });
+
 /* ── Ruido que el criterio 1 saca antes de contar ── */
 
 hecho('OP', [NAC[6], NAC[7], NAC[8], NAC[9], NAC[0]], [
@@ -152,6 +155,9 @@ hecho('I6', INT.slice(0, 7), [
   'Un terremoto de magnitud 7 sacude el norte de Japón',
   'Terremoto de magnitud 7 en el norte de Japón',
 ], { hace: 3, seccion: 'sociedad', juicio: J({ bloque: 'internacional', impacto: 2, seccion: 'sociedad', pais: 'Japón' }) });
+
+// Les falta 1 medio, esta vez internacional: también queda en el menú y no rellena las internacionales.
+hecho('M2', INT.slice(4, 8), ['Chile declaró la emergencia hídrica en cuatro regiones del centro del país', 'Emergencia hídrica en Chile: el Gobierno la declaró en cuatro regiones del centro'], { hace: 2.5, seccion: 'sociedad', juicio: J({ bloque: 'internacional', impacto: 1, seccion: 'sociedad', pais: 'Chile' }) });
 
 /* ── VÍA B: firma reconocida (segunda línea) ── */
 

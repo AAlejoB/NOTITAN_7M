@@ -646,16 +646,161 @@ test('agrupar: si falta minPalabrasComunes vale 0 (queda el umbral bajo solo), y
   assert.deepEqual(gruposDe(presupuesto, sinSeguro), [['a', 'b', 'c', 'd']], 'con seguro = umbral, el mínimo no se mira');
 });
 
+/* ───────── excepción a mano: les falta 1 medio ───────── */
+
+const ANDINISTAS = 'Rescataron a tres andinistas perdidos en el cerro Aconcagua';
+const medios4 = ['clarin.com', 'lanacion.com.ar', 'infobae.com', 'perfil.com'];
+const hecho4 = (id, extra = {}, titulo = ANDINISTAS) => medios4.map((d, i) => nota(`${id}${i}`, d, titulo, extra));
+const conAMano = cambios => ({ ...ctx, reglas: { ...reglas, aMano: { ...reglas.aMano, ...cambios } } });
+const elegible = (id, extra = {}) => cand(id, { gruposIndependientes: 4, contador: '4/5', elegibleAMano: true, ...extra });
+const ETIQUETA_MANO = 'Confirmada por 4 medios · elegida a mano';
+
+test('a mano: un hecho con 4 de 5 medios queda en observación, es elegible y sale en el menú sin entrar a las listas', () => {
+  const p = N.preparar(hecho4('m'), ctx);
+  assert.equal(p.candidatos.length, 0);
+  assert.equal(p.enObservacion[0].contador, '4/5');
+  assert.equal(p.enObservacion[0].elegibleAMano, true);
+  assert.equal(p.elegiblesAMano.length, 1);
+  assert.equal(p.elegiblesAMano[0], p.enObservacion[0], 'son los mismos objetos');
+  assert.equal(p.resumen.elegiblesAMano, 1);
+  const d = N.decidir(p.candidatos, { 'g:m0': J({ impacto: 2, seccion: 'sociedad' }) }, { ...ctx, elegiblesAMano: p.elegiblesAMano });
+  assert.deepEqual(ids(d.aMano.nacional), ['g:m0']);
+  assert.deepEqual(d.aMano.internacional, []);
+  assert.equal(d.aMano.nacional[0].etiqueta, ETIQUETA_MANO);
+  assert.equal(d.aMano.nacional[0].via, 'mano');
+  assert.equal(d.aMano.nacional[0].bloque, 'nacional');
+  assert.equal(d.aMano.nacional[0].gruposIndependientes, 4);
+  assert.equal(d.aMano.nacional[0].links.length, 4);
+  assert.equal(d.nacionales.length, 0, 'nunca entra sola');
+  assert.equal(d.internacionales.length, 0);
+  assert.equal(d.descartadas.length, 0);
+});
+
+test('a mano: una internacional va al menú internacional', () => {
+  const d = N.decidir([], { x: J({ bloque: 'internacional', pais: 'Chile' }) }, { ...ctx, elegiblesAMano: [elegible('x')] });
+  assert.deepEqual(ids(d.aMano.internacional), ['x']);
+  assert.deepEqual(d.aMano.nacional, []);
+});
+
+test('a mano: con 3 de 5 no es elegible', () => {
+  const p = N.preparar(hecho4('m').slice(0, 3), ctx);
+  assert.equal(p.enObservacion[0].contador, '3/5');
+  assert.equal(p.enObservacion[0].elegibleAMano, false);
+  assert.deepEqual(p.elegiblesAMano, []);
+  assert.equal(p.resumen.elegiblesAMano, 0);
+});
+
+test('a mano: con 4 de 5 pero pasadas las 24 h se descarta como siempre y no es elegible', () => {
+  const p = N.preparar(hecho4('m', { fecha: hace(30) }), ctx);
+  assert.match(p.descartadas[0].motivo, /^no_llego_a_5 \(4\/5/);
+  assert.deepEqual(p.enObservacion, []);
+  assert.deepEqual(p.elegiblesAMano, []);
+});
+
+test('a mano: con 4 grupos y una firma reconocida entra por la vía B y no es elegible', () => {
+  const p = N.preparar(hechoB(['Autora Ficticia Uno'], ['bbc.com', 'theguardian.com', 'elpais.com', 'dw.com']), ctxB);
+  assert.equal(p.candidatos.length, 1);
+  assert.equal(p.candidatos[0].via, 'B');
+  assert.equal(p.candidatos[0].gruposIndependientes, 4);
+  assert.deepEqual(p.elegiblesAMano, []);
+});
+
+test('a mano: si la vía B sube a 2 firmas, una 4/5 con 1 firma queda en observación y es elegible', () => {
+  const p = N.preparar(hechoB(['Autora Ficticia Uno'], ['bbc.com', 'theguardian.com', 'elpais.com', 'dw.com']), ctxMin2);
+  assert.equal(p.candidatos.length, 0);
+  assert.equal(p.enObservacion[0].contador, '4/5');
+  assert.equal(p.enObservacion[0].contadorFirmas, '1/2');
+  assert.equal(p.enObservacion[0].elegibleAMano, true);
+  assert.equal(p.elegiblesAMano.length, 1);
+});
+
+test('a mano: faltanMedios 2 suma las 3 de 5; activa:false o sin la clave no deja elegir ninguna', () => {
+  const tres = hecho4('m').slice(0, 3);
+  assert.equal(N.preparar(tres, ctx).elegiblesAMano.length, 0, 'con el valor de la config, una 3/5 no');
+  assert.equal(N.preparar(tres, conAMano({ faltanMedios: 2 })).elegiblesAMano.length, 1);
+  assert.equal(N.preparar(hecho4('m'), conAMano({ faltanMedios: 2 })).elegiblesAMano.length, 1, 'y la 4/5 sigue');
+  assert.equal(N.preparar(hecho4('m'), conAMano({ activa: false })).elegiblesAMano.length, 0);
+  assert.equal(N.preparar(hecho4('m'), { ...ctx, reglas: { ...reglas, aMano: undefined } }).elegiblesAMano.length, 0);
+  assert.equal(N.preparar(hecho4('m'), conAMano({ faltanMedios: undefined })).elegiblesAMano.length, 1, 'sin faltanMedios vale 1');
+  const apagada = N.preparar(hecho4('m'), conAMano({ activa: false }));
+  assert.equal(apagada.enObservacion[0].elegibleAMano, false, 'sigue en observación, solo que no es elegible');
+});
+
+test('a mano: no cuenta para el mínimo ni para las listas, y el aviso del mínimo sigue', () => {
+  const d = N.decidir([cand('c1'), cand('c2')], { c1: J(), c2: J(), x: J() }, { ...ctx, elegiblesAMano: [elegible('x')] });
+  assert.deepEqual(ids(d.nacionales), ['c1', 'c2']);
+  assert.ok(d.avisos.includes('Nacionales: solo 2 pasaron los filtros (el mínimo es 3). No se baja el estándar para completar.'));
+  assert.equal(d.aviso, 'Hoy: 2 nacionales, 0 internacionales');
+  assert.deepEqual(ids(d.aMano.nacional), ['x']);
+});
+
+test('a mano: los criterios 3 a 6 la descartan con el mismo motivo y la marca aMano', () => {
+  const casos = [
+    ['sf', J({ fuenteConNombre: false }), 'sin_fuente_con_nombre (criterio 3)'],
+    ['ip', J({ interesPublico: false }), 'no_interes_publico (criterio 4)'],
+    ['fb', J({ bloque: null }), 'fuera_de_bloque (criterio 5)'],
+    ['de', J({ desmentido: true }), 'desmentido (criterio 6)'],
+  ];
+  const d = N.decidir([], Object.fromEntries(casos.map(([id, j]) => [id, j])), { ...ctx, elegiblesAMano: casos.map(([id]) => elegible(id)) });
+  assert.deepEqual(d.aMano, { nacional: [], internacional: [] });
+  for (const [id, , motivo] of casos) {
+    assert.deepEqual(d.descartadas.find(x => x.id === id), { tipo: 'hecho', id, titulo: id, motivo, aMano: true });
+  }
+});
+
+test('a mano: el criterio 2 no se mira (un dato viejo sin dato nuevo igual se puede elegir)', () => {
+  const d = N.decidir([], { x: J({ datoNuevo: false }) }, { ...ctx, elegiblesAMano: [elegible('x', { viejo: true })] });
+  assert.deepEqual(ids(d.aMano.nacional), ['x']);
+});
+
+test('a mano: sin juicio queda en descartadas y suma al aviso de "sin juicio"', () => {
+  const d = N.decidir([cand('c1')], { c1: J() }, { ...ctx, elegiblesAMano: [elegible('x')] });
+  assert.deepEqual(d.descartadas, [{ tipo: 'hecho', id: 'x', titulo: 'x', motivo: 'sin_juicio', aMano: true }]);
+  assert.ok(d.avisos.some(a => /^1 hecho\(s\) sin juicio de la IA/.test(a)));
+  const dos = N.decidir([cand('c1')], { }, { ...ctx, elegiblesAMano: [elegible('x')] });
+  assert.ok(dos.avisos.some(a => /^2 hecho\(s\) sin juicio de la IA/.test(a)), 'el candidato y el elegible suman');
+});
+
+test('a mano: sin cupo, sin tope por sección ni por país, y ordenadas por impacto, grupos y recencia', () => {
+  const cs = ['e1', 'e2', 'e3'].map(id => cand(id));
+  const js = { e1: J({ seccion: 'economía' }), e2: J({ seccion: 'economía' }), e3: J({ seccion: 'economía' }) };
+  const el = [
+    elegible('a', { primera: hace(5) }), elegible('b', { primera: hace(1) }),
+    elegible('c', { primera: hace(1), gruposIndependientes: 3 }), elegible('d', { primera: hace(1) }),
+  ];
+  Object.assign(js, { a: J({ seccion: 'economía', impacto: 3 }), b: J({ seccion: 'economía', impacto: 1 }), c: J({ seccion: 'economía', impacto: 1 }), d: J({ seccion: 'economía', impacto: 1 }) });
+  const d = N.decidir(cs, js, { ...ctx, cupo: 3, elegiblesAMano: el });
+  assert.equal(d.nacionales.length, 3);
+  assert.deepEqual(ids(d.aMano.nacional), ['a', 'b', 'd', 'c'], 'mayor impacto; empate: más grupos; después más reciente (b y d empatan y quedan como llegaron)');
+  assert.deepEqual(d.reserva, []);
+  const pais = N.decidir([], { p1: J({ bloque: 'internacional', pais: 'Chile' }), p2: J({ bloque: 'internacional', pais: 'Chile' }), p3: J({ bloque: 'internacional', pais: 'Chile' }) },
+    { ...ctx, elegiblesAMano: ['p1', 'p2', 'p3'].map(id => elegible(id)) });
+  assert.equal(pais.aMano.internacional.length, 3, 'el tope de 2 por país no se aplica');
+});
+
+test('a mano: sin elegiblesAMano en el contexto, aMano queda vacío y todo lo demás sale igual', () => {
+  const cs = [cand('c1'), cand('c2')];
+  const js = { c1: J(), c2: J({ bloque: 'internacional' }) };
+  const sin = N.decidir(cs, js, ctx);
+  assert.deepEqual(sin.aMano, { nacional: [], internacional: [] });
+  const { aMano: _a, ...resto } = sin;
+  const con = N.decidir(cs, js, { ...ctx, elegiblesAMano: [] });
+  const { aMano: _b, ...restoCon } = con;
+  assert.deepEqual(restoCon, resto);
+  assert.deepEqual(con.aMano, { nacional: [], internacional: [] });
+});
+
 /* ───────── un día completo ───────── */
 
 test('día de ejemplo: de punta a punta', () => {
   const p = N.preparar(dia.notas, { portales, reglas, firmas: dia.firmas, ahora: dia.ahora });
-  const d = N.decidir(p.candidatos, dia.juicios, { reglas });
+  const d = N.decidir(p.candidatos, dia.juicios, { reglas, elegiblesAMano: p.elegiblesAMano });
 
-  assert.equal(p.resumen.hechos, 22, 'ningún hecho se partió ni se juntó mal (19 de siempre + 3 de la vía B)');
+  assert.equal(p.resumen.hechos, 24, 'ningún hecho se partió ni se juntó mal (19 de siempre + 3 de la vía B + 2 a las que les falta 1 medio)');
   assert.equal(p.resumen.notasDescartadas, 8, 'las 5 columnas y los 3 "dólar hoy"');
   assert.equal(p.resumen.viaB, 2, 'el tratado reservado y la investigación del puente');
-  assert.deepEqual(p.enObservacion.map(x => [x.id, x.contador]).sort(), [['g:IC-1', '2/5'], ['g:N8-1', '1/5'], ['g:O1-1', '3/5']]);
+  assert.deepEqual(p.enObservacion.map(x => [x.id, x.contador]).sort(), [['g:IC-1', '2/5'], ['g:M1-1', '4/5'], ['g:M2-1', '4/5'], ['g:N8-1', '1/5'], ['g:O1-1', '3/5']]);
+  assert.equal(p.resumen.elegiblesAMano, 2);
   assert.equal(p.enObservacion.find(x => x.id === 'g:IC-1').firmasReconocidas.length, 0, 'lo firma alguien que no está en la lista');
 
   // La vía A de siempre, en el mismo orden, y la vía B al final de cada lista.
@@ -667,6 +812,11 @@ test('día de ejemplo: de punta a punta', () => {
   assert.deepEqual(d.reserva.map(x => x.motivo).sort(), ['tope_pais (EEUU)', 'tope_seccion (economía)', 'tope_seccion (economía)']);
   assert.equal(d.descartadas.length, 4);
   assert.equal(d.aviso, 'Hoy: 7 nacionales, 5 internacionales');
+
+  // Las que les falta 1 medio: un menú aparte. No rellenan: las internacionales siguen en 5 con cupo 7.
+  assert.deepEqual(ids(d.aMano.nacional), ['g:M1-1']);
+  assert.deepEqual(ids(d.aMano.internacional), ['g:M2-1']);
+  assert.equal(d.aMano.nacional[0].etiqueta, 'Confirmada por 4 medios · elegida a mano');
 });
 
 test('día de ejemplo: eligiendo 5 o 3 noticias por bloque', () => {

@@ -162,6 +162,7 @@ async function main() {
   fila('  − criterio 1 (opinión, servicio)', r.notasDescartadas, r.notasEntrada, 'no cuentan para verificar');
   fila('Hechos (misma noticia agrupada)', r.hechos, r.notasEntrada);
   fila('  − sin 5 grupos ni firma', r.enObservacion, r.notasEntrada, '→ En observación');
+  fila('    les falta 1 medio', r.elegiblesAMano, r.notasEntrada, '→ se pueden elegir a mano');
   fila('Verificados', r.candidatos, r.notasEntrada);
   fila('    vía A: 5 grupos de medios', r.candidatos - r.viaB, r.notasEntrada);
   fila('    vía B: firma reconocida', r.viaB, r.notasEntrada);
