@@ -121,6 +121,8 @@ Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 
 
 La capa 4 con Don Julio: dónde corre n8n, dónde se guarda lo acumulado, la última lista y lo juzgado, dónde vive la página (para que verla no gaste ejecuciones, con un link secreto por cliente) y qué cuenta de IA. Las preguntas para Don Julio y los valores por defecto están en `buzon/pendientes.md`. Con eso, lo que toca código (cargar y guardar lo acumulado, llamar al modelo con `preguntaUnion` y `preguntaJuicio`, armar la lista real en lugar de la del día de ejemplo) se pide en una carta de Cowork. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`.
 
+Las preguntas para Don Julio están en una página de Alejo, con un valor por defecto en cada una (el link y cómo se leen las respuestas, en `buzon/pendientes.md`, ítem «Capa 4», y en `buzon/LEEME_COWORK.md`). Cuando conteste, Cowork escribe la carta de la capa 4.
+
 ## Lo que Alejo pidió el 2026-10-04
 
 - Meta: que quien apriete el botón (él, su hermana o un cliente desconocido) confíe en que las noticias pasaron por varios filtros. Entrega: título, breve descripción y links. Para la "breve descripción" se asume la bajada del propio medio, sin IA, salvo que diga otra cosa.
