@@ -28,7 +28,7 @@ fila('ENTRAN', d.nacionales.length + d.internacionales.length, r.notasEntrada, d
 
 const lista = (titulo, items) => {
   console.log(`\n${titulo}`);
-  items.forEach((x, i) => console.log(`  ${i + 1}. [${x.impacto}] ${x.titulo}  · ${x.etiqueta}`));
+  items.forEach((x, i) => console.log(`  ${i + 1}. [${x.gruposIndependientes} medios] ${x.titulo}  · ${x.etiqueta}`));
 };
 lista('NACIONALES', d.nacionales);
 lista('INTERNACIONALES', d.internacionales);
@@ -37,7 +37,7 @@ console.log('\nPARA ELEGIR A MANO (les falta 1 medio; nunca entran solas)');
 const sublista = (titulo, items) => {
   console.log(`  ${titulo}`);
   if (!items.length) console.log('    (ninguna)');
-  items.forEach((x, i) => console.log(`    ${i + 1}. [${x.impacto}] ${x.titulo}  · ${x.etiqueta}`));
+  items.forEach((x, i) => console.log(`    ${i + 1}. [${x.gruposIndependientes} medios] ${x.titulo}  · ${x.etiqueta}`));
 };
 sublista('Nacionales', d.aMano.nacional);
 sublista('Internacionales', d.aMano.internacional);

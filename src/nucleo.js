@@ -358,8 +358,9 @@ function cupoElegido(reglas, cupo, avisos) {
 // juicios[idDelHecho] = {
 //   datoNuevo, fuenteConNombre, interesPublico, desmentido  (true/false)
 //   bloque: 'nacional' | 'internacional' | null,
-//   impacto: 0..3, seccion: 'economía', pais: 'EEUU'
+//   seccion: 'economía', pais: 'EEUU'
 // }
+// (La IA ya no da importancia: si un juicio trae `impacto`, se ignora.)
 // Criterios 3, 4, 5 y 6 sobre el juicio de la IA. Devuelve el motivo del primer NO, o null si pasa.
 function motivoCriterios3a6(j) {
   if (!j.fuenteConNombre) return 'sin_fuente_con_nombre (criterio 3)';
@@ -412,11 +413,10 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
   for (const bloque of BLOQUES) {
     aMano[bloque] = menu[bloque]
       .sort((a, b) =>
-        (b.j.impacto || 0) - (a.j.impacto || 0) ||
         b.c.gruposIndependientes - a.c.gruposIndependientes ||
         Date.parse(b.c.primera) - Date.parse(a.c.primera))
       .map(({ c, j }) => ({
-        id: c.id, titulo: c.titulo, bloque, impacto: j.impacto || 0, seccion: j.seccion || '', pais: j.pais || '',
+        id: c.id, titulo: c.titulo, bloque, seccion: j.seccion || '', pais: j.pais || '',
         via: 'mano',
         etiqueta: `Confirmada por ${c.gruposIndependientes} medios · elegida a mano`,
         gruposIndependientes: c.gruposIndependientes,
@@ -428,10 +428,9 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
   const reserva = [];
   for (const bloque of BLOQUES) {
     // La vía B es la segunda línea: va después de todo lo confirmado por la vía A.
-    // Criterio 7, dentro de cada vía: impacto; empate → más grupos independientes → más reciente.
+    // Criterio 7 (decidió Alejo el 04-10): cantidad de grupos; si empatan, la más reciente. Dentro de cada vía.
     const orden = sobreviven[bloque].sort((a, b) =>
       (a.c.via === 'B') - (b.c.via === 'B') ||
-      (b.j.impacto || 0) - (a.j.impacto || 0) ||
       b.c.gruposIndependientes - a.c.gruposIndependientes ||
       Date.parse(b.c.primera) - Date.parse(a.c.primera));
     const porSeccion = {};
@@ -448,7 +447,7 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
       else if (seccion && (porSeccion[seccion] || 0) >= reglas.maxPorSeccion) motivo = `tope_seccion (${seccion})`;
       else if (bloque === 'internacional' && pais && (porPais[pais] || 0) >= reglas.maxPorPais) motivo = `tope_pais (${pais})`;
       const salida = {
-        id: c.id, titulo: c.titulo, bloque, impacto: j.impacto || 0, seccion, pais,
+        id: c.id, titulo: c.titulo, bloque, seccion, pais,
         via: viaB ? 'B' : 'A',
         etiqueta: viaB ? etiquetaViaB(firmasDelBloque, reglas) : `Confirmada por ${c.gruposIndependientes} medios`,
         gruposIndependientes: c.gruposIndependientes,

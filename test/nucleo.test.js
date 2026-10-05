@@ -200,7 +200,7 @@ const cand = (id, extra = {}) => ({
   id, titulo: id, bajada: '', primera: hace(3), gruposIndependientes: 5, viejo: false,
   notas: [{ id: id + '-1', titulo: id, url: `https://www.clarin.com/${id}`, portal: 'clarin.com' }], ...extra,
 });
-const J = (o = {}) => ({ datoNuevo: true, fuenteConNombre: true, interesPublico: true, desmentido: false, bloque: 'nacional', impacto: 1, seccion: '', pais: '', ...o });
+const J = (o = {}) => ({ datoNuevo: true, fuenteConNombre: true, interesPublico: true, desmentido: false, bloque: 'nacional', seccion: '', pais: '', ...o });
 
 test('decidir: cada criterio que falla deja su motivo', () => {
   const cs = ['viejo', 'sinfuente', 'farandula', 'afuera', 'desmentida', 'ok'].map(id => cand(id, { viejo: id === 'viejo' }));
@@ -222,7 +222,7 @@ test('decidir: un hecho viejo entra si la IA ve un dato nuevo', () => {
   assert.deepEqual(ids(r.nacionales), ['a']);
 });
 
-test('decidir: orden por impacto, después más grupos, después más reciente', () => {
+test('decidir: orden por cantidad de medios y, si empatan, la más reciente', () => {
   const r = N.decidir([
     cand('baja', { primera: hace(1) }),
     cand('media-reciente', { primera: hace(2) }),
@@ -230,15 +230,53 @@ test('decidir: orden por impacto, después más grupos, después más reciente',
     cand('media-con-mas-grupos', { primera: hace(9), gruposIndependientes: 8 }),
     cand('alta', { primera: hace(20) }),
   ], {
-    baja: J({ impacto: 1 }), 'media-reciente': J({ impacto: 2 }), 'media-vieja': J({ impacto: 2 }),
-    'media-con-mas-grupos': J({ impacto: 2 }), alta: J({ impacto: 3 }),
+    baja: J(), 'media-reciente': J(), 'media-vieja': J(), 'media-con-mas-grupos': J(), alta: J(),
   }, ctx);
-  assert.deepEqual(ids(r.nacionales), ['alta', 'media-con-mas-grupos', 'media-reciente', 'media-vieja', 'baja']);
+  assert.deepEqual(ids(r.nacionales), ['media-con-mas-grupos', 'baja', 'media-reciente', 'media-vieja', 'alta']);
+});
+
+test('decidir T1: arriba va lo que más medios publicaron, aunque sea más viejo', () => {
+  const cs = [cand('A', { primera: hace(1), gruposIndependientes: 5 }), cand('B', { primera: hace(6), gruposIndependientes: 7 }), cand('C', { primera: hace(3), gruposIndependientes: 6 })];
+  assert.deepEqual(ids(N.decidir(cs, { A: J(), B: J(), C: J() }, ctx).nacionales), ['B', 'C', 'A']);
+});
+
+test('decidir T2: si empatan en medios, la más nueva primero', () => {
+  const cs = [cand('X', { primera: hace(5) }), cand('Y', { primera: hace(2) })];
+  assert.deepEqual(ids(N.decidir(cs, { X: J(), Y: J() }, ctx).nacionales), ['Y', 'X']);
+});
+
+test('decidir T3: el impacto de un juicio no cambia nada y no sale en ninguna lista', () => {
+  const cs = [cand('A', { primera: hace(1), gruposIndependientes: 5 }), cand('B', { primera: hace(6), gruposIndependientes: 7 }), cand('C', { primera: hace(3), gruposIndependientes: 6 })];
+  const js = { A: J({ impacto: 3 }), B: J({ impacto: 0 }), C: J(), M: J({ impacto: 3 }) };
+  const r = N.decidir(cs, js, ctx);
+  assert.deepEqual(ids(r.nacionales), ['B', 'C', 'A']);
+  // con un cupo de 2 una queda en la reserva, y con una 4/5 también se mira el menú a mano
+  const justo = N.decidir(cs, js, { reglas: { ...reglas, cupoMinimo: 2, cupoPorBloque: 2 }, elegiblesAMano: [elegible('M')] });
+  assert.equal(justo.reserva.length, 1);
+  assert.equal(justo.aMano.nacional.length, 1);
+  for (const x of [...r.nacionales, ...justo.reserva, ...justo.aMano.nacional]) assert.equal('impacto' in x, false, x.id);
+});
+
+test('decidir T4: en el menú a mano, la 4/5 más nueva primero', () => {
+  const el = [elegible('vieja', { primera: hace(3) }), elegible('nueva', { primera: hace(1) })];
+  const d = N.decidir([], { vieja: J(), nueva: J() }, { ...ctx, elegiblesAMano: el });
+  assert.deepEqual(ids(d.aMano.nacional), ['nueva', 'vieja']);
+});
+
+test('decidir T5: el tope decide cuáles entran: las que más medios publicaron', () => {
+  const cs = [
+    cand('s7', { gruposIndependientes: 7, primera: hace(6) }), cand('s6', { gruposIndependientes: 6, primera: hace(5) }),
+    cand('s5-hace2', { primera: hace(2) }), cand('s5-hace3', { primera: hace(3) }), cand('s5-hace8', { primera: hace(8) }),
+  ];
+  const js = Object.fromEntries(cs.map((c, i) => [c.id, J({ seccion: 'seccion-' + i })]));
+  const r = N.decidir(cs, js, { ...ctx, cupo: 3 });
+  assert.deepEqual(ids(r.nacionales), ['s7', 's6', 's5-hace2']);
+  assert.deepEqual(r.reserva.map(x => [x.id, x.motivo]), [['s5-hace3', 'cupo'], ['s5-hace8', 'cupo']]);
 });
 
 test('decidir: tope de 3 por sección; la cuarta de economía va a Reserva', () => {
   const cs = ['e1', 'e2', 'e3', 'e4'].map(id => cand(id));
-  const r = N.decidir(cs, { e1: J({ seccion: 'economía', impacto: 3 }), e2: J({ seccion: 'economía', impacto: 2 }), e3: J({ seccion: 'economía', impacto: 2 }), e4: J({ seccion: 'economía', impacto: 1 }) }, ctx);
+  const r = N.decidir(cs, { e1: J({ seccion: 'economía' }), e2: J({ seccion: 'economía' }), e3: J({ seccion: 'economía' }), e4: J({ seccion: 'economía' }) }, ctx);
   assert.deepEqual(ids(r.nacionales), ['e1', 'e2', 'e3']);
   assert.deepEqual(r.reserva.map(x => [x.id, x.motivo]), [['e4', 'tope_seccion (economía)']]);
 });
@@ -246,14 +284,14 @@ test('decidir: tope de 3 por sección; la cuarta de economía va a Reserva', () 
 test('decidir: en INTERNACIONAL, máximo 2 del mismo país', () => {
   const cs = ['us1', 'us2', 'us3', 'br'].map(id => cand(id));
   const j = { bloque: 'internacional' };
-  const r = N.decidir(cs, { us1: J({ ...j, pais: 'EEUU', impacto: 3 }), us2: J({ ...j, pais: 'EEUU', impacto: 2 }), us3: J({ ...j, pais: 'EEUU', impacto: 1 }), br: J({ ...j, pais: 'Brasil', impacto: 1, seccion: 'x' }) }, ctx);
+  const r = N.decidir(cs, { us1: J({ ...j, pais: 'EEUU' }), us2: J({ ...j, pais: 'EEUU' }), us3: J({ ...j, pais: 'EEUU' }), br: J({ ...j, pais: 'Brasil', seccion: 'x' }) }, ctx);
   assert.deepEqual(ids(r.internacionales).sort(), ['br', 'us1', 'us2']);
   assert.equal(r.reserva[0].id, 'us3');
 });
 
 test('decidir: el cupo es 7 por bloque; el resto va a Reserva', () => {
   const cs = Array.from({ length: 9 }, (_, i) => cand('n' + i));
-  const js = Object.fromEntries(cs.map((c, i) => [c.id, J({ impacto: 1 + (i % 3), seccion: 's' + i })]));
+  const js = Object.fromEntries(cs.map((c, i) => [c.id, J({ seccion: 's' + i })]));
   const r = N.decidir(cs, js, ctx);
   assert.equal(r.nacionales.length, 7);
   assert.equal(r.reserva.length, 2);
@@ -284,8 +322,8 @@ test('decidir: sin aviso cuando se llenan las dos listas de 7', () => {
 
 test('decidir: un desmentido sale y sube el siguiente de la Reserva', () => {
   const cs = ['e1', 'e2', 'e3', 'e4'].map(id => cand(id));
-  const e = o => J({ seccion: 'economía', ...o });
-  const r = N.decidir(cs, { e1: e({ impacto: 3, desmentido: true }), e2: e({ impacto: 2 }), e3: e({ impacto: 2 }), e4: e({ impacto: 1 }) }, ctx);
+  const e = (o = {}) => J({ seccion: 'economía', ...o });
+  const r = N.decidir(cs, { e1: e({ desmentido: true }), e2: e(), e3: e(), e4: e() }, ctx);
   assert.deepEqual(ids(r.nacionales), ['e2', 'e3', 'e4']);
   assert.equal(r.reserva.length, 0);
   assert.match(r.descartadas[0].motivo, /desmentido/);
@@ -382,9 +420,9 @@ const candB = (id, nombres, extra = {}) => cand(id, {
   via: 'B', gruposIndependientes: 3, firmasReconocidas: nombres.map(nombre => ({ nombre })), ...extra,
 });
 
-test('decidir: la vía B va después de la A aunque tenga más impacto, y se queda afuera si no hay cupo', () => {
-  const cs = [candB('b', ['X', 'Y']), cand('a')];
-  const js = { b: J({ impacto: 3 }), a: J({ impacto: 1 }) };
+test('decidir: la vía B va después de la A aunque tenga más medios y sea más nueva, y se queda afuera si no hay cupo', () => {
+  const cs = [candB('b', ['X', 'Y'], { gruposIndependientes: 9, primera: hace(1) }), cand('a')];
+  const js = { b: J(), a: J() };
   assert.deepEqual(ids(N.decidir(cs, js, ctx).nacionales), ['a', 'b']);
   const justo = N.decidir(cs, js, { reglas: { ...reglas, cupoPorBloque: 1 } });
   assert.deepEqual(ids(justo.nacionales), ['a']);
@@ -462,7 +500,7 @@ test('cupo: si no se llega al mínimo de 3, se avisa y no se baja el estándar p
 test('vía B: si se pone tope, la segunda página muestra como máximo esa cantidad por bloque', () => {
   const conTope = { reglas: { ...reglas, viaB: { ...reglas.viaB, maxNoticiasPorBloque: 2 } } };
   const cs = [candB('b1', ['X', 'Y']), candB('b2', ['X', 'Y']), candB('b3', ['X', 'Y']), candB('bi', ['X', 'Y'])];
-  const js = { b1: J({ impacto: 3 }), b2: J({ impacto: 2 }), b3: J({ impacto: 1 }), bi: J({ bloque: 'internacional' }) };
+  const js = { b1: J(), b2: J(), b3: J(), bi: J({ bloque: 'internacional' }) };
   const r = N.decidir(cs, js, conTope);
   assert.deepEqual(ids(r.nacionales), ['b1', 'b2']);
   assert.equal(r.reserva.find(x => x.id === 'b3').motivo, 'tope_via_B');
@@ -472,7 +510,7 @@ test('vía B: si se pone tope, la segunda página muestra como máximo esa canti
 
 test('vía B: la segunda página solo ocupa lo que la primera deja libre', () => {
   const cs = [cand('a1'), cand('a2'), cand('a3'), candB('b1', ['X', 'Y']), candB('b2', ['X', 'Y'])];
-  const js = { a1: J({ seccion: 'x' }), a2: J({ seccion: 'y' }), a3: J({ seccion: 'z' }), b1: J({ impacto: 3 }), b2: J({ impacto: 3 }) };
+  const js = { a1: J({ seccion: 'x' }), a2: J({ seccion: 'y' }), a3: J({ seccion: 'z' }), b1: J(), b2: J() };
   const r = N.decidir(cs, js, { ...ctx, cupo: 4 });
   assert.deepEqual(ids(r.nacionales), ['a1', 'a2', 'a3', 'b1']);
   assert.equal(r.reserva[0].motivo, 'cupo');
@@ -664,7 +702,7 @@ test('a mano: un hecho con 4 de 5 medios queda en observación, es elegible y sa
   assert.equal(p.elegiblesAMano.length, 1);
   assert.equal(p.elegiblesAMano[0], p.enObservacion[0], 'son los mismos objetos');
   assert.equal(p.resumen.elegiblesAMano, 1);
-  const d = N.decidir(p.candidatos, { 'g:m0': J({ impacto: 2, seccion: 'sociedad' }) }, { ...ctx, elegiblesAMano: p.elegiblesAMano });
+  const d = N.decidir(p.candidatos, { 'g:m0': J({ seccion: 'sociedad' }) }, { ...ctx, elegiblesAMano: p.elegiblesAMano });
   assert.deepEqual(ids(d.aMano.nacional), ['g:m0']);
   assert.deepEqual(d.aMano.internacional, []);
   assert.equal(d.aMano.nacional[0].etiqueta, ETIQUETA_MANO);
@@ -762,17 +800,17 @@ test('a mano: sin juicio queda en descartadas y suma al aviso de "sin juicio"', 
   assert.ok(dos.avisos.some(a => /^2 hecho\(s\) sin juicio de la IA/.test(a)), 'el candidato y el elegible suman');
 });
 
-test('a mano: sin cupo, sin tope por sección ni por país, y ordenadas por impacto, grupos y recencia', () => {
+test('a mano: sin cupo, sin tope por sección ni por país, y ordenadas por medios y recencia', () => {
   const cs = ['e1', 'e2', 'e3'].map(id => cand(id));
   const js = { e1: J({ seccion: 'economía' }), e2: J({ seccion: 'economía' }), e3: J({ seccion: 'economía' }) };
   const el = [
     elegible('a', { primera: hace(5) }), elegible('b', { primera: hace(1) }),
     elegible('c', { primera: hace(1), gruposIndependientes: 3 }), elegible('d', { primera: hace(1) }),
   ];
-  Object.assign(js, { a: J({ seccion: 'economía', impacto: 3 }), b: J({ seccion: 'economía', impacto: 1 }), c: J({ seccion: 'economía', impacto: 1 }), d: J({ seccion: 'economía', impacto: 1 }) });
+  Object.assign(js, { a: J({ seccion: 'economía' }), b: J({ seccion: 'economía' }), c: J({ seccion: 'economía' }), d: J({ seccion: 'economía' }) });
   const d = N.decidir(cs, js, { ...ctx, cupo: 3, elegiblesAMano: el });
   assert.equal(d.nacionales.length, 3);
-  assert.deepEqual(ids(d.aMano.nacional), ['a', 'b', 'd', 'c'], 'mayor impacto; empate: más grupos; después más reciente (b y d empatan y quedan como llegaron)');
+  assert.deepEqual(ids(d.aMano.nacional), ['b', 'd', 'a', 'c'], 'más medios; si empatan, la más nueva (b y d empatan y quedan como llegaron); c tiene 3 medios');
   assert.deepEqual(d.reserva, []);
   const pais = N.decidir([], { p1: J({ bloque: 'internacional', pais: 'Chile' }), p2: J({ bloque: 'internacional', pais: 'Chile' }), p3: J({ bloque: 'internacional', pais: 'Chile' }) },
     { ...ctx, elegiblesAMano: ['p1', 'p2', 'p3'].map(id => elegible(id)) });
@@ -804,13 +842,14 @@ test('día de ejemplo: de punta a punta', () => {
   assert.equal(p.resumen.elegiblesAMano, 2);
   assert.equal(p.enObservacion.find(x => x.id === 'g:IC-1').firmasReconocidas.length, 0, 'lo firma alguien que no está en la lista');
 
-  // La vía A de siempre, en el mismo orden, y la vía B al final de cada lista.
-  assert.deepEqual(ids(d.nacionales), ['g:N2-1', 'g:N1-1', 'g:N3-1', 'g:E2-1', 'g:E1-1', 'g:N6-1', 'g:NB-1']);
-  assert.deepEqual(ids(d.internacionales), ['g:I1-1', 'g:I6-1', 'g:I4-1', 'g:I2-1', 'g:IB-1']);
+  // La vía A por cantidad de medios (si empatan, la más nueva) y la vía B al final de cada lista.
+  // Con el orden nuevo, el tope de economía deja afuera a E1 y E2, y el de EEUU a I2.
+  assert.deepEqual(ids(d.nacionales), ['g:N2-1', 'g:N1-1', 'g:E4-1', 'g:E3-1', 'g:N3-1', 'g:N6-1', 'g:NB-1']);
+  assert.deepEqual(ids(d.internacionales), ['g:I6-1', 'g:I1-1', 'g:I4-1', 'g:I3-1', 'g:IB-1']);
   assert.equal(d.nacionales[6].etiqueta, 'Respaldada por Autora Ficticia Uno y Autor Ficticio Tres');
   assert.equal(d.internacionales[4].etiqueta, 'Respaldada por Autora Ficticia Uno y Autor Ficticio Dos');
   assert.equal(d.nacionales[0].etiqueta, 'Confirmada por 6 medios');
-  assert.deepEqual(d.reserva.map(x => x.motivo).sort(), ['tope_pais (EEUU)', 'tope_seccion (economía)', 'tope_seccion (economía)']);
+  assert.deepEqual(d.reserva.map(x => [x.id, x.motivo]).sort(), [['g:E1-1', 'tope_seccion (economía)'], ['g:E2-1', 'tope_seccion (economía)'], ['g:I2-1', 'tope_pais (EEUU)']]);
   assert.equal(d.descartadas.length, 4);
   assert.equal(d.aviso, 'Hoy: 7 nacionales, 5 internacionales');
 
@@ -823,11 +862,11 @@ test('día de ejemplo: de punta a punta', () => {
 test('día de ejemplo: eligiendo 5 o 3 noticias por bloque', () => {
   const p = N.preparar(dia.notas, { portales, reglas, firmas: dia.firmas, ahora: dia.ahora });
   const cinco = N.decidir(p.candidatos, dia.juicios, { reglas, cupo: 5 });
-  assert.deepEqual(ids(cinco.nacionales), ['g:N2-1', 'g:N1-1', 'g:N3-1', 'g:E2-1', 'g:E1-1']);
-  assert.deepEqual(ids(cinco.internacionales), ['g:I1-1', 'g:I6-1', 'g:I4-1', 'g:I2-1', 'g:IB-1']);
-  assert.deepEqual(cinco.reserva.filter(x => x.motivo === 'cupo').map(x => x.id).sort(), ['g:E3-1', 'g:E4-1', 'g:N6-1', 'g:NB-1'],
-    'con la lista llena, lo que sobra queda por cupo: N6, las dos de economía que igual habrían caído por tope, y la vía B');
+  assert.deepEqual(ids(cinco.nacionales), ['g:N2-1', 'g:N1-1', 'g:E4-1', 'g:E3-1', 'g:N3-1']);
+  assert.deepEqual(ids(cinco.internacionales), ['g:I6-1', 'g:I1-1', 'g:I4-1', 'g:I3-1', 'g:IB-1']);
+  assert.deepEqual(cinco.reserva.filter(x => x.motivo === 'cupo').map(x => x.id).sort(), ['g:E1-1', 'g:E2-1', 'g:N6-1', 'g:NB-1'],
+    'con la lista llena, lo que sobra queda por cupo: las dos de economía que quedaron después de las tres que entraron, N6 y la vía B');
   const tres = N.decidir(p.candidatos, dia.juicios, { reglas, cupo: 3 });
-  assert.deepEqual(ids(tres.nacionales), ['g:N2-1', 'g:N1-1', 'g:N3-1']);
-  assert.deepEqual(ids(tres.internacionales), ['g:I1-1', 'g:I6-1', 'g:I4-1']);
+  assert.deepEqual(ids(tres.nacionales), ['g:N2-1', 'g:N1-1', 'g:E4-1']);
+  assert.deepEqual(ids(tres.internacionales), ['g:I6-1', 'g:I1-1', 'g:I4-1']);
 });

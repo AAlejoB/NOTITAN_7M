@@ -18,7 +18,7 @@ const INT = ['clarin.com', 'lanacion.com.ar', 'infobae.com', 'pagina12.com.ar', 
 const notas = [];
 const juicios = {};
 
-const J = o => ({ datoNuevo: true, fuenteConNombre: true, interesPublico: true, desmentido: false, bloque: 'nacional', impacto: 1, seccion: '', pais: '', ...o });
+const J = o => ({ datoNuevo: true, fuenteConNombre: true, interesPublico: true, desmentido: false, bloque: 'nacional', seccion: '', pais: '', ...o });
 
 function hecho(id, portales, titulos, { hace = 4, seccion = 'actualidad', bajada = '', etiqueta, juicio, firmas = [] } = {}) {
   portales.forEach((p, i) => {
@@ -43,24 +43,24 @@ hecho('N1', [...NAC.slice(0, 6), 'tn.com.ar'], [
   'Diputados aprobó el Presupuesto 2027 y lo giró al Senado',
   'Aprobaron el Presupuesto 2027 en Diputados: pasa al Senado',
   'Presupuesto 2027: Diputados lo aprobó y ahora lo trata el Senado',
-], { hace: 6, seccion: 'politica', juicio: J({ impacto: 3, seccion: 'política' }) });
+], { hace: 6, seccion: 'politica', juicio: J({ seccion: 'política' }) });
 
 hecho('N2', NAC.slice(1, 7), [
   'Paro general de la CGT: el transporte quedó paralizado en todo el país',
   'Paro general de la CGT: transporte paralizado en todo el país',
   'Paro general de la CGT paraliza el transporte en todo el país',
-], { hace: 5, seccion: 'sociedad', juicio: J({ impacto: 3, seccion: 'trabajo' }) });
+], { hace: 5, seccion: 'sociedad', juicio: J({ seccion: 'trabajo' }) });
 
 hecho('N3', NAC.slice(0, 5), [
   'Aumento de tarifas de luz y gas desde noviembre: el Gobierno lo oficializó',
   'Aumento de tarifas de luz y gas desde noviembre: cuánto pagarás',
   'El Gobierno oficializó el aumento de tarifas de luz y gas desde noviembre',
-], { hace: 4, seccion: 'economia', juicio: J({ impacto: 3, seccion: 'economía' }) });
+], { hace: 4, seccion: 'economia', juicio: J({ seccion: 'economía' }) });
 
 hecho('N4', NAC.slice(2, 8), [
   'Habría renunciado el ministro de Defensa, según trascendió',
   'Trascendió que habría renunciado el ministro de Defensa',
-], { hace: 3, seccion: 'politica', juicio: J({ fuenteConNombre: false, impacto: 3, seccion: 'política' }) });
+], { hace: 3, seccion: 'politica', juicio: J({ fuenteConNombre: false, seccion: 'política' }) });
 
 hecho('N5', NAC.slice(0, 5), [
   'Se separó la pareja de conductores de TV tras diez años juntos',
@@ -71,35 +71,35 @@ hecho('N6', NAC.slice(3, 8), [
   'Alerta del Ministerio de Salud por un brote de dengue en el norte',
   'El Ministerio de Salud emitió una alerta por el brote de dengue en el norte del país',
   'Alerta por dengue: el Ministerio de Salud confirmó un brote en el norte',
-], { hace: 5, seccion: 'salud', juicio: J({ impacto: 2, seccion: 'salud' }) });
+], { hace: 5, seccion: 'salud', juicio: J({ seccion: 'salud' }) });
 
 // Cuatro de economía más: solo entran 3 en total (tope por sección).
 hecho('E1', NAC.slice(0, 5), [
   'El BCRA subió la tasa de interés: qué cambia para los plazos fijos',
   'BCRA subió la tasa de interés y mueve los plazos fijos',
   'Sube la tasa de interés del BCRA: qué pasa con los plazos fijos',
-], { hace: 4.5, seccion: 'economia', juicio: J({ impacto: 2, seccion: 'economía' }) });
+], { hace: 4.5, seccion: 'economia', juicio: J({ seccion: 'economía' }) });
 
 hecho('E2', NAC.slice(2, 7), [
   'Riesgo país récord: superó los 1.500 puntos',
   'El riesgo país marcó un récord y superó los 1.500 puntos',
-], { hace: 4.2, seccion: 'economia', juicio: J({ impacto: 2, seccion: 'economía' }) });
+], { hace: 4.2, seccion: 'economia', juicio: J({ seccion: 'economía' }) });
 
 hecho('E3', NAC.slice(0, 5), [
   'Caen las reservas del Banco Central a su menor nivel del año',
   'Las reservas del Banco Central cayeron a su menor nivel del año',
-], { hace: 3.8, seccion: 'economia', juicio: J({ impacto: 1, seccion: 'economía' }) });
+], { hace: 3.8, seccion: 'economia', juicio: J({ seccion: 'economía' }) });
 
 hecho('E4', NAC.slice(1, 6), [
   'El dólar blue cerró en alza y marcó un nuevo máximo semanal',
   'Dólar blue: cerró en alza y tocó un máximo semanal',
-], { hace: 3.5, seccion: 'economia', juicio: J({ impacto: 1, seccion: 'economía' }) });
+], { hace: 3.5, seccion: 'economia', juicio: J({ seccion: 'economía' }) });
 
 // Salió hace 30 h y la IA no ve ningún dato nuevo: no es fresco.
 hecho('N7', NAC.slice(0, 5), [
   'Se conoció el fallo de la Corte sobre las jubilaciones',
   'Fallo de la Corte sobre jubilaciones: qué dijeron los jueces',
-], { hace: 30, seccion: 'politica', juicio: J({ datoNuevo: false, impacto: 2, seccion: 'política' }) });
+], { hace: 30, seccion: 'politica', juicio: J({ datoNuevo: false, seccion: 'política' }) });
 
 // Cinco sitios, un solo cable: vale 1 (queda "En observación").
 hecho('N8', [NAC[0], NAC[1], NAC[2], NAC[4], NAC[5]], [
@@ -113,7 +113,7 @@ hecho('O1', NAC.slice(0, 3), [
 ], { hace: 1.5, seccion: 'sociedad' });
 
 // Les falta 1 medio (4 de 5 grupos), sin firma: no entran solas; se pueden elegir a mano.
-hecho('M1', NAC.slice(0, 4), ['Rescataron a tres andinistas perdidos en el cerro Aconcagua', 'Tres andinistas perdidos en el Aconcagua fueron rescatados'], { hace: 2, seccion: 'sociedad', juicio: J({ impacto: 2, seccion: 'sociedad' }) });
+hecho('M1', NAC.slice(0, 4), ['Rescataron a tres andinistas perdidos en el cerro Aconcagua', 'Tres andinistas perdidos en el Aconcagua fueron rescatados'], { hace: 2, seccion: 'sociedad', juicio: J({ seccion: 'sociedad' }) });
 
 /* ── Ruido que el criterio 1 saca antes de contar ── */
 
@@ -129,22 +129,22 @@ hecho('DH', [NAC[0], NAC[1], NAC[2]], ['Dólar blue hoy: a cuánto cotiza este s
 hecho('I1', INT.slice(0, 6), [
   'La Fed bajó la tasa de interés y se mueven el dólar y los bonos',
   'Fed: bajó la tasa de interés, se mueven el dólar y los bonos',
-], { hace: 7, seccion: 'economia', juicio: J({ bloque: 'internacional', impacto: 3, seccion: 'economía', pais: 'EEUU' }) });
+], { hace: 7, seccion: 'economia', juicio: J({ bloque: 'internacional', seccion: 'economía', pais: 'EEUU' }) });
 
 hecho('I2', INT.slice(2, 7), [
   'El Senado de EEUU aprobó un plan de gasto para evitar el cierre del gobierno',
   'Senado de EEUU: aprobó el plan de gasto y evitó el cierre del gobierno',
-], { hace: 6, seccion: 'politica', juicio: J({ bloque: 'internacional', impacto: 2, seccion: 'política', pais: 'EEUU' }) });
+], { hace: 6, seccion: 'politica', juicio: J({ bloque: 'internacional', seccion: 'política', pais: 'EEUU' }) });
 
 hecho('I3', INT.slice(1, 6), [
   'La Casa Blanca anunció nuevos aranceles a la importación de acero',
   'Nuevos aranceles a la importación de acero anunciados por la Casa Blanca',
-], { hace: 5, seccion: 'economia', juicio: J({ bloque: 'internacional', impacto: 1, seccion: 'economía', pais: 'EEUU' }) });
+], { hace: 5, seccion: 'economia', juicio: J({ bloque: 'internacional', seccion: 'economía', pais: 'EEUU' }) });
 
 hecho('I4', INT.slice(3, 8), [
   'Brasil y Argentina firmaron un acuerdo comercial para el sector automotor',
   'Acuerdo comercial entre Brasil y Argentina para el sector automotor',
-], { hace: 4, seccion: 'economia', juicio: J({ bloque: 'internacional', impacto: 2, seccion: 'economía', pais: 'Brasil' }) });
+], { hace: 4, seccion: 'economia', juicio: J({ bloque: 'internacional', seccion: 'economía', pais: 'Brasil' }) });
 
 hecho('I5', INT.slice(0, 5), [
   'Renuncia un ministro en Noruega por un escándalo interno',
@@ -154,10 +154,10 @@ hecho('I5', INT.slice(0, 5), [
 hecho('I6', INT.slice(0, 7), [
   'Un terremoto de magnitud 7 sacude el norte de Japón',
   'Terremoto de magnitud 7 en el norte de Japón',
-], { hace: 3, seccion: 'sociedad', juicio: J({ bloque: 'internacional', impacto: 2, seccion: 'sociedad', pais: 'Japón' }) });
+], { hace: 3, seccion: 'sociedad', juicio: J({ bloque: 'internacional', seccion: 'sociedad', pais: 'Japón' }) });
 
 // Les falta 1 medio, esta vez internacional: también queda en el menú y no rellena las internacionales.
-hecho('M2', INT.slice(4, 8), ['Chile declaró la emergencia hídrica en cuatro regiones del centro del país', 'Emergencia hídrica en Chile: el Gobierno la declaró en cuatro regiones del centro'], { hace: 2.5, seccion: 'sociedad', juicio: J({ bloque: 'internacional', impacto: 1, seccion: 'sociedad', pais: 'Chile' }) });
+hecho('M2', INT.slice(4, 8), ['Chile declaró la emergencia hídrica en cuatro regiones del centro del país', 'Emergencia hídrica en Chile: el Gobierno la declaró en cuatro regiones del centro'], { hace: 2.5, seccion: 'sociedad', juicio: J({ bloque: 'internacional', seccion: 'sociedad', pais: 'Chile' }) });
 
 /* ── VÍA B: firma reconocida (segunda línea) ── */
 
@@ -173,14 +173,14 @@ hecho('IB', ['bbc.com', 'theguardian.com', 'elpais.com'], [
   'Se filtró el texto de un tratado reservado entre dos países europeos',
   'El texto del tratado reservado entre dos países europeos se filtró',
 ], { hace: 4, seccion: 'politica', firmas: ['Por Autora Ficticia Uno', 'Autor Ficticio Dos'],
-  juicio: J({ bloque: 'internacional', impacto: 2, seccion: 'política', pais: 'Suiza' }) });
+  juicio: J({ bloque: 'internacional', seccion: 'política', pais: 'Suiza' }) });
 
 // Investigación nacional: 2 grupos y firmas habilitadas para nacional.
 hecho('NB', ['lanacion.com.ar', 'pagina12.com.ar'], [
   'Una investigación revela cómo se adjudicó la obra de un puente en el Litoral',
   'Cómo se adjudicó la obra de un puente en el Litoral: la investigación',
 ], { hace: 3, seccion: 'politica', firmas: ['Autora Ficticia Uno', 'Autor Ficticio Tres'],
-  juicio: J({ impacto: 2, seccion: 'justicia' }) });
+  juicio: J({ seccion: 'justicia' }) });
 
 // Lo firma alguien que no está en la lista: no cuenta como firma reconocida. Queda "En observación" con 2/5 grupos.
 hecho('IC', ['dw.com', 'france24.com'], [
