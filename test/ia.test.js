@@ -302,6 +302,14 @@ test('I8c: preguntaUnion trae la definición de Alejo, los dos ejemplos y los do
   const q = IA.preguntaUnion({ a: 'g:colA', b: 'g:colB' }, p, { portales });
   assert.ok(q.startsWith('Sos el editor que revisa noticias para 7M. Te paso dos hechos, cada uno con las notas de distintos medios que lo cuentan. ¿Son la misma noticia?\n\nSon la misma noticia si cuentan el mismo hecho: la misma gente, lo mismo que pasó, el mismo día. No alcanza con que sean del mismo tema.\n'));
   assert.ok(q.includes('«Aprobaron el Presupuesto» y «Qué cambia con el Presupuesto aprobado» son la misma noticia. «Anuncian un paro de colectivos para el jueves» y «Se levantó el paro de colectivos» no lo son: anunciar no es levantar.'));
+  const LINEA_TAMPOCO = 'Tampoco son la misma noticia «El Presidente inauguró una ruta en Córdoba» y «El Presidente habló en un foro en Madrid» (la misma persona, pero pasó otra cosa), ni «Chile eligió presidente» y «El Gobierno argentino felicitó al nuevo presidente de Chile» (uno es lo que pasó; el otro, lo que alguien hizo por eso).';
+  const LINEA_DUDAS = 'Si dudás, contestá false: es mejor dejar dos hechos separados que juntar dos que no son.';
+  assert.ok(q.includes(LINEA_TAMPOCO + '\n' + LINEA_DUDAS + '\n'), 'las 2 líneas nuevas, tal cual y seguidas');
+  const iEjemplos = q.indexOf('Ejemplos:');
+  const iTampoco = q.indexOf(LINEA_TAMPOCO);
+  const iJson = q.indexOf('Contestá solo con un JSON');
+  assert.ok(iEjemplos > 0 && iEjemplos < iTampoco && iTampoco < q.indexOf(LINEA_DUDAS) && q.indexOf(LINEA_DUDAS) < iJson, 'entre «Ejemplos:» y «Contestá solo con un JSON»');
+  assert.equal(q.slice(iEjemplos, iTampoco).split('\n').length, 2, 'la de «Tampoco son» viene justo después de la de «Ejemplos:»');
   assert.ok(q.includes('{"misma": true o false, "porque": "una línea"}'));
   const a = q.indexOf('Hecho A:\n');
   const b = q.indexOf('\nHecho B:\n');
@@ -317,8 +325,9 @@ test('I8c: preguntaUnion trae la definición de Alejo, los dos ejemplos y los do
 test('los ejemplos de la pregunta de unión no son los de los casos de prueba (si no, la prueba no mediría nada)', () => {
   const q = IA.preguntaUnion({ a: 'g:colA', b: 'g:colB' }, cincoHechos(), { portales });
   const casos = require('./casos-ia.json');
-  const ejemplos = q.split('\n').find(l => l.startsWith('Ejemplos:'));
-  for (const c of casos.union) { assert.ok(!ejemplos.includes(c.a), c.a); assert.ok(!ejemplos.includes(c.b), c.b); }
+  const lineas = q.split('\n').filter(l => l.startsWith('Ejemplos:') || l.startsWith('Tampoco son'));
+  assert.equal(lineas.length, 2, 'la de «Ejemplos:» y la de «Tampoco son»');
+  for (const ejemplos of lineas) for (const c of casos.union) { assert.ok(!ejemplos.includes(c.a), c.a); assert.ok(!ejemplos.includes(c.b), c.b); }
 });
 
 /* ───────── I9 · posibles desmentidos ───────── */
@@ -385,9 +394,16 @@ test('config/reglas.json: la sección ia trae deportes sí, farándula no, las p
 
 test('test/casos-ia.json: casos de unión (con misma true o false) y de bloque, con títulos completos', () => {
   const casos = require('./casos-ia.json');
-  assert.equal(casos.union.length, 4);
+  assert.equal(casos.union.length, 6);
   for (const c of casos.union) { assert.equal(typeof c.misma, 'boolean'); assert.ok(c.a && c.b); assert.ok(!c.a.endsWith('…') && !c.b.endsWith('…'), 'títulos completos'); }
   assert.equal(casos.union.filter(c => c.inventado).length, 1);
+  assert.ok(casos.union[3].inventado, 'union[3] es el inventado');
+  assert.deepEqual(casos.union.filter(c => c.dudoso), [casos.union[4]], 'union[4] es el único dudoso');
+  assert.equal(casos.union[4].misma, false);
   assert.equal(casos.union[1].misma, false, 'escrutinio + Milei: no (decidió Alejo: el mismo hecho, no el mismo tema)');
+  assert.equal(casos.union[5].misma, false, 'Milei + García Cuerva: no (comparten solo el nombre)');
+  assert.ok(casos.union[5].b.includes('García Cuerva') && casos.union[5].b.endsWith('”'), 'título completo de la nota de Luján');
+  assert.match(casos._aviso, /union\[3\] es inventado/);
+  assert.match(casos._aviso, /"dudoso": true no cuentan para decidir si se prende la unión/);
   for (const c of casos.bloque) assert.ok(['nacional', 'internacional'].includes(c.bloque));
 });

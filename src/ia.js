@@ -236,6 +236,8 @@ function preguntaUnion(par, preparado, { portales }) {
     '',
     'Son la misma noticia si cuentan el mismo hecho: la misma gente, lo mismo que pasó, el mismo día. No alcanza con que sean del mismo tema.',
     'Ejemplos: «Aprobaron el Presupuesto» y «Qué cambia con el Presupuesto aprobado» son la misma noticia. «Anuncian un paro de colectivos para el jueves» y «Se levantó el paro de colectivos» no lo son: anunciar no es levantar.',
+    'Tampoco son la misma noticia «El Presidente inauguró una ruta en Córdoba» y «El Presidente habló en un foro en Madrid» (la misma persona, pero pasó otra cosa), ni «Chile eligió presidente» y «El Gobierno argentino felicitó al nuevo presidente de Chile» (uno es lo que pasó; el otro, lo que alguien hizo por eso).',
+    'Si dudás, contestá false: es mejor dejar dos hechos separados que juntar dos que no son.',
     '',
     'Contestá solo con un JSON, sin texto antes ni después:',
     '{"misma": true o false, "porque": "una línea"}',
