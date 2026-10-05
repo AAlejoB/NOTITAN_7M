@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 5/10/26, 02:42 (hora de Argentina) con "npm run paquete".
+Armado el 5/10/26, 03:24 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-05_c.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-05_d.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -67,6 +67,7 @@ Lo chico (un número en `config/`, un texto, un error de tipeo) Alejo se lo pide
 2. `buzon/pendientes.md`, completo.
 3. Todos los `ClaudeCode_para_Cowork_*` más nuevos que la última carta de Cowork (`Cowork_para_ClaudeCode_*`): puede haber más de uno. Si todavía no hay ninguno, el `ClaudeCode_para_PREPARADOR_*` más nuevo (así se llamaban antes).
 4. El dibujo del embudo, si lo necesitás: https://claude.ai/artifact/1x8EynL8rEGJV9i6DyiHFi (es privado de Alejo; si no podés abrirlo, pedíselo).
+5. Si Don Julio ya contestó las preguntas de la capa 4 (la página está en `buzon/pendientes.md`, ítem «Capa 4»), leé sus respuestas con la herramienta de datos del artifact (`ArtifactData`, acción `list`, colección `respuestas`): hay un documento por pregunta, de `p01` a `p14`, con `opcion` (la letra que eligió, o vacío), `texto` (lo que escribió) y `actualizado` (la hora). Si la colección está vacía, preguntale a Alejo si las recibió por WhatsApp.
 
 Las cartas con nombre `PREPARADOR_*`, `Disenador_*` y `ClaudeCode_para_PREPARADOR_*` son historia: lo vigente está en `CLAUDE.md` y `pendientes.md`.
 
@@ -305,6 +306,8 @@ Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 
 
 La capa 4 con Don Julio: dónde corre n8n, dónde se guarda lo acumulado, la última lista y lo juzgado, dónde vive la página (para que verla no gaste ejecuciones, con un link secreto por cliente) y qué cuenta de IA. Las preguntas para Don Julio y los valores por defecto están en `buzon/pendientes.md`. Con eso, lo que toca código (cargar y guardar lo acumulado, llamar al modelo con `preguntaUnion` y `preguntaJuicio`, armar la lista real en lugar de la del día de ejemplo) se pide en una carta de Cowork. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`.
 
+Las preguntas para Don Julio están en una página de Alejo, con un valor por defecto en cada una (el link y cómo se leen las respuestas, en `buzon/pendientes.md`, ítem «Capa 4», y en `buzon/LEEME_COWORK.md`). Cuando conteste, Cowork escribe la carta de la capa 4.
+
 ## Lo que Alejo pidió el 2026-10-04
 
 - Meta: que quien apriete el botón (él, su hermana o un cliente desconocido) confíe en que las noticias pasaron por varios filtros. Entrega: título, breve descripción y links. Para la "breve descripción" se asume la bajada del propio medio, sin IA, salvo que diga otra cosa.
@@ -385,6 +388,9 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - Cómo avisa si una lectura falla, y cómo se separan las pruebas de lo real.
   - **Antes de prender la unión con un modelo real (valor por defecto de Cowork, 05-10):** se le hace a ese modelo, con la misma configuración que va a usar n8n, cada caso de unión de `test/casos-ia.json` que no es `dudoso`, **3 veces**. Tiene que acertar las 3 veces en todos. Una respuesta que `leerUnion` no puede leer (`null`) cuenta como error. Si erra una, la unión queda apagada hasta que se arregle la pregunta o se cambie de modelo. Los casos `true` también cuentan, para que «Si dudás, contestá false» no lo vuelva tan desconfiado que no una nada.
   - La pieza para acumular ya está hecha (`acumular` y `npm run leer -- --acumular datos/notas.json`, 48 h, `datos/` no se sube al repo), y también las piezas de la IA (`src/ia.js`); lo que falta es el pegamento.
+  - **Las preguntas para Don Julio (Cowork, 05-10):** 14 preguntas en 6 bloques, cada una con lo que proponemos mientras tanto y un globo para que conteste, en la página https://claude.ai/artifact/DMmuJhsmvGLWBCxxcJc4yq (es privada de Alejo: él se la comparte). Si Don Julio la abre como Editor, lo que escribe queda guardado en la página y el próximo chat de Cowork lo lee de ahí. Si no, toca «Copiar todas», se lo manda a Alejo por WhatsApp y Alejo lo pega en Cowork. Con sus respuestas, Cowork escribe la carta de la capa 4.
+  - **Orden por etapas (valor por defecto de Cowork; se le pregunta a Don Julio en la pregunta 12):** 1) leer y guardar cada 30 minutos, sin IA, que ya sirve para medir un día real; 2) la IA que juzga; 3) la página con la lista real; 4) la unión, después de la prueba de 3 veces.
+  - **Datos consultados por Cowork el 05-10 en las páginas oficiales:** n8n 3.0 todavía no salió (está anunciado para octubre de 2026); con esa versión el servidor propio va solo con Docker y el tiempo máximo de un nodo Code baja de 5 minutos a 1. n8n Cloud Starter sigue en €20 por mes con pago anual y 2.500 ejecuciones. Claude Haiku 4.5 sigue en US$1 por millón de tokens de entrada y US$5 de salida. `preparar` tarda menos de 1 segundo con 1.300 notas inventadas (medido por Cowork).
 
 **Alejo**
 - [ ] **Deportes y espectáculos: pendiente** (Alejo: «dejalo como pendiente»). Por defecto: **deportes sí, farándula no** (`config/reglas.json`, sección `ia`: `deportes` y `farandula`). Esos dos valores entran en el texto de la pregunta de juicio de la IA.
@@ -420,6 +426,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 05-10-2026 · **Cerrado por Cowork al aprobar el reporte `c`:** `scripts/armar-paquete.js` sigue trayendo solo el reporte más nuevo (valor por defecto de Cowork). Si un día hay dos reportes sin carta de Cowork en el medio y el chat de Cowork no puede clonar el repo, Alejo le pega también el reporte anterior. No se toca hasta que pase.
 - [x] 05-10-2026 · **El molde «▶ QUÉ HACÉS AHORA»**, decidido por Alejo: toda entrega de Cowork y de Claude Code termina, en el mensaje del chat, con «ESTO mandale a …:» por cada destinatario, un recuadro con exactamente lo que se pega y el molde afuera, como cita; nunca una tabla, y nunca recuadros ni moldes de ejemplo adentro de lo que se pega. Escrito en `LEEME_COWORK.md` («El molde»), `LEEME_CLAUDECODE.md` y `CLAUDE.md`. Cowork lee todos los reportes nuevos, no solo el último. La hora del encabezado sale del comando, corrida en el momento.
 - [x] 05-10-2026 · **Cerrado por Cowork al aprobar el reporte `b`:** las 66 comprobaciones de `npm run probar-pagina` quedan agrupadas como están; la captura del celular de Alejo con la versión vieja era una imagen de antes del 05-10 `a` (la página no está publicada en ningún lado).
 - [x] 05-10-2026 · **El sello de lo llevado a color pleno** (Cowork): en una tarjeta llevada se apagan solo la casilla, el título, la bajada y los links (0,6; 0,9 si se la vuelve a tildar); el sello y «Te la llevaste a las…» quedan sin apagar. Contraste del naranja en claro de 2,6 a 5,8 (oscuro 3,8 a 8,0; verde 2,5 a 5,1 y 3,8 a 7,7). **El script de Chromium en el repo:** `npm run probar-pagina` (Cowork; fuera de `npm test`, sin Playwright en `package.json`, con `--capturas <nombre>`).
@@ -455,67 +462,64 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-05_c.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-05_d.md
 ============================================================
 
-# Claude Code → Cowork · 05-10-2026 · 02:42 (hora de Argentina) · letra c
+# Claude Code → Cowork · 05-10-2026 · 03:24 (hora de Argentina) · letra d
 
-Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_c.md`.
+Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_d.md`.
 
-**Veredicto:** hechos los 2 pasos, solo texto, sin tocar código ni nada de lo que la carta prohibía. El molde «▶ QUÉ HACÉS AHORA» quedó escrito en `LEEME_COWORK.md` («El molde»), `LEEME_CLAUDECODE.md` y `CLAUDE.md`; las 9 comprobaciones dan lo que pedía la carta. `npm test` sigue en **200 bien y 1 pendiente** (201 en total).
+**Veredicto:** hecho el paso 1 (1a, 1b y 1c) y el cierre del paso 2, solo texto: no toqué código, tests ni nada de lo que la carta prohibía. Las ocho comprobaciones dan lo que pedía la carta. `npm test` sigue en **200 bien y 1 pendiente** (201 en total).
 
 ## Qué cambió
 
-| Paso | Commit | Archivo | Qué cambió |
-|---|---|---|---|
-| carta | «Guardo la carta de Cowork 2026-10-05 c» | `buzon/Cowork_para_ClaudeCode_2026-10-05_c.md` | La carta guardada tal cual. |
-| 1a | «Paso 1» | `buzon/LEEME_COWORK.md` | Línea nueva en «Cómo trabajás»; sección entera «## El molde» entre «## Cómo trabajás» y «## Con quién hablás»; la línea 3 de «Qué leer al arrancar» ahora dice «Todos los `ClaudeCode_para_Cowork_*` más nuevos que la última carta de Cowork». |
-| 1b | «Paso 1» | `buzon/LEEME_CLAUDECODE.md` | Dos reemplazos: el cierre de cada entrega apunta a «El molde», y la hora sale de `TZ=America/Argentina/Buenos_Aires date` corrida justo antes del encabezado. |
-| 1c | «Paso 1» | `CLAUDE.md` | La línea de «QUÉ HACÉS AHORA» pasó del bloque viejo al molde de cinco campos. |
-| 2 | cierre | `buzon/pendientes.md`, este reporte, `buzon/paquetes/PEGAR_COWORK.md` | Los 2 renglones de «Hecho» (05-10) tal cual los dictó la carta; paquete rearmado. |
-
-**Cómo termina ahora una entrega, antes y después (lo que ve Alejo):**
-
-| | Antes | Ahora |
+| Paso | Archivo | Qué cambió |
 |---|---|---|
-| Cierre de la entrega | Una tabla o un bloque «QUÉ HACÉS AHORA» suelto | «ESTO mandale a …:» + recuadro con exactamente lo que se pega + molde como cita, un apartado por destinatario |
-| Lo que se pega | A veces con recuadros o moldes de ejemplo adentro | Nunca recuadros ni moldes adentro |
-| Si no hay nada para mandar | Variaba | «NADA PARA MANDAR», sin recuadro, y el molde |
-| Lo que sigue esperando | Mezclado con el resto | Al final, «SIGUE TRABADO» |
-| Reportes que lee Cowork al arrancar | Solo el último | Todos los más nuevos que la última carta de Cowork |
-| Hora del encabezado | A veces estimada (la del reporte `b` dice 02:35 y su commit es de las 02:24) | La que da el comando, corrida antes de escribirlo |
+| carta | `buzon/Cowork_para_ClaudeCode_2026-10-05_d.md` | La carta guardada tal cual. |
+| 1a | `buzon/pendientes.md` | 3 renglones al final del ítem «Capa 4»: el link de las preguntas para Don Julio y cómo se leen sus respuestas, el orden por etapas y los datos consultados el 05-10. |
+| 1b | `buzon/LEEME_COWORK.md` | Renglón 5 en «Qué leer al arrancar»: cómo leer la colección `respuestas` (`p01` a `p14`) y qué hacer si está vacía. |
+| 1c | `CLAUDE.md` | Párrafo nuevo en «Siguiente paso», después del de la capa 4. |
+| 2 | `buzon/pendientes.md`, este reporte, `buzon/paquetes/PEGAR_COWORK.md` | Renglón de «Hecho» tal cual lo dictó la carta (primero debajo de `## Hecho`); paquete rearmado. «Cowork → Claude Code» sigue en «Nada pendiente por ahora» y el orden sugerido de la próxima ronda sigue siendo la capa 4. |
+
+**Cómo encuentra el próximo chat de Cowork las preguntas (lo que ve Alejo):**
+
+| Si pasa esto | Qué hace Cowork | Dónde lo encuentra |
+|---|---|---|
+| Don Julio abrió la página como Editor y contestó | Lee la colección `respuestas` con `ArtifactData` (un documento por pregunta, `p01` a `p14`) | Renglón 5 de `LEEME_COWORK.md`, que lo manda a `pendientes.md` ítem «Capa 4» por el link |
+| Don Julio no tiene cuenta y contesta por WhatsApp | La colección está vacía: le pregunta a Alejo, que pega el texto en el chat | Mismo renglón 5 |
+| Nadie contestó todavía | Sigue esperando; la capa 4 no avanza | `CLAUDE.md`, «Siguiente paso» |
 
 ## Tests
 
 | | Bien | Pendiente | Total |
 |---|---|---|---|
-| `npm test` antes (reporte `b`) | 200 | 1 | 201 |
+| `npm test` antes (reporte `c`) | 200 | 1 | 201 |
 | `npm test` después | **200** | 1 | 201 |
 
-## C1 a C9
+## C1 a C8
 
 | # | Comprobación | Dio | ¿Cumple? |
 |---|---|---|---|
-| C1 | `grep -c "▶ QUÉ HACÉS AHORA" buzon/LEEME_COWORK.md` | 1 | sí |
-| C2 | `grep -c "^## El molde" buzon/LEEME_COWORK.md` | 1; los títulos quedan en este orden: «Cómo trabajás» (línea 11), «El molde» (22), «Con quién hablás» (40) | sí |
-| C3 | `grep -c 'el bloque "QUÉ HACÉS AHORA" (a quién' CLAUDE.md` | 0 | sí |
-| C4 | `grep -c "ESTO mandale a"` en `LEEME_COWORK.md`, `LEEME_CLAUDECODE.md` y `CLAUDE.md` | 1, 1 y 1 | sí |
-| C5 | `npm test` | 201 en total: 200 bien, 0 mal, 0 salteados, 1 pendiente | sí |
-| C6 | Después de `npm run paquete`: `grep -c "Toda entrega a Alejo termina así" buzon/paquetes/PEGAR_COWORK.md` | 1 con el primer paquete (solo `LEEME_COWORK.md`); **2** con el paquete final, porque este reporte, que viaja adentro, cita la frase en esta fila | sí (al menos 1) |
-| C7 | `grep -c "corrida justo antes de escribir el encabezado" buzon/LEEME_CLAUDECODE.md` | 1 | sí |
-| C8 | Hora del encabezado | `TZ=America/Argentina/Buenos_Aires date` dio **`Mon Oct  5 02:42:10 -03 2026`** justo antes de escribirlo; el encabezado dice 02:42 | sí |
-| C9 | Mi mensaje final en el chat | Termina como E1 (recuadro con solo los 3 renglones, molde afuera, «SIGUE TRABADO» al final); este reporte no lleva el molde | sí |
+| C1 | `grep -c "DMmuJhsmvGLWBCxxcJc4yq" buzon/pendientes.md` | 1 | sí |
+| C2 | `grep -c "Orden por etapas" buzon/pendientes.md` | 1 | sí |
+| C3 | `grep -c "n8n 3.0 todavía no salió" buzon/pendientes.md` | 1 | sí |
+| C4 | `grep -c "^5. Si Don Julio ya contestó" buzon/LEEME_COWORK.md` | 1 | sí |
+| C5 | `grep -c "Las preguntas para Don Julio están en una página de Alejo" CLAUDE.md` | 1 | sí |
+| C6 | `npm test` | 201 en total: 200 bien, 0 mal, 0 salteados, 1 pendiente | sí |
+| C7 | `git add -A` y después `git diff --cached --stat 9636ca6`, con el reporte ya escrito y antes de `npm run paquete` | **5 archivos**, solo los pedidos: `CLAUDE.md` (+2), `buzon/ClaudeCode_para_Cowork_2026-10-05_d.md` (+55), `buzon/Cowork_para_ClaudeCode_2026-10-05_d.md` (+102), `buzon/LEEME_COWORK.md` (+1) y `buzon/pendientes.md` (+4); 164 inserciones, 0 borrados | sí |
+| C8 | Hora del encabezado | `TZ=America/Argentina/Buenos_Aires date` dio **`Mon Oct  5 03:24:04 -03 2026`** justo antes de escribirlo; el encabezado dice 03:24 | sí |
 
 ## Qué decidí por mi cuenta
 
-1. **Guardé la carta con lo que va entre «DESDE ACÁ» y «HASTA ACÁ»** de lo que me pegó Alejo, sin esas dos líneas ni la frase «Leé buzon/LEEME_CLAUDECODE.md…» de arriba. Es el texto de Cowork, sin cambios.
-2. **Armé el paquete dos veces**: una antes del reporte para poder comprobar C6 (que depende de `LEEME_COWORK.md`, ya cambiado) y otra al final, para que traiga este reporte. C6 da 1 en la primera y 2 en la segunda (el reporte cita la frase); las dos cumplen «al menos 1».
-3. **«SIGUE TRABADO» en mi mensaje final** lleva solo lo que dice E1 (las noticias reales, capa 4, esperan a Don Julio). No sumé nada más.
+1. **Guardé la carta con lo que va entre «DESDE ACÁ» y «HASTA ACÁ»** de lo que me pegó Alejo, sin esas dos líneas ni la frase «Leé buzon/LEEME_CLAUDECODE.md…» de arriba. Es el texto de Cowork, sin cambios (las comillas `~~~~` de los bloques también quedaron).
+2. **Los 3 renglones de 1a y el de «Hecho» los inserté con un script, no a mano**, para que queden exactos y cada uno empiece con dos espacios (1a) o con `- [x]` (Hecho). Verifiqué después con C1 a C5 y mirando los renglones vecinos.
+3. **Dejé una línea vacía entre el párrafo nuevo de `CLAUDE.md` y el título siguiente**, igual que entre los otros párrafos de esa sección.
 
 ## Qué quedó pendiente y para quién
 
-- **Para Cowork (lo marco porque toca algo que la carta pidió no tocar):** `scripts/armar-paquete.js` sigue trayendo **solo el reporte más nuevo** de Claude Code, y ahora `LEEME_COWORK.md` le dice a Cowork que lea **todos** los más nuevos que su última carta. Si algún día hay dos reportes seguidos sin carta en el medio, el paquete (si hace falta pegarlo) traería uno solo. Hoy no pasa: valor por defecto, no se toca. Cowork decide si pide cambiarlo.
-- Lo demás sigue como en el reporte `b`: la capa 4 espera a Don Julio. «Cowork → Claude Code» sigue en «Nada pendiente por ahora».
+- **Para Alejo:** compartirle a Don Julio la página de las preguntas (es privada de Alejo; el link está en `buzon/pendientes.md`, ítem «Capa 4»). No la abrí ni escribí en ella.
+- **Para Cowork:** cuando Don Julio conteste (en la página o por WhatsApp), leer las respuestas y escribir la carta de la capa 4.
+- Lo demás sigue como en el reporte `c`. «Cowork → Claude Code» sigue en «Nada pendiente por ahora».
 
 ============================================================
 FIN DEL PAQUETE
