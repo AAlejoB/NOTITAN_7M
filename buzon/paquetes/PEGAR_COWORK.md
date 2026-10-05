@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 4/10/26, 19:20 (hora de Argentina) con "npm run paquete".
+Armado el 4/10/26, 22:30 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_PREPARADOR_2026-10-04_k.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-04_a.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -185,12 +185,15 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 133 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 185 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--sin-notas-de-servicio`, `--acumular <archivo>`, `--sin-leer` y `--sin-excluir-rutas`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
 - Perilla del agrupador (2026-10-04): `umbralSimilitud` 0.3, `umbralSeguro` 0.5 y `minPalabrasComunes` 3 en `config/reglas.json`. Una nota entra a un grupo si se parece al menos 0.5, o si se parece entre 0.3 y 0.5 y comparten 3 palabras. El día de ejemplo da lo mismo con 0.3 que con 0.5 (se comparó la salida de `npm run demo`); el test #22 (misma noticia) no se tocó.
 - Notas de servicio con plantilla (2026-10-04): salen en el criterio 1, antes de agrupar y sin contar para verificar. Son 3 moldes en `criterio1.notasDeServicio` de `config/reglas.json` (horario de partido, efemérides, resultados de lotería); en lo descartado llevan el motivo `nota_de_servicio (<nombre>)`. Los moldes son precisos a propósito: no se llevan "a qué hora votan en Brasil" ni "Detienen a funcionarios de la Lotería". `npm run leer` muestra qué sacó el criterio 1 por motivo y tiene `--sin-notas-de-servicio` para comparar antes y después.
+- Orden por cantidad de medios (2026-10-04, decidió Alejo): dentro de cada bloque va primero el hecho con más grupos; si empatan, el más nuevo; la vía B va después de toda la vía A. La IA ya no da `impacto`: no se usa y no sale en ninguna lista. Cada noticia de `decidir` trae la `bajada` del medio.
+- La página (2026-10-04, capa 5, sobre el día de ejemplo): `pagina/index.html` (un solo archivo, sin librerías, pensada primero para celular) con `pagina/logica.js` (funciones puras: se prueban con `node --test` y andan también en el navegador), `src/entrega.js` (arma lo que muestra la página a partir de lo que devuelve `decidir`) y `npm run pagina`, que arma `pagina/lista.json` con el día de ejemplo (inventado, marcado `ejemplo: true`, se commitea). Las marcas («Nueva», «Te la llevaste») viven en el navegador de cada persona (`localStorage`, clave `7m-marcas-v1`, 24 h). Capturas en `buzon/capturas/`. Para verla: servir la carpeta `pagina/` con cualquier servidor estático.
+- Las piezas de la IA (2026-10-04, **todavía no se llama a ningún modelo**): `src/ia.js` con `palabrasPropias`, `paresParaUnir`, `unirHechos`, `preguntaUnion` y `leerUnion`, `preguntaJuicio` y `leerJuicio`, `posiblesDesmentidos`, `buscarGuardado` y `hayQueVolverAPreguntar`; la sección `ia` de `config/reglas.json` (`deportes` sí, `farandula` no, `palabrasDesmentido`, `maxDesmentidos`); y `test/casos-ia.json`, para medir al modelo cuando exista. `preparar` ahora arma cada hecho con `clasificarHecho` (la misma función que usa `unirHechos`, así un hecho unido por la IA se clasifica igual que uno armado por el agrupador) y la ficha lleva `fecha` y `firma` de cada nota. La llamada al modelo la arma Don Julio en n8n (capa 4).
 - Excepción a mano para una 4/5 (2026-10-04, solo el núcleo): `preparar` devuelve `elegiblesAMano` (hechos en observación a los que les falta 1 medio, sin firma que los haga entrar por la vía B; `aMano` en `config/reglas.json`: `activa` y `faltanMedios`, hoy 1) y `resumen.elegiblesAMano`. La IA juzga `candidatos` **y** `elegiblesAMano`. `decidir` recibe `elegiblesAMano` y devuelve `aMano: { nacional, internacional }`: los que pasan los criterios 3 a 6, sin cupo, sin topes y sin reserva, con la etiqueta "Confirmada por N medios · elegida a mano". Nunca entran solos a `nacionales` ni a `internacionales`, ni para llegar al mínimo de 3. La vista (el menú "En observación · les falta 1 medio" con "Llevármela igual") es capa 5 y espera el diseño de la entrega.
 - Rutas excluidas por feed (2026-10-04): `excluirRutas` en `config/feeds.json` (hoy El Cronista e Infobae). La regla es que la dirección **empiece con** la ruta (`rutaExcluida` en `src/lector.js`). Lo ya guardado se vuelve a filtrar al cargarlo (`filtrarRutas` en `scripts/leer.js`; en n8n, el mismo paso al cargar lo acumulado); el núcleo no sabe de feeds. `--sin-excluir-rutas` (solo con `--sin-leer`) da el "antes" de una medición.
 - Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false` en `portales.json`: no suman a la verificación y no avisan "feed roto". El día de ejemplo usa medios argentinos para lo internacional.
@@ -270,11 +273,17 @@ Dos corridas seguidas sobre lo guardado (`--sin-leer`): A con `--sin-excluir-rut
 
 ### Hechos partidos: cuántos pares miraría la IA (2026-10-04, solo medido)
 
-Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 4 grupos que siguen en observación) y salen 2 pares: Colapinto (unión de 5 grupos) y la jornada de Brasil (unión de 7). Con los hechos viejos serían 3 pares. Es poco: la sexta pregunta de la IA no cuesta mucho.
+Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 4 grupos que siguen en observación) y salen 2 pares: Colapinto (unión de 5 grupos) y la jornada de Brasil (unión de 7). Con los hechos viejos serían 3 pares. Es poco: la sexta pregunta de la IA no cuesta mucho. **Corrección (decidió Alejo después):** el par de Brasil con «Milei sigue con optimismo…» **no** es la misma noticia (el mismo hecho, no el mismo tema); ver «Lo medido para la página y la IA».
+
+### Lo medido para la página y la IA (2026-10-04, noche; 1.064 notas guardadas con el filtro de Infobae)
+
+- **¿Cambia el id de un hecho entre una vuelta de 30 minutos y la siguiente? (M1)** Se rehízo cada 30 minutos con las notas que ya habían salido (96 vueltas, del 3/10 00:12 al 5/10 00:01). De 120 hechos de 4 o más grupos, **120 mantuvieron el id**, 0 lo cambiaron y 0 eran nuevos. Es una aproximación: `fecha` no es cuándo se leyó la nota, y este recorrido siempre agrega notas más nuevas. Con notas que llegan hasta 3 horas tarde (al azar), 103 mantuvieron el id y **1 de 104 lo cambió** (entró una nota más vieja y pasó a ser la primera). Por eso la página reconoce la misma noticia por **una url compartida** y no por el id.
+- **Pares para la IA con la regla nueva (M3):** 11 hechos entran (5 de 3 grupos, 4 de 4 y 2 candidatos de vía A) y salen 5 pares; los 5 llegan a 5 grupos. Con la definición de Alejo (el mismo hecho): Colapinto, sí; escrutinio + «voto a voto», sí; escrutinio + Milei, **no**; Milei + García Cuerva (comparten solo el nombre «Milei»), **no**; Milei + «voto a voto», dudoso. El hecho «Milei sigue con optimismo…» está mezclado: su título es de Milei pero 4 de sus 5 notas son del conteo de votos.
+- **Chequeado (M2):** su feed anda (`https://chequeado.com/feed/`, 50 notas) pero la más nueva es de hace 40 días y cubre 587 días: no sirve para desmentidos de 48 horas. No se sumó.
 
 ## Siguiente paso
 
-Está en `buzon/pendientes.md`. Lo que queda, en este orden: la capa 4 (cada cuánto leer y dónde se guarda lo acumulado, con Don Julio), el diseño de la entrega (que incluye la vista de las 4/5 y la memoria de lo ya entregado) y la IA que juzga, que ahora son **6 preguntas**: las 5 de siempre más "¿estos dos hechos son la misma noticia?", y que juzga también las 4/5. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`. Para Cowork, con números: si se suman los feeds por sección de Infobae y qué hacer con las 14 notas de otras ediciones que quedan en su feed.
+La capa 4 con Don Julio: dónde corre n8n, dónde se guarda lo acumulado, la última lista y lo juzgado, dónde vive la página (para que verla no gaste ejecuciones, con un link secreto por cliente) y qué cuenta de IA. Las preguntas para Don Julio y los valores por defecto están en `buzon/pendientes.md`. Con eso, lo que toca código (cargar y guardar lo acumulado, llamar al modelo con `preguntaUnion` y `preguntaJuicio`, armar la lista real en lugar de la del día de ejemplo) se pide en una carta de Cowork. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -292,7 +301,15 @@ Está en `buzon/pendientes.md`. Lo que queda, en este orden: la capa 4 (cada cu�
 - **Excepción a mano para una 4/5, decidida por Alejo (carta del DISEÑADOR `a`, 04-10-2026), hecha en el núcleo.** No contradice los 5 fijos: la 4/5 nunca entra sola ni cuenta como verificada; la persona la elige a mano y sale marcada "Confirmada por 4 medios · elegida a mano". Los detalles (solo les falta 1 medio, sin cupo ni topes, pasan por la IA y los criterios 3 a 6, en un menú por bloque) son valores por defecto del DISEÑADOR, no decisiones de Alejo. Se cambian en `aMano` de `config/reglas.json`. La vista espera el diseño de la entrega.
 - **Notas de servicio con plantilla, decidido por Alejo (04-10-2026), hecho:** salen en el criterio 1 con 3 moldes en `criterio1.notasDeServicio`. No decide deportes: los resultados de los partidos siguen entrando.
 - **Infobae, decidido por Alejo (04-10-2026), hecho:** se descartan sus ediciones de España, Perú, México y Colombia, como en el Cronista; `/america/` queda. No toca "qué es INTERNACIONAL": solo decide qué páginas de Infobae cuentan como Infobae.
-- **Hechos partidos, decidido por Alejo (04-10-2026, opción A), espera la IA:** la IA que juzga une dos hechos que son la misma noticia y se cuentan juntos, por grupos distintos (Clarín en los dos vale 1). El hecho unido sigue el camino normal: con 5 o más grupos sale "Confirmada por N medios", **sin etiqueta distinta**. **Riesgo aceptado por Alejo:** si la IA se equivoca, una noticia podría salir Confirmada sin serlo. Es la sexta pregunta de la IA y no toca código hasta que la IA exista. Los detalles son valores por defecto del DISEÑADOR, no decisiones de Alejo: solo pares de hechos con 3 o 4 grupos que comparten persona o lugar; la IA contesta sí o no, más una línea de por qué; en lo que se guarda para revisar (no en lo que ve quien usa el botón) queda "unido por la IA: <por qué>"; la unión va **antes** de armar `candidatos` y `elegiblesAMano` y antes de las otras 5 preguntas.
+- **Hechos partidos, decidido por Alejo (04-10-2026, opción A), espera la IA:** la IA que juzga une dos hechos que son la misma noticia y se cuentan juntos, por grupos distintos (Clarín en los dos vale 1). **«La misma noticia» es el mismo hecho: la misma gente, lo mismo que pasó, el mismo día.** No alcanza con el mismo tema: el par «EN VIVO | Elecciones en Brasil: comienza el escrutinio…» + «…Milei sigue con optimismo la elección en Brasil…» es **no** (uno es el conteo de votos, el otro lo que hace Milei); antes figuraba como «sí». El hecho unido sigue el camino normal: con 5 o más grupos sale «Confirmada por N medios», **sin etiqueta distinta**. **Riesgo aceptado por Alejo:** si la IA se equivoca, una noticia podría salir Confirmada sin serlo. Es la sexta pregunta de la IA. Valores por defecto de Cowork, no decisiones de Alejo: solo pares de hechos con 3 o 4 grupos que comparten persona o lugar, **y también un hecho de 3 o 4 con los ya confirmados** (un candidato de vía A solo como pareja, nunca dos candidatos entre sí); la IA contesta sí o no, más una línea de por qué; en lo que se guarda para revisar (no en lo que ve quien usa el botón) queda «unido por la IA: <por qué>» (`unidoPorIA`); la unión va **antes** de armar `candidatos` y `elegiblesAMano` y antes de las otras 5 preguntas. Si una cadena juntaría dos confirmadas, el hecho de 3 o 4 se une solo a la de más grupos y se avisa. Las piezas ya están en `src/ia.js`; falta llamar al modelo (capa 4).
+- **La entrega, decidida por Alejo el 04-10 en el chat de Cowork** (hecha sobre el día de ejemplo):
+  - **Por dónde le llegan las noticias:** una página con un botón «Traer noticias». Entra desde un link guardado, tilda las que quiere y las copia juntas. No avisa sola. Descartado: Telegram, WhatsApp, mail.
+  - **Qué ve al apretar:** siempre lo último. La lista se rehace sola cada 30 minutos, después de cada lectura; las 3 personas del canal ven lo mismo. No hay horarios de corrida. Descartado: horas fijas cada 4 h; armar la lista al apretar.
+  - **Lo que ya vio y lo que ya se llevó:** se marca, no se oculta. «Nueva» en lo que no vio; lo que copió baja al fondo, apagado, con la hora. Descartado: ocultar lo llevado; ocultar todo lo visto; no marcar.
+  - **Cuántas ve:** hasta el tope (7) y ella tilda. Sin selector en la página; el 3 a 7 queda como ajuste por cliente en `config/`. Descartado: un selector «3 · 5 · 7».
+  - **Las 4/5:** abiertas, debajo de cada bloque, con «Llevármela igual». Descartado: plegadas.
+- **Las preguntas de la IA, decididas por Alejo el 04-10:** «la misma noticia» es el mismo hecho (la misma gente, lo mismo que pasó, el mismo día), no el mismo tema; **qué ordena el top: cantidad de medios** (no la importancia que pone la IA ni lo más nuevo); **argentinos afuera: por lugar**, el hecho va donde pasó y no según quién lo protagoniza. **Deportes y espectáculos: «dejalo como pendiente»** (por defecto, deportes sí y farándula no). **Dónde corre n8n: «lo hablo con Don Julio».**
+- **Lo que Alejo dejó con el valor por defecto («dejalas con el valor por defecto»):** feeds por sección de Infobae (no se suman), las 14 notas de otras ediciones de Infobae (no se tocan), reglas viejas `quiniela` y `horoscopo` (quedan como están) y variantes de servicio (no se suma ningún molde).
 - Fechas futuras (decidió el PREPARADOR): no se tocan. El lector ya descarta lo que viene con más de 12 h de adelanto (`FECHA_FUTURA_HORAS`).
 - Con corridas cada 4 horas, la misma noticia vuelve a salir en la corrida siguiente: el motor no recuerda lo ya entregado. Hace falta esa memoria antes de automatizar. Las ventanas de 48 h y 24 h también están pensadas para una corrida por día.
 - Futuro: portales y firmas por país (venta a otros países, por ejemplo Uruguay). Las fotos de los portales tienen derechos: antes de automatizar imágenes hay que definir de dónde salen.
@@ -309,7 +326,9 @@ Veredicto de la comparación: **n8n, con el código de reglas y agrupado en este
 
 ## Decisiones que solo Alejo puede tomar (no urgentes)
 
-Lista blanca de medios · qué ordena el top (impacto o cantidad de medios) · deportes y espectáculos · qué es INTERNACIONAL · topes por sección y por país · argentinos afuera (¿NACIONAL o INTERNACIONAL?) · horarios de las corridas · policiales sensibles · si se entrega solo título y links o también un resumen con IA.
+Lista blanca de medios · **deportes y espectáculos** (pendiente; por defecto: deportes sí, farándula no, en `ia` de `config/reglas.json`) · qué es INTERNACIONAL · topes por sección y por país · policiales sensibles · si se entrega solo título y links o también un resumen con IA.
+
+Ya decididas: qué ordena el top (cantidad de medios), argentinos afuera (por lugar), horarios de las corridas (no hay: siempre lo último, cada 30 minutos) y la excepción manual para una 4/5.
 
 ## Notas del entorno
 
@@ -329,16 +348,23 @@ ARCHIVO 4 de 5 · buzon/pendientes.md
 
 Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
-**Desde el 04-10-2026 hay un solo chat de Cowork** (antes DISEÑADOR y PREPARADOR). Donde un ítem dice DISEÑADOR o PREPARADOR, es Cowork. Lo primero que puede tomar el chat nuevo, en este orden (es una sugerencia, no una decisión de Alejo): las 2 preguntas con valor por defecto sobre Infobae (feeds por sección y las 14 notas de otras ediciones), el diseño de la entrega con la vista de las 4/5, y las 6 preguntas de la IA.
+**Desde el 04-10-2026 hay un solo chat de Cowork** (antes DISEÑADOR y PREPARADOR). Donde un ítem dice DISEÑADOR o PREPARADOR, es Cowork. Lo que sigue, en este orden (es una sugerencia, no una decisión de Alejo): revisar las capturas de la página y lo medido en el reporte `a` de Claude Code; y la capa 4 con Don Julio, que es lo que hoy frena tener algo que apretar con noticias reales.
 
 **Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
 - [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
 - [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4.
-- [ ] **Hechos partidos: decidido por Alejo (opción A): la IA los une y se cuentan juntos; espera la IA.** Es la sexta pregunta de la IA (abajo). No toca código hasta que exista la IA. Medido el 04-10 (con el filtro de Infobae, notas guardadas hasta las 18:02): entran 10 hechos (6 de 3 grupos y 4 de 4) y salen **2 pares**: Colapinto en Malasia/Sepang (unión de 5 grupos: La Gaceta, La Nación, Clarín, Página/12 y La Capital; misma noticia: sí) y la jornada electoral de Brasil (un hecho de 3 y uno de 4, unión de 7 grupos; misma noticia: sí, y es la misma jornada del hecho de 6 grupos que ya sale confirmado). Si también entraran los hechos viejos (más de 24 h) de 3 o 4 grupos serían **3 pares**: suma Christa Pike (dos hechos de 3 grupos, unión de 6; misma noticia: sí). Detalle en `ClaudeCode_para_PREPARADOR_2026-10-04_k.md`.
-- [ ] **Guardar lo leído entre corridas: queda solo lo de capa 4.** Cada cuánto leer (valor por defecto: cada 30 minutos) y dónde se guarda el archivo (n8n). Le toca al DISEÑADOR con Don Julio. La pieza para acumular ya está hecha: `acumular` y `npm run leer -- --acumular datos/notas.json` (48 h, `datos/` no se sube al repo).
+- [ ] **Hechos partidos: decidido por Alejo (opción A): la IA los une y se cuentan juntos; espera la IA.** «La misma noticia» es **el mismo hecho: la misma gente, lo mismo que pasó, el mismo día**; no alcanza con el mismo tema. Es la sexta pregunta de la IA. Hecho en el repo, sin llamar a ningún modelo: `paresParaUnir`, `unirHechos`, `preguntaUnion` y `leerUnion` de `src/ia.js`. **Corrección:** el par «EN VIVO | Elecciones en Brasil: comienza el escrutinio…» + «…Milei sigue con optimismo la elección en Brasil…» es **no** (uno es el conteo de votos, el otro lo que hace Milei); antes figuraba como «sí». Medido el 04-10 con la regla nueva (lo guardado hasta el 5/10 00:01, con el filtro de Infobae): entran 11 hechos (5 de 3 grupos, 4 de 4 y 2 candidatos de vía A) y salen **5 pares**: 2 entre hechos de 3 o 4 grupos (Colapinto, unión de 5 grupos, sí; escrutinio + Milei, unión de 7, no) y 3 con un candidato (escrutinio + «voto a voto», unión de 8, sí; Milei + «voto a voto», unión de 9, dudoso; Milei + García Cuerva, unión de 9, no). Los 5 llegan a 5 grupos: por eso la pregunta tiene que ser estricta. Detalle en `ClaudeCode_para_Cowork_2026-10-04_a.md`.
+- [ ] **Capa 4 (Alejo con Don Julio): reemplaza «Guardar lo leído entre corridas».** Cada cosa lleva un valor por defecto que se puede cambiar:
+  - Dónde corre n8n. Por defecto: n8n Cloud Starter, €20 por mes con 2.500 ejecuciones; leer cada 30 minutos son 1.440 por mes. Ojo: n8n 3.0 sale en octubre de 2026 y en servidor propio exige Docker. (Datos de n8n y de la IA consultados por Cowork el 04-10 en sus páginas oficiales.)
+  - Dónde se guarda lo acumulado, la última lista (`pagina/lista.json` en su versión real) y lo juzgado por la IA (los guardados de `src/ia.js`).
+  - Dónde vive la página, para que verla no gaste ejecuciones de n8n, y con un link secreto por cliente.
+  - Qué cuenta de IA. Por defecto Claude Haiku 4.5, entre US$1 y 5 por mes. Quién la paga.
+  - Cómo avisa si una lectura falla, y cómo se separan las pruebas de lo real.
+  - La pieza para acumular ya está hecha (`acumular` y `npm run leer -- --acumular datos/notas.json`, 48 h, `datos/` no se sube al repo), y también las piezas de la IA (`src/ia.js`); lo que falta es el pegamento.
 
 **Alejo**
-- [ ] Nombres para la lista de firmas (`config/firmas.json`): nombre y si vale para nacional, internacional o los dos. **Sin apuro**: Alejo no los tiene a mano. Mientras esté vacía, la vía B no hace nada. Hay alternativas para el DISEÑADOR (abajo).
+- [ ] **Deportes y espectáculos: pendiente** (Alejo: «dejalo como pendiente»). Por defecto: **deportes sí, farándula no** (`config/reglas.json`, sección `ia`: `deportes` y `farandula`). Esos dos valores entran en el texto de la pregunta de juicio de la IA.
+- [ ] Nombres para la lista de firmas (`config/firmas.json`): nombre y si vale para nacional, internacional o los dos. **Sin apuro**: Alejo no los tiene a mano. Mientras esté vacía, la vía B no hace nada. Hay alternativas para Cowork (abajo).
 - [ ] Opcional: borrar la rama vieja `claude/quirky-bell-pkumz7`, que ya no se usa. Se hace desde GitHub; Claude Code no la toca.
 - [ ] **El repo es público.** Alejo decide si pasa a privado. Revisado el 04-10-2026: no hay claves ni tokens; el historial solo tiene como autor a "Claude <noreply@anthropic.com>" (ningún correo personal); los correos de los tests son inventados; el único workflow de GitHub solo corre `npm test`. Sí se ve: la lógica de verificación y las reglas (lo que se piensa vender), las decisiones de Alejo, y menciones a su hermana, a Don Julio y al plan de vender el programa. La lista de firmas, cuando se llene, también sería pública. Si pasa a privado, confirmar que la app de Claude en GitHub y los chats de Cowork sigan teniendo acceso. **Valor por defecto:** sigue público hasta que Alejo decida. Si pasa a privado, la línea de arranque con el link deja de andar y se vuelve al paquete.
 - [ ] Decidir si los 10 feeds internacionales extra entran a la lista blanca (`config/feeds.json`, sección `extras`). Va junto con el riesgo de abajo.
@@ -350,29 +376,37 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **Cowork (diseño y decisiones; antes DISEÑADOR)**
-- [ ] Diseñar la entrega para quien lo usa cada 4 horas (el caso de la hermana de Alejo, canal de comunicaciones): qué ve, en qué orden, cómo elige cuántas noticias (3 a 7), cómo se ve la segunda página. **Incluye la vista de las 4/5** ("En observación · les falta 1 medio" con "Llevármela igual"): el núcleo ya da `aMano` por bloque, con su etiqueta.
-- [ ] Diseñar las **6 preguntas** de la IA que juzga: las 5 de siempre (fresco o dato nuevo, fuente con nombre, interés público, nacional o internacional, desmentido) más la sexta, "¿estos dos hechos son la misma noticia?" (ver "Hechos partidos"). Ojo: también juzga `elegiblesAMano` (las 4/5), no solo `candidatos`. La sexta va **antes** de armar `candidatos` y `elegiblesAMano` y antes de las otras 5; solo mira pares de hechos con 3 o 4 grupos que comparten persona o lugar; contesta sí o no más una línea de por qué, y en lo que se guarda para revisar queda "unido por la IA: <por qué>". El hecho unido sigue el camino normal (con 5 o más grupos sale "Confirmada por N medios", sin etiqueta distinta). Riesgo aceptado por Alejo: si la IA se equivoca, una noticia podría salir Confirmada sin serlo.
-- [ ] **Reglas viejas de título (`quiniela`, `horoscopo`) sueltas:** sacan cualquier título con esa palabra, también noticias de verdad (ej.: "Detienen al dueño de una agencia de quiniela"). ¿Se vuelven precisas como los moldes nuevos? Medido el 04-10 sobre 1.277 notas: `quiniela` sacó 0, `horoscopo` sacó 2 por título (más 1 por url `/horoscopo/`) y `dolar hoy` sacó 6; ninguna era noticia de verdad. El caso peligroso no apareció en estos datos, pero sigue siendo posible. **Valor por defecto:** quedan como están.
-- [ ] **Variantes de servicio que los moldes no agarran** (medido el 04-10, notas que pasan el criterio 1): "a qué hora" 6 (las 6 son de elecciones en Brasil y Perú, ninguna de partidos), "dónde ver" 6 (4 de TN con la plantilla "hora, dónde ver y formaciones" de partidos, 1 de béisbol y 1 falsa: "donde Verstappen"), "cómo ver" 3, "horario" 4, "sorteo" 6 (Chontico, Telekino, Quini 6, Triplex y Super Once, Bonoloto), "quini" 2 (el pozo del Quini 6 y Quinigol), "loto" 0 como palabra (9 con la cadena, pero son "piloto", "molotov", Lototurf y Bonoloto), "un día como hoy", "santoral", "lotería" y "baloto" 0. Con las ediciones de otros países de Infobae afuera (04-10): "sorteo" baja de 6 a 2 (se fueron Chontico, Triplex, Super Once y Bonoloto, de `/colombia/` y `/espana/`; quedan Telekino y el Quini 6) y "dónde ver" de 5 a 4 (se fue el béisbol de `/mexico/`; quedan las 4 de TN). ¿Se suma alguna? **Valor por defecto:** no.
-- [ ] **Feeds por sección de Infobae: ¿se suman?** Medido el 04-10 (sin sumar nada): `politica`, `economia` y `sociedad` andan (`https://www.infobae.com/arc/outboundfeeds/rss/category/<seccion>/`, con o sin `?outputType=xml`, da lo mismo). Cada uno trae 100 notas, 99 o 100 argentinas, y cubre entre 76 y 112 horas; ninguna ya estaba en el feed general en esa lectura. El feed general, en la misma lectura, trae 94 notas, solo 12 argentinas y cubre 1,3 horas. Las tres secciones juntas: 300 notas, 299 argentinas, 111 horas. Ojo: traen también `/opinion/` (7 de 299; el criterio 1 ya las saca por la dirección). **Valor por defecto:** no se suman. Si se suman, Infobae pasa a ser un solo grupo con muchas más notas argentinas y, con la lectura cada 30 minutos, cubre todo el día.
-- [ ] **Infobae: quedan ediciones de otros países que Alejo no nombró.** Con `/espana/`, `/peru/`, `/mexico/` y `/colombia/` afuera, de las 128 notas de Infobae guardadas quedan 14 de otras ediciones: `/estados-unidos/` 3, `/cuba/` 2, `/guatemala/` 2, `/el-salvador/` 2, `/honduras/` 2, `/nicaragua/` 1, `/panama/` 1 y `/costa-rica/` 1. Las otras 114 son 69 de `/america/` (que queda a propósito) y 45 argentinas. ¿Se suman a la lista? **Valor por defecto:** no se tocan; Alejo decidió solo 4 rutas.
-- [ ] **Caso borde de la vía B con la 4/5:** una 4/5 que entra por la vía B pero cuya firma no vale para su bloque (un autor solo nacional en una noticia internacional) se descarta y no se ofrece a mano. Solo pasa con `firmas.json` llena. **Valor por defecto:** así.
+- [ ] **Revisar la página** (`pagina/index.html`, capturas en `buzon/capturas/`) y **lo medido en el reporte `a`**, en especial M1: si muchos hechos cambian de id entre una vuelta y la siguiente, la regla de «comparte una url» se pone a prueba. Con el replay por fecha dio 0 cambios en 120 hechos; con notas que llegan hasta 3 horas tarde, 1 de 104.
+- [ ] **Chequeado como fuente de desmentidos:** el feed anda (`https://chequeado.com/feed/`, 50 notas) pero la más nueva es de hace 40 días y cubre 587 días: son notas editoriales, no las verificaciones del día. **Valor por defecto:** no se suma; los desmentidos salen de las notas acumuladas (`posiblesDesmentidos`).
+- [ ] **Detalle conocido de la página:** `medios` (el «4 de 5: La Gaceta · La Nación · …» de las 4/5) sale del grupo de cada link. Si una nota es un cable copiado, el núcleo la cuenta para la agencia pero la página muestra el medio: puede sobrar un nombre. No se arregló.
+- [ ] **La pastilla «Nueva» no sale en las 4/5**, solo en las confirmadas (la carta no la pedía ahí). ¿Se suma? **Valor por defecto:** no.
+- [ ] **El juicio de un hecho mezclado:** el hecho «A la espera de los primeros resultados, Milei sigue con optimismo…» (4 grupos) tiene un título de Milei pero 4 de sus 5 notas son del conteo de votos. La pregunta de la IA se arma con todas las notas, no solo con el título, pero conviene mirarlo cuando se pruebe el modelo (`test/casos-ia.json`).- [ ] **Caso borde de la vía B con la 4/5:** una 4/5 que entra por la vía B pero cuya firma no vale para su bloque (un autor solo nacional en una noticia internacional) se descarta y no se ofrece a mano. Solo pasa con `firmas.json` llena. **Valor por defecto:** así.
 - [ ] **Alternativas a la lista de firmas hecha a mano.** Opciones para pensar:
   - A: la lista manual de hoy.
   - B: reputación por trayectoria. Una firma sería reconocida si aparece firmando en varios portales de la lista blanca durante un período. Se arma sola con el campo `firma` que va a traer el lector y Alejo solo aprueba o descarta. Cuidado: popularidad no es confiabilidad, y habría que sacar firmas genéricas ("Redacción", "Agencias").
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
-- [ ] Decidir las ventanas de tiempo para corridas cada 4 horas. Hoy son 48 h de recolección y 24 h de frescura, pensadas para una corrida por día.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
-- [ ] Memoria de lo ya entregado: con corridas cada 4 h, la misma noticia vuelve a salir en la corrida siguiente porque el motor no recuerda. Hace falta pasarle la lista de hechos ya entregados, o marcar cuáles son nuevas desde la última corrida. **Espera el diseño de la entrega (DISEÑADOR): ocultar o marcar, por persona, cuánto dura.**
+- Nada pendiente por ahora. Lo que sigue (la capa 4) lo arma Don Julio en n8n; cuando defina dónde corre y dónde se guarda, Cowork escribe el pedido para lo que toque código: cargar y guardar lo acumulado, llamar al modelo con `preguntaUnion` y `preguntaJuicio`, y armar la lista real en lugar de la del día de ejemplo.
 
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
 - [ ] Fotos y armado de publicaciones (hoy se hace a mano en Canva). Las fotos de los portales tienen derechos: antes de automatizar hay que definir de dónde salen las imágenes.
 - [ ] Mejorar el agrupador para notas en otro idioma (hoy compara palabras).
+- [ ] Que las personas de un mismo canal vean lo que se llevó cada una (hoy cada una ve lo suyo; hace falta saber quién es quién).
+- [ ] Un aviso de «hay nuevas».
+- [ ] Noticias reales en la página cuando exista la IA (hoy usa el día de ejemplo y lo dice arriba).
 
 ## Hecho
 
+- [x] 04-10-2026 · **La página (capa 5) sobre el día de ejemplo.** `pagina/index.html` con `pagina/logica.js` (funciones puras que se prueban con `node --test`) y `src/entrega.js`; `npm run pagina` arma `pagina/lista.json` (de ejemplo, inventado, se commitea). Lo decidió Alejo: una página con «Traer noticias», siempre lo último (se rehace cada 30 minutos), «Nueva» y «Te la llevaste» (se marca, no se oculta), hasta 7 y ella tilda, las 4/5 abiertas debajo de cada bloque con «Llevármela igual». Capturas en `buzon/capturas/`.
+- [x] 04-10-2026 · **Memoria de lo ya entregado:** se resolvió en la página (marcas por persona en su navegador, 24 h, `localStorage`), no en el motor. Se reconoce la misma noticia por una url compartida, no por el id.
+- [x] 04-10-2026 · **Orden por cantidad de medios** (decidió Alejo): primero lo que más medios publicaron; si empatan, lo más nuevo; la vía B después de toda la vía A. La IA ya no da importancia (`impacto` no se usa y no sale). Con el orden nuevo cambia cuáles entran por los topes (en el día de ejemplo, E3 y E4 entran y E1 y E2 salen por el tope de economía; I3 entra e I2 sale por el de EEUU).
+- [x] 04-10-2026 · **«Argentinos afuera» por lugar** (decidió Alejo): el hecho va donde pasó, no según quién lo protagoniza. Entra en la pregunta 4 de la IA.
+- [x] 04-10-2026 · Cada noticia de `decidir` trae la `bajada` del medio.
+- [x] 04-10-2026 · **Diseñar las 6 preguntas de la IA** (decisiones 2.1, 2.3 y 2.4 de Alejo) y **las piezas alrededor, sin llamar a ningún modelo** (`src/ia.js`): pares de hechos para unir, `unirHechos` (reclasifica con la misma función que `preparar`), el texto exacto de las preguntas de unión y de juicio, cómo se lee lo que contesta, posibles desmentidos y cómo se reconoce lo ya juzgado. La llamada al modelo la arma Don Julio en n8n (capa 4).
+- [x] 04-10-2026 · **Ventanas de tiempo para corridas cada 4 horas:** no hay corridas cada 4 horas; la lista se rehace cada 30 minutos. Quedan 48 h de recolección y 24 h de frescura.
+- [x] 04-10-2026 · **Decidió Alejo: «dejalas con el valor por defecto»** (los cuatro quedan como están): feeds por sección de Infobae (no se suman; medidos: 100 notas argentinas cada uno y 76 a 112 horas de cobertura); las 14 notas de otras ediciones de Infobae (no se tocan); reglas viejas `quiniela` y `horoscopo` (quedan sueltas; en 1.277 notas sacaron 0 y 2 y ninguna era noticia); variantes de servicio (no se suma ningún molde nuevo).
 - [x] 04-10-2026 · **Alejo pasó de tres bloques a dos: un solo chat de Cowork y Claude Code.** Se juntaron DISEÑADOR y PREPARADOR en `buzon/LEEME_COWORK.md`; las cartas se llaman `Cowork_para_ClaudeCode_*` y `ClaudeCode_para_Cowork_*`; hay un solo paquete (`buzon/paquetes/PEGAR_COWORK.md`); `LEEME.md`, `LEEME_CLAUDECODE.md` y `CLAUDE.md` están al día. `LEEME_DISENADOR.md` y `LEEME_PREPARADOR.md` quedan como avisos que apuntan al nuevo, y las cartas viejas quedan como historia. El motivo: llevar archivos entre tres chats lo mareaba.
 - [x] 04-10-2026 · **Infobae sin las ediciones de España, Perú, México y Colombia** (decidió Alejo). `excluirRutas` en su feed, con la regla "la dirección **empieza con** la ruta" (así `/america/mexico/` no se cae por `/mexico/`), y lo ya guardado se filtra al cargarlo (`filtrarRutas` en `scripts/leer.js`; en n8n, el mismo paso al cargar lo acumulado). `npm run leer -- --acumular datos/notas.json --sin-leer --sin-excluir-rutas` da el "antes". Sobre lo guardado: 213 notas sacadas (`/espana/` 76, `/peru/` 72, `/mexico/` 38, `/colombia/` 27), hechos 1.031 → 865, los 2 confirmados y las 4 de "les falta 1 medio" siguen igual, y de los hechos de 3 o más grupos solo uno pierde a Infobae (El Comidista, de 3 a 2 grupos: era una unión con la edición de España). Ver `ClaudeCode_para_PREPARADOR_2026-10-04_k.md`.
 - [x] 04-10-2026 · LN+ no anda con la red completa: el portal corta la conexión en las 8 direcciones probadas, mientras La Nación responde en 1 s por el mismo camino. Queda `activo: false` y en `sinFeed`, con el motivo. Se reintenta solo si Alejo lo pide.
@@ -394,159 +428,170 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_PREPARADOR_2026-10-04_k.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-04_a.md
 ============================================================
 
-# Claude Code → PREPARADOR · 04-10-2026 · 19:01 (hora de Argentina) · letra k
+# Claude Code → Cowork · 04-10-2026 · 22:29 (hora de Argentina) · letra a
 
-Responde a `PREPARADOR_para_ClaudeCode_2026-10-04_c.md`.
+Responde a `Cowork_para_ClaudeCode_2026-10-04_a.md`. Es el primer reporte para el chat único de Cowork.
 
-**Veredicto:** hechos los 6 pasos. Infobae ya no cuenta sus ediciones de España, Perú, México y Colombia, tampoco en lo guardado: 213 notas menos, y los 2 confirmados y las 4 de "les falta 1 medio" siguen igual. La IA que une hechos partidos tendría pocos pares para mirar (2, con un control que da lo que decía la carta). Los feeds por sección de Infobae andan y traen mucho más material argentino. LN+ no anda ni con la red completa. `npm test` pasó de 123 a **132 bien** y sigue 1 pendiente a propósito.
+**Veredicto:** hechos los 6 pasos. El orden pasa a cantidad de medios (y cambia qué entra por los topes, como calculaste), cada noticia trae la bajada, la página anda en un navegador de verdad (Chromium, 24 comprobaciones, con capturas) y las piezas de la IA están listas y probadas sin llamar a ningún modelo. Las tres mediciones dieron: los ids no cambian entre vueltas (120 de 120), salen 5 pares para la IA (2 son «no» y 1 es dudoso) y el feed de Chequeado anda pero no sirve para 48 horas. `npm test` pasó de 133 a **185 bien** y sigue 1 pendiente a propósito. `npm run demo` salió idéntica después del Paso 4.
 
 ## Qué cambió
 
 | Paso | Commit | Cambio |
 |---|---|---|
-| guardar | `74f260c` | La carta `c`, en `buzon/`. |
-| 1 | `86b2acb` | `rutaExcluida` en el lector ("la dirección empieza con la ruta"); `excluirRutas` de Infobae con su nota; `filtrarRutas` y `--sin-excluir-rutas` en `scripts/leer.js`; línea `RUTAS EXCLUIDAS`; README. |
-| 2, 3, 4 | (nada) | Mediciones; scripts fuera del repo. |
-| 5 | `584a0e0` | LN+ no anda: el `motivo` de `sinFeed` dice qué dio el 04-10. |
-| 6 | este commit | `CLAUDE.md`, `pendientes.md`, este reporte y los paquetes. |
+| guardar | `1000a44` | La carta `a` de Cowork, en `buzon/`. |
+| 1 | `6fbdf50` | Orden por cantidad de medios; `impacto` ya no se usa ni sale; ejemplos y demo sin `impacto`. |
+| 2 | `42e4df3` | `bajada` en nacionales, internacionales, reserva y a mano. |
+| 3 | `38c8461` | `src/entrega.js`, `pagina/` (`index.html`, `logica.js`, `lista.json`), `scripts/armar-pagina.js` + `npm run pagina`, nombres en `portales.json`, 2 archivos de tests, 2 capturas. |
+| 4 | `8e9ef8b` | `src/ia.js`, sección `ia` en `reglas.json`, `test/ia.test.js` y `test/casos-ia.json`; en el núcleo, `clasificarHecho` (sale de `preparar`), `nombreDeMedio` y la ficha con `fecha` y `firma`. |
+| 5 | (nada) | M1, M2 y M3: scripts fuera del repo. |
+| 6 | este commit | `CLAUDE.md`, `README.md`, `pendientes.md`, este reporte y el paquete. |
 
 ## Tests, antes y después
 
 | | Antes | Después |
 |---|---|---|
-| Bien | 123 | **132** |
+| Bien | 133 | **185** |
 | Pendiente a propósito | 1 | 1 |
-| `test/lector.test.js` | | +4 (`rutaExcluida` con los 6 ejemplos, `rutaExcluida` con los bordes, `parsearFeed` de Infobae, config) |
-| `test/leer.test.js` | | +5 (`filtrarRutas` ×3, `lineaRutasExcluidas`, `--sin-excluir-rutas`) |
+| Paso 1 | | +5 (T1 a T5) |
+| Paso 2 | | +1 (la bajada) |
+| Paso 3 | | +21 (8 de `entrega` y de `armar-pagina`/`lista.json`; 13 de `logica`) |
+| Paso 4 | | +25 (`ia.test.js`, con I1 a I10 y los de unión, desmentidos y guardados) |
 
-El test del Cronista que ya existía pasa sin tocarlo. `npm run demo` sale **idéntica** (`diff` vacío). Doble pasada: rompí a propósito el código en 9 lugares (`includes` en vez de `startsWith`, sin minúsculas en la dirección o en la config, una dirección ilegible que sale, un feed sin lista que usa una por defecto, sin el corte de `--sin-excluir-rutas`, `filtrarRutas` que no saca nada, la línea que cuenta mal). Los tests atraparon las 9. Un error mío en un test (el viaje por JSON borra `feed: undefined`) lo vi al correrlo y lo arreglé con `structuredClone`.
+Doble pasada: rompí a propósito el código en unos 50 lugares (el orden, la bajada, `haceCuanto`, `limpiar`, `llevadaA`, `unirHechos`, `palabrasPropias`, `leerUnion`, `posiblesDesmentidos`…). Los tests atraparon casi todo; **5 no se atrapaban a la primera** (el borde de 24 h justas en `limpiar`, la regla de STOP con palabras de 3 o más letras, notas repetidas en una unión, `"misma": "true"` como texto y desmentidos repetidos): agregué los casos que faltaban y ahora se atrapan. La primera corrida de `ia.test.js` dio 6 fallos: 4 eran expectativas mal calculadas por mí (las corregí) y 2 eran del código, que arreglé: `fechaCorta` no rellenaba con ceros (`Intl` da `4/10` aunque se pida dos dígitos) y `unirHechos` reordenaba las listas aunque no hubiera uniones.
 
-## Paso 1 · los 6 ejemplos de tu tabla
+## Paso 1 · los tests reescritos
 
-| # | Dirección | Resultado |
+| Test | Antes | Ahora |
 |---|---|---|
-| 1 | `/colombia/2026/10/04/resultado-loteria-del-cauca-…` (real) | Sale: `ruta_excluida (/colombia/)` |
-| 2 | `/america/america-latina/…/brasil/` | Queda |
-| 3 | `/america/mexico/…/x/` | **Queda** (no empieza con `/mexico/`) |
-| 4 | `/politica/…/x/` | Queda |
-| 5 | `/ESPANA/…/x/` | Sale: `ruta_excluida (/espana/)` |
-| 6 | `cronista.com/espana/lluvias-2` | Sale, como hoy |
+| `decidir: orden por impacto, después más grupos, después más reciente` → `…orden por cantidad de medios y, si empatan, la más reciente` | alta, media-con-mas-grupos, media-reciente, media-vieja, baja | media-con-mas-grupos (8 medios), baja, media-reciente, media-vieja, alta (los otros 4 tienen 5 medios: va la más nueva) |
+| `a mano: … ordenadas por impacto, grupos y recencia` → `…por medios y recencia` | a, b, d, c | b, d, a, c |
+| `día de ejemplo: de punta a punta` | nacionales N2, N1, N3, E2, E1, N6, NB · internacionales I1, I6, I4, I2, IB · reserva: E3, E4 (tope economía) e I3 (tope EEUU) | nacionales N2, N1, **E4, E3**, N3, N6, NB · internacionales **I6, I1**, I4, **I3**, IB · reserva: **E1, E2** (tope economía) e **I2** (tope EEUU) |
+| `día de ejemplo: eligiendo 5 o 3 noticias por bloque` | cupo 5: N2, N1, N3, E2, E1 · I1, I6, I4, I2, IB · por cupo: E3, E4, N6, NB. Cupo 3: N2, N1, N3 · I1, I6, I4 | cupo 5: N2, N1, E4, E3, N3 · I6, I1, I4, I3, IB · por cupo: E1, E2, N6, NB. Cupo 3: N2, N1, E4 · I6, I1, I4 |
+| `la vía B va después de la A aunque tenga más impacto…` → `…aunque tenga más medios y sea más nueva…` | B con impacto 3 contra A con 1: sale ['a', 'b'] | B con 9 medios y más nueva contra A con 5: sale igual ['a', 'b'] |
+| 7 tests más (tope por sección, por país, cupo 7, desmentido, tope de vía B, segunda página, 4/5 al menú) | usaban `impacto` de relleno | sin `impacto`; la expectativa no cambia (con todo empatado, quedan como llegaron) |
 
-**Ojo con una cosa operativa:** `datos/notas.json` **no se tocó** (hice las mediciones sin leer nada antes, como pedía el paso 2). Sigue con las 1.277 notas de antes, incluidas las 213 que ya no cuentan. La primera lectura con `--acumular` lo reescribe ya filtrado, y con `--sin-leer` cada corrida las saca al cargar.
+Los 5 nuevos (T1 a T5) son los de tu carta, con tus números. T3 además mira la reserva y el menú a mano, no solo las listas.
 
-## Paso 2 · antes y después (A = `--sin-excluir-rutas`, B = con el filtro)
+## Demo, antes y después (el día de ejemplo)
 
-Archivo: 1.277 notas, de 2/10 18:12 a 5/10 00:01 (la última es una de las 3 con fecha futura: Página/12 pone la fecha de la edición del lunes). A corrió a las 18:55:34 y B a las 18:55:36.
-
-**a · Hechos según cuántos grupos**
-
-| Grupos | A | B |
+| # | Nacionales, antes | Nacionales, ahora |
 |---|---|---|
-| 1 | 980 | 819 |
-| 2 | 37 | 33 |
-| 3 | 8 | 7 |
-| 4 | 4 | 4 |
-| 5 o más | 2 | 2 |
-| Hechos en total | 1.031 | 865 |
-| Notas | 1.277 | 1.064 |
-| Hechos con 3 o más grupos | 14 | 13 |
+| 1 | Paro general de la CGT (6 medios) | Paro general de la CGT (6) |
+| 2 | Diputados aprobó el Presupuesto 2027 (6) | Diputados aprobó el Presupuesto 2027 (6) |
+| 3 | Aumento de tarifas de luz y gas (5) | **El dólar blue cerró en alza** (5) |
+| 4 | Riesgo país récord (5) | **Caen las reservas del Banco Central** (5) |
+| 5 | El BCRA subió la tasa (5) | Aumento de tarifas de luz y gas (5) |
+| 6 | Alerta de dengue en el norte (5) | Alerta de dengue en el norte (5) |
+| 7 | Investigación del puente (vía B) | Investigación del puente (vía B) |
 
-(Hay 3 notas fuera de la ventana de 48 h en las dos corridas: es la hora, no el filtro. En A, la nota de lotería de `/colombia/` se contaba entre las 65 del criterio 1; en B no está.)
+| # | Internacionales, antes | Internacionales, ahora |
+|---|---|---|
+| 1 | La Fed bajó la tasa (6) | **Terremoto de magnitud 7 en Japón** (7) |
+| 2 | Terremoto de magnitud 7 en Japón (7) | **La Fed bajó la tasa** (6) |
+| 3 | Brasil y Argentina, acuerdo automotor (5) | Brasil y Argentina, acuerdo automotor (5) |
+| 4 | El Senado de EEUU aprobó un plan de gasto (5) | **La Casa Blanca anunció aranceles** (5) |
+| 5 | Tratado reservado (vía B) | Tratado reservado (vía B) |
 
-**b · Hechos de 3 o más grupos que pierden a Infobae: 2.**
+Reserva: antes, dólar blue y reservas del BCRA (tope de economía) y Casa Blanca (tope de EEUU); ahora, riesgo país y tasa del BCRA (tope de economía) y Senado de EEUU (tope de EEUU). Es lo que calculaste. En la demo, `[3]` pasó a `[6 medios]`.
 
-| Hecho | A | B | Qué pasa |
-|---|---|---|---|
-| "Tras el cierre de los comicios, Lula Da Silva y Flávio Bolsonaro disputan voto a voto…" (Brasil) | 6 grupos · 14 notas | 6 grupos · 13 notas | Pierde 1 nota de `/espana/`; Infobae sigue en el hecho por otras 2 notas |
-| "Menú semanal de El Comidista (5 a 11 de octubre)" | **3 grupos** · 5 notas | **2 grupos** · 3 notas | Pierde las 2 notas de Infobae `/espana/`: era una unión con la edición de España |
-
-**c · Las 2 confirmadas y las 4 de la lista a mano: siguen exactamente igual en B.** Confirmadas: García Cuerva en Luján (6 grupos) y Brasil (6). A mano (4/5): Colapinto en Malasia, "Una carrera loca…" de Sepang, las ventas minoristas de septiembre y Milei con la elección en Brasil.
-
-**d · Lo que había quedado sin agarrar**
-
-| Cadena | En A | En B | Desaparecen (feed · ruta) |
-|---|---|---|---|
-| "sorteo" | 6 | 2 | Chontico Noche (Infobae · `/colombia/`), Triplex de la Once, Super Once y Bonoloto (Infobae · `/espana/` las tres). Quedan Telekino 2448 y el pozo del Quini 6 (La Nación · `/loterias/`) |
-| "dónde ver" | 5 | 4 | El béisbol Braves vs. Dodgers (Infobae · `/mexico/`). Quedan las 4 de TN · `/deportes/` |
-
-Tu tabla del reporte `j` decía 6 en "dónde ver" porque contaba por cadena: la sexta era "donde Verstappen" (La Gaceta), falsa. Acá cuento palabra suelta y son 5. Tu sospecha se confirma: los 4 "sorteo" de Colombia y España salían de Infobae.
-
-**e · "Aparece" contra "empieza con": 0.** Ninguna nota de Infobae guardada contiene una de las 4 rutas sin empezar con ella. Con estos datos dan lo mismo; la diferencia es la protección para `/america/mexico/`.
-
-**f · Infobae en B:** 128 notas, de 4/10 14:12 a 18:01 = **3,8 horas** (igual que en A).
+## Paso 3 · la salida de `npm run pagina`
 
 ```
-Infobae en B, por primer tramo de la dirección (128 notas)
-/america/          69  ████████████████████
-argentinas         45  █████████████
-otras ediciones    14  ████
+nacional        7 noticias · 1 a las que les falta 1 medio · 0 afuera por tope
+internacional   5 noticias · 1 a las que les falta 1 medio · 0 afuera por tope
+pagina/lista.json · ejemplo: true · generada <la hora de ahora>
 ```
 
-Las 45 argentinas: `/deportes/` 9, `/salud/` 5, `/economia/` 4, `/tecno/` 4, `/teleshow/` 4, `/sociedad/` 4, `/tendencias/` 3, `/entretenimiento/` 3, `/movant/` 3, `/cultura/` 2, `/judiciales/` 2, `/historias/` 1 y `/politica/` 1. **Hallazgo:** quedan 14 notas de otras ediciones que Alejo no nombró: `/estados-unidos/` 3, `/cuba/` 2, `/guatemala/` 2, `/el-salvador/` 2, `/honduras/` 2, `/nicaragua/` 1, `/panama/` 1, `/costa-rica/` 1. No las toqué. Está en `pendientes.md` con valor por defecto "no".
+**Las capturas** están en `buzon/capturas/pagina-2026-10-04-390.png` (390 px) y `pagina-2026-10-04-1200.png` (1200 px), modo claro, con una confirmada tildada y la 4/5 nacional tildada («Sacar»). Son de página entera: la ventana se estiró hasta el alto de la página para que la barra de abajo quede abajo de todo. En el día de ejemplo las bajadas están vacías y `afueraPorTope` da 0: **no se ven esas dos cosas**, como avisabas. No toqué el día de ejemplo.
 
-## Paso 3 · pares para la sexta pregunta (script fuera del repo)
+**Probé la página en Chromium** (Playwright, servida en un puerto local), 24 comprobaciones, todas bien: tildar y la barra («2 elegidas», «Copiar las 2»); la 4/5 dice «Sacar» al tildarla; copiar trae los títulos y los renglones «Medio: url», **sin sello**; después de copiar se destilda todo, lo copiado baja al fondo con «Te la llevaste a las HH:MM», sigue contando para el tope (el título dice `Nacionales · 7`) y aparece «Copiadas. Ya podés pegarlas.»; al recargar nada es «Nueva» y lo llevado sigue apagado; «Traer noticias» no pierde lo tildado; con el portapapeles bloqueado aparece el cuadro con el texto; una lista de hace 2 h 5 min dice «Actualizada hace 2 h 5 min» y el aviso ámbar «No se actualiza desde las HH:MM»; una lista que no carga muestra el mensaje y «Reintentar» la trae; sin `localStorage` anda igual, sin marcas; en modo oscuro el fondo cambia; sin errores en la consola.
 
-Sobre lo guardado, con el filtro de Infobae y las reglas de tu carta (palabras con mayúscula, sin la primera de cada frase, sin STOP ni VIVO/HOY/…). Entraron **10 hechos** de 739 en observación (6 de 3 grupos y 4 de 4) y salieron **2 pares**.
+## Paso 4 · lo hecho, en una línea por pieza
 
-| # | Hecho A | Hecho B | Palabras en común | Unión | ¿5? | Misma noticia |
-|---|---|---|---|---|---|---|
-| 1 | "EN VIVO \| Elecciones en Brasil: comienza el escrutinio y Lula habla con la prensa a las 19…" (3 grupos: Perfil, La Gaceta, Noticias Argentinas) | "A la espera de los primeros resultados, Milei sigue con optimismo la elección en Brasil y respaldó a Bolsonaro…" (4 grupos: Infobae, El Cronista, La Capital, El País) | brasil, lula | **7** | sí | **sí**: es la noche del escrutinio; la nota de Milei suma el ángulo argentino. Además es la misma jornada del hecho de 6 grupos que ya sale confirmado |
-| 2 | "Fórmula 1: qué dijo Colapinto luego de finalizar 13° en el Gran Premio de Malasia" (4 grupos, 8 notas) | "Una carrera loca que Franco Colapinto terminó con mucha dignidad en Sepang con el mejor Alpine" (4 grupos, 4 notas) | colapinto, gran, premio, franco, bahrein | **5** | sí | **sí**: la misma carrera (13°, Alpine, Gran Premio de Bahréin) |
+| Pieza | Qué hace |
+|---|---|
+| `palabrasPropias` | Con tus dos ejemplos da exactamente `brasil, lula` y `colapinto, gran, premio, malasia`. |
+| `paresParaUnir` | Hechos de 3 o 4 grupos más los candidatos de vía A como pareja; dos candidatos nunca forman un par. |
+| `unirHechos` | Junta de a grupos, recuenta los grupos (no los suma), reclasifica con la misma función que `preparar`, agrega `unidoPorIA`; con dos confirmadas en la cadena el hecho se une a la de más grupos y se avisa con tu texto. |
+| `preguntaUnion` y `leerUnion` | Tu texto tal cual; la respuesta tiene que ser JSON solo o en un bloque ```json, con `misma` true o false y `porque` texto. |
+| `preguntaJuicio` y `leerJuicio` | Tu texto, con los deportes y la farándula según `ia`; `bloque` pasa a minúsculas; lo inválido da `null`. |
+| `posiblesDesmentidos` | Con tus dos ejemplos (el aguinaldo sí, el dengue de Salta no). |
+| `buscarGuardado` y `hayQueVolverAPreguntar` | Por una url compartida; vuelve a preguntar si hay un desmentido nuevo. |
 
-**Control:** el par de Colapinto **sale**, con unión de **5 grupos** (La Gaceta, La Nación, Clarín, Página/12 y La Capital), como decías.
+`npm run demo` **idéntica** a la del Paso 2 (`diff` vacío), y lo que devuelve `preparar` es lo mismo salvo la `fecha` y la `firma` de cada nota de la ficha. Los ejemplos de dentro de `preguntaUnion` (Presupuesto, paro de colectivos) no están en `test/casos-ia.json`: hay un test que lo comprueba. En `casos-ia.json` los 4 títulos eran completos en `datos/notas.json` (el de «EN VIVO…» ya terminaba en «a las 19»), así que no hizo falta marcar `incompleto`.
 
-**Si también entraran los hechos viejos** (más de 24 h) de 3 o 4 grupos: **3 pares**. El tercero es Christa Pike ("Lo que la fallida ejecución…" + "Cómo sigue la salud de Christa Pike…", 3 grupos cada uno, unión de 6; misma noticia: sí).
+## Paso 5 · las tres mediciones
 
-Dos notas sobre el método: "gran" y "premio" cuentan como "propias" solo porque van con mayúscula en "Gran Premio" (la regla las deja pasar); y no se miraron los hechos de 2 grupos. Con estos datos la sexta pregunta tendría poco trabajo: 2 o 3 pares en un fin de semana.
+**M1 · ¿Cambia el id entre una vuelta y la siguiente?** 96 vueltas de 30 minutos (del 3/10 00:12 al 5/10 00:01), con las notas que ya habían salido en cada una y `preparar` con `ahora = t`.
 
-## Paso 4 · feeds por sección de Infobae (sin sumar nada)
+| Hechos de 4 o más grupos | Cantidad |
+|---|---|
+| (a) mismo `id` | **120** |
+| (b) otro `id` pero comparte una url | 0 |
+| (c) no comparte nada (nuevo) | 0 |
 
-Las dos formas de la dirección andan para las tres secciones (200, `application/xml`) y devuelven lo mismo: por eso va una sola fila por sección. No hizo falta mirar el HTML. Una sola lectura a las 18:57.
+Si se compara solo con los de 4 o más grupos de la vuelta anterior, son 114 (a), 0 (b) y 6 (c); los 6 ya existían como hecho más chico (crecieron de 3 a 4 grupos). **Caso b: no hay ninguno que mostrar.** Pero esto está sesgado a que salga bien: `fecha` es cuándo salió la nota, no cuándo se leyó, y en este recorrido solo se suman notas más nuevas, así que el agrupador (que va por fecha) arma siempre el mismo comienzo. Para ponerlo a prueba hice una variante con retraso: cada nota aparece hasta 1 o 3 horas después de su fecha, al azar (siempre la misma para la misma nota).
 
-| Feed | Notas | Argentinas | Horas que cubre | Ya estaban en el general |
+| Retraso máximo | Hechos de 4 o más grupos | (a) mismo id | (b) otro id, misma url | (c) nuevo |
 |---|---|---|---|---|
-| `…/rss/category/politica/` | 100 | 100 | 102,7 | 0 |
-| `…/rss/category/economia/` | 100 | 99 | 76,4 | 0 |
-| `…/rss/category/sociedad/` | 100 | 100 | 111,5 | 0 |
-| **`…/rss/` (el general, misma lectura)** | 94 | **12** | **1,3** | — |
+| 0 h | 120 | 120 | 0 | 0 |
+| 1 h | 116 | 116 | 0 | 0 |
+| 3 h | 104 | 103 | **1** | 0 |
 
-(Direcciones completas: `https://www.infobae.com/arc/outboundfeeds/rss/category/<seccion>/`, con o sin `?outputType=xml`. "Argentinas" = no empiezan con `/america/` ni con las 4 rutas excluidas.)
+El único (b): «A la espera de los primeros resultados, Milei sigue con optimismo…» (4 grupos), el 4/10 a las 19:42. El `id` pasó de la nota de El Cronista a la de Infobae porque entró tarde una nota más vieja. Con la regla «comparte una url» la página lo sigue reconociendo.
 
-Las tres secciones juntas: **300 notas, 299 argentinas, 111 horas**, contra las 12 argentinas del general en la misma lectura. Traen también `/opinion/` (7 de 299), que el criterio 1 ya saca por la dirección. Cada feed trae un máximo de 100 notas.
+**M2 · ¿Chequeado tiene feed?** Anda: `https://chequeado.com/feed/` da 200, RSS, **50 notas**. Pero cubre **14.089 horas** (587 días, del 15/1/2025 al 25/8/2026) y la más nueva es de hace 40 días: son notas editoriales, no las verificaciones del día. Tres títulos: «Nueva investigación: ¿Quiénes son más vulnerables a las desinformaciones sobre salud?» (25/8), «Una comunidad que banca lo verdadero: esto también es gracias a vos» (7/8), «Evaluar chatbots, un desafío metodológico…» (31/7). No sirve para desmentidos de 48 horas y **no lo sumé** a `config/`.
 
-## Paso 5 · LN+
+**M3 · los pares con la regla nueva** (`ahora` = la nota más nueva, 5/10 00:01): **11 hechos entran** (5 de 3 grupos, 4 de 4 y 2 candidatos de vía A), **5 pares**: **2 entre hechos de 3 o 4** y **3 con un candidato**. Los 5 llegan a 5 grupos.
 
-No anda, **ni con la red completa**. Probé 8 direcciones (`/arc/outboundfeeds/rss/` con y sin `?outputType=xml`, `/rss`, `/rss/`, `/feed`, `/feed/`, la portada con `www` y sin `www`): todas cortan al conectar (`UND_ERR_CONNECT_TIMEOUT`; con `curl`, "Connection reset by peer" a los 12 s), mientras `lanacion.com.ar` responde 200 en 1 s por el mismo proxy. Como la portada tampoco abre, no hay `<link>` de RSS que buscar. `lnmas.com` sigue `activo: false` y en `sinFeed`, con el motivo actualizado. En `pendientes.md` el ítem se cerró: "se reintenta solo si Alejo lo pide".
+| # | Hecho A | Hecho B | Comunes | Unión | Mi juicio (el mismo hecho) |
+|---|---|---|---|---|---|
+| 1 | Milei sigue con optimismo la elección en Brasil (4 grupos) | Nuevo mensaje de García Cuerva para Milei en la misa de Luján (6, candidato) | milei | 9 | **no**: comparten solo un nombre |
+| 2 | Milei sigue con optimismo la elección en Brasil (4) | Tras el cierre de los comicios, Lula y Flávio Bolsonaro disputan voto a voto (6, candidato) | brasil, bolsonaro, flavio, lula | 9 | **dudoso**: 4 de las 5 notas del hecho de Milei son del conteo de votos, pero el título es de Milei |
+| 3 | EN VIVO: comienza el escrutinio y Lula habla con la prensa (3) | Tras el cierre de los comicios… voto a voto (6, candidato) | brasil, lula | 8 | **sí** |
+| 4 | EN VIVO: comienza el escrutinio y Lula habla con la prensa (3) | Milei sigue con optimismo la elección en Brasil (4) | brasil, lula | 7 | **no** (por tu definición: uno es el conteo, el otro lo que hace Milei) |
+| 5 | Colapinto luego de finalizar 13° en el Gran Premio de Malasia (4) | Una carrera loca… en Sepang (4) | colapinto, gran, premio, franco, bahrein | 5 | **sí** |
+
+**Controles:** sale Colapinto con **5** (La Gaceta, La Nación, Clarín, Página/12 y La Capital); sale el escrutinio con «voto a voto» (par 3); y sale el escrutinio con Milei (par 4) y mi juicio es «no». Como detalle, en el par 5 «gran» y «premio» entran como «propias» solo porque van con mayúscula en «Gran Premio».
+
+**Lo que se ve:** la regla de «una palabra propia en común» deja pasar pares que no son (el 1 y el 4), y los 5 llegan a 5 grupos. La pregunta de la IA tiene que ser estricta: si contesta «sí» donde no, una noticia sale «Confirmada» sin serlo.
 
 ## Qué decidió Claude Code por su cuenta (para revisar)
 
-- La línea `RUTAS EXCLUIDAS` dice "1 nota guardada sacada" en singular cuando es una; con varias, el formato exacto de tu carta.
-- Los errores salen en el mismo orden que antes: primero se carga el archivo (y corta si está roto), después se filtra, y recién ahí se avisa si falta con `--sin-leer`.
-- Con `--sin-leer` el archivo no se modifica aunque haya notas para sacar (sigue como en el reporte `i`); solo sin `--sin-leer` se reescribe filtrado.
-- `rutaExcluida` compara la ruta de la config en minúsculas, así que una ruta escrita `/ESPANA/` en `feeds.json` también anda.
-- En el paso 3 las "palabras propias" las armé con tu regla al pie de la letra. Un token que abre con `¿`, `¡` o comillas cuenta como primera palabra de una frase y no se mira; un `(` solo no.
-- No toqué `src/nucleo.js`, `/america/`, las rutas del Cronista ni `FECHA_FUTURA_HORAS`.
+- **Las horas:** agregué `hourCycle: 'h23'` al `toLocaleTimeString` de tu carta, para que sea siempre de 24 horas y no salga «24:05» ni «12:00 p. m.». Es lo único que cambia de esa llamada.
+- **Las marcas:** `marcarVistas` pone la hora de la última vez que se vio (no la primera), así una noticia que se sigue viendo no vence a las 24 h. `marcarLlevadas` agrega una entrada nueva cada vez, y `llevadaA` devuelve la hora de la primera, como pedías.
+- **Si el portapapeles falla:** las elegidas igual pasan a «llevadas» (el texto queda en el cuadro) y el mensaje cambia a «No se pudo copiar solo. Copialo desde acá».
+- **En la página:** las 4/5 también muestran sus links (no los pedías, y sirven para leer las fuentes); la pastilla «Nueva» **no** sale en las 4/5; con 0 elegidas la barra dice «0 elegidas» y el botón «Copiar», apagado; con una sola confirmada afuera, el texto dice «1 confirmada más quedó afuera por el tope de 7».
+- **`nombreDeMedio`** (el criterio de `links[].medio`) lo puse en el núcleo y lo usan la entrega y las preguntas de la IA, para que no haya dos copias. También exporté `clasificarHecho` y `STOP`.
+- **`unirHechos`:** una unión directa entre dos candidatos se ignora sin aviso (el aviso es solo para las cadenas); los ids que no existen se ignoran; los hechos nuevos entran en la lista antes del primero que es más nuevo, y lo que no cambió queda donde estaba; con varias confirmadas en la cadena, cada una (de la de más grupos a la de menos) se queda con lo que alcanza sin pasar por otra confirmada.
+- **`paresParaUnir`:** los 3 y 4 grupos van fijos (constantes arriba de `src/ia.js`). Si dos pares empatan en grupos de unión, salen en el orden en que se armaron (primero los de observación, después los candidatos).
+- **`leerJuicio`:** sin la clave `bloque` da `null` (falta); sin `porque` vale `{}`. **`leerUnion`** es estricta: texto antes o después del JSON da `null`.
+- **`test/casos-ia.json`** lleva una clave `_aviso` y el caso de bloque de «Milei sigue con optimismo…» como **nacional**, tal como lo escribiste. Una duda para vos: con la decisión «por lugar», esa elección pasó en Brasil; Milei la sigue desde Argentina. Si querés que sea «internacional», es una línea.
+- **`pagina/lista.json`** que se commitea tiene la hora en que se armó: después de una hora la página va a decir «No se actualiza desde…». Se refresca con `npm run pagina`.
+- No toqué el agrupador, `minGrupos`, las ventanas, las rutas de Infobae o del Cronista, las reglas viejas ni los moldes.
 
 ## Qué quedó pendiente
 
 | A quién | Qué |
 |---|---|
-| DISEÑADOR (por el PREPARADOR) | Feeds por sección de Infobae: ¿se suman? (por defecto no). Las 14 notas de otras ediciones que quedan en Infobae (por defecto no). La sexta pregunta de la IA y el resto del diseño de las 6 preguntas. |
-| DISEÑADOR | Diseño de la entrega con la vista de las 4/5; ventanas para corridas cada 4 h. |
-| DISEÑADOR con Don Julio | Capa 4: cada cuánto leer y dónde se guarda `datos/notas.json`. Con Infobae general cubriendo 1,3 h por lectura, leer seguido importa más. |
-| Alejo | Lista de firmas, lista blanca, repo público o privado: sin apuro. |
+| Cowork | Revisar las capturas y M1 (los ids aguantan, incluso con 3 h de retraso). Mirar los pares de M3: el 1 y el 4 son falsos y llegan a 5. |
+| Cowork | Decidir si la pastilla «Nueva» va también en las 4/5, y el caso de bloque de Milei (arriba). Valores por defecto: no y nacional. |
+| Cowork | Chequeado no sirve como está (la más nueva es de hace 40 días). Valor por defecto: no se suma. |
+| Alejo con Don Julio | La capa 4: dónde corre n8n, dónde se guarda lo acumulado + la última lista + lo juzgado, dónde vive la página y con qué cuenta de IA. Está en `pendientes.md` con valores por defecto. |
+| Alejo | Deportes y espectáculos (pendiente; por defecto, deportes sí y farándula no, en `ia`). Lo de siempre: lista de firmas, lista blanca, repo público o privado. |
 
-No se hizo, como pedía la carta: la unión de hechos partidos en el código, la IA y sus preguntas, sumar feeds por sección, la memoria de lo ya entregado, la capa 4, la lista blanca, `firmas.json` y deportes.
+No se hizo, como pedía la carta: llamar a un modelo ni guardar claves, n8n y dónde se guardan las cosas, noticias reales en la página, sumar Chequeado, tocar el agrupador y lo demás de la lista, y que las personas del canal compartan lo que se llevó.
 
 ## QUÉ HACÉS AHORA
 
 | A quién | Qué le pasa | Qué espera | Cuándo | Quién ejecuta |
 |---|---|---|---|---|
-| PREPARADOR | Recibe este reporte con las 3 mediciones | Leerlo y escribirle al DISEÑADOR la letra `d`: los feeds por sección (tabla del paso 4), las 14 notas de otras ediciones y los 2 pares | Cuando Alejo se lo pase | Alejo lleva el archivo |
-| Alejo | Nada se rompió; los paquetes están al día | Hacer `/clear` en Claude Code, borrar y reabrir los chats de Cowork con su línea | Ahora | Alejo |
+| Cowork | Recibe este reporte | Mirar las 2 capturas (`buzon/capturas/`) y los pares de M3, y contestar las dudas de arriba | Cuando Alejo se lo pase | Alejo lleva el archivo |
+| Alejo | La página ya anda sobre un día inventado | Hablar con Don Julio por la capa 4 (preguntas en `pendientes.md`) | Cuando puedas | Alejo |
+| Alejo | Todo guardado y pusheado | `/clear` acá y chat nuevo de Cowork con la línea de siempre | Después de leer | Alejo |
 
 ============================================================
 FIN DEL PAQUETE
