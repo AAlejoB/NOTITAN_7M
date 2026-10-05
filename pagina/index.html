@@ -89,10 +89,11 @@
   .amano .acciones { margin-top: 10px; }
   .amano .links { margin-left: 0; }
 
-  /* lo que ya se llevó: apagado, con borde punteado */
+  /* lo que ya se llevó: apagado (casilla, título, bajada y links), con borde punteado; el sello y la hora quedan sin apagar */
   .llevadas { margin-top: 14px; }
-  .noticia.llevada { opacity: .6; border-style: dashed; background: transparent; }
-  .noticia.llevada.tildada { opacity: .9; }
+  .noticia.llevada { border-style: dashed; background: transparent; }
+  .noticia.llevada .fila input, .noticia.llevada h3, .noticia.llevada .bajada, .noticia.llevada .links { opacity: .6; }
+  .noticia.llevada.tildada .fila input, .noticia.llevada.tildada h3, .noticia.llevada.tildada .bajada, .noticia.llevada.tildada .links { opacity: .9; }
   .hora-llevada { margin: 8px 0 0 36px; font-size: 14px; color: var(--suave); }
 
   /* abajo */
