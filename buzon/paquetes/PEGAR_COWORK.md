@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 5/10/26, 00:53 (hora de Argentina) con "npm run paquete".
+Armado el 5/10/26, 02:24 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-05_a.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-05_b.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -192,7 +192,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - Perilla del agrupador (2026-10-04): `umbralSimilitud` 0.3, `umbralSeguro` 0.5 y `minPalabrasComunes` 3 en `config/reglas.json`. Una nota entra a un grupo si se parece al menos 0.5, o si se parece entre 0.3 y 0.5 y comparten 3 palabras. El día de ejemplo da lo mismo con 0.3 que con 0.5 (se comparó la salida de `npm run demo`); el test #22 (misma noticia) no se tocó.
 - Notas de servicio con plantilla (2026-10-04): salen en el criterio 1, antes de agrupar y sin contar para verificar. Son 3 moldes en `criterio1.notasDeServicio` de `config/reglas.json` (horario de partido, efemérides, resultados de lotería); en lo descartado llevan el motivo `nota_de_servicio (<nombre>)`. Los moldes son precisos a propósito: no se llevan "a qué hora votan en Brasil" ni "Detienen a funcionarios de la Lotería". `npm run leer` muestra qué sacó el criterio 1 por motivo y tiene `--sin-notas-de-servicio` para comparar antes y después.
 - Orden por cantidad de medios (2026-10-04, decidió Alejo): dentro de cada bloque va primero el hecho con más grupos; si empatan, el más nuevo; la vía B va después de toda la vía A. La IA ya no da `impacto`: no se usa y no sale en ninguna lista. Cada noticia de `decidir` trae la `bajada` del medio.
-- La página (2026-10-04, capa 5, sobre el día de ejemplo): `pagina/index.html` (un solo archivo, sin librerías, pensada primero para celular) con `pagina/logica.js` (funciones puras: se prueban con `node --test` y andan también en el navegador), `src/entrega.js` (arma lo que muestra la página a partir de lo que devuelve `decidir`) y `npm run pagina`, que arma `pagina/lista.json` con el día de ejemplo (inventado, marcado `ejemplo: true`, se commitea). Las marcas («Nueva», «Recién confirmada», «Te la llevaste») viven en el navegador de cada persona (`localStorage`, clave `7m-marcas-v1`, 24 h). Capturas en `buzon/capturas/`. Para verla: servir la carpeta `pagina/` con cualquier servidor estático.
+- La página (2026-10-04, capa 5, sobre el día de ejemplo): `pagina/index.html` (un solo archivo, sin librerías, pensada primero para celular) con `pagina/logica.js` (funciones puras: se prueban con `node --test` y andan también en el navegador), `src/entrega.js` (arma lo que muestra la página a partir de lo que devuelve `decidir`) y `npm run pagina`, que arma `pagina/lista.json` con el día de ejemplo (inventado, marcado `ejemplo: true`, se commitea). Las marcas («Nueva», «Recién confirmada», «Te la llevaste») viven en el navegador de cada persona (`localStorage`, clave `7m-marcas-v1`, 24 h). Lo llevado va apagado salvo el sello y la hora (2026-10-05, Cowork: el sello naranja subió de contraste 2,6 a 5,8). `npm run probar-pagina` (`scripts/probar-pagina.js`) prueba la página en Chromium sobre una copia de `pagina/` (66 comprobaciones; necesita `npm i --no-save playwright`; no entra en `npm test` ni en el workflow de GitHub; con `-- --capturas <nombre>` saca las 3 capturas de `buzon/capturas/`; sin Playwright termina con código 2). Capturas en `buzon/capturas/`. Para verla: servir la carpeta `pagina/` con cualquier servidor estático.
 - «Recién confirmada» (2026-10-05, decidió Alejo, opción C): una pastilla verde llena para una tarjeta de la vía A que la persona ya había visto sin la etiqueta «Confirmada por N medios» (como 4/5 o como vía B) y todavía no se llevó. Dura la visita, igual que «Nueva» (desde que abre o recarga la página hasta que la cierra; «Traer noticias» no empieza una visita nueva). Se apoya en `vistasConfirmadas: { url: hora }` del estado (las urls de las tarjetas de la vía A que se mostraron; la vía B y las 4/5 no entran); un estado guardado por la versión anterior, sin esa clave, arranca como copia de `vistas`, así nada ya visto sale como «recién». Las reglas viven en `pagina/logica.js` (`esRecienConfirmada`, `recienConfirmadasDeLaVisita`, `pastillaDe`; esta última es la única que decide qué pastilla se dibuja: nunca dos, «Recién confirmada» gana sobre «Nueva», y lo llevado va sin pastillas); lo que se copia no lleva ninguna. Los sellos: vía A verde, vía B («Respaldada por…») violeta y una 4/5 que se llevó («elegida a mano») naranja, para que no se confundan con «Confirmada». En las 4/5 que quedan abiertas la línea dice «4 de 5 medios» (los nombres ya están en los links).
 - Las piezas de la IA (2026-10-04, **todavía no se llama a ningún modelo**): `src/ia.js` con `palabrasPropias`, `paresParaUnir`, `unirHechos`, `preguntaUnion` y `leerUnion`, `preguntaJuicio` y `leerJuicio`, `posiblesDesmentidos`, `buscarGuardado` y `hayQueVolverAPreguntar`; la sección `ia` de `config/reglas.json` (`deportes` sí, `farandula` no, `palabrasDesmentido`, `maxDesmentidos`); y `test/casos-ia.json`, para medir al modelo cuando exista. `preparar` ahora arma cada hecho con `clasificarHecho` (la misma función que usa `unirHechos`, así un hecho unido por la IA se clasifica igual que uno armado por el agrupador) y la ficha lleva `fecha` y `firma` de cada nota. La llamada al modelo la arma Don Julio en n8n (capa 4).
 - Excepción a mano para una 4/5 (2026-10-04, solo el núcleo): `preparar` devuelve `elegiblesAMano` (hechos en observación a los que les falta 1 medio, sin firma que los haga entrar por la vía B; `aMano` en `config/reglas.json`: `activa` y `faltanMedios`, hoy 1) y `resumen.elegiblesAMano`. La IA juzga `candidatos` **y** `elegiblesAMano`. `decidir` recibe `elegiblesAMano` y devuelve `aMano: { nacional, internacional }`: los que pasan los criterios 3 a 6, sin cupo, sin topes y sin reserva, con la etiqueta "Confirmada por N medios · elegida a mano". Nunca entran solos a `nacionales` ni a `internacionales`, ni para llegar al mínimo de 3. La vista (el menú "En observación · les falta 1 medio" con "Llevármela igual") es capa 5 y espera el diseño de la entrega.
@@ -401,6 +401,8 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 05-10-2026 · **El sello de lo llevado a color pleno** (Cowork): en una tarjeta llevada se apagan solo la casilla, el título, la bajada y los links (0,6; 0,9 si se la vuelve a tildar); el sello y «Te la llevaste a las…» quedan sin apagar. Contraste del naranja en claro de 2,6 a 5,8 (oscuro 3,8 a 8,0; verde 2,5 a 5,1 y 3,8 a 7,7). **El script de Chromium en el repo:** `npm run probar-pagina` (Cowork; fuera de `npm test`, sin Playwright en `package.json`, con `--capturas <nombre>`).
+- [x] 05-10-2026 · **Cerrado por Cowork:** el número del bloque («Nacionales · 7») cuenta la lista (vía A y vía B, llevadas incluidas); una 4/5 llevada no suma aunque se vea en el bloque.
 - [x] 05-10-2026 · **«Recién confirmada»** (decidió Alejo, opción C): una 4/5 que ya vio y sube a confirmada lleva una pastilla propia que dura la visita (`vistasConfirmadas` en el estado; un estado viejo arranca como copia de `vistas`). Descartado: sin marca; «Nueva» otra vez. También de Cowork, valores por defecto: la vía B en violeta y la 4/5 llevada en naranja (ya no se confunden con «Confirmada por N medios»), «4 de 5 medios» en las 4/5, y la pregunta de unión más estricta con 2 casos de prueba más (`union[4]` dudoso y `union[5]`). Capturas `buzon/capturas/pagina-2026-10-05-*.png`.
 - [x] 05-10-2026 · **Cerrados por Cowork al aprobar el reporte `a` del 04-10:** revisar la página y lo medido (aprobado; M1 cerrado); Chequeado como fuente de desmentidos (no se suma); la pastilla «Nueva» en las 4/5 (no); «Detalle conocido de la página» (ya no aplica: la línea de las 4/5 no nombra medios).
 - [x] 04-10-2026 · **La página (capa 5) sobre el día de ejemplo.** `pagina/index.html` con `pagina/logica.js` (funciones puras que se prueban con `node --test`) y `src/entrega.js`; `npm run pagina` arma `pagina/lista.json` (de ejemplo, inventado, se commitea). Lo decidió Alejo: una página con «Traer noticias», siempre lo último (se rehace cada 30 minutos), «Nueva» y «Te la llevaste» (se marca, no se oculta), hasta 7 y ella tilda, las 4/5 abiertas debajo de cada bloque con «Llevármela igual». Capturas en `buzon/capturas/`.
@@ -432,133 +434,113 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-05_a.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-05_b.md
 ============================================================
 
-# Claude Code → Cowork · 05-10-2026 · 00:52 (hora de Argentina) · letra a
+# Claude Code → Cowork · 05-10-2026 · 02:35 (hora de Argentina) · letra b
 
-Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_a.md`.
+Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_b.md`.
 
-**Veredicto:** hechos los 5 pasos, sin llamar a ningún modelo y sin tocar lo que la carta prohibía (`src/nucleo.js`, `src/entrega.js`, `src/lector.js`, `config/`, `ejemplos/`, `scripts/`, `datos/`, `pagina/lista.json`). La página muestra «Recién confirmada», la vía B en violeta, la 4/5 llevada en naranja y «4 de 5 medios»; la pregunta de unión pide más y tiene 2 casos de prueba más. `npm test` pasó de 185 a **200 bien** y sigue 1 pendiente a propósito. En la doble pasada, los tests atraparon **15 de 15** roturas de la regla en `logica.js` a la primera, y la comprobación en Chromium atrapó 7 de 8 en `index.html` a la primera (la octava se coló hasta que reforcé el script; ahora 8 de 8).
+**Veredicto:** hechos los 3 pasos, sin llamar a ningún modelo y sin tocar lo que la carta prohibía (`pagina/logica.js`, `pagina/lista.json`, `src/`, `config/`, `ejemplos/`, `test/`, `datos/`, `.github/`). El sello y la hora de lo llevado ya no se apagan, y el script de Chromium quedó en el repo (`npm run probar-pagina`: 66 bien, 0 mal). `npm test` sigue en **200 bien y 1 pendiente**. En la doble pasada, el script atrapó **11 de 11** roturas de `index.html` a la primera.
 
 ## Qué cambió
 
 | Paso | Commit | Qué cambió |
 |---|---|---|
-| carta | `ca9ba34` | La carta guardada como `buzon/Cowork_para_ClaudeCode_2026-10-05_a.md`. |
-| 1 | `255cda2` | «Recién confirmada»: `vistasConfirmadas` en el estado; `esRecienConfirmada`, `recienConfirmadasDeLaVisita` y `pastillaDe` en `pagina/logica.js`; `normalizarEstado`, `marcarVistas`, `marcarLlevadas`, `limpiar` y `estadoVacio` al día; `index.html` dibuja la pastilla (`.recien`, verde lleno) y la calcula en `traer()` junto a `nuevas`. |
-| 2 | `05a4b68` | Tokens `--violeta` y `--violeta-fondo` (claro y oscuro); `.sello.viab` (vía B) y `.sello.mano` (4/5 llevada, naranja); `noticia()` elige la clase según `t.via`. |
-| 3 | `05a4b68` | `etiquetaMedios` devuelve `4 de 5 medios`; comentarios viejos al día. `t.medios` sigue en la tarjeta. |
-| 4 | `0734f3f` | Las 2 líneas nuevas en `preguntaUnion` (tal cual la carta); `union[4]` (dudoso) y `union[5]` en `test/casos-ia.json`; `_aviso` al día. |
-| 5 | (este cierre) | 3 capturas, `CLAUDE.md`, `buzon/pendientes.md`, este reporte y `npm run paquete`. |
+| carta | (primero) | La carta guardada como `buzon/Cowork_para_ClaudeCode_2026-10-05_b.md`. |
+| 1 | «Paso 1» | Solo CSS en `pagina/index.html`: las 3 líneas de la carta (`opacity` .6 solo en casilla, título, bajada y links; .9 si está `.tildada`) y el comentario al día. |
+| 2 | «Paso 2» | `scripts/probar-pagina.js` (nuevo), `"probar-pagina"` en `package.json`, `node_modules/` en `.gitignore`. |
+| 3 | «Paso 3» + cierre | 3 capturas nuevas, `CLAUDE.md`, `buzon/pendientes.md`, este reporte y `npm run paquete`. |
 
-**Qué ve quien usa la página (antes y después):**
+`git diff 2c8adde.. -- pagina/index.html` (desde antes de esta ronda) muestra **solo** el cambio del paso 1 (4 líneas más, 3 menos).
 
-| Tarjeta | Antes | Ahora |
+**Qué ve quien usa la página, en una tarjeta llevada:**
+
+| Parte | Antes | Ahora |
 |---|---|---|
-| Una 4/5 que ya vio y sube a confirmada | nada (se pasaba de largo) | «Recién confirmada» (verde lleno, dura la visita) |
-| Etiqueta «Respaldada por…» (vía B) | verde, igual que «Confirmada» | violeta |
-| 4/5 que se llevó, abajo («elegida a mano») | verde | naranja |
-| Línea de las 4/5 abiertas | «4 de 5: Clarín · La Nación · …» | «4 de 5 medios» |
-| Lo llevado | podía mostrar «Nueva» | ninguna pastilla |
+| Sello («elegida a mano», «Confirmada…») | 0,6 (naranja claro con contraste 2,6) | **1** (contraste 5,8) |
+| «Te la llevaste a las…» | 0,6 | **1** |
+| Casilla, título, bajada y links | 0,6 | 0,6 (0,9 si la volvió a tildar) |
 
 ## Tests
 
 | | Bien | Pendiente | Total |
 |---|---|---|---|
-| Antes | 185 | 1 | 186 |
-| Después | **200** | 1 | 201 |
+| `npm test` antes | 200 | 1 | 201 |
+| `npm test` después (tras el paso 1 y tras el paso 2) | **200** | 1 | 201 |
 
-| Paso | Qué se agregó o cambió en los tests |
-|---|---|
-| 1 | **+15 en `test/logica.test.js`:** E1 a E10 (uno por fila de la tabla de la carta), `pastillaDe` (llevada → `null` aunque sea nueva o recién; nunca dos), `esRecienConfirmada` (las 4 condiciones, una por una), `marcarVistas` (solo vía A en `vistasConfirmadas`, sin tocar el estado que recibe; `marcarLlevadas` la copia), `limpiar` (24 h y 23 h en `vistasConfirmadas`) y `normalizarEstado` (falta, número, array y `null` → copia de `vistas`; valores que no son texto; un `{}` se respeta). **1 cambiado:** «cargarEstado y guardarEstado» (el `guardado` trae `vistasConfirmadas: { u1: AHORA }`). L4 pasó **sin tocarlo**: no hizo falta arreglar la función. |
-| 3 | 1 cambiado: la última línea de «los textos de cada bloque…» espera `4 de 5 medios`, con 2 ejemplos de la carta y uno más (3 de 4). |
-| 4 | **Sin tests nuevos, 3 reforzados** en `test/ia.test.js`: I8c (las 2 líneas nuevas tal cual, seguidas, entre `Ejemplos:` y `Contestá solo con un JSON`), el de «los ejemplos no son los de los casos» (mira también la línea `Tampoco son`) y el de `casos-ia.json` (6 casos; `union[3]` único inventado; `union[4]` único dudoso y `false`; `union[1]` y `union[5]` `false`; el `_aviso`). Probé a mano que muerden: sacando la línea «Si dudás…» de la pregunta falla I8c. |
+Ningún test de hoy falló por estos cambios.
 
-`npm run demo` sigue saliendo (no se tocó el núcleo).
+## `npm run probar-pagina`
 
-## Comprobación en Chromium (Playwright, página servida en un puerto local)
+**66 bien, 0 mal**, código 0, `git status` sin cambios (P1). Por escenario:
 
-**23 comprobaciones, todas bien**, con una copia de `lista.json` con la hora de ahora (el repo no se tocó):
-
-| Qué se probó | Resultado |
-|---|---|
-| `localStorage` armado a mano con `vistasConfirmadas` presente: la 1.ª confirmada en `vistas` y no en `vistasConfirmadas`, la 2.ª en las dos, la 3.ª en ninguna | 1.ª «Recién confirmada» (sin «Nueva»), 2.ª nada, 3.ª «Nueva»; en total 1 y 1 |
-| Apretar «Traer noticias» | la 1.ª sigue «Recién confirmada» y la 3.ª «Nueva»; lo guardado ahora tiene a la 1.ª en `vistasConfirmadas` |
-| Recargar | ninguna de las tres lleva pastilla |
-| E10 sin recargar: una 4/5 abajo que, al traer de nuevo, ya está arriba como confirmada | «Recién confirmada» (no «Nueva»); sigue al traer otra vez; al recargar, nada |
-| `localStorage` bloqueado | la página anda; las pastillas funcionan durante la visita; no se guarda nada |
-| E3: se la lleva como 4/5 y después sube | baja con «Te la llevaste a las HH:MM», sin pastillas, con sello verde (vía A) |
-| Colores: vía B (2, una por bloque) y 4/5 llevada | violeta `rgb(106, 63, 181)` y naranja `rgb(138, 82, 0)` (en oscuro, `rgb(196, 168, 255)` y `rgb(242, 182, 80)`) |
-| Consola | sin errores en ningún escenario |
-
-## Las capturas
-
-`buzon/capturas/pagina-2026-10-05-390.png` (390 px, claro), `pagina-2026-10-05-1200.png` (1200 px, claro) y `pagina-2026-10-05-390-oscuro.png` (390 px, oscuro), de página entera (la ventana se estira hasta el alto de la página, como las de ayer, que quedan). En las tres se ven juntas: una «Recién confirmada» (la primera nacional), una «Nueva» (el dólar blue), la vía B en violeta (una por bloque), «4 de 5 medios» (la 4/5 internacional, abierta) y la 4/5 nacional llevada abajo con el sello naranja y «Te la llevaste a las 00:24». El `localStorage` se armó **antes de cada captura** (con la clave `vistasConfirmadas` y una 4/5 llevada) y la lista de ejemplo se sirvió con `generadaEn` de ahora; `pagina/lista.json` no se tocó. El script de las capturas verifica en cada una que estén las 5 cosas (12 comprobaciones, todas bien).
-
-## La doble pasada
-
-**Rompí a propósito la regla de «Recién confirmada» en `pagina/logica.js` en 15 lugares (los 8 de la carta y 7 más) y corrí `npm test` con cada rotura:**
-
-| # | Qué rompí | ¿La atrapó a la primera? | Qué test |
-|---|---|---|---|
-| 1 | sacar la condición (1): vía A | sí | E6, `esRecienConfirmada` |
-| 2 | sacar la condición (2): ya vista | sí | E2, E4, `esRecienConfirmada` |
-| 3 | sacar la condición (3): nunca vista como confirmada | sí | E2, E5, E8 |
-| 4 | sacar la condición (4): no llevada | sí | E3, `esRecienConfirmada` |
-| 5 | que no dure la visita (ignora las `previas`) | sí | E8 |
-| 6 | que el estado viejo no se copie | sí | E5, `normalizarEstado` |
-| 7 | que «Nueva» gane sobre «Recién confirmada» en `pastillaDe` | sí | E10, `pastillaDe` |
-| 8 | que la vía B entre en `vistasConfirmadas` | sí | E1, E7, E8 |
-| 9 | `pastillaDe` ignora lo llevado | sí | `pastillaDe` |
-| 10 | `pastillaDe` da «recién» también a la vía B | sí | `pastillaDe` |
-| 11 | `marcarVistas` no escribe `vistasConfirmadas` | sí | E2, E8, E9 |
-| 12 | `limpiar` no limpia `vistasConfirmadas` | sí | el de `limpiar` |
-| 13 | `marcarLlevadas` pierde `vistasConfirmadas` | sí | el de `marcarVistas` |
-| 14 | un array en `vistasConfirmadas` se acepta tal cual | sí | `normalizarEstado` |
-| 15 | `estadoVacio` sin `vistasConfirmadas` | sí | `cargarEstado y guardarEstado`, `normalizarEstado` |
-
-**15 de 15 atrapadas a la primera.** (Todas las roturas se deshicieron: `git diff` de `logica.js` da vacío.)
-
-**Lo que está en `index.html` (que `npm test` no ve)**, probado con la comprobación de Chromium sobre una copia rota de la página:
-
-| # | Qué rompí | ¿Lo atrapó la comprobación en Chromium? |
+| # | Escenario | Comprobaciones |
 |---|---|---|
-| H1 | sacar la línea que calcula «recién» en `traer()` | sí (6 mal) |
-| H2 | calcularlo después de `dibujar()` | sí (4 mal) |
-| H3 | calcularlo después de `marcarVistas` | sí (6 mal) |
-| H4 | no llevar «recién» de una carga a la siguiente (`[]` en vez de `recien`) | sí (2 mal: al traer de nuevo) |
-| H5 | llamar a `pastillaDe` sin `recien` | sí (6 mal) |
-| H6 | llamar a `pastillaDe` sin `llevada` | sí (1 mal: E3 en el navegador) |
-| H7 | el sello siempre verde | **no a la primera**: mi script no miraba el color del sello. Lo reforcé (escenario 5) y ahora sí (2 mal). Las capturas ya lo habrían atrapado. |
-| H8 | `marcarVistas` antes de calcular «Nueva» y «recién» | sí (8 mal) |
+| 1 | Tildar, 4/5 «Sacar», copiar (títulos, sin sello, renglones «Medio: url»), destildar, bajan con hora, «Nacionales · 7», recargar, «Traer noticias» | 15 |
+| 2 | Portapapeles bloqueado | 2 |
+| 3 | Lista vieja (aviso ámbar), lista que no carga + «Reintentar», sin `localStorage`, modo oscuro | 8 |
+| 4 | «Nueva» y «Recién confirmada» (E1 a E10 de ayer, incl. E3 y E10 sin recargar) | 15 |
+| 5 | Colores de los sellos: vía B violeta y 4/5 llevada naranja, claro y oscuro | 4 |
+| 6 | S1 a S4 (opacidad efectiva del sello, el título, los links y la hora) | 10 |
+| 7 | Lo que se ve en las 3 capturas (4 por captura) | 12 |
+| — | Sin errores en la consola en ningún escenario | 1 |
 
-**7 de 8 a la primera, 8 de 8 con el script reforzado.** Dato para revisar: lo de `index.html` solo lo protege el script de Chromium, que **no está en el repo** (vive en mi carpeta de trabajo, como el de ayer). El helper `cargar()` de `test/logica.test.js` repite a mano el orden de `traer()` (calcular con el estado de antes, marcar después); si alguien cambia ese orden en `index.html`, `npm test` no se entera. Si querés que el script quede en el repo (por ejemplo `scripts/probar-pagina.js`), pedilo en la próxima carta: la de hoy dice que `scripts/` no se toca.
+**De las de ayer, no saqué ninguna.** Cambió una: «lo llevado sigue apagado» ahora dice lo de S1 (título 0,6 y sello 1). Los dos scripts de ayer no estaban en el repo, así que armé el nuevo a partir de lo que cada reporte describe: no calza 1 a 1 con «24» y «23» (agrupé y partí algunas), pero cubre todo lo que describen, más las capturas y S1 a S4. No usa la red de afuera: sirve una copia de `pagina/` en una carpeta temporal, con `generadaEn` de ahora.
+
+## P1 a P4
+
+| # | Qué corrí | Resultado |
+|---|---|---|
+| P1 | `npm run probar-pagina` con el paso 1 puesto | 66 bien, código 0, `git status` sin cambios |
+| P2 | Con `opacity: .6` de nuevo en toda `.noticia.llevada` | **10 mal**, código 1; el sello falla en S1, S2 y S3 (queda en 0,6 o 0,9) |
+| P3 | `npm run probar-pagina -- --capturas 2026-10-05-b` | 66 bien y 3 archivos nuevos en `buzon/capturas/` (`pagina-2026-10-05-b-390.png`, `-1200.png`, `-390-oscuro.png`); las de antes quedan |
+| P4 | Sin Playwright (`env -u NODE_PATH`, sin `node_modules/`) | La línea «Falta Playwright. Instalalo sin guardarlo en package.json: npm i --no-save playwright» y **código 2** |
+
+En este entorno Playwright está en `/opt/node-tools/node_modules` y se alcanza con `NODE_PATH`; el script intenta el Chromium de Playwright y, si no abre, busca `chromium-*` en `PLAYWRIGHT_BROWSERS_PATH` (o `/opt/pw-browsers`). Si no hay navegador, avisa y sale con código 2.
+
+## La doble pasada (contra el script del repo)
+
+| # | Qué rompí en `pagina/index.html` | ¿Lo atrapó a la primera? |
+|---|---|---|
+| H1 | sacar la línea que calcula «recién» en `traer()` | sí (8 mal) |
+| H2 | calcularlo después de `dibujar()` | sí (6 mal) |
+| H3 | calcularlo después de `marcarVistas` | sí (8 mal) |
+| H4 | no llevar «recién» de una carga a la siguiente | sí (2 mal) |
+| H5 | `pastillaDe` sin `recien` | sí (8 mal) |
+| H6 | `pastillaDe` sin `llevada` | sí (1 mal: «lo llevado va sin pastillas») |
+| H7 | el sello siempre verde | sí (1 mal: la vía B violeta) |
+| H8 | `marcarVistas` antes de calcular «Nueva» y «recién» | sí (14 mal) |
+| H9 | `opacity: .6` en toda `.noticia.llevada` (P2) | sí (10 mal; sello en S1, S2 y S3) |
+| H10 | `.noticia.llevada .meta { opacity: .6; }` | sí (3 mal: sello de S1, S2 y S3) |
+| H11 | sacar `.noticia.llevada h3` de la línea de `.6` | sí (3 mal: el título en S1, S2 y recarga) |
+
+**11 de 11 atrapadas a la primera.** Todas se deshicieron (`git diff` de `index.html` vacío después de cada una). H7 la agarra por el violeta, no por el naranja: el sello `mano` siempre verde también lo agarraría el escenario 5 (naranja), pero no lo probé aparte.
+
+Las capturas nuevas (las miré las tres): el sello naranja de la 4/5 llevada («Confirmada por 4 medios · elegida a mano») se lee entero en claro, escritorio y oscuro, con el título, los links y la casilla apagados y «Te la llevaste a las 02:19» sin apagar.
 
 ## Qué decidí por mi cuenta (para que otro lo revise)
 
-1. **Qué García Cuerva es `union[5].b`.** `datos/notas.json` tiene 8 notas suyas. Usé la de La Nación, la que usó el reporte `a` en el par 1 de M3: «Nuevo mensaje de García Cuerva para Milei en la misa de cierre de la peregrinación a Luján: pidió terminar con “las heridas de la descalificación”» (con las comillas tipográficas). Es la que trae «Milei», la persona que comparten los dos títulos. Comprobé por programa que los 5 casos no inventados de `union` (los dos títulos de cada uno) están textuales en `datos/notas.json`.
-2. **`pastillaDe` para una 4/5 sin llevar.** La función da `'nueva'` si sus urls están en `nuevas`, pero la página no la llama para las 4/5 abiertas (no tienen pastilla, como pidió la carta): quedó así a propósito, sin una regla extra para `via === 'mano'`.
-3. **`limpiar` y `vistasConfirmadas`.** Cada carga renueva la hora de las urls de la vía A, así que una url solo sale de `vistasConfirmadas` si pasan 24 h sin que se la muestre como vía A. Si en ese tiempo siguió viéndose como vía B o 4/5 (sigue en `vistas`) y vuelve a ser vía A, vuelve a salir «Recién confirmada». Me pareció el significado correcto (primera vez que se la ve «Confirmada» en un día); no lo cambié.
-4. **Lo llevado va apagado (`opacity: .6`)**, así que el sello naranja de la 4/5 llevada se ve atenuado en las capturas, aunque se lee. Cambiar eso es CSS de un renglón; no lo toqué.
-5. **Los tests de E1 a E10 usan un helper `cargar()`** que repite el orden de `traer()` y un `guardadoYCargado()` que pasa el estado por `JSON` y `normalizarEstado` (lo que pasa por `localStorage`). La carta pedía agregar el parámetro `via` a `tarjeta()`: el helper ya aceptaba `extra`, así que agregué `deVia(via, titulo, urls)` en vez de tocar `tarjeta()`.
+1. **El script marca como bien o MAL 66 cosas, no 24 + 23 + 12 + 4.** Reconstruí las comprobaciones de los dos reportes sin los scripts viejos (no estaban en el repo). Si querés que figuren una por una, se pide en la próxima carta.
+2. **Las capturas se miran siempre** (las 12 comprobaciones del escenario 7), pero los archivos se guardan solo con `--capturas`.
+3. **Estado de las capturas:** armado con una «Recién confirmada» (la CGT), una «Nueva» (el dólar blue) y la 4/5 «Rescataron…» llevada hace 5 minutos; el resto, visto hace una hora. Se siembra solo si la clave `7m-marcas-v1` todavía no existe, así una recarga no lo pisa.
+4. **Una captura que mandó Alejo** (la de la página en su celular) todavía muestra la línea vieja de las 4/5 («4 de 5: Clarín · La Nación · …») y el sello verde de la 4/5: es una versión anterior a la del 05-10 `a`. El repo ya dice «4 de 5 medios». Si la ve así en su celular, es que tiene la página cacheada o publicada de antes.
 
 ## Qué quedó pendiente y para quién
 
-| Para | Qué |
+| Qué | Para quién |
 |---|---|
-| Cowork | Mirar las 3 capturas (en especial: ¿el naranja de la 4/5 llevada, atenuado por el `opacity`, se distingue lo bastante del verde?). Decidir si el script de Chromium entra al repo (punto 3 de «Qué decidí»). |
-| Alejo con Don Julio | La capa 4 (dónde corre n8n, dónde se guarda lo acumulado, dónde vive la página, qué cuenta de IA). Es lo que hoy frena las noticias reales. Preguntas y valores por defecto en `buzon/pendientes.md`. |
-| Capa 4 (cuando se llame a un modelo) | La regla para prender la unión quedó escrita en `pendientes.md` y `CLAUDE.md`: cada caso de unión no dudoso, 3 veces, todas bien; un `null` cuenta como error. Con los 5 casos actuales (4 no dudosos entre los reales y el inventado) son 15 respuestas. |
+| Nada nuevo de esta ronda. «Cowork → Claude Code» sigue en «Nada pendiente por ahora». | — |
+| La capa 4: dónde corre n8n, dónde se guarda, dónde vive la página, qué cuenta de IA | Alejo, con Don Julio (preguntas en `pendientes.md`) |
 
 ## QUÉ HACÉS AHORA
 
 | A quién | Qué le pasa | Qué espera | Cuándo | Quién ejecuta |
 |---|---|---|---|---|
-| Alejo | Tiene este reporte y 3 capturas nuevas | Llevarle el reporte (y que mire las capturas en `buzon/capturas/`) al chat de Cowork nuevo, después de hacer `/clear` en Claude Code | Cuando puedas | Alejo |
-| Cowork | Recibe el reporte | Mirar las capturas, contestar el punto 3 («script de Chromium al repo, sí o no») y escribir lo que siga | Cuando Alejo se lo pase | Cowork |
-| Alejo | La capa 4 sigue frenando las noticias reales | Hablar con Don Julio (preguntas en `buzon/pendientes.md`) | Cuando puedas | Alejo |
-| Claude Code | Cerró la tanda: `pendientes.md`, `CLAUDE.md`, reporte y paquete al día, todo pusheado | Nada hasta la próxima carta de Cowork | — | — |
+| Alejo | Tiene el reporte `b` del 05-10 | Pasárselo a Cowork (chat nuevo, con el `PEGAR_COWORK.md` si hace falta) | Cuando puedas | Alejo |
+| Cowork | Recibe el reporte | Aprobarlo o pedir cambios | Al recibirlo | Cowork |
+| Alejo | La capa 4 sigue frenando las noticias reales | Hablar con Don Julio | Cuando puedas | Alejo |
+| Claude Code | Sin carta pendiente | Esperar la próxima carta de Cowork | — | Claude Code |
 
 ============================================================
 FIN DEL PAQUETE
