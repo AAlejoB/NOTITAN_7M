@@ -85,6 +85,14 @@ function buscarPortal(dominio, portales) {
   return portales.find(p => dominio === p.dominio || dominio.endsWith('.' + p.dominio)) || null;
 }
 
+// Cómo se llama el medio de una nota o de un link ({ portal, url }): el nombre del portal (TN, Olé…), o su grupo,
+// o el dominio tal cual si no está en la lista. Lo usan la entrega y las preguntas de la IA.
+function nombreDeMedio(nota, portales) {
+  const dominio = dominioDe(nota);
+  const portal = buscarPortal(dominio, portales);
+  return portal ? (portal.nombre || portal.grupo) : dominio;
+}
+
 // A quién se le suma la nota. Un cable copiado suma para la agencia, no para el medio.
 function emisor(nota, portales) {
   const portal = buscarPortal(dominioDe(nota), portales);
@@ -253,9 +261,40 @@ function acumular(guardadas, nuevas, { reglas, ahora }) {
 
 /* ───────────── paso 1: preparar ───────────── */
 
-function preparar(notas, { portales, reglas, ahora, firmas = [] }) {
+// Arma un hecho a partir de un grupo de notas ({ id, primera (ms), notas }) y lo clasifica: candidato (vía A o B),
+// descartado por viejo o en observación. Lo usan preparar() y unirHechos() de src/ia.js, así un hecho unido por la IA
+// se clasifica exactamente igual que uno armado por el agrupador. Las notas pueden ser las leídas o las de una ficha
+// (tienen que traer titulo, bajada, url, portal, fecha y firma).
+// Devuelve { tipo: 'candidato' | 'observacion', hecho } o { tipo: 'descartada', descartada }.
+function clasificarHecho(g, { portales, reglas, firmas = [], ahora }) {
   const t0 = Date.parse(ahora);
   const minFirmas = minimoFirmas(reglas);
+  const verif = gruposIndependientes(g.notas, portales);
+  const base = g.notas[0];
+  const reconocidas = firmasDelHecho(g.notas, firmas, portales);
+  const ficha = {
+    id: g.id,
+    titulo: base.titulo,
+    bajada: base.bajada || '',
+    primera: new Date(g.primera).toISOString(),
+    gruposIndependientes: verif.cantidad,
+    firmasReconocidas: reconocidas.map(f => ({ nombre: f.nombre, ambitos: f.ambitos || BLOQUES })),
+    notas: g.notas.map(n => ({ id: n.id, titulo: n.titulo, bajada: n.bajada || '', url: n.url, portal: dominioDe(n), seccion: n.seccion || '', fecha: n.fecha, firma: n.firma || '' })),
+  };
+  const viejo = t0 - g.primera > reglas.ventanaFrescoHoras * HORA;
+  if (verif.cantidad >= reglas.minGrupos) return { tipo: 'candidato', hecho: { ...ficha, via: 'A', viejo } };
+  if (reconocidas.length >= minFirmas) return { tipo: 'candidato', hecho: { ...ficha, via: 'B', viejo } };
+  if (viejo) {
+    return { tipo: 'descartada', descartada: { tipo: 'hecho', id: g.id, titulo: ficha.titulo, motivo: `no_llego_a_${reglas.minGrupos} (${verif.cantidad}/${reglas.minGrupos}, pasaron más de ${reglas.ventanaFrescoHoras} h)` } };
+  }
+  const obs = { ...ficha, contador: `${verif.cantidad}/${reglas.minGrupos}` };
+  if (reconocidas.length) obs.contadorFirmas = `${reconocidas.length}/${minFirmas}`;
+  obs.elegibleAMano = faltaPocoParaElegirAMano(reglas.minGrupos - verif.cantidad, reglas);
+  return { tipo: 'observacion', hecho: obs };
+}
+
+function preparar(notas, { portales, reglas, ahora, firmas = [] }) {
+  const t0 = Date.parse(ahora);
   const descartadas = [];
   const avisos = [];
 
@@ -276,31 +315,10 @@ function preparar(notas, { portales, reglas, ahora, firmas = [] }) {
   const candidatos = [];
   const enObservacion = [];
   for (const g of grupos) {
-    const verif = gruposIndependientes(g.notas, portales);
-    const base = g.notas[0];
-    const reconocidas = firmasDelHecho(g.notas, firmas, portales);
-    const ficha = {
-      id: g.id,
-      titulo: base.titulo,
-      bajada: base.bajada || '',
-      primera: new Date(g.primera).toISOString(),
-      gruposIndependientes: verif.cantidad,
-      firmasReconocidas: reconocidas.map(f => ({ nombre: f.nombre, ambitos: f.ambitos || BLOQUES })),
-      notas: g.notas.map(n => ({ id: n.id, titulo: n.titulo, bajada: n.bajada || '', url: n.url, portal: dominioDe(n), seccion: n.seccion || '' })),
-    };
-    const viejo = t0 - g.primera > reglas.ventanaFrescoHoras * HORA;
-    if (verif.cantidad >= reglas.minGrupos) {
-      candidatos.push({ ...ficha, via: 'A', viejo });
-    } else if (reconocidas.length >= minFirmas) {
-      candidatos.push({ ...ficha, via: 'B', viejo });
-    } else if (viejo) {
-      descartadas.push({ tipo: 'hecho', id: g.id, titulo: ficha.titulo, motivo: `no_llego_a_${reglas.minGrupos} (${verif.cantidad}/${reglas.minGrupos}, pasaron más de ${reglas.ventanaFrescoHoras} h)` });
-    } else {
-      const obs = { ...ficha, contador: `${verif.cantidad}/${reglas.minGrupos}` };
-      if (reconocidas.length) obs.contadorFirmas = `${reconocidas.length}/${minFirmas}`;
-      obs.elegibleAMano = faltaPocoParaElegirAMano(reglas.minGrupos - verif.cantidad, reglas);
-      enObservacion.push(obs);
-    }
+    const r = clasificarHecho(g, { portales, reglas, firmas, ahora });
+    if (r.tipo === 'candidato') candidatos.push(r.hecho);
+    else if (r.tipo === 'descartada') descartadas.push(r.descartada);
+    else enObservacion.push(r.hecho);
   }
   const elegiblesAMano = enObservacion.filter(o => o.elegibleAMano);
 
@@ -473,4 +491,4 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
   return { nacionales: listas.nacional, internacionales: listas.internacional, aMano, cupo: cupoUsado, reserva, descartadas, avisos, aviso };
 }
 
-module.exports = { normalizar, tokens, similitud, firma, jaccard, dominioDe, buscarPortal, emisor, gruposIndependientes, esInformativa, agrupar, acumular, preparar, decidir };
+module.exports = { normalizar, STOP, tokens, similitud, firma, jaccard, dominioDe, buscarPortal, nombreDeMedio, emisor, gruposIndependientes, esInformativa, agrupar, acumular, clasificarHecho, preparar, decidir };

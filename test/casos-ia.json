@@ -1,0 +1,14 @@
+{
+  "_aviso": "Casos para medir al modelo de IA cuando exista. No los usa ningún test de comportamiento. Los títulos son completos y salen de datos/notas.json del 04-10-2026; el último de 'union' es inventado.",
+  "union": [
+    { "a": "Fórmula 1: qué dijo Colapinto luego de finalizar 13° en el Gran Premio de Malasia", "b": "Una carrera loca que Franco Colapinto terminó con mucha dignidad en Sepang con el mejor Alpine", "misma": true },
+    { "a": "EN VIVO | Elecciones en Brasil: comienza el escrutinio y Lula habla con la prensa a las 19", "b": "A la espera de los primeros resultados, Milei sigue con optimismo la elección en Brasil y respaldó a Bolsonaro en redes", "misma": false },
+    { "a": "EN VIVO | Elecciones en Brasil: comienza el escrutinio y Lula habla con la prensa a las 19", "b": "Tras el cierre de los comicios, Lula Da Silva y Flávio Bolsonaro disputan voto a voto la presidencia", "misma": true },
+    { "a": "Diputados empezó a debatir el Presupuesto", "b": "Diputados aprobó el Presupuesto", "misma": false, "inventado": true }
+  ],
+  "bloque": [
+    { "titulo": "Fórmula 1: qué dijo Colapinto luego de finalizar 13° en el Gran Premio de Malasia", "bloque": "internacional" },
+    { "titulo": "A la espera de los primeros resultados, Milei sigue con optimismo la elección en Brasil y respaldó a Bolsonaro en redes", "bloque": "nacional" },
+    { "titulo": "Tras el cierre de los comicios, Lula Da Silva y Flávio Bolsonaro disputan voto a voto la presidencia", "bloque": "internacional" }
+  ]
+}

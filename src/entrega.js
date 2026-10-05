@@ -11,7 +11,7 @@
  *   medios: el grupo de cada link, sin repetir (Clarín + TN + Olé = «Clarín»); solo portales de la lista que cuentan.
  *   links[].medio: el nombre del portal (TN, Olé…), o su grupo, o el dominio si no está en la lista.
  */
-const { dominioDe, buscarPortal } = require('./nucleo.js');
+const { dominioDe, buscarPortal, nombreDeMedio } = require('./nucleo.js');
 
 const BLOQUES = ['nacional', 'internacional'];
 
@@ -19,9 +19,8 @@ function tarjeta(salida, portales) {
   const links = [];
   const medios = [];
   for (const l of salida.links || []) {
-    const dominio = dominioDe(l);
-    const portal = buscarPortal(dominio, portales);
-    links.push({ medio: portal ? (portal.nombre || portal.grupo) : dominio, url: l.url });
+    const portal = buscarPortal(dominioDe(l), portales);
+    links.push({ medio: nombreDeMedio(l, portales), url: l.url });
     if (portal && portal.cuenta !== false && portal.activo !== false && !medios.includes(portal.grupo)) medios.push(portal.grupo);
   }
   return {

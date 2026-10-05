@@ -12,6 +12,12 @@
   "maxPorPais": 2,
   "viaB": { "activa": true, "minFirmas": 1, "maxFirmasEnEtiqueta": 2 },
   "aMano": { "activa": true, "faltanMedios": 1 },
+  "ia": {
+    "deportes": true,
+    "farandula": false,
+    "palabrasDesmentido": ["desmintio", "desmiente", "desmienten", "desmintieron", "es falso", "falso que", "fake", "no es cierto"],
+    "maxDesmentidos": 5
+  },
   "criterio1": {
     "urlsExcluidas": [
       "/opinion/", "/columnistas/", "/editorial/", "/blogs/",
