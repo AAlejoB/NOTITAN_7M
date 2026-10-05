@@ -49,8 +49,8 @@
       .join('\n\n');
   }
 
-  // «4 de 5: La Gaceta · La Nación · Clarín · Página/12»
-  const etiquetaMedios = (t, minGrupos) => `${t.grupos} de ${minGrupos}: ${t.medios.join(' · ')}`;
+  // «4 de 5 medios» (los nombres ya están en los links de abajo)
+  const etiquetaMedios = (t, minGrupos) => `${t.grupos} de ${minGrupos} medios`;
 
   /* ───────────── lo tildado ───────────── */
 

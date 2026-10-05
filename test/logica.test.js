@@ -105,7 +105,9 @@ test('los textos de cada bloque salen de los números de la lista, no de uno fij
   assert.equal(L.avisoBloque(1, 3, 2), '1 de 3. No se completa con menos medios. Abajo hay 2 a las que les falta 1.');
   assert.equal(L.textoAfuera(2, 7), '2 confirmadas más quedaron afuera por el tope de 7');
   assert.equal(L.textoAfuera(1, 5), '1 confirmada más quedó afuera por el tope de 5');
-  assert.equal(L.etiquetaMedios({ grupos: 4, medios: ['La Gaceta', 'La Nación', 'Clarín', 'Página/12'] }, 5), '4 de 5: La Gaceta · La Nación · Clarín · Página/12');
+  assert.equal(L.etiquetaMedios({ grupos: 4, medios: ['Clarín', 'La Nación', 'Infobae', 'Página/12'] }, 5), '4 de 5 medios');
+  assert.equal(L.etiquetaMedios({ grupos: 4, medios: ['BBC', 'DW', 'France 24', 'El País'] }, 5), '4 de 5 medios');
+  assert.equal(L.etiquetaMedios({ grupos: 3, medios: ['BBC'] }, 4), '3 de 4 medios', 'sale de los números, no de los nombres');
 });
 
 test('«Nueva» dura esa visita: sigue siéndolo al traer de nuevo, y una tarjeta que ya se vio no lo es', () => {
