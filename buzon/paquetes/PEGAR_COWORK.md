@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 5/10/26, 02:24 (hora de Argentina) con "npm run paquete".
+Armado el 5/10/26, 02:42 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-05_b.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-05_c.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -31,9 +31,28 @@ Modelo: el más fuerte que haya, con el esfuerzo al máximo. Lo decidió Alejo e
 - Explicás las opciones y sus consecuencias con palabras de todos los días. Alejo no programa.
 - Dibujás con artifacts: HOY contra PROPUESTA, tarjetas lado a lado, tablas. Si Alejo pide ejemplos, mínimo 2. Cuando se cambia algo, se muestra también en gráfico o tabla, no solo escrito.
 - Español rioplatense, breve.
+- **Cada entrega termina como dice «El molde» (abajo)**, nunca con una tabla en su lugar. Lo decidió Alejo el 05-10-2026.
 - Distinguís siempre lo que **decidió Alejo** de lo que **propusiste vos** (valor por defecto).
 - **Sos incisivo antes de que algo llegue al código.** Buscás lo ambiguo y lo cuestionás. Ejemplo de este proyecto: Alejo dijo "dos o tres escritores" y podía ser 2 o 3 autores por noticia, o 2 o 3 noticias. Se aclara acá, no en el código.
 - **Te revisás antes de cerrar la carta.** Antes eran dos chats y el segundo le buscaba los huecos al primero (ejemplo real: una regla de rutas que decía "aparece en cualquier parte" habría tirado `/america/mexico/` por `/mexico/`). Ahora lo hacés vos: releé la carta como si fueras Claude Code con un modelo más chico y fijate si hay algo que se pueda entender de dos maneras.
+
+## El molde
+
+Toda entrega a Alejo termina así (es su skill para cerrar entregas: `que-haces-ahora`, antes `proximo-paso`). Lo que se copia para otro nunca se mezcla con lo que es para Alejo.
+
+- **Un apartado por destinatario**, en el orden en que se hacen. Cada uno empieza con una línea en negrita con las palabras de Alejo: «ESTO mandale a Claude Code:», «ESTO otro mandáselo al próximo chat de Cowork:». Si hay que hacer algo antes, va entre paréntesis en esa misma línea, por ejemplo «(antes hacé /clear ahí)».
+- Debajo, **un recuadro** (bloque de código) con exactamente lo que se pega, de DESDE ACÁ a HASTA ACÁ, sea una línea o una carta entera. El recuadro es solo para copiar: nada para Alejo va adentro.
+- Debajo del recuadro, **el molde de ese destinatario**, afuera, como cita (cada renglón empieza con `>`): un renglón con el título «▶ QUÉ HACÉS AHORA» y después cinco campos, uno por renglón y en este orden: A QUIÉN, QUÉ LE PASÁS, QUÉ ESPERÁS, SE APLICA, A EJECUTAR.
+- **Lo que se pega nunca lleva adentro otro recuadro de ejemplo, otro DESDE ACÁ o HASTA ACÁ, ni un molde**: Alejo lo ve todo junto y no sabe qué es para quién (le pasó el 05-10). Si una carta tiene que mostrar un ejemplo así, lo cuenta con palabras. Si lo que se pega trae otros bloques de código (por ejemplo, líneas de CSS), el recuadro usa un cerco de cuatro acentos graves.
+- El molde va en el mensaje del chat, **nunca adentro de una carta, un reporte o un texto para pegar**.
+- Las explicaciones para Alejo van antes del primer apartado. Nada entre un recuadro y su molde.
+- Una línea por campo. Si un campo necesita dos, son dos pasos: dos apartados.
+- «A QUIÉN» dice un nombre (Claude Code, Cowork, Don Julio, «vos mismo», «nadie»). Nunca «quien corresponda».
+- «QUÉ ESPERÁS» dice qué tiene que volver, de forma que se reconozca cuando llega.
+- «SE APLICA» nombra una condición, no una fecha: «cuando Claude Code pushee el reporte», no «pronto».
+- Si no hay nada para mandar, se dice: una línea en negrita «NADA PARA MANDAR», sin recuadro, y el molde con «SE APLICA: nada, esto solo cierra el tema».
+- Lo que sigue esperando algo de antes va al final de todo, fuera de recuadros, en una línea que empieza con «SIGUE TRABADO» en negrita: qué, y por quién.
+- El molde no repite decisiones ni motivos: quien lee solo los apartados tiene que poder actuar.
 
 ## Con quién hablás
 
@@ -46,7 +65,7 @@ Lo chico (un número en `config/`, un texto, un error de tipeo) Alejo se lo pide
 
 1. `CLAUDE.md`: decisiones de Alejo y estado del proyecto.
 2. `buzon/pendientes.md`, completo.
-3. El `ClaudeCode_para_Cowork_*` más nuevo. Si todavía no hay ninguno, el `ClaudeCode_para_PREPARADOR_*` más nuevo (así se llamaban antes).
+3. Todos los `ClaudeCode_para_Cowork_*` más nuevos que la última carta de Cowork (`Cowork_para_ClaudeCode_*`): puede haber más de uno. Si todavía no hay ninguno, el `ClaudeCode_para_PREPARADOR_*` más nuevo (así se llamaban antes).
 4. El dibujo del embudo, si lo necesitás: https://claude.ai/artifact/1x8EynL8rEGJV9i6DyiHFi (es privado de Alejo; si no podés abrirlo, pedíselo).
 
 Las cartas con nombre `PREPARADOR_*`, `Disenador_*` y `ClaudeCode_para_PREPARADOR_*` son historia: lo vigente está en `CLAUDE.md` y `pendientes.md`.
@@ -174,7 +193,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - Español rioplatense, breve. Un tema por vez y una sola pregunta por respuesta.
 - Cuando se cambia algo, mostrarlo también en gráfico o tabla, no solo escrito. Si pide ejemplos, mínimo 2.
 - De adentro hacia afuera: 1 núcleo, 2 motor, 3 datos (portales), 4 orquestación, 5 botón y entrega.
-- Cada entrega termina con el bloque "QUÉ HACÉS AHORA" (a quién, qué le pasa, qué espera, cuándo, quién ejecuta).
+- Cada entrega termina con el molde «▶ QUÉ HACÉS AHORA» (decidió Alejo el 05-10-2026), en el mensaje del chat y nunca en tabla: por cada destinatario, «ESTO mandale a …:» (palabras de Alejo), un recuadro con exactamente lo que se pega (sea una línea o una carta entera, de DESDE ACÁ a HASTA ACÁ) y el molde afuera, con sus cinco campos de una línea (A QUIÉN, QUÉ LE PASÁS, QUÉ ESPERÁS, SE APLICA, A EJECUTAR). Lo que se pega nunca lleva adentro recuadros ni moldes de ejemplo. Detalle en `buzon/LEEME_COWORK.md` («El molde»).
 - No poner diagramas con forma de comando dentro de bloques de código: una vez los copió en PowerShell.
 - Dice "andá para adelante": no pedirle permiso por cada paso, solo parar si hay algo que solo él puede hacer.
 - Trabaja con **dos bloques** (desde el 2026-10-04; antes eran tres, como en su otro proyecto ST: DISEÑADOR, PREPARADOR y Claude Code, y se mareaba llevando archivos entre tres chats): **un solo chat de Cowork** (el modelo más fuerte que haya, esfuerzo al máximo; piensa, le pregunta a Alejo, dibuja con artifacts y escribe el pedido exacto) y **Claude Code** (Sonnet 5.5, ejecuta). **Claude Code habla solo con Cowork, por archivos en `buzon/`** (`Cowork_para_ClaudeCode_*` y `ClaudeCode_para_Cowork_*`). Alejo lleva los archivos de uno a otro. Al empezar: `buzon/LEEME_CLAUDECODE.md` y `buzon/pendientes.md`. Lo chico se le pide directo a Claude Code; pasa por Cowork lo que toca una decisión de Alejo o más de un archivo. Donde este archivo o `pendientes.md` dicen DISEÑADOR o PREPARADOR, hoy es Cowork; las cartas viejas con esos nombres quedan en `buzon/` como historia.
@@ -401,6 +420,8 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 05-10-2026 · **El molde «▶ QUÉ HACÉS AHORA»**, decidido por Alejo: toda entrega de Cowork y de Claude Code termina, en el mensaje del chat, con «ESTO mandale a …:» por cada destinatario, un recuadro con exactamente lo que se pega y el molde afuera, como cita; nunca una tabla, y nunca recuadros ni moldes de ejemplo adentro de lo que se pega. Escrito en `LEEME_COWORK.md` («El molde»), `LEEME_CLAUDECODE.md` y `CLAUDE.md`. Cowork lee todos los reportes nuevos, no solo el último. La hora del encabezado sale del comando, corrida en el momento.
+- [x] 05-10-2026 · **Cerrado por Cowork al aprobar el reporte `b`:** las 66 comprobaciones de `npm run probar-pagina` quedan agrupadas como están; la captura del celular de Alejo con la versión vieja era una imagen de antes del 05-10 `a` (la página no está publicada en ningún lado).
 - [x] 05-10-2026 · **El sello de lo llevado a color pleno** (Cowork): en una tarjeta llevada se apagan solo la casilla, el título, la bajada y los links (0,6; 0,9 si se la vuelve a tildar); el sello y «Te la llevaste a las…» quedan sin apagar. Contraste del naranja en claro de 2,6 a 5,8 (oscuro 3,8 a 8,0; verde 2,5 a 5,1 y 3,8 a 7,7). **El script de Chromium en el repo:** `npm run probar-pagina` (Cowork; fuera de `npm test`, sin Playwright en `package.json`, con `--capturas <nombre>`).
 - [x] 05-10-2026 · **Cerrado por Cowork:** el número del bloque («Nacionales · 7») cuenta la lista (vía A y vía B, llevadas incluidas); una 4/5 llevada no suma aunque se vea en el bloque.
 - [x] 05-10-2026 · **«Recién confirmada»** (decidió Alejo, opción C): una 4/5 que ya vio y sube a confirmada lleva una pastilla propia que dura la visita (`vistasConfirmadas` en el estado; un estado viejo arranca como copia de `vistas`). Descartado: sin marca; «Nueva» otra vez. También de Cowork, valores por defecto: la vía B en violeta y la 4/5 llevada en naranja (ya no se confunden con «Confirmada por N medios»), «4 de 5 medios» en las 4/5, y la pregunta de unión más estricta con 2 casos de prueba más (`union[4]` dudoso y `union[5]`). Capturas `buzon/capturas/pagina-2026-10-05-*.png`.
@@ -434,113 +455,67 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-05_b.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-05_c.md
 ============================================================
 
-# Claude Code → Cowork · 05-10-2026 · 02:35 (hora de Argentina) · letra b
+# Claude Code → Cowork · 05-10-2026 · 02:42 (hora de Argentina) · letra c
 
-Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_b.md`.
+Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_c.md`.
 
-**Veredicto:** hechos los 3 pasos, sin llamar a ningún modelo y sin tocar lo que la carta prohibía (`pagina/logica.js`, `pagina/lista.json`, `src/`, `config/`, `ejemplos/`, `test/`, `datos/`, `.github/`). El sello y la hora de lo llevado ya no se apagan, y el script de Chromium quedó en el repo (`npm run probar-pagina`: 66 bien, 0 mal). `npm test` sigue en **200 bien y 1 pendiente**. En la doble pasada, el script atrapó **11 de 11** roturas de `index.html` a la primera.
+**Veredicto:** hechos los 2 pasos, solo texto, sin tocar código ni nada de lo que la carta prohibía. El molde «▶ QUÉ HACÉS AHORA» quedó escrito en `LEEME_COWORK.md` («El molde»), `LEEME_CLAUDECODE.md` y `CLAUDE.md`; las 9 comprobaciones dan lo que pedía la carta. `npm test` sigue en **200 bien y 1 pendiente** (201 en total).
 
 ## Qué cambió
 
-| Paso | Commit | Qué cambió |
+| Paso | Commit | Archivo | Qué cambió |
+|---|---|---|---|
+| carta | «Guardo la carta de Cowork 2026-10-05 c» | `buzon/Cowork_para_ClaudeCode_2026-10-05_c.md` | La carta guardada tal cual. |
+| 1a | «Paso 1» | `buzon/LEEME_COWORK.md` | Línea nueva en «Cómo trabajás»; sección entera «## El molde» entre «## Cómo trabajás» y «## Con quién hablás»; la línea 3 de «Qué leer al arrancar» ahora dice «Todos los `ClaudeCode_para_Cowork_*` más nuevos que la última carta de Cowork». |
+| 1b | «Paso 1» | `buzon/LEEME_CLAUDECODE.md` | Dos reemplazos: el cierre de cada entrega apunta a «El molde», y la hora sale de `TZ=America/Argentina/Buenos_Aires date` corrida justo antes del encabezado. |
+| 1c | «Paso 1» | `CLAUDE.md` | La línea de «QUÉ HACÉS AHORA» pasó del bloque viejo al molde de cinco campos. |
+| 2 | cierre | `buzon/pendientes.md`, este reporte, `buzon/paquetes/PEGAR_COWORK.md` | Los 2 renglones de «Hecho» (05-10) tal cual los dictó la carta; paquete rearmado. |
+
+**Cómo termina ahora una entrega, antes y después (lo que ve Alejo):**
+
+| | Antes | Ahora |
 |---|---|---|
-| carta | (primero) | La carta guardada como `buzon/Cowork_para_ClaudeCode_2026-10-05_b.md`. |
-| 1 | «Paso 1» | Solo CSS en `pagina/index.html`: las 3 líneas de la carta (`opacity` .6 solo en casilla, título, bajada y links; .9 si está `.tildada`) y el comentario al día. |
-| 2 | «Paso 2» | `scripts/probar-pagina.js` (nuevo), `"probar-pagina"` en `package.json`, `node_modules/` en `.gitignore`. |
-| 3 | «Paso 3» + cierre | 3 capturas nuevas, `CLAUDE.md`, `buzon/pendientes.md`, este reporte y `npm run paquete`. |
-
-`git diff 2c8adde.. -- pagina/index.html` (desde antes de esta ronda) muestra **solo** el cambio del paso 1 (4 líneas más, 3 menos).
-
-**Qué ve quien usa la página, en una tarjeta llevada:**
-
-| Parte | Antes | Ahora |
-|---|---|---|
-| Sello («elegida a mano», «Confirmada…») | 0,6 (naranja claro con contraste 2,6) | **1** (contraste 5,8) |
-| «Te la llevaste a las…» | 0,6 | **1** |
-| Casilla, título, bajada y links | 0,6 | 0,6 (0,9 si la volvió a tildar) |
+| Cierre de la entrega | Una tabla o un bloque «QUÉ HACÉS AHORA» suelto | «ESTO mandale a …:» + recuadro con exactamente lo que se pega + molde como cita, un apartado por destinatario |
+| Lo que se pega | A veces con recuadros o moldes de ejemplo adentro | Nunca recuadros ni moldes adentro |
+| Si no hay nada para mandar | Variaba | «NADA PARA MANDAR», sin recuadro, y el molde |
+| Lo que sigue esperando | Mezclado con el resto | Al final, «SIGUE TRABADO» |
+| Reportes que lee Cowork al arrancar | Solo el último | Todos los más nuevos que la última carta de Cowork |
+| Hora del encabezado | A veces estimada (la del reporte `b` dice 02:35 y su commit es de las 02:24) | La que da el comando, corrida antes de escribirlo |
 
 ## Tests
 
 | | Bien | Pendiente | Total |
 |---|---|---|---|
-| `npm test` antes | 200 | 1 | 201 |
-| `npm test` después (tras el paso 1 y tras el paso 2) | **200** | 1 | 201 |
+| `npm test` antes (reporte `b`) | 200 | 1 | 201 |
+| `npm test` después | **200** | 1 | 201 |
 
-Ningún test de hoy falló por estos cambios.
+## C1 a C9
 
-## `npm run probar-pagina`
+| # | Comprobación | Dio | ¿Cumple? |
+|---|---|---|---|
+| C1 | `grep -c "▶ QUÉ HACÉS AHORA" buzon/LEEME_COWORK.md` | 1 | sí |
+| C2 | `grep -c "^## El molde" buzon/LEEME_COWORK.md` | 1; los títulos quedan en este orden: «Cómo trabajás» (línea 11), «El molde» (22), «Con quién hablás» (40) | sí |
+| C3 | `grep -c 'el bloque "QUÉ HACÉS AHORA" (a quién' CLAUDE.md` | 0 | sí |
+| C4 | `grep -c "ESTO mandale a"` en `LEEME_COWORK.md`, `LEEME_CLAUDECODE.md` y `CLAUDE.md` | 1, 1 y 1 | sí |
+| C5 | `npm test` | 201 en total: 200 bien, 0 mal, 0 salteados, 1 pendiente | sí |
+| C6 | Después de `npm run paquete`: `grep -c "Toda entrega a Alejo termina así" buzon/paquetes/PEGAR_COWORK.md` | 1 | sí |
+| C7 | `grep -c "corrida justo antes de escribir el encabezado" buzon/LEEME_CLAUDECODE.md` | 1 | sí |
+| C8 | Hora del encabezado | `TZ=America/Argentina/Buenos_Aires date` dio **`Mon Oct  5 02:42:10 -03 2026`** justo antes de escribirlo; el encabezado dice 02:42 | sí |
+| C9 | Mi mensaje final en el chat | Termina como E1 (recuadro con solo los 3 renglones, molde afuera, «SIGUE TRABADO» al final); este reporte no lleva el molde | sí |
 
-**66 bien, 0 mal**, código 0, `git status` sin cambios (P1). Por escenario:
+## Qué decidí por mi cuenta
 
-| # | Escenario | Comprobaciones |
-|---|---|---|
-| 1 | Tildar, 4/5 «Sacar», copiar (títulos, sin sello, renglones «Medio: url»), destildar, bajan con hora, «Nacionales · 7», recargar, «Traer noticias» | 15 |
-| 2 | Portapapeles bloqueado | 2 |
-| 3 | Lista vieja (aviso ámbar), lista que no carga + «Reintentar», sin `localStorage`, modo oscuro | 8 |
-| 4 | «Nueva» y «Recién confirmada» (E1 a E10 de ayer, incl. E3 y E10 sin recargar) | 15 |
-| 5 | Colores de los sellos: vía B violeta y 4/5 llevada naranja, claro y oscuro | 4 |
-| 6 | S1 a S4 (opacidad efectiva del sello, el título, los links y la hora) | 10 |
-| 7 | Lo que se ve en las 3 capturas (4 por captura) | 12 |
-| — | Sin errores en la consola en ningún escenario | 1 |
-
-**De las de ayer, no saqué ninguna.** Cambió una: «lo llevado sigue apagado» ahora dice lo de S1 (título 0,6 y sello 1). Los dos scripts de ayer no estaban en el repo, así que armé el nuevo a partir de lo que cada reporte describe: no calza 1 a 1 con «24» y «23» (agrupé y partí algunas), pero cubre todo lo que describen, más las capturas y S1 a S4. No usa la red de afuera: sirve una copia de `pagina/` en una carpeta temporal, con `generadaEn` de ahora.
-
-## P1 a P4
-
-| # | Qué corrí | Resultado |
-|---|---|---|
-| P1 | `npm run probar-pagina` con el paso 1 puesto | 66 bien, código 0, `git status` sin cambios |
-| P2 | Con `opacity: .6` de nuevo en toda `.noticia.llevada` | **10 mal**, código 1; el sello falla en S1, S2 y S3 (queda en 0,6 o 0,9) |
-| P3 | `npm run probar-pagina -- --capturas 2026-10-05-b` | 66 bien y 3 archivos nuevos en `buzon/capturas/` (`pagina-2026-10-05-b-390.png`, `-1200.png`, `-390-oscuro.png`); las de antes quedan |
-| P4 | Sin Playwright (`env -u NODE_PATH`, sin `node_modules/`) | La línea «Falta Playwright. Instalalo sin guardarlo en package.json: npm i --no-save playwright» y **código 2** |
-
-En este entorno Playwright está en `/opt/node-tools/node_modules` y se alcanza con `NODE_PATH`; el script intenta el Chromium de Playwright y, si no abre, busca `chromium-*` en `PLAYWRIGHT_BROWSERS_PATH` (o `/opt/pw-browsers`). Si no hay navegador, avisa y sale con código 2.
-
-## La doble pasada (contra el script del repo)
-
-| # | Qué rompí en `pagina/index.html` | ¿Lo atrapó a la primera? |
-|---|---|---|
-| H1 | sacar la línea que calcula «recién» en `traer()` | sí (8 mal) |
-| H2 | calcularlo después de `dibujar()` | sí (6 mal) |
-| H3 | calcularlo después de `marcarVistas` | sí (8 mal) |
-| H4 | no llevar «recién» de una carga a la siguiente | sí (2 mal) |
-| H5 | `pastillaDe` sin `recien` | sí (8 mal) |
-| H6 | `pastillaDe` sin `llevada` | sí (1 mal: «lo llevado va sin pastillas») |
-| H7 | el sello siempre verde | sí (1 mal: la vía B violeta) |
-| H8 | `marcarVistas` antes de calcular «Nueva» y «recién» | sí (14 mal) |
-| H9 | `opacity: .6` en toda `.noticia.llevada` (P2) | sí (10 mal; sello en S1, S2 y S3) |
-| H10 | `.noticia.llevada .meta { opacity: .6; }` | sí (3 mal: sello de S1, S2 y S3) |
-| H11 | sacar `.noticia.llevada h3` de la línea de `.6` | sí (3 mal: el título en S1, S2 y recarga) |
-
-**11 de 11 atrapadas a la primera.** Todas se deshicieron (`git diff` de `index.html` vacío después de cada una). H7 la agarra por el violeta, no por el naranja: el sello `mano` siempre verde también lo agarraría el escenario 5 (naranja), pero no lo probé aparte.
-
-Las capturas nuevas (las miré las tres): el sello naranja de la 4/5 llevada («Confirmada por 4 medios · elegida a mano») se lee entero en claro, escritorio y oscuro, con el título, los links y la casilla apagados y «Te la llevaste a las 02:19» sin apagar.
-
-## Qué decidí por mi cuenta (para que otro lo revise)
-
-1. **El script marca como bien o MAL 66 cosas, no 24 + 23 + 12 + 4.** Reconstruí las comprobaciones de los dos reportes sin los scripts viejos (no estaban en el repo). Si querés que figuren una por una, se pide en la próxima carta.
-2. **Las capturas se miran siempre** (las 12 comprobaciones del escenario 7), pero los archivos se guardan solo con `--capturas`.
-3. **Estado de las capturas:** armado con una «Recién confirmada» (la CGT), una «Nueva» (el dólar blue) y la 4/5 «Rescataron…» llevada hace 5 minutos; el resto, visto hace una hora. Se siembra solo si la clave `7m-marcas-v1` todavía no existe, así una recarga no lo pisa.
-4. **Una captura que mandó Alejo** (la de la página en su celular) todavía muestra la línea vieja de las 4/5 («4 de 5: Clarín · La Nación · …») y el sello verde de la 4/5: es una versión anterior a la del 05-10 `a`. El repo ya dice «4 de 5 medios». Si la ve así en su celular, es que tiene la página cacheada o publicada de antes.
+1. **Guardé la carta con lo que va entre «DESDE ACÁ» y «HASTA ACÁ»** de lo que me pegó Alejo, sin esas dos líneas ni la frase «Leé buzon/LEEME_CLAUDECODE.md…» de arriba. Es el texto de Cowork, sin cambios.
+2. **Armé el paquete dos veces**: una antes del reporte para poder comprobar C6 (que depende de `LEEME_COWORK.md`, ya cambiado) y otra al final, para que traiga este reporte. C6 da lo mismo en las dos.
+3. **«SIGUE TRABADO» en mi mensaje final** lleva solo lo que dice E1 (las noticias reales, capa 4, esperan a Don Julio). No sumé nada más.
 
 ## Qué quedó pendiente y para quién
 
-| Qué | Para quién |
-|---|---|
-| Nada nuevo de esta ronda. «Cowork → Claude Code» sigue en «Nada pendiente por ahora». | — |
-| La capa 4: dónde corre n8n, dónde se guarda, dónde vive la página, qué cuenta de IA | Alejo, con Don Julio (preguntas en `pendientes.md`) |
-
-## QUÉ HACÉS AHORA
-
-| A quién | Qué le pasa | Qué espera | Cuándo | Quién ejecuta |
-|---|---|---|---|---|
-| Alejo | Tiene el reporte `b` del 05-10 | Pasárselo a Cowork (chat nuevo, con el `PEGAR_COWORK.md` si hace falta) | Cuando puedas | Alejo |
-| Cowork | Recibe el reporte | Aprobarlo o pedir cambios | Al recibirlo | Cowork |
-| Alejo | La capa 4 sigue frenando las noticias reales | Hablar con Don Julio | Cuando puedas | Alejo |
-| Claude Code | Sin carta pendiente | Esperar la próxima carta de Cowork | — | Claude Code |
+- **Para Cowork (lo marco porque toca algo que la carta pidió no tocar):** `scripts/armar-paquete.js` sigue trayendo **solo el reporte más nuevo** de Claude Code, y ahora `LEEME_COWORK.md` le dice a Cowork que lea **todos** los más nuevos que su última carta. Si algún día hay dos reportes seguidos sin carta en el medio, el paquete (si hace falta pegarlo) traería uno solo. Hoy no pasa: valor por defecto, no se toca. Cowork decide si pide cambiarlo.
+- Lo demás sigue como en el reporte `b`: la capa 4 espera a Don Julio. «Cowork → Claude Code» sigue en «Nada pendiente por ahora».
 
 ============================================================
 FIN DEL PAQUETE
