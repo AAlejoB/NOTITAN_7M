@@ -41,7 +41,7 @@ Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_c.md`.
 | C3 | `grep -c 'el bloque "QUÉ HACÉS AHORA" (a quién' CLAUDE.md` | 0 | sí |
 | C4 | `grep -c "ESTO mandale a"` en `LEEME_COWORK.md`, `LEEME_CLAUDECODE.md` y `CLAUDE.md` | 1, 1 y 1 | sí |
 | C5 | `npm test` | 201 en total: 200 bien, 0 mal, 0 salteados, 1 pendiente | sí |
-| C6 | Después de `npm run paquete`: `grep -c "Toda entrega a Alejo termina así" buzon/paquetes/PEGAR_COWORK.md` | 1 | sí |
+| C6 | Después de `npm run paquete`: `grep -c "Toda entrega a Alejo termina así" buzon/paquetes/PEGAR_COWORK.md` | 1 con el primer paquete (solo `LEEME_COWORK.md`); **2** con el paquete final, porque este reporte, que viaja adentro, cita la frase en esta fila | sí (al menos 1) |
 | C7 | `grep -c "corrida justo antes de escribir el encabezado" buzon/LEEME_CLAUDECODE.md` | 1 | sí |
 | C8 | Hora del encabezado | `TZ=America/Argentina/Buenos_Aires date` dio **`Mon Oct  5 02:42:10 -03 2026`** justo antes de escribirlo; el encabezado dice 02:42 | sí |
 | C9 | Mi mensaje final en el chat | Termina como E1 (recuadro con solo los 3 renglones, molde afuera, «SIGUE TRABADO» al final); este reporte no lleva el molde | sí |
@@ -49,7 +49,7 @@ Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_c.md`.
 ## Qué decidí por mi cuenta
 
 1. **Guardé la carta con lo que va entre «DESDE ACÁ» y «HASTA ACÁ»** de lo que me pegó Alejo, sin esas dos líneas ni la frase «Leé buzon/LEEME_CLAUDECODE.md…» de arriba. Es el texto de Cowork, sin cambios.
-2. **Armé el paquete dos veces**: una antes del reporte para poder comprobar C6 (que depende de `LEEME_COWORK.md`, ya cambiado) y otra al final, para que traiga este reporte. C6 da lo mismo en las dos.
+2. **Armé el paquete dos veces**: una antes del reporte para poder comprobar C6 (que depende de `LEEME_COWORK.md`, ya cambiado) y otra al final, para que traiga este reporte. C6 da 1 en la primera y 2 en la segunda (el reporte cita la frase); las dos cumplen «al menos 1».
 3. **«SIGUE TRABADO» en mi mensaje final** lleva solo lo que dice E1 (las noticias reales, capa 4, esperan a Don Julio). No sumé nada más.
 
 ## Qué quedó pendiente y para quién
