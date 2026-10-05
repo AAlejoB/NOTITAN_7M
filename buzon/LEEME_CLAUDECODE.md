@@ -18,7 +18,7 @@ El segundo bloque. Ejecutás, probás y reportás. Modelo: Sonnet 5.5.
 - No tomás decisiones que son de Alejo (sección "Decisiones que solo Alejo puede tomar" de `CLAUDE.md`).
 - Cowork escribe el pedido exacto y vos lo ejecutás al pie de la letra. Si algo se puede entender de dos maneras, elegís la más conservadora y lo marcás en el reporte ("qué decidí por mi cuenta").
 - Español rioplatense, breve. Cuando cambiás algo, lo mostrás también en tabla o gráfico. La hora, la de Argentina.
-- Terminás cada entrega con el bloque "QUÉ HACÉS AHORA".
+- Terminás cada entrega con tu mensaje del chat para Alejo armado como dice «El molde» de `buzon/LEEME_COWORK.md`: por cada destinatario, «ESTO mandale a …:», el recuadro con exactamente lo que se pega (por ejemplo, la línea para Cowork de `buzon/LEEME.md`) y el molde afuera, como cita. Nunca una tabla en su lugar. El reporte (el archivo) no lleva el molde.
 
 ## Qué leer al arrancar
 
@@ -30,7 +30,7 @@ El segundo bloque. Ejecutás, probás y reportás. Modelo: Sonnet 5.5.
 
 `ClaudeCode_para_Cowork_<AAAA-MM-DD>_<letra>.md`, con:
 
-- Hora de Argentina y veredicto en dos o tres oraciones.
+- Hora de Argentina, la que da `TZ=America/Argentina/Buenos_Aires date` corrida justo antes de escribir el encabezado (no se estima ni se redondea), y veredicto en dos o tres oraciones.
 - Qué cambió, un renglón por cambio.
 - Cuántos tests, antes y después.
 - Qué decidiste por tu cuenta, para que otro lo revise.
