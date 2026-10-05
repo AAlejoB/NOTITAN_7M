@@ -1,0 +1,537 @@
+{
+  "generadaEn": "2026-10-05T01:17:15.982Z",
+  "ejemplo": true,
+  "cupoMinimo": 3,
+  "minGrupos": 5,
+  "bloques": {
+    "nacional": {
+      "tope": 7,
+      "noticias": [
+        {
+          "id": "g:N2-1",
+          "titulo": "Paro general de la CGT: el transporte quedó paralizado en todo el país",
+          "bajada": "",
+          "etiqueta": "Confirmada por 6 medios",
+          "via": "A",
+          "grupos": 6,
+          "medios": [
+            "La Nación",
+            "Infobae",
+            "Página/12",
+            "Perfil",
+            "Ámbito",
+            "El Cronista"
+          ],
+          "links": [
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/sociedad/n2-1"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/sociedad/n2-2"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/sociedad/n2-3"
+            },
+            {
+              "medio": "Perfil",
+              "url": "https://www.perfil.com/sociedad/n2-4"
+            },
+            {
+              "medio": "Ámbito",
+              "url": "https://www.ambito.com/sociedad/n2-5"
+            },
+            {
+              "medio": "El Cronista",
+              "url": "https://www.cronista.com/sociedad/n2-6"
+            }
+          ]
+        },
+        {
+          "id": "g:N1-1",
+          "titulo": "Diputados aprobó el Presupuesto 2027 y lo giró al Senado",
+          "bajada": "",
+          "etiqueta": "Confirmada por 6 medios",
+          "via": "A",
+          "grupos": 6,
+          "medios": [
+            "Clarín",
+            "La Nación",
+            "Infobae",
+            "Página/12",
+            "Perfil",
+            "Ámbito"
+          ],
+          "links": [
+            {
+              "medio": "Clarín",
+              "url": "https://www.clarin.com/politica/n1-1"
+            },
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/politica/n1-2"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/politica/n1-3"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/politica/n1-4"
+            },
+            {
+              "medio": "Perfil",
+              "url": "https://www.perfil.com/politica/n1-5"
+            },
+            {
+              "medio": "Ámbito",
+              "url": "https://www.ambito.com/politica/n1-6"
+            },
+            {
+              "medio": "TN",
+              "url": "https://www.tn.com.ar/politica/n1-7"
+            }
+          ]
+        },
+        {
+          "id": "g:E4-1",
+          "titulo": "El dólar blue cerró en alza y marcó un nuevo máximo semanal",
+          "bajada": "",
+          "etiqueta": "Confirmada por 5 medios",
+          "via": "A",
+          "grupos": 5,
+          "medios": [
+            "La Nación",
+            "Infobae",
+            "Página/12",
+            "Perfil",
+            "Ámbito"
+          ],
+          "links": [
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/economia/e4-1"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/economia/e4-2"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/economia/e4-3"
+            },
+            {
+              "medio": "Perfil",
+              "url": "https://www.perfil.com/economia/e4-4"
+            },
+            {
+              "medio": "Ámbito",
+              "url": "https://www.ambito.com/economia/e4-5"
+            }
+          ]
+        },
+        {
+          "id": "g:E3-1",
+          "titulo": "Caen las reservas del Banco Central a su menor nivel del año",
+          "bajada": "",
+          "etiqueta": "Confirmada por 5 medios",
+          "via": "A",
+          "grupos": 5,
+          "medios": [
+            "Clarín",
+            "La Nación",
+            "Infobae",
+            "Página/12",
+            "Perfil"
+          ],
+          "links": [
+            {
+              "medio": "Clarín",
+              "url": "https://www.clarin.com/economia/e3-1"
+            },
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/economia/e3-2"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/economia/e3-3"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/economia/e3-4"
+            },
+            {
+              "medio": "Perfil",
+              "url": "https://www.perfil.com/economia/e3-5"
+            }
+          ]
+        },
+        {
+          "id": "g:N3-1",
+          "titulo": "Aumento de tarifas de luz y gas desde noviembre: el Gobierno lo oficializó",
+          "bajada": "",
+          "etiqueta": "Confirmada por 5 medios",
+          "via": "A",
+          "grupos": 5,
+          "medios": [
+            "Clarín",
+            "La Nación",
+            "Infobae",
+            "Página/12",
+            "Perfil"
+          ],
+          "links": [
+            {
+              "medio": "Clarín",
+              "url": "https://www.clarin.com/economia/n3-1"
+            },
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/economia/n3-2"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/economia/n3-3"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/economia/n3-4"
+            },
+            {
+              "medio": "Perfil",
+              "url": "https://www.perfil.com/economia/n3-5"
+            }
+          ]
+        },
+        {
+          "id": "g:N6-1",
+          "titulo": "Alerta del Ministerio de Salud por un brote de dengue en el norte",
+          "bajada": "",
+          "etiqueta": "Confirmada por 5 medios",
+          "via": "A",
+          "grupos": 5,
+          "medios": [
+            "Página/12",
+            "Perfil",
+            "Ámbito",
+            "El Cronista",
+            "elDiarioAR"
+          ],
+          "links": [
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/salud/n6-1"
+            },
+            {
+              "medio": "Perfil",
+              "url": "https://www.perfil.com/salud/n6-2"
+            },
+            {
+              "medio": "Ámbito",
+              "url": "https://www.ambito.com/salud/n6-3"
+            },
+            {
+              "medio": "El Cronista",
+              "url": "https://www.cronista.com/salud/n6-4"
+            },
+            {
+              "medio": "elDiarioAR",
+              "url": "https://www.eldiarioar.com/salud/n6-5"
+            }
+          ]
+        },
+        {
+          "id": "g:NB-1",
+          "titulo": "Una investigación revela cómo se adjudicó la obra de un puente en el Litoral",
+          "bajada": "",
+          "etiqueta": "Respaldada por Autora Ficticia Uno y Autor Ficticio Tres",
+          "via": "B",
+          "grupos": 2,
+          "medios": [
+            "La Nación",
+            "Página/12"
+          ],
+          "links": [
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/politica/nb-1"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/politica/nb-2"
+            }
+          ]
+        }
+      ],
+      "aMano": [
+        {
+          "id": "g:M1-1",
+          "titulo": "Rescataron a tres andinistas perdidos en el cerro Aconcagua",
+          "bajada": "",
+          "etiqueta": "Confirmada por 4 medios · elegida a mano",
+          "via": "mano",
+          "grupos": 4,
+          "medios": [
+            "Clarín",
+            "La Nación",
+            "Infobae",
+            "Página/12"
+          ],
+          "links": [
+            {
+              "medio": "Clarín",
+              "url": "https://www.clarin.com/sociedad/m1-1"
+            },
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/sociedad/m1-2"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/sociedad/m1-3"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/sociedad/m1-4"
+            }
+          ]
+        }
+      ],
+      "afueraPorTope": 0
+    },
+    "internacional": {
+      "tope": 7,
+      "noticias": [
+        {
+          "id": "g:I6-1",
+          "titulo": "Un terremoto de magnitud 7 sacude el norte de Japón",
+          "bajada": "",
+          "etiqueta": "Confirmada por 7 medios",
+          "via": "A",
+          "grupos": 7,
+          "medios": [
+            "Clarín",
+            "La Nación",
+            "Infobae",
+            "Página/12",
+            "BBC",
+            "DW",
+            "France 24"
+          ],
+          "links": [
+            {
+              "medio": "Clarín",
+              "url": "https://www.clarin.com/sociedad/i6-1"
+            },
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/sociedad/i6-2"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/sociedad/i6-3"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/sociedad/i6-4"
+            },
+            {
+              "medio": "BBC",
+              "url": "https://www.bbc.com/sociedad/i6-5"
+            },
+            {
+              "medio": "DW",
+              "url": "https://www.dw.com/sociedad/i6-6"
+            },
+            {
+              "medio": "France 24",
+              "url": "https://www.france24.com/sociedad/i6-7"
+            }
+          ]
+        },
+        {
+          "id": "g:I1-1",
+          "titulo": "La Fed bajó la tasa de interés y se mueven el dólar y los bonos",
+          "bajada": "",
+          "etiqueta": "Confirmada por 6 medios",
+          "via": "A",
+          "grupos": 6,
+          "medios": [
+            "Clarín",
+            "La Nación",
+            "Infobae",
+            "Página/12",
+            "BBC",
+            "DW"
+          ],
+          "links": [
+            {
+              "medio": "Clarín",
+              "url": "https://www.clarin.com/economia/i1-1"
+            },
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/economia/i1-2"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/economia/i1-3"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/economia/i1-4"
+            },
+            {
+              "medio": "BBC",
+              "url": "https://www.bbc.com/economia/i1-5"
+            },
+            {
+              "medio": "DW",
+              "url": "https://www.dw.com/economia/i1-6"
+            }
+          ]
+        },
+        {
+          "id": "g:I4-1",
+          "titulo": "Brasil y Argentina firmaron un acuerdo comercial para el sector automotor",
+          "bajada": "",
+          "etiqueta": "Confirmada por 5 medios",
+          "via": "A",
+          "grupos": 5,
+          "medios": [
+            "Página/12",
+            "BBC",
+            "DW",
+            "France 24",
+            "El País"
+          ],
+          "links": [
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/economia/i4-1"
+            },
+            {
+              "medio": "BBC",
+              "url": "https://www.bbc.com/economia/i4-2"
+            },
+            {
+              "medio": "DW",
+              "url": "https://www.dw.com/economia/i4-3"
+            },
+            {
+              "medio": "France 24",
+              "url": "https://www.france24.com/economia/i4-4"
+            },
+            {
+              "medio": "El País",
+              "url": "https://www.elpais.com/economia/i4-5"
+            }
+          ]
+        },
+        {
+          "id": "g:I3-1",
+          "titulo": "La Casa Blanca anunció nuevos aranceles a la importación de acero",
+          "bajada": "",
+          "etiqueta": "Confirmada por 5 medios",
+          "via": "A",
+          "grupos": 5,
+          "medios": [
+            "La Nación",
+            "Infobae",
+            "Página/12",
+            "BBC",
+            "DW"
+          ],
+          "links": [
+            {
+              "medio": "La Nación",
+              "url": "https://www.lanacion.com.ar/economia/i3-1"
+            },
+            {
+              "medio": "Infobae",
+              "url": "https://www.infobae.com/economia/i3-2"
+            },
+            {
+              "medio": "Página/12",
+              "url": "https://www.pagina12.com.ar/economia/i3-3"
+            },
+            {
+              "medio": "BBC",
+              "url": "https://www.bbc.com/economia/i3-4"
+            },
+            {
+              "medio": "DW",
+              "url": "https://www.dw.com/economia/i3-5"
+            }
+          ]
+        },
+        {
+          "id": "g:IB-1",
+          "titulo": "Se filtró el texto de un tratado reservado entre dos países europeos",
+          "bajada": "",
+          "etiqueta": "Respaldada por Autora Ficticia Uno y Autor Ficticio Dos",
+          "via": "B",
+          "grupos": 3,
+          "medios": [
+            "BBC",
+            "The Guardian",
+            "El País"
+          ],
+          "links": [
+            {
+              "medio": "BBC",
+              "url": "https://www.bbc.com/politica/ib-1"
+            },
+            {
+              "medio": "The Guardian",
+              "url": "https://www.theguardian.com/politica/ib-2"
+            },
+            {
+              "medio": "El País",
+              "url": "https://www.elpais.com/politica/ib-3"
+            }
+          ]
+        }
+      ],
+      "aMano": [
+        {
+          "id": "g:M2-1",
+          "titulo": "Chile declaró la emergencia hídrica en cuatro regiones del centro del país",
+          "bajada": "",
+          "etiqueta": "Confirmada por 4 medios · elegida a mano",
+          "via": "mano",
+          "grupos": 4,
+          "medios": [
+            "BBC",
+            "DW",
+            "France 24",
+            "El País"
+          ],
+          "links": [
+            {
+              "medio": "BBC",
+              "url": "https://www.bbc.com/sociedad/m2-1"
+            },
+            {
+              "medio": "DW",
+              "url": "https://www.dw.com/sociedad/m2-2"
+            },
+            {
+              "medio": "France 24",
+              "url": "https://www.france24.com/sociedad/m2-3"
+            },
+            {
+              "medio": "El País",
+              "url": "https://www.elpais.com/sociedad/m2-4"
+            }
+          ]
+        }
+      ],
+      "afueraPorTope": 0
+    }
+  },
+  "avisos": []
+}

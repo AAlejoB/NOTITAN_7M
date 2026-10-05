@@ -473,4 +473,4 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
   return { nacionales: listas.nacional, internacionales: listas.internacional, aMano, cupo: cupoUsado, reserva, descartadas, avisos, aviso };
 }
 
-module.exports = { normalizar, tokens, similitud, firma, jaccard, dominioDe, emisor, gruposIndependientes, esInformativa, agrupar, acumular, preparar, decidir };
+module.exports = { normalizar, tokens, similitud, firma, jaccard, dominioDe, buscarPortal, emisor, gruposIndependientes, esInformativa, agrupar, acumular, preparar, decidir };

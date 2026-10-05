@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>7M · Noticias</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --fondo: #f4f5f7; --tarjeta: #ffffff; --texto: #1a1d21; --suave: #596270; --borde: #d6dae0;
+    --verde: #17724a; --verde-fondo: #e1f3e9;
+    --azul: #1456c9; --azul-fondo: #e2ecff;
+    --ambar: #8a5200; --ambar-fondo: #fff3dc; --ambar-borde: #d99a2b;
+    --marca: #1456c9; --marca-texto: #ffffff; --apagado: #aeb4bd;
+    --barra: #ffffffee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fondo: #101317; --tarjeta: #1a1f26; --texto: #e8eaed; --suave: #9ba4b0; --borde: #2f3640;
+      --verde: #62d493; --verde-fondo: #12301f;
+      --azul: #8cb5ff; --azul-fondo: #15264a;
+      --ambar: #f2b650; --ambar-fondo: #34270e; --ambar-borde: #a77b1d;
+      --marca: #5b92ff; --marca-texto: #08142e; --apagado: #566070;
+      --barra: #1a1f26ee;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--fondo); color: var(--texto);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+  .ancho { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+  /* arriba */
+  .arriba { position: sticky; top: 0; z-index: 5; background: var(--barra); backdrop-filter: blur(6px); border-bottom: 1px solid var(--borde); }
+  .arriba .ancho { display: flex; align-items: center; gap: 12px; padding-top: 10px; padding-bottom: 10px; }
+  .arriba h1 { margin: 0; font-size: 22px; letter-spacing: .5px; }
+  .actualizada { flex: 1; min-width: 0; color: var(--suave); font-size: 14px; }
+  button { font: inherit; cursor: pointer; }
+  .boton {
+    background: var(--marca); color: var(--marca-texto); border: 0; border-radius: 10px;
+    padding: 10px 14px; font-weight: 600; min-height: 44px;
+  }
+  .boton:disabled { background: var(--apagado); cursor: default; opacity: .7; }
+  .boton.suave { background: transparent; color: var(--azul); border: 1px solid var(--azul); }
+
+  .franja { margin: 12px 0 0; padding: 8px 12px; border-radius: 10px; font-size: 14px; }
+  .franja.ejemplo { background: var(--azul-fondo); color: var(--azul); }
+  .franja.vieja { background: var(--ambar-fondo); color: var(--ambar); border: 1px solid var(--ambar-borde); }
+  .franja.error { background: var(--ambar-fondo); color: var(--ambar); border: 1px solid var(--ambar-borde); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  /* cada bloque */
+  .bloque { margin-top: 22px; }
+  .bloque h2 { margin: 0 0 6px; font-size: 20px; }
+  .aviso-bloque, .afuera { margin: 4px 0 10px; color: var(--suave); font-size: 14px; }
+  .afuera { margin-top: 8px; }
+
+  .noticia {
+    background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 12px; margin: 0 0 10px;
+  }
+  .noticia.tildada { border-color: var(--marca); box-shadow: 0 0 0 2px var(--marca) inset; }
+  .fila { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+  .fila input[type=checkbox] { width: 24px; height: 24px; margin: 2px 0 0; flex: none; accent-color: var(--marca); }
+  .cuerpo { flex: 1; min-width: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 4px; }
+  .sello { background: var(--verde-fondo); color: var(--verde); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600; }
+  .nueva { background: var(--azul-fondo); color: var(--azul); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
+  .noticia h3 { margin: 0; font-size: 17px; line-height: 1.3; }
+  .bajada { margin: 6px 0 0; color: var(--suave); font-size: 15px; }
+  .links { margin: 8px 0 0 36px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .links a { color: var(--azul); text-decoration: none; border-bottom: 1px solid transparent; }
+  .links a:hover, .links a:focus-visible { border-bottom-color: currentColor; }
+
+  /* las 4/5: abiertas, debajo de cada bloque */
+  .amano { margin-top: 14px; border: 2px dashed var(--ambar-borde); border-radius: 12px; padding: 12px; background: var(--ambar-fondo); }
+  .amano > h3 { margin: 0 0 10px; font-size: 15px; color: var(--ambar); }
+  .amano .noticia { margin-bottom: 8px; }
+  .amano .noticia.tildada { border-color: var(--ambar-borde); box-shadow: 0 0 0 2px var(--ambar-borde) inset; }
+  .amano h4 { margin: 0; font-size: 16px; line-height: 1.3; }
+  .medios { margin: 6px 0 0; color: var(--ambar); font-size: 14px; font-weight: 600; }
+  .amano .acciones { margin-top: 10px; }
+  .amano .links { margin-left: 0; }
+
+  /* lo que ya se llevó: apagado, con borde punteado */
+  .llevadas { margin-top: 14px; }
+  .noticia.llevada { opacity: .6; border-style: dashed; background: transparent; }
+  .noticia.llevada.tildada { opacity: .9; }
+  .hora-llevada { margin: 8px 0 0 36px; font-size: 14px; color: var(--suave); }
+
+  /* abajo */
+  .abajo { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--barra); backdrop-filter: blur(6px); border-top: 1px solid var(--borde); padding-bottom: env(safe-area-inset-bottom); }
+  .abajo .ancho { display: flex; align-items: center; gap: 12px; padding-top: 10px; padding-bottom: 10px; }
+  .cuenta { flex: 1; font-weight: 600; }
+  .mensaje { color: var(--verde); font-size: 14px; font-weight: 600; min-height: 1.2em; }
+  .manual { margin: 12px 0 0; }
+  .manual textarea { width: 100%; min-height: 160px; font: 14px/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--tarjeta); color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; padding: 10px; }
+  [hidden] { display: none !important; }
+  :focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
+
+  @media (min-width: 700px) {
+    .noticia h3 { font-size: 18px; }
+    .arriba h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<header class="arriba">
+  <div class="ancho">
+    <h1>7M</h1>
+    <div class="actualizada" id="actualizada" aria-live="polite">Cargando…</div>
+    <button class="boton" id="traer" type="button">Traer noticias</button>
+  </div>
+</header>
+
+<div class="ancho">
+  <div id="franjas"></div>
+  <main id="contenido"></main>
+  <div class="manual" id="manual" hidden>
+    <p class="aviso-bloque" id="manual-texto">No se pudo copiar solo. Copialo desde acá:</p>
+    <textarea id="manual-cuadro" readonly></textarea>
+  </div>
+</div>
+
+<footer class="abajo">
+  <div class="ancho">
+    <div class="cuenta" id="cuenta">0 elegidas</div>
+    <div class="mensaje" id="mensaje" role="status" aria-live="polite"></div>
+    <button class="boton" id="copiar" type="button" disabled>Copiar</button>
+  </div>
+</footer>
+
+<script src="logica.js"></script>
+<script>
+(function () {
+  'use strict';
+  var L = window.Logica;
+  var BLOQUES = [['nacional', 'Nacionales'], ['internacional', 'Internacionales']];
+
+  // En memoria: la lista que se trajo, las marcas de esta persona, lo tildado (urls), las "Nueva" de esta visita
+  // y las tarjetas en el orden en que aparecen en la página (para copiar en ese orden).
+  var lista = null;
+  var estado = L.estadoVacio();
+  var tildadas = [];
+  var nuevas = [];
+  var orden = [];
+  var almacen = null;
+  try { almacen = window.localStorage; } catch (e) { almacen = null; }
+
+  function ahora() { return new Date().toISOString(); }
+  function $(id) { return document.getElementById(id); }
+
+  // Arma un elemento sin pasar texto de afuera por innerHTML.
+  function h(tag, props, hijos) {
+    var e = document.createElement(tag);
+    Object.keys(props || {}).forEach(function (k) {
+      if (k === 'texto') e.textContent = props[k];
+      else if (k === 'clase') e.className = props[k];
+      else if (k === 'alCambiar') e.addEventListener('change', props[k]);
+      else if (k === 'alApretar') e.addEventListener('click', props[k]);
+      else if (props[k] === true) e.setAttribute(k, '');
+      else if (props[k] !== false && props[k] != null) e.setAttribute(k, props[k]);
+    });
+    (hijos || []).forEach(function (c) { if (c) e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+
+  function todasLasTarjetas() {
+    var out = [];
+    BLOQUES.forEach(function (b) { out = out.concat(lista.bloques[b[0]].noticias, lista.bloques[b[0]].aMano); });
+    return out;
+  }
+
+  /* ───────────── dibujar ───────────── */
+
+  function links(t) {
+    return h('p', { clase: 'links' }, t.links.map(function (l) {
+      return h('a', { href: l.url, target: '_blank', rel: 'noopener noreferrer', texto: l.medio });
+    }));
+  }
+
+  function alternar(t, foco) {
+    tildadas = L.alternarTilde(t, tildadas);
+    dibujar(foco);
+  }
+
+  // Una confirmada (o una que se llevó): casilla, sello, "Nueva", título, bajada y links.
+  function noticia(t, opciones) {
+    var tildada = L.estaTildada(t, tildadas);
+    var clave = 'k:' + t.links[0].url;
+    var meta = [h('span', { clase: 'sello', texto: t.etiqueta })];
+    if (L.esNuevaEnVisita(t, nuevas)) meta.push(h('span', { clase: 'nueva', texto: 'Nueva' }));
+    var cuerpo = [h('div', { clase: 'meta' }, meta), h('h3', { texto: t.titulo })];
+    if (t.bajada) cuerpo.push(h('p', { clase: 'bajada', texto: t.bajada }));
+    var casilla = h('input', { type: 'checkbox', 'data-k': clave, checked: tildada, alCambiar: function () { alternar(t, clave); } });
+    var hijos = [h('label', { clase: 'fila' }, [casilla, h('div', { clase: 'cuerpo' }, cuerpo)]), links(t)];
+    if (opciones && opciones.hora) hijos.push(h('p', { clase: 'hora-llevada', texto: 'Te la llevaste a las ' + L.horaAR(opciones.hora) }));
+    orden.push(t);
+    return h('article', { clase: 'noticia' + (tildada ? ' tildada' : '') + (opciones && opciones.hora ? ' llevada' : '') }, hijos);
+  }
+
+  // Una 4/5: título, "4 de 5: medios" y el botón «Llevármela igual» (tildada, dice «Sacar»).
+  function cuatroDeCinco(t) {
+    var tildada = L.estaTildada(t, tildadas);
+    var clave = 'k:' + t.links[0].url;
+    orden.push(t);
+    return h('article', { clase: 'noticia' + (tildada ? ' tildada' : '') }, [
+      h('h4', { texto: t.titulo }),
+      t.bajada ? h('p', { clase: 'bajada', texto: t.bajada }) : null,
+      h('p', { clase: 'medios', texto: L.etiquetaMedios(t, lista.minGrupos) }),
+      links(t),
+      h('div', { clase: 'acciones' }, [
+        h('button', { type: 'button', clase: 'boton suave', 'data-k': clave, 'aria-pressed': tildada ? 'true' : 'false', texto: tildada ? 'Sacar' : 'Llevármela igual', alApretar: function () { alternar(t, clave); } }),
+      ]),
+    ]);
+  }
+
+  function bloque(clave, nombre) {
+    var b = lista.bloques[clave];
+    var reparto = L.repartirBloque(b, estado);
+    var n = b.noticias.length; // lo que se llevó sigue contando para el tope: la página solo lo baja
+    var hijos = [h('h2', { texto: L.tituloBloque(nombre, n, lista.cupoMinimo) })];
+    var aviso = L.avisoBloque(n, lista.cupoMinimo, b.aMano.length);
+    if (aviso) hijos.push(h('p', { clase: 'aviso-bloque', texto: aviso }));
+    reparto.principales.forEach(function (t) { hijos.push(noticia(t)); });
+    if (b.afueraPorTope > 0) hijos.push(h('p', { clase: 'afuera', texto: L.textoAfuera(b.afueraPorTope, b.tope) }));
+    if (reparto.aMano.length) {
+      hijos.push(h('section', { clase: 'amano' }, [h('h3', { texto: 'En observación · les falta 1 medio' })].concat(reparto.aMano.map(cuatroDeCinco))));
+    }
+    if (reparto.llevadas.length) {
+      hijos.push(h('div', { clase: 'llevadas' }, reparto.llevadas.map(function (x) { return noticia(x.tarjeta, { hora: x.hora }); })));
+    }
+    return h('section', { clase: 'bloque' }, hijos);
+  }
+
+  function dibujar(foco) {
+    var cont = $('contenido');
+    cont.textContent = '';
+    orden = [];
+    if (!lista) return;
+    BLOQUES.forEach(function (b) { cont.appendChild(bloque(b[0], b[1])); });
+
+    var cuando = L.haceCuanto(lista.generadaEn, ahora());
+    $('actualizada').textContent = 'Actualizada ' + cuando.texto;
+    var franjas = $('franjas');
+    franjas.textContent = '';
+    if (lista.ejemplo) franjas.appendChild(h('p', { clase: 'franja ejemplo', texto: 'Datos de ejemplo, inventados' }));
+    if (cuando.vieja) franjas.appendChild(h('p', { clase: 'franja vieja', texto: 'No se actualiza desde las ' + L.horaAR(lista.generadaEn) }));
+
+    var elegidas = orden.filter(function (t) { return L.estaTildada(t, tildadas); });
+    var barra = L.textoBarra(elegidas.length);
+    $('cuenta').textContent = barra.cuenta;
+    $('copiar').textContent = barra.boton;
+    $('copiar').disabled = barra.apagado;
+
+    if (foco) { var el = document.querySelector('[data-k="' + foco.replace(/"/g, '\\"') + '"]'); if (el) el.focus({ preventScroll: true }); }
+  }
+
+  /* ───────────── traer la lista ───────────── */
+
+  function error() {
+    lista = null;
+    dibujar();
+    $('actualizada').textContent = '';
+    var franjas = $('franjas');
+    franjas.textContent = '';
+    franjas.appendChild(h('div', { clase: 'franja error' }, [
+      h('span', { texto: 'No se pudo traer la lista. Probá de nuevo en un rato.' }),
+      h('button', { type: 'button', clase: 'boton suave', texto: 'Reintentar', alApretar: traer }),
+    ]));
+  }
+
+  function guardar() { L.guardarEstado(almacen, estado); }
+
+  function traer() {
+    $('mensaje').textContent = '';
+    fetch('lista.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (datos) {
+        lista = datos;
+        var todas = todasLasTarjetas();
+        // "Nueva" dura esa visita: las que ya lo eran siguen siéndolo, y se suman las que nunca se vieron.
+        nuevas = L.nuevasDeLaVisita(todas, estado, nuevas);
+        dibujar();
+        // Recién después de dibujar se guardan como vistas todas las que se mostraron.
+        estado = L.marcarVistas(todas, estado, ahora());
+        guardar();
+      })
+      .catch(error);
+  }
+
+  /* ───────────── copiar ───────────── */
+
+  function copiar() {
+    var elegidas = orden.filter(function (t) { return L.estaTildada(t, tildadas); });
+    if (!elegidas.length) return;
+    var texto = L.textoParaCopiar(elegidas);
+    var listo = function (copiado) {
+      estado = L.marcarLlevadas(elegidas, estado, ahora());
+      guardar();
+      tildadas = [];
+      dibujar();
+      var manual = $('manual');
+      if (copiado) {
+        manual.hidden = true;
+        $('mensaje').textContent = 'Copiadas. Ya podés pegarlas.';
+      } else {
+        $('manual-texto').textContent = 'No se pudo copiar solo. Copialo desde acá:';
+        $('manual-cuadro').value = texto;
+        manual.hidden = false;
+        $('manual-cuadro').focus();
+        $('manual-cuadro').select();
+        $('mensaje').textContent = '';
+      }
+    };
+    var porFalla = function () { listo(false); };
+    try {
+      navigator.clipboard.writeText(texto).then(function () { listo(true); }, porFalla);
+    } catch (e) { porFalla(); }
+  }
+
+  $('traer').addEventListener('click', traer);
+  $('copiar').addEventListener('click', copiar);
+  setInterval(function () { if (lista) { var c = L.haceCuanto(lista.generadaEn, ahora()); $('actualizada').textContent = 'Actualizada ' + c.texto; } }, 30000);
+
+  // Al abrir: las marcas de antes (sin las de más de 24 h) y la lista.
+  estado = L.limpiar(L.cargarEstado(almacen), ahora());
+  traer();
+})();
+</script>
+</body>
+</html>

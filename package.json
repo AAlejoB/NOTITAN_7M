@@ -8,6 +8,7 @@
     "demo": "node ejemplos/demo.js",
     "feeds": "node scripts/probar-feeds.js config/feeds.json",
     "leer": "node scripts/leer.js",
+    "pagina": "node scripts/armar-pagina.js",
     "paquete": "node scripts/armar-paquete.js"
   },
   "engines": { "node": ">=20" }
