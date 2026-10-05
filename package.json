@@ -9,7 +9,8 @@
     "feeds": "node scripts/probar-feeds.js config/feeds.json",
     "leer": "node scripts/leer.js",
     "pagina": "node scripts/armar-pagina.js",
-    "paquete": "node scripts/armar-paquete.js"
+    "paquete": "node scripts/armar-paquete.js",
+    "probar-pagina": "node scripts/probar-pagina.js"
   },
   "engines": { "node": ">=20" }
 }
