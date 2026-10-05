@@ -274,6 +274,19 @@ test('decidir T5: el tope decide cuáles entran: las que más medios publicaron'
   assert.deepEqual(r.reserva.map(x => [x.id, x.motivo]), [['s5-hace3', 'cupo'], ['s5-hace8', 'cupo']]);
 });
 
+test('decidir: cada noticia trae la bajada del medio (nacionales, internacionales, reserva y a mano), o vacía', () => {
+  const cs = [
+    cand('con', { bajada: 'Fue con 130 votos.', gruposIndependientes: 7 }), cand('sin', { gruposIndependientes: 6 }),
+    cand('int', { bajada: 'Bajó la tasa.' }), cand('fuera', { bajada: 'Se quedó afuera por el cupo.', gruposIndependientes: 5, primera: hace(30) }),
+  ];
+  const js = { con: J(), sin: J(), int: J({ bloque: 'internacional' }), fuera: J({ datoNuevo: true }), man: J() };
+  const d = N.decidir(cs, js, { reglas: { ...reglas, cupoMinimo: 1, cupoPorBloque: 2 }, cupo: 2, elegiblesAMano: [elegible('man', { bajada: 'Les falta un medio.' })] });
+  assert.deepEqual(d.nacionales.map(x => [x.id, x.bajada]), [['con', 'Fue con 130 votos.'], ['sin', '']]);
+  assert.equal(d.internacionales[0].bajada, 'Bajó la tasa.');
+  assert.equal(d.reserva.find(x => x.id === 'fuera').bajada, 'Se quedó afuera por el cupo.');
+  assert.equal(d.aMano.nacional[0].bajada, 'Les falta un medio.');
+});
+
 test('decidir: tope de 3 por sección; la cuarta de economía va a Reserva', () => {
   const cs = ['e1', 'e2', 'e3', 'e4'].map(id => cand(id));
   const r = N.decidir(cs, { e1: J({ seccion: 'economía' }), e2: J({ seccion: 'economía' }), e3: J({ seccion: 'economía' }), e4: J({ seccion: 'economía' }) }, ctx);

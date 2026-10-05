@@ -416,7 +416,7 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
         b.c.gruposIndependientes - a.c.gruposIndependientes ||
         Date.parse(b.c.primera) - Date.parse(a.c.primera))
       .map(({ c, j }) => ({
-        id: c.id, titulo: c.titulo, bloque, seccion: j.seccion || '', pais: j.pais || '',
+        id: c.id, titulo: c.titulo, bajada: c.bajada || '', bloque, seccion: j.seccion || '', pais: j.pais || '',
         via: 'mano',
         etiqueta: `Confirmada por ${c.gruposIndependientes} medios · elegida a mano`,
         gruposIndependientes: c.gruposIndependientes,
@@ -447,7 +447,7 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
       else if (seccion && (porSeccion[seccion] || 0) >= reglas.maxPorSeccion) motivo = `tope_seccion (${seccion})`;
       else if (bloque === 'internacional' && pais && (porPais[pais] || 0) >= reglas.maxPorPais) motivo = `tope_pais (${pais})`;
       const salida = {
-        id: c.id, titulo: c.titulo, bloque, seccion, pais,
+        id: c.id, titulo: c.titulo, bajada: c.bajada || '', bloque, seccion, pais,
         via: viaB ? 'B' : 'A',
         etiqueta: viaB ? etiquetaViaB(firmasDelBloque, reglas) : `Confirmada por ${c.gruposIndependientes} medios`,
         gruposIndependientes: c.gruposIndependientes,
