@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 5/10/26, 03:24 (hora de Argentina) con "npm run paquete".
+Armado el 9/10/26, 22:31 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-05_d.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-09_a.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -205,7 +205,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 200 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 231 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--sin-notas-de-servicio`, `--acumular <archivo>`, `--sin-leer` y `--sin-excluir-rutas`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
@@ -218,6 +218,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - Excepción a mano para una 4/5 (2026-10-04, solo el núcleo): `preparar` devuelve `elegiblesAMano` (hechos en observación a los que les falta 1 medio, sin firma que los haga entrar por la vía B; `aMano` en `config/reglas.json`: `activa` y `faltanMedios`, hoy 1) y `resumen.elegiblesAMano`. La IA juzga `candidatos` **y** `elegiblesAMano`. `decidir` recibe `elegiblesAMano` y devuelve `aMano: { nacional, internacional }`: los que pasan los criterios 3 a 6, sin cupo, sin topes y sin reserva, con la etiqueta "Confirmada por N medios · elegida a mano". Nunca entran solos a `nacionales` ni a `internacionales`, ni para llegar al mínimo de 3. La vista (el menú "En observación · les falta 1 medio" con "Llevármela igual") es capa 5 y espera el diseño de la entrega.
 - Rutas excluidas por feed (2026-10-04): `excluirRutas` en `config/feeds.json` (hoy El Cronista e Infobae). La regla es que la dirección **empiece con** la ruta (`rutaExcluida` en `src/lector.js`). Lo ya guardado se vuelve a filtrar al cargarlo (`filtrarRutas` en `scripts/leer.js`; en n8n, el mismo paso al cargar lo acumulado); el núcleo no sabe de feeds. `--sin-excluir-rutas` (solo con `--sin-leer`) da el "antes" de una medición.
 - Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false` en `portales.json`: no suman a la verificación y no avisan "feed roto". El día de ejemplo usa medios argentinos para lo internacional.
+- **Etapa 1 (2026-10-09, decidió Alejo; hecha en el repo):** `npm run vuelta` (`scripts/vuelta.js`) hace una vuelta completa sin IA: lee los feeds, acumula en `datos/notas.json` (48 h), arma la lista y deja en `datos/pagina/` lo que algún día se sube al hosting (`lista.json` y copias frescas de `index.html` y `logica.js`), y anota una línea por vuelta en `datos/vueltas.jsonl`. `--cada <min>` repite (la siguiente arranca a esos minutos de que empezó la anterior; Ctrl+C corta), `--sin-leer` rehace la lista con lo guardado sin salir a internet, `--carpeta` cambia dónde vive todo. El candado `datos/vuelta.lock` evita dos vueltas a la vez (25 minutos; se borra al terminar). Códigos: 0 bien, 1 error de uso, 2 ningún feed respondió, 3 candado. La lista real sale `sinIA: true` (la página lo dice en una franja azul): el bloque de cada noticia es provisorio (`src/provisorio.js`: nacional o internacional según el portal y la sección de sus notas, internacional si la mitad o más lo parecen; las secciones están en `provisorio` de `config/reglas.json`) y `datoNuevo` va en `false`, así que lo de más de 24 h se cae por el criterio 2. La IA es la etapa 2. `npm run medir` resume `vueltas.jsonl` por día y por corte de 4 horas (hora de Argentina; un hecho cuenta una vez por corte, en el bloque de su última vuelta). `npm run probar-pagina -- --solo-capturas datos/pagina --capturas <nombre>` saca las 3 capturas con la lista real (68 comprobaciones en la prueba normal). Lo real vive en `datos/` y no se sube al repo. Todavía no corre solo: dónde corre cada 30 minutos lo habla Alejo con Don Julio.
 - Paquete para pegar en Cowork (2026-10-04): cuando el chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_COWORK.md` (antes había uno por rol; con un solo chat hay un solo paquete). Lo arma `npm run paquete` (`scripts/armar-paquete.js`) con `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code, tal cual del repo. Es una foto: se rearma al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -304,9 +305,7 @@ Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 
 
 ## Siguiente paso
 
-La capa 4 con Don Julio: dónde corre n8n, dónde se guarda lo acumulado, la última lista y lo juzgado, dónde vive la página (para que verla no gaste ejecuciones, con un link secreto por cliente) y qué cuenta de IA. Las preguntas para Don Julio y los valores por defecto están en `buzon/pendientes.md`. Con eso, lo que toca código (cargar y guardar lo acumulado, llamar al modelo con `preguntaUnion` y `preguntaJuicio`, armar la lista real en lugar de la del día de ejemplo) se pide en una carta de Cowork. El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`.
-
-Las preguntas para Don Julio están en una página de Alejo, con un valor por defecto en cada una (el link y cómo se leen las respuestas, en `buzon/pendientes.md`, ítem «Capa 4», y en `buzon/LEEME_COWORK.md`). Cuando conteste, Cowork escribe la carta de la capa 4.
+La etapa 1 está hecha en el repo. Falta dónde corre cada 30 minutos (preguntas 1 y 2 de la capa 4: Alejo con Don Julio; un cron, n8n o una computadora prendida); con eso se mide un día real con `npm run medir`. Después vienen la etapa 2 (la IA que juzga, con `preguntaJuicio`), la 3 (la página en su hosting, pregunta 5) y la 4 (la unión de hechos partidos, tras la prueba de 3 veces). Las 14 preguntas de la capa 4 quedaron contestadas por Alejo con los valores por defecto el 2026-10-09 (están en `buzon/pendientes.md`, ítem «Capa 4»). El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -378,7 +377,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
 - [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
-- [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4.
+- [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4. **Herramienta lista (09-10):** `npm run vuelta -- --cada 30` un día entero y después `npm run medir`. Falta una máquina que lo corra: espera las preguntas 1 y 2.
 - [ ] **Hechos partidos: decidido por Alejo (opción A): la IA los une y se cuentan juntos; espera la IA.** «La misma noticia» es **el mismo hecho: la misma gente, lo mismo que pasó, el mismo día**; no alcanza con el mismo tema. Es la sexta pregunta de la IA. Hecho en el repo, sin llamar a ningún modelo: `paresParaUnir`, `unirHechos`, `preguntaUnion` y `leerUnion` de `src/ia.js`. **Corrección:** el par «EN VIVO | Elecciones en Brasil: comienza el escrutinio…» + «…Milei sigue con optimismo la elección en Brasil…» es **no** (uno es el conteo de votos, el otro lo que hace Milei); antes figuraba como «sí». Medido el 04-10 con la regla nueva (lo guardado hasta el 5/10 00:01, con el filtro de Infobae): entran 11 hechos (5 de 3 grupos, 4 de 4 y 2 candidatos de vía A) y salen **5 pares**: 2 entre hechos de 3 o 4 grupos (Colapinto, unión de 5 grupos, sí; escrutinio + Milei, unión de 7, no) y 3 con un candidato (escrutinio + «voto a voto», unión de 8, sí; Milei + «voto a voto», unión de 9, dudoso; Milei + García Cuerva, unión de 9, no). Los 5 llegan a 5 grupos: por eso la pregunta tiene que ser estricta. Detalle en `ClaudeCode_para_Cowork_2026-10-04_a.md`.
 - [ ] **Capa 4 (Alejo con Don Julio): reemplaza «Guardar lo leído entre corridas».** Cada cosa lleva un valor por defecto que se puede cambiar:
   - Dónde corre n8n. Por defecto: n8n Cloud Starter, €20 por mes con 2.500 ejecuciones; leer cada 30 minutos son 1.440 por mes. Ojo: n8n 3.0 sale en octubre de 2026 y en servidor propio exige Docker. (Datos de n8n y de la IA consultados por Cowork el 04-10 en sus páginas oficiales.)
@@ -391,6 +390,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Las preguntas para Don Julio (Cowork, 05-10):** 14 preguntas en 6 bloques, cada una con lo que proponemos mientras tanto y un globo para que conteste, en la página https://claude.ai/artifact/DMmuJhsmvGLWBCxxcJc4yq (es privada de Alejo: él se la comparte). Si Don Julio la abre como Editor, lo que escribe queda guardado en la página y el próximo chat de Cowork lo lee de ahí. Si no, toca «Copiar todas», se lo manda a Alejo por WhatsApp y Alejo lo pega en Cowork. Con sus respuestas, Cowork escribe la carta de la capa 4.
   - **Orden por etapas (valor por defecto de Cowork; se le pregunta a Don Julio en la pregunta 12):** 1) leer y guardar cada 30 minutos, sin IA, que ya sirve para medir un día real; 2) la IA que juzga; 3) la página con la lista real; 4) la unión, después de la prueba de 3 veces.
   - **Datos consultados por Cowork el 05-10 en las páginas oficiales:** n8n 3.0 todavía no salió (está anunciado para octubre de 2026); con esa versión el servidor propio va solo con Docker y el tiempo máximo de un nodo Code baja de 5 minutos a 1. n8n Cloud Starter sigue en €20 por mes con pago anual y 2.500 ejecuciones. Claude Haiku 4.5 sigue en US$1 por millón de tokens de entrada y US$5 de salida. `preparar` tarda menos de 1 segundo con 1.300 notas inventadas (medido por Cowork).
+  - **09-10 (Alejo):** Don Julio no contestó la página; Alejo contestó las 14 preguntas con los valores por defecto. Dónde corre cada 30 minutos (preguntas 1 y 2) lo habla con Don Julio después. Lo demás vale hasta que Don Julio diga otra cosa.
 
 **Alejo**
 - [ ] **Deportes y espectáculos: pendiente** (Alejo: «dejalo como pendiente»). Por defecto: **deportes sí, farándula no** (`config/reglas.json`, sección `ia`: `deportes` y `farandula`). Esos dos valores entran en el texto de la pregunta de juicio de la IA.
@@ -414,7 +414,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
-- Nada pendiente por ahora. Lo que sigue (la capa 4) lo arma Don Julio en n8n; cuando defina dónde corre y dónde se guarda, Cowork escribe el pedido para lo que toque código: cargar y guardar lo acumulado, llamar al modelo con `preguntaUnion` y `preguntaJuicio`, y armar la lista real en lugar de la del día de ejemplo.
+- Nada pendiente por ahora. La etapa 1 está hecha en el repo (`npm run vuelta`, `npm run medir`). Lo que sigue depende de dónde corre cada 30 minutos (Alejo con Don Julio); después, la etapa 2 (la IA que juzga).
 
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
@@ -422,10 +422,11 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [ ] Mejorar el agrupador para notas en otro idioma (hoy compara palabras).
 - [ ] Que las personas de un mismo canal vean lo que se llevó cada una (hoy cada una ve lo suyo; hace falta saber quién es quién).
 - [ ] Un aviso de «hay nuevas».
-- [ ] Noticias reales en la página cuando exista la IA (hoy usa el día de ejemplo y lo dice arriba).
+- [ ] Noticias reales en la página con el juicio de la IA (hoy la lista real sale sin IA, con la franja que lo dice; es la etapa 2).
 
 ## Hecho
 
+- [x] 09-10-2026 · **Etapa 1 en el repo** (decidió Alejo): `npm run vuelta` hace una vuelta completa sin IA y deja la lista real en `datos/pagina/`; `npm run medir` resume las vueltas por corte de 4 h; la página avisa «Sin el juicio de la IA». Dónde corre, con Don Julio.
 - [x] 05-10-2026 · **Cerrado por Cowork al aprobar el reporte `c`:** `scripts/armar-paquete.js` sigue trayendo solo el reporte más nuevo (valor por defecto de Cowork). Si un día hay dos reportes sin carta de Cowork en el medio y el chat de Cowork no puede clonar el repo, Alejo le pega también el reporte anterior. No se toca hasta que pase.
 - [x] 05-10-2026 · **El molde «▶ QUÉ HACÉS AHORA»**, decidido por Alejo: toda entrega de Cowork y de Claude Code termina, en el mensaje del chat, con «ESTO mandale a …:» por cada destinatario, un recuadro con exactamente lo que se pega y el molde afuera, como cita; nunca una tabla, y nunca recuadros ni moldes de ejemplo adentro de lo que se pega. Escrito en `LEEME_COWORK.md` («El molde»), `LEEME_CLAUDECODE.md` y `CLAUDE.md`. Cowork lee todos los reportes nuevos, no solo el último. La hora del encabezado sale del comando, corrida en el momento.
 - [x] 05-10-2026 · **Cerrado por Cowork al aprobar el reporte `b`:** las 66 comprobaciones de `npm run probar-pagina` quedan agrupadas como están; la captura del celular de Alejo con la versión vieja era una imagen de antes del 05-10 `a` (la página no está publicada en ningún lado).
@@ -462,64 +463,184 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-05_d.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-09_a.md
 ============================================================
 
-# Claude Code → Cowork · 05-10-2026 · 03:24 (hora de Argentina) · letra d
+# Claude Code → Cowork · 09-10-2026 · 22:30 (hora de Argentina) · letra a
 
-Responde a la carta `Cowork_para_ClaudeCode_2026-10-05_d.md`.
+Responde a la carta `Cowork_para_ClaudeCode_2026-10-09_a.md` (base: commit `f20daa3`).
 
-**Veredicto:** hecho el paso 1 (1a, 1b y 1c) y el cierre del paso 2, solo texto: no toqué código, tests ni nada de lo que la carta prohibía. Las ocho comprobaciones dan lo que pedía la carta. `npm test` sigue en **200 bien y 1 pendiente** (201 en total).
+**Veredicto:** los 5 pasos de código están hechos y probados, y las 2 vueltas reales salieron bien (19 de 19 feeds, código 0, unos 3 segundos cada una). `npm test` pasó de 200 a 231 bien (+31) y sigue 1 pendiente; `npm run probar-pagina` da 68 bien y 0 mal. Con una vuelta de cada 11 minutos solo hay un corte de 4 horas medido (20-24), así que la medición del día real **todavía no dice nada**: falta la máquina que lo corra cada 30 minutos (preguntas 1 y 2). **Un hallazgo para revisar:** la regla del bloque provisorio manda al bloque nacional una noticia internacional (el Nobel de la Paz) porque los medios argentinos la publican en secciones genéricas (ver «Para Cowork»).
 
 ## Qué cambió
 
 | Paso | Archivo | Qué cambió |
 |---|---|---|
-| carta | `buzon/Cowork_para_ClaudeCode_2026-10-05_d.md` | La carta guardada tal cual. |
-| 1a | `buzon/pendientes.md` | 3 renglones al final del ítem «Capa 4»: el link de las preguntas para Don Julio y cómo se leen sus respuestas, el orden por etapas y los datos consultados el 05-10. |
-| 1b | `buzon/LEEME_COWORK.md` | Renglón 5 en «Qué leer al arrancar»: cómo leer la colección `respuestas` (`p01` a `p14`) y qué hacer si está vacía. |
-| 1c | `CLAUDE.md` | Párrafo nuevo en «Siguiente paso», después del de la capa 4. |
-| 2 | `buzon/pendientes.md`, este reporte, `buzon/paquetes/PEGAR_COWORK.md` | Renglón de «Hecho» tal cual lo dictó la carta (primero debajo de `## Hecho`); paquete rearmado. «Cowork → Claude Code» sigue en «Nada pendiente por ahora» y el orden sugerido de la próxima ronda sigue siendo la capa 4. |
+| carta | `buzon/Cowork_para_ClaudeCode_2026-10-09_a.md` | La carta guardada tal cual. |
+| 1 | `src/provisorio.js` (nuevo) | `pareceInternacional`, `bloqueProvisorio` y `juiciosProvisorios`, tal cual 1b. |
+| 1 | `config/reglas.json` | Sección `provisorio` con `seccionesInternacionales`, al final, después de `criterio1`. |
+| 1 | `test/provisorio.test.js` (nuevo) | 7 tests: E1, E2, E3, las 8 claves con sus valores fijos, no-elegibles sin juicio, el viejo que se cae con `no_fresco (criterio 2)` y el fresco que no. |
+| 2 | `src/entrega.js` | `armarEntrega(..., { sinIA = false })` devuelve `sinIA` después de `ejemplo`. |
+| 2 | `pagina/index.html` | La regla `.franja.sinia` y la línea con el texto de la franja. |
+| 2 | `pagina/lista.json` | Rearmado con `npm run pagina` (`"sinIA": false`, `ejemplo: true`). |
+| 2 | `test/entrega.test.js` | 1 test: `sinIA` false por defecto, true si se pide, y false en `pagina/lista.json`. |
+| 2 | `scripts/probar-pagina.js` | 2 comprobaciones más (la franja con `sinIA: true`, con el texto exacto; y sin la clave, no hay franja). |
+| 3 | `scripts/vuelta.js` (nuevo) | `npm run vuelta` con `--carpeta`, `--cada`, `--sin-leer`, el candado, `datos/pagina/`, `vueltas.jsonl` y el resumen de pantalla. Exporta `vuelta()`. |
+| 3 | `test/vuelta.test.js` (nuevo) | 13 tests: E4, E5, E6, E7, candado fresco y de 30 minutos, el candado se borra aunque falle, `notas.json` roto, `--sin-leer` (con y sin archivo), el bloque provisorio en nacional e internacional, la sección `mundo` en medios argentinos, y las opciones. |
+| 3 | `package.json` | `vuelta` y `medir`. |
+| 4 | `scripts/medir.js` (nuevo) | `npm run medir` con `--carpeta` y `--dia`; exporta `diaYCorteDe`, `porDiaYCorte` y `resumir`. |
+| 4 | `test/medir.test.js` (nuevo) | 11 tests: E8, E9, E10, E11, los límites de los cortes, 4/5 con y sin firma, feeds caídos, archivo inexistente o vacío, renglón roto, el informe y las opciones. |
+| 5 | `scripts/probar-pagina.js` | `--solo-capturas <carpeta>` junto con `--capturas <nombre>`. |
+| 6 | `CLAUDE.md`, `buzon/pendientes.md`, `README.md` | Renglón de la etapa 1 en «Estado», «Siguiente paso» en un párrafo, los 5 cambios de `pendientes.md` y los 2 comandos en el README (con el número de tests real). |
+| 6 | `buzon/capturas/pagina-real-2026-10-09-{390,1200,390-oscuro}.png` | Las 3 capturas de la lista real. |
 
-**Cómo encuentra el próximo chat de Cowork las preguntas (lo que ve Alejo):**
+Cómo queda una vuelta (lo que se escribe y dónde):
 
-| Si pasa esto | Qué hace Cowork | Dónde lo encuentra |
-|---|---|---|
-| Don Julio abrió la página como Editor y contestó | Lee la colección `respuestas` con `ArtifactData` (un documento por pregunta, `p01` a `p14`) | Renglón 5 de `LEEME_COWORK.md`, que lo manda a `pendientes.md` ítem «Capa 4» por el link |
-| Don Julio no tiene cuenta y contesta por WhatsApp | La colección está vacía: le pregunta a Alejo, que pega el texto en el chat | Mismo renglón 5 |
-| Nadie contestó todavía | Sigue esperando; la capa 4 no avanza | `CLAUDE.md`, «Siguiente paso» |
+```
+npm run vuelta
+   │
+   ├─ datos/vuelta.lock ......... mientras corre (25 min; se borra siempre)
+   ├─ datos/notas.json .......... lo acumulado (48 h)
+   ├─ datos/vueltas.jsonl ....... +1 línea por vuelta  ──►  npm run medir
+   └─ datos/pagina/
+        ├─ lista.json ........... la lista real (sinIA: true)
+        ├─ index.html ........... copia fresca del repo
+        └─ logica.js ............ copia fresca del repo
+                                  (esta carpeta es la que algún día se sube al hosting)
+```
 
 ## Tests
 
 | | Bien | Pendiente | Total |
 |---|---|---|---|
-| `npm test` antes (reporte `c`) | 200 | 1 | 201 |
-| `npm test` después | **200** | 1 | 201 |
+| `npm test` antes (reporte `d`) | 200 | 1 | 201 |
+| `npm test` después | **231** | 1 | 232 |
+| `npm run probar-pagina` antes | 66 | 0 mal | 66 |
+| `npm run probar-pagina` después | **68** | 0 mal | 68 |
 
-## C1 a C8
+## C1 a C11
 
 | # | Comprobación | Dio | ¿Cumple? |
 |---|---|---|---|
-| C1 | `grep -c "DMmuJhsmvGLWBCxxcJc4yq" buzon/pendientes.md` | 1 | sí |
-| C2 | `grep -c "Orden por etapas" buzon/pendientes.md` | 1 | sí |
-| C3 | `grep -c "n8n 3.0 todavía no salió" buzon/pendientes.md` | 1 | sí |
-| C4 | `grep -c "^5. Si Don Julio ya contestó" buzon/LEEME_COWORK.md` | 1 | sí |
-| C5 | `grep -c "Las preguntas para Don Julio están en una página de Alejo" CLAUDE.md` | 1 | sí |
-| C6 | `npm test` | 201 en total: 200 bien, 0 mal, 0 salteados, 1 pendiente | sí |
-| C7 | `git add -A` y después `git diff --cached --stat 9636ca6`, con el reporte ya escrito y antes de `npm run paquete` | **5 archivos**, solo los pedidos: `CLAUDE.md` (+2), `buzon/ClaudeCode_para_Cowork_2026-10-05_d.md` (+55), `buzon/Cowork_para_ClaudeCode_2026-10-05_d.md` (+102), `buzon/LEEME_COWORK.md` (+1) y `buzon/pendientes.md` (+4); 164 inserciones, 0 borrados | sí |
-| C8 | Hora del encabezado | `TZ=America/Argentina/Buenos_Aires date` dio **`Mon Oct  5 03:24:04 -03 2026`** justo antes de escribirlo; el encabezado dice 03:24 | sí |
+| C1 | `npm test` antes y después | antes 200 bien y 1 pendiente; después 231 bien (+31) y 1 pendiente | sí |
+| C2 | `preparar` + `juiciosProvisorios` sobre el día de ejemplo | 21 juicios y 21 (`candidatos.length + elegiblesAMano.length`) | sí |
+| C3 | `grep -c '"sinIA": false' pagina/lista.json` | 1 | sí |
+| C4 | Primera `npm run vuelta` | código 0; `ls datos/pagina`: `index.html lista.json logica.js`; `wc -l datos/vueltas.jsonl`: 1; `grep -c '"sinIA": true' datos/pagina/lista.json`: 1; `datos/vuelta.lock`: no está | sí |
+| C5 | Segunda `npm run vuelta` 11 minutos después | 2 líneas en `vueltas.jsonl`; `repetidas` 962 | sí |
+| C6 | `npm run medir` | la tabla de abajo: un solo corte (`20-24`) con las 2 vueltas y la fila «Día entero» | sí |
+| C7 | `npm run probar-pagina` | 68 bien, 0 mal | sí |
+| C8 | `--solo-capturas datos/pagina --capturas real-2026-10-09` | 3 archivos nuevos en `buzon/capturas/` (el de 390 se miró a ojo: franja azul «Sin el juicio de la IA…», 2 de 3 nacionales, 2 de 3 internacionales y la 4/5 abierta) | sí |
+| C9 | `git ls-files datos` | nada | sí |
+| C10 | `git add -A` y `git diff --cached --stat f20daa3` | 21 archivos, solo los de la lista (ver el renglón de abajo) | sí |
+| C11 | Hora del encabezado | `TZ=America/Argentina/Buenos_Aires date` dio «Fri Oct  9 22:30:54 -03 2026» justo antes de escribir; el encabezado dice 22:30 | sí |
 
-## Qué decidí por mi cuenta
+C10: `git diff --cached --stat f20daa3` da 21 archivos y 1.337 líneas agregadas, y son exactamente los de la lista de la carta: `config/reglas.json`, `src/provisorio.js`, `src/entrega.js`, `pagina/index.html`, `pagina/lista.json`, `scripts/vuelta.js`, `scripts/medir.js`, `scripts/probar-pagina.js`, `package.json`, los 4 tests (`provisorio`, `entrega`, `vuelta`, `medir`), `README.md`, `CLAUDE.md`, `buzon/pendientes.md`, la carta, este reporte y las 3 capturas. Ningún otro. Cumple.
 
-1. **Guardé la carta con lo que va entre «DESDE ACÁ» y «HASTA ACÁ»** de lo que me pegó Alejo, sin esas dos líneas ni la frase «Leé buzon/LEEME_CLAUDECODE.md…» de arriba. Es el texto de Cowork, sin cambios (las comillas `~~~~` de los bloques también quedaron).
-2. **Los 3 renglones de 1a y el de «Hecho» los inserté con un script, no a mano**, para que queden exactos y cada uno empiece con dos espacios (1a) o con `- [x]` (Hecho). Verifiqué después con C1 a C5 y mirando los renglones vecinos.
-3. **Dejé una línea vacía entre el párrafo nuevo de `CLAUDE.md` y el título siguiente**, igual que entre los otros párrafos de esa sección.
+## Lo medido (6b)
+
+**1. Las 2 vueltas, el resumen de pantalla tal cual.** Antes de la primera, `datos/notas.json` tenía **1.277 notas** (las del 04-10): la primera vuelta borró 1.139 por tener más de 48 h y dejó 973.
+
+```
+VUELTA · 9/10/26 22:19 (hora de Argentina)
+Feeds: 19 OK · 0 caídos
+Notas: 1065 leídas · 1048 nuevas · 973 acumuladas
+Hechos según grupos: 1: 745 · 2: 47 · 3: 7 · 4: 2 · 5+: 4
+Confirmados: 2 nacionales + 2 internacionales
+4/5 (les falta 1 medio): 0 nacionales + 1 internacionales
+Lista: 2 nacionales + 2 internacionales
+Escribí: datos/pagina/lista.json
+Código de salida: 0
+```
+
+```
+VUELTA · 9/10/26 22:30 (hora de Argentina)
+Feeds: 19 OK · 0 caídos
+Notas: 1067 leídas · 105 nuevas · 986 acumuladas
+Hechos según grupos: 1: 754 · 2: 46 · 3: 8 · 4: 2 · 5+: 4
+Confirmados: 2 nacionales + 2 internacionales
+4/5 (les falta 1 medio): 0 nacionales + 1 internacionales
+Lista: 2 nacionales + 2 internacionales
+Escribí: datos/pagina/lista.json
+Código de salida: 0
+```
+
+**2. La tabla de `npm run medir`, tal cual.**
+
+```
+DÍA 2026-10-09 · 2 vueltas · cada celda es nacionales / internacionales
+
+Corte                   Vueltas  Confirmados  4/5 sin firma  4/5 con firma  Vía B
+──────────────────────  ───────  ───────────  ─────────────  ─────────────  ─────
+20-24                         2        2 / 2          0 / 1          0 / 0  0 / 0
+Día entero (distintos)        2        2 / 2          0 / 1          0 / 0  0 / 0
+
+Feeds caídos
+  (ninguno)
+Vueltas sin ningún feed: 0
+```
+
+**3. Los `confirmados` de la segunda vuelta, para revisar a ojo la regla del paso 1.**
+
+| Título | Grupos | Bloque provisorio | Parecen internacionales / total | ¿La regla acertó? |
+|---|---|---|---|---|
+| Quién es Navi Pillay, la sudafricana que ganó el Nobel de la Paz 2026 | 7 | **nacional** | 3 / 9 | **No**: es internacional |
+| Un terremoto de magnitud 7,6 sacudió Panamá y hay alerta de tsunami | 12 | internacional | 12 / 19 | sí |
+| Trump afirma que Rusia acordó suministrar diésel al mercado mundial tras hablar con Putin | 8 | internacional | 7 / 8 | sí |
+| Del gol de Enner Valencia a la lesión de Paredes: los mejores memes y reacciones del partido… | 5 | nacional | 0 / 7 | sí (deportes; 7 notas, todas de medios argentinos) |
+
+La 4/5 de esa vuelta: «Emiratos afirma que el copiloto de un vuelo de Flydubai planeaba estrellarlo contra el aeropuerto…» (4 grupos, 3 / 4 parecen internacionales → internacional).
+
+**4. Las 25 secciones más frecuentes en `datos/notas.json`** (986 notas, 108 secciones distintas; ← es de `seccionesInternacionales`).
+
+| # | Sección | Notas | # | Sección | Notas |
+|---|---|---|---|---|---|
+| 1 | nota | 124 | 14 | policiales | 20 |
+| 2 | noticias | 51 | 15 | cultura | 18 |
+| 3 | deportes | 50 | 16 | espectaculos | 18 |
+| 4 | es | 45 | 17 | lifestyle | 18 |
+| 5 | economia | 44 | 18 | world ← | 17 |
+| 6 | politica | 42 | 19 | internacional ← | 15 |
+| 7 | sociedad | 41 | 20 | la-ciudad | 14 |
+| 8 | mundo ← | 36 | 21 | show | 14 |
+| 9 | (vacía) | 28 | 22 | estados-unidos | 14 |
+| 10 | espana | 23 | 23 | news | 13 |
+| 11 | america ← | 22 | 24 | opinion | 11 |
+| 12 | informacion-gral | 21 | 25 | informacion-general | 11 |
+| 13 | ovacion | 20 |  |  |  |
+
+(Hay otras secciones con 10 o menos notas. Los empates están en el orden en que los dio el comando.)
+
+**5. `duracionMs` y tamaños.** Primera vuelta 3.244 ms, segunda 3.473 ms. `datos/notas.json`: 604 KB (986 notas). `datos/pagina/lista.json`: 16 KB.
+
+**6. `npm run probar-pagina`:** 68 comprobaciones (eran 66), 0 mal.
+
+## Qué decidí por mi cuenta (para que otro lo revise)
+
+| # | Qué | Por qué |
+|---|---|---|
+| 1 | `vuelta()` acepta además de `carpeta`, `ahora` y `fetch` las opciones `sinLeer`, `feeds`, `portales`, `reglas` y `firmas`, con `config/` por defecto. | Los tests usan feeds inventados y el comando usa `--sin-leer`. |
+| 2 | `--sin-leer` sin `notas.json` corta con `ErrorDeUso` (como `scripts/leer.js`), antes de tomar el candado; no crea ninguna carpeta. | La carta no decía qué hacer sin archivo; es lo más conservador. |
+| 3 | `--sin-leer` también respeta el candado (porque rehace `pagina/lista.json`). | Dos vueltas no deberían escribir la misma carpeta a la vez. |
+| 4 | El código 2 es «ningún feed con estado `ok`»: un feed `vacio` cuenta como caído. | Se corresponde con `feeds.mal` de la línea de medición. |
+| 5 | En `medir`, `viaB` toma el bloque de la última vuelta en que el hecho salió como confirmado; «feeds caídos» y «vueltas sin ningún feed» se calculan por día (no sobre todo el archivo). | La carta lo dejaba abierto. |
+| 6 | Un renglón roto de `vueltas.jsonl` corta `medir` con un mensaje que dice el número de renglón (no se saltea). | Un renglón roto cambia los números sin que nadie se entere. |
+| 7 | `--solo-capturas` sale con código 2 si a la carpeta le falta algún archivo, y no siembra estado en el navegador: las capturas muestran la lista como la ve alguien que entra por primera vez («Nueva» en todo). | La carta no pedía el estado de siempre (usa ids del día de ejemplo). |
+| 8 | `pagina/lista.json` quedó con la hora (UTC) de cuando corrí `npm run pagina` en el paso 2: `2026-10-10T01:17:28Z`. | Es solo `generadaEn`; cada `npm run pagina` la cambia. |
+| 9 | En el README corregí el número de `npm test` a 231 (decía 185). | Lo pedía la carta. |
+
+## Para Cowork (marcado: pide una decisión de diseño)
+
+1. **La regla del bloque provisorio falla en una noticia internacional con medios argentinos** (Nobel de la Paz a Navi Pillay: 3 de 9 notas «parecen» internacionales, sale como nacional). Los medios argentinos la ponen en `sociedad`, `nota`, `noticias`, `informacion-general` y `es`, que no dicen nada. En las otras dos internacionales la regla acertó porque hay muchas notas de BBC, DW, France 24 y El País. Con la lista real no se puede arreglar sin la IA (etapa 2); si se quiere un parche mientras tanto, las secciones `espana`, `estados-unidos` y `us` (23, 14 y varias) son candidatas para `seccionesInternacionales`. Valor por defecto: no se toca nada.
+2. **Las secciones más frecuentes son ruido**: `nota` (124), `noticias` (51) y `es` (45) son lo más común y no dicen de qué es la nota (vienen de la ruta de la URL, o de la primera categoría del feed).
+3. **La medición real todavía no existe**: 2 vueltas seguidas dan lo mismo (4 confirmadas + 1 4/5). Para responder «cuántas noticias da la regla de 5 en un día real» hace falta `npm run vuelta -- --cada 30` un día entero en una máquina que no se apague.
 
 ## Qué quedó pendiente y para quién
 
-- **Para Alejo:** compartirle a Don Julio la página de las preguntas (es privada de Alejo; el link está en `buzon/pendientes.md`, ítem «Capa 4»). No la abrí ni escribí en ella.
-- **Para Cowork:** cuando Don Julio conteste (en la página o por WhatsApp), leer las respuestas y escribir la carta de la capa 4.
-- Lo demás sigue como en el reporte `c`. «Cowork → Claude Code» sigue en «Nada pendiente por ahora».
+| Para | Qué |
+|---|---|
+| Alejo con Don Julio | Dónde corre cada 30 minutos (preguntas 1 y 2). Es lo único que frena la medición de un día real. |
+| Cowork | Revisar este reporte y la regla del bloque provisorio (punto 1 de arriba); escribir la próxima carta. |
+| Claude Code | Nada hasta la próxima carta. |
 
 ============================================================
 FIN DEL PAQUETE
