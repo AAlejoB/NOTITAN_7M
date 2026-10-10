@@ -36,10 +36,12 @@ npm run vuelta # una vuelta completa sin IA: lee los feeds, acumula, arma la lis
                #   --sin-leer           rehace la lista con lo ya guardado, sin salir a internet
                #   --carpeta datos      dónde vive todo lo real (no se sube al repo)
 npm run medir  # resume datos/vueltas.jsonl por día y por corte de 4 horas: confirmadas y 4/5, por bloque (--dia AAAA-MM-DD)
+npm run ver    # sirve datos/pagina/ en http://127.0.0.1:7000/ para ver la lista real en esa compu; --carpeta y --puerto
 npm run paquete # rearma buzon/paquetes/PEGAR_COWORK.md
 ```
 
 Requiere Node 20 o más. No tiene dependencias.
+Para correr el día de medición en una compu con Windows: [`docs/CORRER_EN_MI_COMPU.md`](docs/CORRER_EN_MI_COMPU.md).
 
 ## Cómo funciona
 
