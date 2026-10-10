@@ -130,3 +130,11 @@ test('pagina/lista.json (el que se commitea): es de ejemplo y tiene la forma que
     }
   }
 });
+
+test('sinIA es false si no se pide y true si se pide; la lista que se commitea (pagina/lista.json) tiene sinIA false', () => {
+  const ctx = { ahora: AHORA, portales, reglas };
+  assert.equal(armarEntrega(decididoVacio(), ctx).sinIA, false);
+  assert.equal(armarEntrega(decididoVacio(), { ...ctx, sinIA: true }).sinIA, true);
+  const lista = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'pagina', 'lista.json'), 'utf8'));
+  assert.equal(lista.sinIA, false);
+});

@@ -51,6 +51,7 @@
 
   .franja { margin: 12px 0 0; padding: 8px 12px; border-radius: 10px; font-size: 14px; }
   .franja.ejemplo { background: var(--azul-fondo); color: var(--azul); }
+  .franja.sinia { background: var(--azul-fondo); color: var(--azul); }
   .franja.vieja { background: var(--ambar-fondo); color: var(--ambar); border: 1px solid var(--ambar-borde); }
   .franja.error { background: var(--ambar-fondo); color: var(--ambar); border: 1px solid var(--ambar-borde); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
@@ -259,6 +260,7 @@
     var franjas = $('franjas');
     franjas.textContent = '';
     if (lista.ejemplo) franjas.appendChild(h('p', { clase: 'franja ejemplo', texto: 'Datos de ejemplo, inventados' }));
+    if (lista.sinIA) franjas.appendChild(h('p', { clase: 'franja sinia', texto: 'Sin el juicio de la IA: el bloque de cada noticia es provisorio' }));
     if (cuando.vieja) franjas.appendChild(h('p', { clase: 'franja vieja', texto: 'No se actualiza desde las ' + L.horaAR(lista.generadaEn) }));
 
     var elegidas = orden.filter(function (t) { return L.estaTildada(t, tildadas); });

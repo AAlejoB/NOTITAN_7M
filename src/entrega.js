@@ -36,7 +36,7 @@ function tarjeta(salida, portales) {
 }
 
 // decidido = lo que devuelve decidir(). `ahora` entra por parámetro (ISO).
-function armarEntrega(decidido, { ahora, portales, reglas, ejemplo = false }) {
+function armarEntrega(decidido, { ahora, portales, reglas, ejemplo = false, sinIA = false }) {
   const listas = { nacional: decidido.nacionales, internacional: decidido.internacionales };
   const bloques = {};
   for (const b of BLOQUES) {
@@ -51,6 +51,7 @@ function armarEntrega(decidido, { ahora, portales, reglas, ejemplo = false }) {
   return {
     generadaEn: ahora,
     ejemplo: Boolean(ejemplo),
+    sinIA: Boolean(sinIA),
     cupoMinimo: reglas.cupoMinimo,
     minGrupos: reglas.minGrupos,
     bloques,

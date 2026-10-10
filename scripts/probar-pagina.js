@@ -209,6 +209,15 @@ async function comprobar(navegador, URL, lista) {
   ok((await p.textContent('#actualizada')) === 'Actualizada hace 2 h 5 min', 'una lista de hace 2 h 5 min dice «' + (await p.textContent('#actualizada')) + '»');
   ok(/^No se actualiza desde las \d\d:\d\d$/.test(await p.locator('.franja.vieja').textContent()), 'el aviso ámbar dice «' + (await p.locator('.franja.vieja').textContent()) + '»');
   ok((await p.locator('.franja.ejemplo').count()) === 0, 'sin la franja de ejemplo cuando ejemplo es false');
+  ok((await p.locator('.franja.sinia').count()) === 0, 'sin la franja «sin IA» cuando la lista no trae sinIA');
+  await ctx.close();
+
+  ctx = await nuevoCtx();
+  p = await ctx.newPage();
+  await p.route('**/lista.json', r => r.fulfill({ json: { ...lista, ejemplo: false, sinIA: true } }));
+  await p.goto(URL);
+  await p.waitForSelector('.noticia');
+  ok((await p.locator('.franja.sinia').count()) === 1 && (await p.locator('.franja.sinia').textContent()) === 'Sin el juicio de la IA: el bloque de cada noticia es provisorio', 'con sinIA: true aparece la franja «Sin el juicio de la IA: el bloque de cada noticia es provisorio»');
   await ctx.close();
 
   ctx = await nuevoCtx();
