@@ -10,6 +10,7 @@
     "leer": "node scripts/leer.js",
     "pagina": "node scripts/armar-pagina.js",
     "paquete": "node scripts/armar-paquete.js",
+    "vuelta": "node scripts/vuelta.js",
     "probar-pagina": "node scripts/probar-pagina.js"
   },
   "engines": { "node": ">=20" }
