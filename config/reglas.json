@@ -39,5 +39,8 @@
     "etiquetasExcluidas": [
       "opinion", "columna", "editorial", "patrocinado", "contenido de marca", "publinota"
     ]
+  },
+  "provisorio": {
+    "seccionesInternacionales": ["mundo", "el-mundo", "el mundo", "internacional", "internacionales", "america", "world", "global"]
   }
 }
