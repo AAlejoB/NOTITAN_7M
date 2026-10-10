@@ -184,7 +184,9 @@
   /* ───────────── dibujar ───────────── */
 
   function links(t) {
-    return h('p', { clase: 'links' }, t.links.map(function (l) {
+    var vistos = {};
+    var unaPorMedio = t.links.filter(function (l) { if (vistos[l.medio]) return false; vistos[l.medio] = true; return true; });
+    return h('p', { clase: 'links' }, unaPorMedio.map(function (l) {
       return h('a', { href: l.url, target: '_blank', rel: 'noopener noreferrer', texto: l.medio });
     }));
   }

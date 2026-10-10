@@ -412,8 +412,35 @@ async function comprobar(navegador, URL, lista) {
   ok((await opacidad(s2.locator('.hora-llevada'))) === 1, 'S2 · «Te la llevaste a las…» al 1');
   await ctx.close();
 
-  /* ── 7 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
-  console.log('\n# 7 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
+  /* ── 7 · cada medio una sola vez en la fila de links (E1, E3) ── */
+  console.log('\n# 7 · cada medio una sola vez en la fila de links');
+  const repetida = JSON.parse(JSON.stringify(lista));
+  const primera = repetida.bloques.nacional.noticias[0];
+  const quinta = repetida.bloques.nacional.aMano[0];
+  primera.links = [{ medio: 'Perfil', url: 'https://www.perfil.com/a' }, { medio: 'Perfil', url: 'https://www.perfil.com/b' }, { medio: 'BBC', url: 'https://www.bbc.com/c' }, { medio: 'Perfil', url: 'https://www.perfil.com/d' }];
+  quinta.links = [{ medio: 'TN', url: 'https://tn.com.ar/a' }, { medio: 'TN', url: 'https://tn.com.ar/b' }, { medio: 'Infobae', url: 'https://www.infobae.com/c' }];
+  ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
+  p = await ctx.newPage();
+  vigilar(p);
+  await p.route('**/lista.json', r => r.fulfill({ json: repetida }));
+  await p.goto(URL);
+  await p.waitForSelector('.noticia');
+  const cartaPerfil = p.locator('.bloque').first().locator('article.noticia', { has: p.locator('a[href="https://www.perfil.com/a"]') });
+  const enlaces = cartaPerfil.locator('.links a');
+  ok((await enlaces.count()) === 2, 'E1 · la noticia con Perfil tres veces y BBC dibuja 2 links');
+  ok(JSON.stringify(await enlaces.allTextContents()) === '["Perfil","BBC"]', 'E1 · los textos, en orden, son Perfil y BBC');
+  ok((await enlaces.first().getAttribute('href')) === 'https://www.perfil.com/a', 'E1 · el link «Perfil» lleva a la primera nota de Perfil');
+  await cartaPerfil.locator('input[type=checkbox]').check();
+  await p.click('#copiar');
+  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
+  const pegado = await p.evaluate(() => navigator.clipboard.readText());
+  ok(['Perfil: https://www.perfil.com/a', 'Perfil: https://www.perfil.com/b', 'BBC: https://www.bbc.com/c', 'Perfil: https://www.perfil.com/d'].every(r => pegado.split('\n').includes(r)), 'lo que se copia trae las 4 urls, una por renglón, aunque en pantalla se vean 2');
+  const enlacesMano = p.locator('.amano', { has: p.locator('a[href="https://tn.com.ar/a"]') }).locator('.links a');
+  ok((await enlacesMano.count()) === 2 && JSON.stringify(await enlacesMano.allTextContents()) === '["TN","Infobae"]', 'E3 · la 4/5 con TN, TN e Infobae dibuja 2 links: TN e Infobae');
+  await ctx.close();
+
+  /* ── 8 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
+  console.log('\n# 8 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
   const carpeta = CARPETA_CAPTURAS;
   for (const c of CAPTURAS) {
     ctx = await nuevoCtx({ colorScheme: c.esquema, viewport: { width: c.ancho, height: 900 } });
