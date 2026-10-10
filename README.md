@@ -18,7 +18,7 @@ Hecho: leer los portales (feeds probados y lector), juntar lo leído en un archi
 ## Cómo se prueba
 
 ```
-npm test       # 185 tests + 1 pendiente a propósito (sinónimos)
+npm test       # 231 tests + 1 pendiente a propósito (sinónimos)
 npm run feeds  # prueba por internet cada feed de config/feeds.json
 npm run leer    # lee los 19 feeds y dibuja el embudo con datos reales (sin la IA)
                #   --json notas.json    guarda las notas leídas
@@ -31,6 +31,11 @@ npm run leer    # lee los 19 feeds y dibuja el embudo con datos reales (sin la I
                #   --sin-notas-de-servicio   para esa corrida, el criterio 1 no usa los moldes de notas de servicio (para medir antes y después)
 npm run demo   # corre un día inventado y dibuja el embudo
 npm run pagina # arma pagina/lista.json con el día inventado; la página es pagina/index.html (servir la carpeta pagina/ con cualquier servidor estático)
+npm run vuelta # una vuelta completa sin IA: lee los feeds, acumula, arma la lista real en datos/pagina/ y anota la vuelta en datos/vueltas.jsonl
+               #   --cada 30            repite cada 30 minutos (Ctrl+C corta)
+               #   --sin-leer           rehace la lista con lo ya guardado, sin salir a internet
+               #   --carpeta datos      dónde vive todo lo real (no se sube al repo)
+npm run medir  # resume datos/vueltas.jsonl por día y por corte de 4 horas: confirmadas y 4/5, por bloque (--dia AAAA-MM-DD)
 npm run paquete # rearma buzon/paquetes/PEGAR_COWORK.md
 ```
 
