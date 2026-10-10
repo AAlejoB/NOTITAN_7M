@@ -11,6 +11,7 @@
     "pagina": "node scripts/armar-pagina.js",
     "paquete": "node scripts/armar-paquete.js",
     "vuelta": "node scripts/vuelta.js",
+    "medir": "node scripts/medir.js",
     "probar-pagina": "node scripts/probar-pagina.js"
   },
   "engines": { "node": ">=20" }
