@@ -7,6 +7,8 @@
  * (pagina-<nombre>-390.png, -1200.png y -390-oscuro.png). Necesita Playwright (npm i --no-save playwright) y un Chromium.
  * Sirve una COPIA de pagina/ en una carpeta temporal: nunca escribe pagina/lista.json ni usa la red de afuera.
  * Una línea por comprobación (bien / MAL) y al final «N bien, M mal»; código 0 si no hay MAL, 1 si hay, 2 si falta Playwright.
+ * Con `-- --solo-capturas <carpeta> --capturas <nombre>` no corre las comprobaciones: sirve esa carpeta tal cual
+ * (index.html, logica.js y lista.json, por ejemplo datos/pagina con la lista real), saca las mismas 3 capturas y termina. No escribe nada en la carpeta.
  */
 const fs = require('fs');
 const os = require('os');
@@ -26,6 +28,16 @@ const CLAVE = '7m-marcas-v1';
 const arg = process.argv.indexOf('--capturas');
 const NOMBRE_CAPTURAS = arg >= 0 ? process.argv[arg + 1] : null;
 if (arg >= 0 && (!NOMBRE_CAPTURAS || NOMBRE_CAPTURAS.startsWith('--'))) {
+  console.error('Falta el nombre: --capturas <nombre>');
+  process.exit(2);
+}
+const argSolo = process.argv.indexOf('--solo-capturas');
+const CARPETA_SOLO = argSolo >= 0 ? process.argv[argSolo + 1] : null;
+if (argSolo >= 0 && (!CARPETA_SOLO || CARPETA_SOLO.startsWith('--'))) {
+  console.error('Falta la carpeta: --solo-capturas <carpeta>');
+  process.exit(2);
+}
+if (argSolo >= 0 && !NOMBRE_CAPTURAS) {
   console.error('Falta el nombre: --capturas <nombre>');
   process.exit(2);
 }
@@ -112,8 +124,43 @@ const estadoCaptura = lista => estadoDe(lista, { recien: ['Paro general'], sinVe
 
 /* ───────────── las comprobaciones ───────────── */
 
+// Las 3 capturas de siempre; los nombres son pagina-<nombre>-<sufijo>.png.
+const CAPTURAS = [
+  { sufijo: '390', ancho: 390, esquema: 'light' },
+  { sufijo: '1200', ancho: 1200, esquema: 'light' },
+  { sufijo: '390-oscuro', ancho: 390, esquema: 'dark' },
+];
+const CARPETA_CAPTURAS = path.join(RAIZ, 'buzon', 'capturas');
+
+// --solo-capturas: abre la página tal cual está en la carpeta (sin estado guardado ni comprobaciones) y saca las 3 capturas.
+async function soloCapturas(navegador, url) {
+  const rutas = [];
+  for (const c of CAPTURAS) {
+    const ctx = await navegador.newContext({ viewport: { width: c.ancho, height: 900 }, locale: 'es-AR', timezoneId: 'America/Argentina/Buenos_Aires', colorScheme: c.esquema });
+    const p = await ctx.newPage();
+    await p.goto(url);
+    await p.waitForSelector('.noticia, .franja.error', { timeout: 10000 });
+    const alto = await p.evaluate(() => document.documentElement.scrollHeight);
+    await p.setViewportSize({ width: c.ancho, height: alto });
+    await p.evaluate(() => window.scrollTo(0, 0));
+    const ruta = path.join(CARPETA_CAPTURAS, `pagina-${NOMBRE_CAPTURAS}-${c.sufijo}.png`);
+    await p.screenshot({ path: ruta });
+    rutas.push(path.relative(RAIZ, ruta));
+    await ctx.close();
+  }
+  return rutas;
+}
+
 async function main() {
-  const { dir, lista } = armarCopia();
+  let dir;
+  let lista = null;
+  if (CARPETA_SOLO) {
+    dir = path.resolve(CARPETA_SOLO);
+    const faltan = ['index.html', 'logica.js', 'lista.json'].filter(n => !fs.existsSync(path.join(dir, n)));
+    if (faltan.length) { console.error(`En ${CARPETA_SOLO} faltan: ${faltan.join(', ')}`); process.exit(2); }
+  } else {
+    ({ dir, lista } = armarCopia());
+  }
   const { servidor, url } = await servir(dir);
   let navegador;
   try {
@@ -126,11 +173,16 @@ async function main() {
       if (!exe || !fs.existsSync(exe)) throw new Error('No se pudo abrir Chromium (ni el de Playwright ni uno en ' + base + ')');
       navegador = await chromium.launch({ executablePath: exe, args: ['--no-sandbox'] });
     }
-    await comprobar(navegador, url, lista);
+    if (CARPETA_SOLO) {
+      fs.mkdirSync(CARPETA_CAPTURAS, { recursive: true });
+      (await soloCapturas(navegador, url)).forEach(r => console.log(r));
+    } else {
+      await comprobar(navegador, url, lista);
+    }
   } finally {
     if (navegador) await navegador.close();
     servidor.close();
-    fs.rmSync(dir, { recursive: true, force: true });
+    if (!CARPETA_SOLO) fs.rmSync(dir, { recursive: true, force: true });
   }
 }
 
@@ -362,13 +414,8 @@ async function comprobar(navegador, URL, lista) {
 
   /* ── 7 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
   console.log('\n# 7 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
-  const carpeta = path.join(RAIZ, 'buzon', 'capturas');
-  const capturas = [
-    { sufijo: '390', ancho: 390, esquema: 'light' },
-    { sufijo: '1200', ancho: 1200, esquema: 'light' },
-    { sufijo: '390-oscuro', ancho: 390, esquema: 'dark' },
-  ];
-  for (const c of capturas) {
+  const carpeta = CARPETA_CAPTURAS;
+  for (const c of CAPTURAS) {
     ctx = await nuevoCtx({ colorScheme: c.esquema, viewport: { width: c.ancho, height: 900 } });
     p = await abrir(ctx, { estado: estadoCaptura(lista) });
     const etiqueta = `(${c.sufijo})`;
@@ -393,6 +440,7 @@ async function comprobar(navegador, URL, lista) {
 
 main()
   .then(() => {
+    if (CARPETA_SOLO) process.exit(0);
     console.log(`\n${bien} bien, ${mal} mal`);
     process.exit(mal ? 1 : 0);
   })
