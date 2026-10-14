@@ -51,6 +51,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
 - [ ] Fotos y armado de publicaciones (hoy se hace a mano en Canva). Las fotos de los portales tienen derechos: antes de automatizar hay que definir de dónde salen las imágenes.
+- [ ] **La visión a largo plazo de Alejo (contada el 14-10-2026, sin diseñar todavía):** piezas que se enchufan una detrás de otra, cada una con su tarea, y todas toman de entrada la lista de noticias confirmadas (`lista.json`). 1) La de hoy: noticias chequeadas a mano para quien publica. 2) Armado para publicar: título con gancho, resumen chiquito, foto bien centrada y personalizada, miniaturas para Facebook, YouTube, un portal o un canal de WhatsApp. 3) Voz: leer la noticia con una voz generada, por una API. Alejo quiere ir paso a paso: primero que la pieza 1 ande sola. Antes de la 2 hay que resolver los derechos de las fotos (ítem de arriba); la 3 suma un costo de API.
 - [ ] Mejorar el agrupador para notas en otro idioma (hoy compara palabras).
 - [ ] Que las personas de un mismo canal vean lo que se llevó cada una (hoy cada una ve lo suyo; hace falta saber quién es quién).
 - [ ] Un aviso de «hay nuevas».
