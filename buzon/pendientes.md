@@ -1,5 +1,65 @@
 # Pendientes
 
+# Cowork → pendientes · 14-10-2026 · 20:15 (hora de Argentina) · charla de diseño
+
+No es una carta de cambios. La medición corre en la compu de Alejo desde el 14/10 a las 14:15 y se corta el 16/10 después de las 00:30. Hasta entonces no se toca la página ni se escribe carta para Claude Code. Esto se guarda en buzon/pendientes.md tal cual, para que después de la medición se convierta en la carta de la página nueva.
+
+Dibujo de todo esto (artifact privado de Alejo, él lo tiene): https://claude.ai/artifact/477KpBW4ZuXPAPuR8eDv6G
+
+## Decidió Alejo (14-10-2026)
+
+1. Flujo por noticia: primero mirar, después decidir con tres botones (me interesa / no por hoy diciendo el motivo / archivar), y recién al final copiar, solo lo que le interesa. Copiar deja de ser el paso principal.
+2. La página es la Opción C: cuatro pestañas con número (Por decidir, Me interesa, Archivo, No por hoy). En Por decidir hay una sola tarjeta abierta, siempre arriba, en un lugar fijo (pivote), con sello de medios, hora, título, bajada, un link por medio y los tres botones grandes. Las demás son renglones de un título con la cantidad de medios. Al decidir la abierta, se va a su pestaña y sube sola la siguiente; tocar un renglón lo sube al pivote. Los bloques siguen como títulos en la lista y en el avance («1 de 5 · Nacionales»). La pastilla «Nueva» desaparece: lo nuevo es lo que está en Por decidir.
+3. Combinar dos noticias: la página combina, pero solo noticias del mismo tema (nunca cualquier cosa con cualquier cosa). La página propone y la persona decide: acepta, corrige el texto o las deja separadas. La última palabra es siempre de quien publica.
+4. Temas: el motor NO descarta ninguna noticia por su tema; si está verificada, pasó. Esto cambia el valor por defecto de hoy en ia de config/reglas.json (farandula: no dejaba afuera la farándula): la IA no bloquea por tema. Los temas son un filtro en la página, con botones que se prenden y apagan; cómo arranca cada botón se fija por cliente en config/; la persona los cambia en la página cuando quiere. Lo apagado se oculta pero se cuenta («2 ocultas por tema · ver») y nunca se pierde. Sin buscador por ahora.
+5. Anillos: la noticia vive en anillos, del más chico al más grande, y son 5: Local (ciudad) → Provincial (Chubut) → Región (Patagonia) → Nacional → Internacional. «Región» es la palabra. Cada anillo es un bloque con su propio número de medios para confirmar, su propia lista de portales que cuentan y su propio cupo. El «5» de hoy es el número del anillo nacional y del internacional, no una regla general. La Región va prendida desde el principio, no después. Portales locales a sumar: Comodoro Rivadavia, Caleta Olivia, Chubut.
+6. Región, qué cuenta y cuánto hace falta: en la lista blanca entran solo 2 portales por provincia de la región (Neuquén, Río Negro, Santa Cruz, Tierra del Fuego) más los que ya tenga Chubut. Una noticia es regional cuando la cubren 2 medios de 2 provincias distintas; Chubut cuenta como una provincia más (un portal de Trelew y uno de Neuquén la hacen regional; tres portales de Chubut no). Cupo 3. La etiqueta dice «Confirmada por 2 medios de 2 provincias».
+7. El apartado humano «Falta una noticia»: abajo de Por decidir hay un renglón para escribir la noticia que la persona vio en otro lado y acá no está. El sistema contesta siempre, con su motivo. Es el campo «qué noticia importante vi en otro lado y acá no estaba» de la planilla de medición, puesto en la página.
+8. El norte del proyecto (no cambia nada ahora): tocar el botón, ver la noticia ya verificada, y que el paso siguiente sea título para Instagram, título para Facebook y dos o tres fotos para elegir. La página C es el primer escalón de ese agente: hoy decide qué noticia; el armado viene después, sobre lo ya elegido.
+
+## Valores por defecto de Cowork (no son decisiones de Alejo; se cambian)
+
+- Los motivos de «No por hoy» son seis chips fijos, sacados de la planilla de medición de Alejo: no es noticia · repetida · va en el otro bloque · vieja · no me interesa el tema · otro (abre un renglón para escribir). Un toque en un motivo alcanza, sin botón «Listo». Los motivos aparecen adentro de la misma tarjeta, sin ventana aparte, con «Volver». Al decidir aparece unos segundos «Mandada a No por hoy · Deshacer».
+- Las decisiones (me interesa, no por hoy con su motivo, archivada) viven en el navegador de cada persona, como las marcas de hoy (localStorage), y se borran solas cuando la noticia se cae de la lista (24 h).
+- La 4/5 («en observación») pasa por los mismos tres botones; «Me interesa» ahí equivale a «la elijo a mano» y sale con el sello naranja de hoy. Desaparece el menú «Llevármela igual».
+- Pestaña Me interesa: lo que se va a llevar, con «Sacar» en cada una. «Copiar» se lleva todo lo de esa pestaña, sin tildes. Lo copiado baja a «Llevadas hoy», apagado y con la hora, como hoy.
+- Pestaña Archivo: tarjetas cortas con la hora en que se archivó y dos botones: «Me interesa» (va directo a llevar) y «Volver» (a Por decidir).
+- Pestaña No por hoy: renglones con el motivo en una pastilla gris y «Volver».
+- Combinar: cuando llega una noticia parecida a una archivada, la abierta muestra el aviso «Parecida a una que archivaste a las HH:MM: «título»» y un botón más, «Combinar con la archivada». La propuesta combinada la escribe la IA: un título y una bajada con las dos, y los links de ambas; abajo dice de qué dos noticias sale. Tres botones: «Me interesa así», «Corregir el texto», «Dejarlas separadas». Mientras no haya IA (etapa 2), el botón dice «Llevar juntas» y las dos van a Me interesa tal cual, una debajo de la otra. «Parecida» se detecta con lo que ya hay (paresParaUnir en src/ia.js: persona o lugar en común), sin llamar a ningún modelo.
+- Temas: seis, cada noticia lleva uno solo como pastilla gris: Política · Economía · Sociedad · Policiales · Deportes · Espectáculos. Internacional no es un tema, es el bloque. Mientras no haya IA, el tema sale de la sección del portal donde salió la nota (seccion, que el lector ya guarda); si ninguna nota del hecho trae sección, va «Sin tema» y se muestra siempre. Con la IA, lo pone ella (clasificarHecho).
+- Anillos, números: Local cuenta solo los portales locales de la lista, 2 medios para confirmar, cupo 3. Chubut cuenta los provinciales y los locales, 3 para confirmar, cupo 3. Región como dice el punto 6. Nacional e Internacional como hoy (5 y 7). La etiqueta de los anillos chicos dice siempre de dónde son los medios («Confirmada por 2 medios locales», «Confirmada por 2 medios de 2 provincias»), nunca «Confirmada» a secas; una 1/2 local es la «en observación» de ese anillo. El anillo de una noticia se decide por lugar (donde pasó), como ya está decidido para nacional/internacional; sin IA, por el portal y su sección, como hoy el bloque provisorio.
+- Una noticia que cumple en dos anillos a la vez (por ejemplo, 3 portales de Chubut y 1 de Neuquén) va al anillo más chico donde pasó (Chubut).
+- Orden de construcción de los anillos: primero los feeds de Comodoro y Chubut, después los de las otras provincias. La Región existe en config/ desde el primer día y aparece en la página en cuanto tenga noticias (un anillo sin noticias no se muestra).
+- «Falta una noticia»: se busca por palabras del título contra todo lo acumulado de 48 h (verificado, en observación, descartado con su motivo, caído por viejo). Cuatro respuestas: «la tengo pero no llegó» (muestra la noticia con sus medios y deja llevarla a mano), «la saqué» (con el motivo del criterio 1 y «ver igual»), «vieja» (se cayó por las 24 h) y «no la vi en ningún portal de la lista». Las «no la vi» quedan anotadas con la hora: es la lista de lo que se escapó, para revisar portales y moldes. Para que la página pueda contestar, lista.json tiene que traer también lo descartado (título, motivo, medios); hoy trae solo lo que entra.
+- En el encabezado, la hora de la última vuelta en vez de «Actualizada recién».
+- El pivote es un lugar fijo arriba (no un acordeón que se expande donde está la fila).
+
+## Abierto (sin resolver, con valor por defecto mientras tanto)
+
+- Dónde viajan los motivos de «No por hoy» y las respuestas «no la vi» para que el sistema aprenda de ellos. Hoy quedarían en el navegador de cada persona y nadie los vería. Es capa 4 (lo de Don Julio). Mientras tanto: navegador.
+- Qué portales locales y regionales tienen feed. Candidatos sin verificar: ADNSUR, El Patagónico, Crónica, El Comodorense (Comodoro); La Opinión Austral (Caleta Olivia); Diario Jornada, El Chubut, Rawson Digital (provincia). De Neuquén, Río Negro, Santa Cruz y Tierra del Fuego no hay candidatos todavía. Trabajo para Claude Code después de la medición, con npm run feeds. Después de ver qué traen, moldes de notas de servicio propios de lo local (clima, cortes de luz, horarios), sumados a los 3 que ya hay en el criterio 1.
+- Noticias que tocan dos o más anillos (un hecho de Comodoro que también sale en medios nacionales): cómo se combinan los anillos. Idea de Alejo, sin diseñar.
+- Los números por anillo (2 local, 3 Chubut, 2 de 2 provincias en Región) y los cupos (3) hay que medirlos con feeds reales antes de fijarlos.
+- Cuántas noticias quedan «Sin tema» usando la sección del portal: medirlo sobre lo acumulado en la medición.
+- Colores y bordes redondeados de la página: Alejo tiene una galería de conceptos; se ve después, cuando se diseñe la página nueva. Alejo dijo que lo dibujado «se ve demasiado IA» en colores.
+- Nombre del producto: idea de Alejo del cono de luz de una linterna (el vértice chico que se expande; las secciones cónicas). Candidatos de Cowork: FOCO (el punto de la cónica, la linterna, «poner el foco»), HAZ, VÉRTICE. 7M sigue siendo el nombre hasta que Alejo decida.
+- Pendiente ya existente que esto resuelve en parte: «deportes y espectáculos» (por defecto deportes sí, farándula no) pasa a «el motor no descarta por tema; filtro en la página».
+
+## Lo que dejó la medición hasta ahora (notas de Alejo del 14-10, letras a y b), para cruzar al terminar
+
+- Faltaron: Caputo negociando más financiamiento; PSG 4-2 Manchester City (Champions). Ver si no llegaron a 5 medios o si se partieron en varios hechos.
+- Repetidos: varios obispos hablando de la operación del Papa León XIV (unión de hechos, etapa 4).
+- Nota de servicio que el molde no agarró: horarios del Martín Fierro.
+- Sobran por poco interés: Tucumán y el clima; testimonios de familiares (Roña Castro); bonos y riesgo país (juicio de la IA, etapa 2).
+- De 4 a 5 nuevas por mirada, elegiría entre 0 y 3. Cruzar con npm run medir.
+- «Más noticias al descartar» (bajar de 5 portales): Alejo dijo «por ahora dejalo así», lo habla con Don Julio. La regla de 5 sigue fija.
+
+## Qué viene después
+
+1. Antes de la carta, en el mismo chat de Cowork: Alejo pidió estudiar «el comportamiento de una noticia», qué le pasa desde que sucede hasta que se publica y qué le pasa cuando la toma el agente. Cowork lo dibuja como un tablero interactivo (la noticia es una ficha que avanza por etapas, con un control de tiempo). No es carta ni cambio: es para entendernos.
+2. Al terminar la medición, Alejo manda a Cowork la salida de npm run medir y datos/vueltas.jsonl. Cowork revisa a ojo los bloques por los títulos y cruza con las notas de arriba.
+3. Cowork escribe la carta Cowork_para_ClaudeCode_<fecha>_<letra>.md con la página C (esta charla es su base), en este orden: primero el flujo (pestañas, pivote, tres botones, motivos, archivo, me interesa, copiar, falta una noticia); después los temas como filtro; después los anillos y los portales locales y regionales (que empiezan por probar feeds). Combinar con IA espera a la etapa 2.
+
 ## ▶ PRÓXIMA RONDA
 
 Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
