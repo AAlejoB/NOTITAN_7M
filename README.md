@@ -35,6 +35,7 @@ npm run vuelta # una vuelta completa sin IA: lee los feeds, acumula, arma la lis
                #   --cada 30            repite cada 30 minutos (Ctrl+C corta)
                #   --sin-leer           rehace la lista con lo ya guardado, sin salir a internet
                #   --carpeta datos      dónde vive todo lo real (no se sube al repo)
+               #   --config <carpeta>  corre con los feeds.json, portales.json y reglas.json de esa carpeta (config/comodoro: el bloque local de prueba)
 npm run medir  # resume datos/vueltas.jsonl por día y por corte de 4 horas: confirmadas y 4/5, por bloque (--dia AAAA-MM-DD)
 npm run ver    # sirve datos/pagina/ en http://127.0.0.1:7000/ para ver la lista real en esa compu; --carpeta y --puerto
 npm run paquete # rearma buzon/paquetes/PEGAR_COWORK.md
@@ -62,7 +63,7 @@ La cantidad de noticias por bloque se elige entre 3 y 7 (`cupo`; sin elegir, 7).
 
 - `config/reglas.json`: los números (5 grupos, 24 h, cupo de 3 a 7, tope de 3 por sección y 2 por país, la vía B, `aMano`: `activa` y `faltanMedios` (hoy 1), y `ia`: deportes sí y farándula no, las palabras de desmentido y cuántos desmentidos se muestran) y los filtros de nota informativa. Las expresiones de `titulosExcluidos` y los moldes de `notasDeServicio` (horario de partido, efemérides, resultados de lotería) se aplican sobre el título en minúsculas y sin tildes.
 - `config/firmas.json`: los autores reconocidos de la vía B. **La arma Alejo; hoy está vacía y la vía B no hace nada.** Cada uno puede valer para nacional, internacional o los dos. El mínimo (`minFirmas`, hoy 1), cuántos nombres se muestran (`maxFirmasEnEtiqueta`, hoy 2) y el interruptor están en `viaB` de `config/reglas.json`. Se puede agregar un tope de noticias de segunda página con `maxNoticiasPorBloque`.
-- `config/portales.json`: la lista blanca. **Hoy es provisoria**: los feeds ya se probaron (`config/feeds.json`), pero qué medios entran lo decide Alejo.
+- `config/portales.json`: la lista blanca. **Hoy es provisoria**: los feeds ya se probaron (`config/feeds.json`), pero qué medios entran lo decide Alejo. Un feed con `"formato": "sitemap"` se lee de su sitemap de noticias: título, link, fecha y keywords, sin bajada ni autor.
 
 Los 8 criterios, con ejemplos, están en la página de borrador. Los valores actuales son la propuesta por defecto, no una decisión tomada.
 
