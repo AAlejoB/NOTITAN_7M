@@ -439,6 +439,25 @@ async function comprobar(navegador, URL, lista) {
   ok((await enlacesMano.count()) === 2 && JSON.stringify(await enlacesMano.allTextContents()) === '["TN","Infobae"]', 'E3 · la 4/5 con TN, TN e Infobae dibuja 2 links: TN e Infobae');
   await ctx.close();
 
+  /* ── 7b · una noticia sin bajada (los sitemaps no la traen) ── */
+  console.log('\n# 7b · una noticia sin bajada');
+  const sinBajada = JSON.parse(JSON.stringify(lista));
+  sinBajada.bloques.nacional.noticias[0].bajada = '';
+  ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
+  p = await ctx.newPage();
+  vigilar(p);
+  await p.route('**/lista.json', r => r.fulfill({ json: sinBajada }));
+  await p.goto(URL);
+  await p.waitForSelector('.noticia');
+  const cartaSin = p.locator('.bloque').first().locator('article.noticia', { has: p.locator(`a[href="${sinBajada.bloques.nacional.noticias[0].links[0].url}"]`) });
+  ok((await cartaSin.locator('.bajada.sin').count()) === 1 && (await cartaSin.locator('.bajada.sin').textContent()) === 'Sin bajada: este medio no la publica en su listado.', 'sin bajada: la tarjeta dice «Sin bajada: este medio no la publica en su listado.»');
+  await cartaSin.locator('input[type=checkbox]').check();
+  await p.click('#copiar');
+  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
+  const pegadoSin = await p.evaluate(() => navigator.clipboard.readText());
+  ok(pegadoSin.includes(sinBajada.bloques.nacional.noticias[0].titulo) && !pegadoSin.includes('Sin bajada'), 'sin bajada: lo que se copia no lleva «Sin bajada»');
+  await ctx.close();
+
   /* ── 8 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
   console.log('\n# 8 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
   const carpeta = CARPETA_CAPTURAS;

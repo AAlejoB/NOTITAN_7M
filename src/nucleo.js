@@ -275,7 +275,7 @@ function clasificarHecho(g, { portales, reglas, firmas = [], ahora }) {
   const ficha = {
     id: g.id,
     titulo: base.titulo,
-    bajada: base.bajada || '',
+    bajada: (g.notas.find(n => n.bajada) || {}).bajada || '', // la primera nota que la trae: un sitemap no tiene
     primera: new Date(g.primera).toISOString(),
     gruposIndependientes: verif.cantidad,
     firmasReconocidas: reconocidas.map(f => ({ nombre: f.nombre, ambitos: f.ambitos || BLOQUES })),

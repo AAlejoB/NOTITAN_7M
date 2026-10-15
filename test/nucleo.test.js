@@ -883,3 +883,12 @@ test('día de ejemplo: eligiendo 5 o 3 noticias por bloque', () => {
   assert.deepEqual(ids(tres.nacionales), ['g:N2-1', 'g:N1-1', 'g:E4-1']);
   assert.deepEqual(ids(tres.internacionales), ['g:I6-1', 'g:I1-1', 'g:I4-1']);
 });
+
+test('bajada: sale de la primera nota que la trae (el sitemap no tiene) y el título sigue siendo el de la primera', () => {
+  const pat = nota('p', 'elpatagonico.com', 'El intendente inauguró la planta de agua', { bajada: '' });
+  const adn = nota('a', 'adnsur.com.ar', 'Inauguraron la planta de agua', { bajada: 'El intendente anunció…' });
+  const g = { id: 'h1', notas: [pat, adn], primera: Date.parse(pat.fecha) };
+  const r = N.clasificarHecho(g, { portales, reglas, ahora: AHORA });
+  assert.equal(r.hecho.bajada, 'El intendente anunció…');
+  assert.equal(r.hecho.titulo, 'El intendente inauguró la planta de agua');
+});
