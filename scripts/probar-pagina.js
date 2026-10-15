@@ -259,7 +259,7 @@ async function comprobar(navegador, URL, lista) {
   await p.goto(URL);
   await p.waitForSelector('.noticia');
   ok((await p.textContent('#actualizada')) === 'Actualizada hace 2 h 5 min', 'una lista de hace 2 h 5 min dice «' + (await p.textContent('#actualizada')) + '»');
-  ok(/^No se actualiza desde las \d\d:\d\d$/.test(await p.locator('.franja.vieja').textContent()), 'el aviso ámbar dice «' + (await p.locator('.franja.vieja').textContent()) + '»');
+  ok(/^No se actualiza desde las \d\d:\d\d · contactá al administrador$/.test(await p.locator('.franja.vieja').textContent()), 'el aviso ámbar dice «' + (await p.locator('.franja.vieja').textContent()) + '»');
   ok((await p.locator('.franja.ejemplo').count()) === 0, 'sin la franja de ejemplo cuando ejemplo es false');
   ok((await p.locator('.franja.sinia').count()) === 0, 'sin la franja «sin IA» cuando la lista no trae sinIA');
   await ctx.close();
@@ -458,8 +458,29 @@ async function comprobar(navegador, URL, lista) {
   ok(pegadoSin.includes(sinBajada.bloques.nacional.noticias[0].titulo) && !pegadoSin.includes('Sin bajada'), 'sin bajada: lo que se copia no lleva «Sin bajada»');
   await ctx.close();
 
-  /* ── 8 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
-  console.log('\n# 8 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
+  /* ── 8 · capa 4: «contactá al administrador», las provisorias y el nombre del cliente ── */
+  console.log('\n# 8 · capa 4');
+  const conLista = async (extra, que) => {
+    ctx = await nuevoCtx();
+    p = await ctx.newPage();
+    await p.route('**/lista.json', r => r.fulfill({ json: { ...lista, ejemplo: false, ...extra } }));
+    await p.goto(URL);
+    await p.waitForSelector('.noticia');
+    const r = await que(p);
+    await ctx.close();
+    return r;
+  };
+  const hace = min => new Date(Date.now() - min * 60000).toISOString();
+  const vieja61 = await conLista({ generadaEn: hace(61), paginaViejaMinutos: 60 }, q => q.locator('.franja.vieja').allTextContents());
+  const vieja30 = await conLista({ generadaEn: hace(30), paginaViejaMinutos: 60 }, q => q.locator('.franja.vieja').count());
+  ok(vieja61.length === 1 && /contactá al administrador$/.test(vieja61[0]) && vieja30 === 0, 'capa 4: «contactá al administrador» con una lista de hace 61 minutos y no con una de hace 30');
+  const prov = await conLista({ generadaEn: hace(5), sinIA: false, provisorias: 2 }, q => q.locator('.franja.sinia').allTextContents());
+  ok(prov.length === 1 && prov[0] === '2 noticias con bloque provisorio: la IA no contestó por ellas', 'capa 4: con provisorias 2 la franja dice «' + prov[0] + '»');
+  const marca = await conLista({ generadaEn: hace(5), cliente: 'Canal 2' }, q => q.textContent('#marca'));
+  ok(marca === 'Canal 2 · 7M', 'capa 4: el encabezado dice «' + marca + '»');
+
+  /* ── 9 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
+  console.log('\n# 9 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
   const carpeta = CARPETA_CAPTURAS;
   for (const c of CAPTURAS) {
     ctx = await nuevoCtx({ colorScheme: c.esquema, viewport: { width: c.ancho, height: 900 } });

@@ -5,11 +5,11 @@ Al apretar un botón: las 7 noticias NACIONALES de Argentina + las 7 INTERNACION
 ## Estado
 
 Se construye **de adentro hacia afuera**. Hecho: el núcleo (reglas) y el motor (agrupar y ordenar), con tests.
-Hecho: leer los portales (feeds probados y lector), juntar lo leído en un archivo (`--acumular`), la página de entrega (sobre un día inventado) y las piezas que van alrededor de la IA (sin llamar a ningún modelo). Falta cuándo leer y dónde guardar (capa 4, con Don Julio), llamar a la IA y que la página muestre noticias reales.
+Hecho: leer los portales (feeds probados y lector), juntar lo leído en un archivo (`--acumular`), la página de entrega (sobre un día inventado) y las piezas que van alrededor de la IA (sin llamar a ningún modelo). La capa 4 está escrita (n8n la corre cada 30 minutos, le pregunta a la IA y escribe la lista real, con login): falta instalarla en el servidor de Don Julio.
 
 ```
 5 · Botón y entrega            ✔ pagina/ (sobre el día de ejemplo; falta darle noticias reales)
-4 · Orquestación               (falta)  ← pensado para n8n; la IA todavía no se llama (src/ia.js tiene las piezas)
+4 · Orquestación               ✔ n8n/ + src/capa4.js (corre en el servidor de Don Julio; guía en docs/INSTALAR_EN_EL_SERVIDOR.md)
 3 · Leer los portales          ✔ src/lector.js + config/feeds.json (falta cuándo leer y dónde guardar)
 2 · Motor: agrupar y ordenar   ✔ src/nucleo.js
 1 · Núcleo: las reglas         ✔ config/reglas.json + src/nucleo.js
@@ -38,11 +38,14 @@ npm run vuelta # una vuelta completa sin IA: lee los feeds, acumula, arma la lis
                #   --config <carpeta>  corre con los feeds.json, portales.json y reglas.json de esa carpeta (config/comodoro: el bloque local de prueba)
 npm run medir  # resume datos/vueltas.jsonl por día y por corte de 4 horas: confirmadas y 4/5, por bloque (--dia AAAA-MM-DD)
 npm run ver    # sirve datos/pagina/ en http://127.0.0.1:7000/ para ver la lista real en esa compu; --carpeta y --puerto
+npm run servir # la página con login para el servidor: --carpeta <datos> [--puerto 7000] [--escucha 127.0.0.1] [--n8n http://127.0.0.1:5678]
+node scripts/usuario.js --carpeta <datos> agregar|sacar|listar|nueva-clave <mail>  # quién entra a la página (usuarios.json, nunca en el repo)
+node scripts/ia-falsa.js [--puerto 7100] [--fallar <n>]  # una IA de mentira para probar la capa 4 sin clave
 npm run paquete # rearma buzon/paquetes/PEGAR_COWORK.md
 ```
 
 Requiere Node 20 o más. No tiene dependencias.
-Para correr el día de medición en una compu con Windows: [`docs/CORRER_EN_MI_COMPU.md`](docs/CORRER_EN_MI_COMPU.md).
+Para correr el día de medición en una compu con Windows: [`docs/CORRER_EN_MI_COMPU.md`](docs/CORRER_EN_MI_COMPU.md). Para instalar en el servidor: [`docs/INSTALAR_EN_EL_SERVIDOR.md`](docs/INSTALAR_EN_EL_SERVIDOR.md).
 
 ## Cómo funciona
 
@@ -69,7 +72,7 @@ Los 8 criterios, con ejemplos, están en la página de borrador. Los valores act
 
 ## En n8n
 
-`src/nucleo.js` está escrito para pegarse en un Code node (se borra la última línea, `module.exports`). El código vive acá, con tests; n8n solo lo ejecuta. El flujo se exporta a este repo en cada cambio.
+Los workflows están en `n8n/` (ver `n8n/LEEME.md`). Sus nodos «Code» no copian código: cargan `src/capa4.js` y `config/` desde la carpeta del repo en el servidor (`git pull` para actualizar). El código vive acá, con tests; n8n solo lo ejecuta.
 
 ## Límites conocidos
 

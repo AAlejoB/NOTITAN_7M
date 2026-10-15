@@ -1,0 +1,171 @@
+{
+  "name": "7M · prueba de la unión (3 veces)",
+  "nodes": [
+    {
+      "id": "51878f79-ada7-469f-a4da-85bfc5e86b9d",
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "name": "Probar",
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "3c3ae57f-8d1d-4d15-aa60-009bd92af299",
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17ef3600-613c-4351-aef5-fcdc8e39f933",
+              "name": "carpetaRepo",
+              "value": "/home/node/7m",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "name": "Rutas",
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "id": "368f474c-e9eb-41f7-af01-a14cd231b339",
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst rutas = $('Rutas').first().json;\n// La configuración se lee del disco en cada vuelta: un git pull de config/ vale desde la vuelta siguiente.\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst feeds = leer('config/feeds.json').feeds.filter(f => f.url);\nconst portales = leer('config/portales.json').portales;\nconst reglas = leer('config/reglas.json');\nconst firmas = leer('config/firmas.json').firmas;\n// src/capa4.js queda en memoria: un git pull del código vale después de reiniciar n8n.\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\n// Los casos de unión de test/casos-ia.json que no son «dudoso», 3 veces cada uno, con la misma configuración que la vuelta.\nconst casos = leer('test/casos-ia.json');\nreturn capa4.itemsDePrueba(casos, { portales, reglas }).map(i => ({ json: i }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "name": "Casos",
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "id": "0603bff7-3e4d-4e57-ae16-154466c31111",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.cuerpoIA) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 1000
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "name": "IA",
+      "position": [
+        660,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "credencial-7m-anthropic",
+          "name": "7M Anthropic"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "1f9019cc-774b-4c93-a830-06484da7f4e0",
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst rutas = $('Rutas').first().json;\n// La configuración se lee del disco en cada vuelta: un git pull de config/ vale desde la vuelta siguiente.\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst feeds = leer('config/feeds.json').feeds.filter(f => f.url);\nconst portales = leer('config/portales.json').portales;\nconst reglas = leer('config/reglas.json');\nconst firmas = leer('config/firmas.json').firmas;\n// src/capa4.js queda en memoria: un git pull del código vale después de reiniciar n8n.\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\nconst casos = leer('test/casos-ia.json');\nconst items = $('Casos').all().map(i => i.json);\nconst respuestas = $input.all().map(i => i.json);\n// Un ítem por caso ({ caso, titulos, esperado, intentos, pasa }) y al final { resumen: 'pasa' | 'no pasa', casos, aciertos, de }.\n// La unión se prende solo con «pasa»: los 3 intentos bien en todos los casos.\nreturn capa4.resultadoPrueba(casos, items, respuestas).map(j => ({ json: j }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "name": "Resultado",
+      "position": [
+        880,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Probar": {
+      "main": [
+        [
+          {
+            "node": "Rutas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rutas": {
+      "main": [
+        [
+          {
+            "node": "Casos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Casos": {
+      "main": [
+        [
+          {
+            "node": "IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

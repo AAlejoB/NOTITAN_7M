@@ -13,6 +13,7 @@
     "vuelta": "node scripts/vuelta.js",
     "medir": "node scripts/medir.js",
     "ver": "node scripts/ver.js",
+    "servir": "node scripts/servir.js",
     "probar-pagina": "node scripts/probar-pagina.js"
   },
   "engines": { "node": ">=20" }

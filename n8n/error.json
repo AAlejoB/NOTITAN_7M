@@ -1,0 +1,117 @@
+{
+  "name": "7M · si la vuelta se rompe",
+  "nodes": [
+    {
+      "id": "7e51ea7b-a455-41c3-a6f5-47430ad346a9",
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "name": "Si se rompe",
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "bbcdea59-0253-4481-a8c5-3816384e4839",
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cb3a858f-c556-4d1b-a5f6-7162f6b17785",
+              "name": "carpetaRepo",
+              "value": "/home/node/7m",
+              "type": "string"
+            },
+            {
+              "id": "8c42d920-8759-47e6-a597-a6c0111b979d",
+              "name": "carpetaDatos",
+              "value": "/home/node/7m-datos",
+              "type": "string"
+            },
+            {
+              "id": "e20e6045-b3c5-4f25-a1b8-4f3a94f9befb",
+              "name": "correoAvisos",
+              "value": "PONER los mails de Alejo y Don Julio, separados por coma",
+              "type": "string"
+            },
+            {
+              "id": "4aefe551-1af2-440f-a438-331115764ec8",
+              "name": "correoDesde",
+              "value": "PONER la casilla de 7M",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "name": "Rutas",
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "id": "4e29b384-251b-42ba-ab1c-687bbaf19f2d",
+      "parameters": {
+        "fromEmail": "={{ $('Rutas').first().json.correoDesde }}",
+        "toEmail": "={{ $('Rutas').first().json.correoAvisos }}",
+        "subject": "=7M · la vuelta se rompió · {{ $('Si se rompe').first().json.execution.id }}",
+        "emailFormat": "text",
+        "text": "=La vuelta de 7M se rompió y no escribió la lista.\n\nNodo: {{ $('Si se rompe').first().json.execution.lastNodeExecuted }}\nError: {{ $('Si se rompe').first().json.execution.error.message }}\nEjecución: {{ $('Si se rompe').first().json.execution.url }}\n\nEste aviso no tiene tope: si llega uno cada media hora, la vuelta se rompe en cada vuelta.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "name": "Avisar",
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "credencial-7m-correo",
+          "name": "7M Correo"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Si se rompe": {
+      "main": [
+        [
+          {
+            "node": "Rutas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rutas": {
+      "main": [
+        [
+          {
+            "node": "Avisar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

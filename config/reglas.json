@@ -16,7 +16,10 @@
     "deportes": true,
     "farandula": false,
     "palabrasDesmentido": ["desmintio", "desmiente", "desmienten", "desmintieron", "es falso", "falso que", "fake", "no es cierto"],
-    "maxDesmentidos": 5
+    "maxDesmentidos": 5,
+    "modelo": "claude-haiku-4-5",
+    "temperatura": 0,
+    "maxTokens": { "juicio": 400, "union": 200 }
   },
   "criterio1": {
     "urlsExcluidas": [
@@ -42,5 +45,7 @@
   },
   "provisorio": {
     "seccionesInternacionales": ["mundo", "el-mundo", "el mundo", "internacional", "internacionales", "america", "world", "global"]
-  }
+  },
+  "avisos": { "topeMinutos": 60, "paginaViejaMinutos": 60 },
+  "cliente": "Canal 2"
 }

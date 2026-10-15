@@ -34,7 +34,7 @@ No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 po
 
 ## Abierto (sin resolver, con valor por defecto mientras tanto)
 
-- Datos del servidor de Don Julio que faltan para la carta: versión de n8n, si corre con Docker o npm (por el cambio de la 3.0), y cómo se entra (SSH o lo sube él). Se piden en el WhatsApp. Mientras tanto: se asume Docker.
+- Datos del servidor de Don Julio que faltan para la carta: versión de n8n, si corre con Docker o npm (por el cambio de la 3.0), y cómo se entra (SSH o lo sube él). Se piden en el WhatsApp. Mientras tanto: se asume Docker. **Están en el cuadro 1 de `docs/INSTALAR_EN_EL_SERVIDOR.md`.**
 - Canal 2: cuántas personas lo usan y si entran desde el celular o la compu. Entra en el login (usuarios) y en la página C (versión ancha si es compu). Mientras tanto: 3 personas, celular.
 - Cuántas horas por semana tiene Don Julio. Mientras tanto: sin plazo.
 - Cuánto esperar a un feed lento antes de seguir sin él. Mientras tanto: lo que ya hace el lector.
@@ -161,6 +161,21 @@ Dibujo de todo esto (artifact privado de Alejo, él lo tiene): https://claude.ai
 - De 4 a 5 nuevas por mirada, elegiría entre 0 y 3. Cruzar con npm run medir.
 - «Más noticias al descartar» (bajar de 5 portales): Alejo dijo «por ahora dejalo así», lo habla con Don Julio. La regla de 5 sigue fija.
 
+**Parcial, hasta las 09:44 del 15-10 (38 vueltas desde el 14-10 13:18), revisado por Cowork el 15-10; el día completo se cruza cuando termine la medición (16/10):**
+
+| Qué | Número |
+|---|---|
+| Noticias distintas que llegaron a 5 medios en el día | 32 (22 nacionales + 10 internacionales) |
+| Noticias distintas que pasaron por 4/5 | 46; 23 de ellas llegaron después a 5, 23 nunca |
+| Confirmadas que estuvieron antes en 4/5 | 23 de 32 (entre 1 y 7 horas antes) |
+| Vueltas con la lista de nacionales llena (7) | desde las 18:43 en adelante, todas |
+| Internacionales en la lista | 1 hasta las 19:13, 3 o 4 después |
+| Confirmadas nuevas de madrugada (23:43 a 07:13) | 0 |
+| Bloque provisorio equivocado (internacionales que salieron nacionales) | 4 de 22 confirmadas y 3 de las 4/5 |
+| La misma noticia partida en varios hechos | el Papa en 6 hechos; Martín Fierro en 3; riesgo país en 2; Caputo en 2; Roña Castro en 2 |
+| Notas de servicio que los moldes no agarran y llegaron a 5 | horario del Martín Fierro, el clima de Tucumán, «Anses: quiénes cobran», «Precio del euro hoy en Chile», «Cuánto cobran los empleados de McDonald's» |
+| Feeds caídos | Al Jazeera, 1 vuelta de 38 |
+
 ## Qué viene después
 
 1. Antes de la carta, en el mismo chat de Cowork: Alejo pidió estudiar «el comportamiento de una noticia», qué le pasa desde que sucede hasta que se publica y qué le pasa cuando la toma el agente. Cowork lo dibuja como un tablero interactivo (la noticia es una ficha que avanza por etapas, con un control de tiempo). No es carta ni cambio: es para entendernos.
@@ -220,6 +235,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
 - Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`: cerrar la medición local 24 h después del arranque (arrancó el 15-10 a las 00:38) y reportar.
+- Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`: instalar la capa 4 en el servidor de Don Julio el día que Alejo vaya, en una tanda.
 
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
@@ -232,6 +248,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 15-10-2026 · **Capa 4 escrita** (carta `b`): `src/capa4.js`, los cuatro workflows en `n8n/`, la página con login (`scripts/servir.js`, `scripts/usuario.js`), la IA falsa y la guía de instalación. Falta instalar (Fase B).
 - [x] 15-10-2026 · **Sitemaps en el lector y `--config` en la vuelta** (decidió Alejo adelantarlo el 15-10): El Patagónico y El Chubut se leen por su sitemap de noticias (sin bajada; la página lo dice); `config/comodoro/` es el bloque local de prueba (5 portales, 2 medios para confirmar); la medición local corre en el entorno de Claude Code.
 - [x] 09-10-2026 · **Links por medio** (Cowork, valor por defecto, variante A): en la página cada medio aparece una sola vez en la fila de links, con su primera nota; lo que se copia sigue con todos. `npm run ver` para ver `datos/pagina/` en la compu. **El día de medición lo corre Alejo en su compu** (decidió Alejo): guía `docs/CORRER_EN_MI_COMPU.md`.
 - [x] 09-10-2026 · **Etapa 1 en el repo** (decidió Alejo): `npm run vuelta` hace una vuelta completa sin IA y deja la lista real en `datos/pagina/`; `npm run medir` resume las vueltas por corte de 4 h; la página avisa «Sin el juicio de la IA». Dónde corre, con Don Julio.

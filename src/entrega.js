@@ -36,7 +36,9 @@ function tarjeta(salida, portales) {
 }
 
 // decidido = lo que devuelve decidir(). `ahora` entra por parámetro (ISO).
-function armarEntrega(decidido, { ahora, portales, reglas, ejemplo = false, sinIA = false }) {
+// provisorias: cuántas noticias de la lista llevan juicio provisorio (la IA no contestó por ellas); cliente: el nombre del cliente
+// para el encabezado; paginaViejaMinutos: desde cuántos minutos la página dice «contactá al administrador».
+function armarEntrega(decidido, { ahora, portales, reglas, ejemplo = false, sinIA = false, provisorias = 0, cliente = '', paginaViejaMinutos = 60 }) {
   const listas = { nacional: decidido.nacionales, internacional: decidido.internacionales };
   const bloques = {};
   for (const b of BLOQUES) {
@@ -52,6 +54,9 @@ function armarEntrega(decidido, { ahora, portales, reglas, ejemplo = false, sinI
     generadaEn: ahora,
     ejemplo: Boolean(ejemplo),
     sinIA: Boolean(sinIA),
+    provisorias,
+    cliente,
+    paginaViejaMinutos,
     cupoMinimo: reglas.cupoMinimo,
     minGrupos: reglas.minGrupos,
     bloques,

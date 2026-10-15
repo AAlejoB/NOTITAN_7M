@@ -1,0 +1,404 @@
+{
+  "name": "7M · vuelta cada 30 minutos",
+  "nodes": [
+    {
+      "id": "b5e805ee-f1e6-4a39-aae0-b04281e2f675",
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "name": "Cada 30 minutos",
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "13846212-b164-4e7c-a1a3-8520fbd7917e",
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "33337a2c-f074-478b-afbb-51b531762139",
+              "name": "carpetaRepo",
+              "value": "/home/node/7m",
+              "type": "string"
+            },
+            {
+              "id": "e76296b3-2058-4b98-a9a8-e6dc219ff28e",
+              "name": "carpetaDatos",
+              "value": "/home/node/7m-datos",
+              "type": "string"
+            },
+            {
+              "id": "b031d56f-bc58-4696-a1d8-9f130d86ce9d",
+              "name": "correoAvisos",
+              "value": "PONER los mails de Alejo y Don Julio, separados por coma",
+              "type": "string"
+            },
+            {
+              "id": "df9e74fa-4560-4a1d-a001-4818219d805e",
+              "name": "correoDesde",
+              "value": "PONER la casilla de 7M",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "name": "Rutas",
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "id": "31ec91fa-227e-431c-a59a-e9f3445f290c",
+      "parameters": {
+        "jsCode": "// Un ítem por feed de config/feeds.json (los que tienen url). El orden importa: Preparar lo usa para saber qué feed es cada respuesta.\nconst fs = require('fs');\nconst rutas = $('Rutas').first().json;\nconst config = JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/config/feeds.json', 'utf8'));\nreturn config.feeds.filter(f => f.url).map(f => ({ json: { nombre: f.nombre, url: f.url } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "name": "Feeds",
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "id": "3e904dfd-48c4-49d7-a836-eec13b7a7747",
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (compatible; NOTITAN_7M lector)"
+            },
+            {
+              "name": "Accept",
+              "value": "application/rss+xml, application/xml, text/xml, */*"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "body"
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "name": "Bajar",
+      "position": [
+        660,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "afe613f8-2114-4a0b-a355-0a7c1c6797ad",
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst rutas = $('Rutas').first().json;\n// La configuración se lee del disco en cada vuelta: un git pull de config/ vale desde la vuelta siguiente.\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst feeds = leer('config/feeds.json').feeds.filter(f => f.url);\nconst portales = leer('config/portales.json').portales;\nconst reglas = leer('config/reglas.json');\nconst firmas = leer('config/firmas.json').firmas;\n// src/capa4.js queda en memoria: un git pull del código vale después de reiniciar n8n.\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\nconst estatico = $getWorkflowStaticData('global');\nestatico.inicio = Date.now();\nconst ahora = new Date().toISOString();\n// Cada ítem de Bajar es un feed, en el mismo orden que Feeds. Un feed caído trae `error` (On Error: Continue).\nconst nombres = $('Feeds').all().map(i => i.json.nombre);\nconst cuerpos = $input.all().map((it, k) => {\n  const j = it.json;\n  if (j.error) return { nombre: nombres[k], status: 0, error: String((j.error && j.error.message) || j.error) };\n  return { nombre: nombres[k], status: Number(j.statusCode) || 0, xml: String(j.body ?? j.data ?? '') };\n});\nconst u = capa4.mitadUno({ cuerpos, guardado: estatico.guardado || null, ahora, feeds, portales, reglas, firmas });\nestatico.guardado = u.guardado;\nestatico.vuelta = { ahora, lectura: u.lectura, acumulado: u.acumulado };\nif (!u.preguntas.length) return [{ json: { sinPreguntas: true, resumen: u.resumen } }];\nreturn u.preguntas.map(q => ({ json: { sinPreguntas: false, id: q.id, cuerpoIA: capa4.cuerpoIA(q.texto, { reglas, tipo: 'juicio' }) } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "name": "Preparar",
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "id": "1ace315b-3085-4afc-acff-812080263375",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5772575e-196b-4bd4-a195-9006605a8f93",
+              "leftValue": "={{ $json.sinPreguntas }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "name": "¿Hay preguntas?",
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "id": "5edf8614-a088-4830-acea-5bc2d5252e7a",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.cuerpoIA) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 1000
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "name": "IA",
+      "position": [
+        1320,
+        -100
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "credencial-7m-anthropic",
+          "name": "7M Anthropic"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "6d64aac3-a8dd-4894-afea-6808874d9380",
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst rutas = $('Rutas').first().json;\n// La configuración se lee del disco en cada vuelta: un git pull de config/ vale desde la vuelta siguiente.\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst feeds = leer('config/feeds.json').feeds.filter(f => f.url);\nconst portales = leer('config/portales.json').portales;\nconst reglas = leer('config/reglas.json');\nconst firmas = leer('config/firmas.json').firmas;\n// src/capa4.js queda en memoria: un git pull del código vale después de reiniciar n8n.\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\nconst estatico = $getWorkflowStaticData('global');\nconst v = estatico.vuelta;\nconst entrada = $input.all();\n// Viene de la rama «false» del IF (un solo ítem con sinPreguntas) o de IA (un ítem por pregunta, en el orden de Preparar).\nconst preguntas = $('Preparar').all();\nconst respuestas = entrada.length && entrada[0].json.sinPreguntas === true ? []\n  : entrada.map((it, k) => ({ id: preguntas[k].json.id, texto: capa4.textoDeRespuesta(it.json) }));\nconst r = capa4.mitadDos({ guardado: estatico.guardado, lectura: v.lectura, acumulado: v.acumulado, respuestas, ahora: v.ahora, feeds, portales, reglas, firmas });\nr.linea.tardoMs = Date.now() - estatico.inicio;\ncapa4.escribir({ carpetaDatos: rutas.carpetaDatos, lista: r.lista, linea: r.linea });\nestatico.guardado = r.guardado;\ndelete estatico.vuelta;\nconst codigo = r.linea.feeds.ok === 0 ? 2 : 0;\nreturn [{ json: {\n  avisar: r.avisar,\n  ia: r.linea.ia, provisorias: r.linea.provisorias, tardoMs: r.linea.tardoMs,\n  resumen: capa4.resumenEnPantalla({ linea: r.linea, carpeta: rutas.carpetaDatos, codigo }),\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "name": "Decidir",
+      "position": [
+        1540,
+        0
+      ]
+    },
+    {
+      "id": "d84c7a38-42c1-4a88-a6df-254fd23e93d7",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d190a51c-1b7f-48d5-a725-dcb5216fb134",
+              "leftValue": "={{ $json.avisar.hayQue }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "name": "¿Avisar?",
+      "position": [
+        1760,
+        0
+      ]
+    },
+    {
+      "id": "864962d9-67cf-4642-ab06-01c9301e2a61",
+      "parameters": {
+        "fromEmail": "={{ $('Rutas').first().json.correoDesde }}",
+        "toEmail": "={{ $('Rutas').first().json.correoAvisos }}",
+        "subject": "={{ $json.avisar.asunto }}",
+        "emailFormat": "text",
+        "text": "={{ $json.avisar.texto }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "name": "Avisar",
+      "position": [
+        1980,
+        -100
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "credencial-7m-correo",
+          "name": "7M Correo"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cada 30 minutos": {
+      "main": [
+        [
+          {
+            "node": "Rutas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rutas": {
+      "main": [
+        [
+          {
+            "node": "Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feeds": {
+      "main": [
+        [
+          {
+            "node": "Bajar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bajar": {
+      "main": [
+        [
+          {
+            "node": "Preparar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar": {
+      "main": [
+        [
+          {
+            "node": "¿Hay preguntas?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay preguntas?": {
+      "main": [
+        [
+          {
+            "node": "IA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Decidir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IA": {
+      "main": [
+        [
+          {
+            "node": "Decidir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decidir": {
+      "main": [
+        [
+          {
+            "node": "¿Avisar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Avisar?": {
+      "main": [
+        [
+          {
+            "node": "Avisar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

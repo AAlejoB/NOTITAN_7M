@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>7M · Entrar</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --fondo: #f4f5f7; --tarjeta: #ffffff; --texto: #1a1d21; --suave: #596270; --borde: #d6dae0;
+    --verde: #17724a; --verde-fondo: #e1f3e9;
+    --ambar: #8a5200; --ambar-fondo: #fff3dc; --ambar-borde: #d99a2b;
+    --marca: #1456c9; --marca-texto: #ffffff; --azul: #1456c9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fondo: #101317; --tarjeta: #1a1f26; --texto: #e8eaed; --suave: #9ba4b0; --borde: #2f3640;
+      --verde: #62d493; --verde-fondo: #12301f;
+      --ambar: #f2b650; --ambar-fondo: #34270e; --ambar-borde: #a77b1d;
+      --marca: #5b92ff; --marca-texto: #08142e; --azul: #8cb5ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--fondo); color: var(--texto); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  main { max-width: 420px; margin: 0 auto; padding: 12vh 16px 32px; }
+  h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: .5px; }
+  .sub { margin: 0 0 20px; color: var(--suave); }
+  form { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+  form[hidden] { display: none; }
+  label { display: grid; gap: 4px; font-size: 14px; color: var(--suave); }
+  input { font: inherit; color: var(--texto); background: var(--fondo); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 12px; min-height: 44px; width: 100%; }
+  input:focus { outline: 2px solid var(--marca); outline-offset: 1px; }
+  button { font: inherit; font-weight: 600; cursor: pointer; background: var(--marca); color: var(--marca-texto); border: 0; border-radius: 10px; padding: 10px 14px; min-height: 44px; }
+  a { color: var(--azul); }
+  .chico { font-size: 14px; text-align: center; margin: 0; }
+  .franja { margin: 0 0 12px; padding: 8px 12px; border-radius: 10px; font-size: 14px; }
+  .franja[hidden] { display: none; }
+  .franja.mal { background: var(--ambar-fondo); color: var(--ambar); border: 1px solid var(--ambar-borde); }
+  .franja.bien { background: var(--verde-fondo); color: var(--verde); }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="titulo">7M</h1>
+  <p class="sub" id="sub">Noticias confirmadas por varios medios</p>
+  <p class="franja" id="franja" hidden></p>
+
+  <form id="f-entrar" method="post" action="/entrar">
+    <label>Mail<input type="email" name="mail" autocomplete="username" required autofocus></label>
+    <label>Contraseña<input type="password" name="clave" autocomplete="current-password" required></label>
+    <button type="submit">Entrar</button>
+    <p class="chico"><a href="/olvide">Olvidé mi clave</a></p>
+  </form>
+
+  <form id="f-olvide" method="post" action="/olvide" hidden>
+    <p class="chico">Escribí tu mail y te mandamos un link para elegir una contraseña nueva.</p>
+    <label>Mail<input type="email" name="mail" autocomplete="username" required></label>
+    <button type="submit">Mandarme el link</button>
+    <p class="chico"><a href="/entrar">Volver a entrar</a></p>
+  </form>
+
+  <form id="f-nueva" method="post" action="/nueva-clave" hidden>
+    <input type="hidden" name="token" id="token">
+    <label>Contraseña nueva (8 letras o más)<input type="password" name="clave" autocomplete="new-password" minlength="8" required></label>
+    <label>Otra vez<input type="password" name="clave2" autocomplete="new-password" minlength="8" required></label>
+    <button type="submit">Guardar</button>
+  </form>
+</main>
+<script>
+  (function () {
+    var ruta = location.pathname;
+    var q = new URLSearchParams(location.search);
+    var franja = document.getElementById('franja');
+    function avisar(texto, tipo) { franja.textContent = texto; franja.className = 'franja ' + tipo; franja.hidden = false; }
+    var formulario = ruta === '/olvide' ? 'f-olvide' : ruta === '/nueva-clave' ? 'f-nueva' : 'f-entrar';
+    ['f-entrar', 'f-olvide', 'f-nueva'].forEach(function (id) { document.getElementById(id).hidden = id !== formulario; });
+    if (formulario === 'f-nueva') document.getElementById('token').value = q.get('token') || '';
+    if (q.get('error') === '1') avisar('Mail o contraseña incorrectos', 'mal');
+    if (q.get('nueva') === '1') avisar('Listo: ya podés entrar con tu contraseña nueva.', 'bien');
+    fetch('/cliente.json').then(function (r) { return r.ok ? r.json() : {}; }).then(function (d) {
+      if (d && d.cliente) { document.getElementById('titulo').textContent = d.cliente + ' · 7M'; document.title = d.cliente + ' · 7M · Entrar'; }
+    }).catch(function () {});
+  })();
+</script>
+</body>
+</html>

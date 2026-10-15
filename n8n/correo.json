@@ -1,0 +1,105 @@
+{
+  "name": "7M · correo",
+  "nodes": [
+    {
+      "id": "30b52ea4-d1a8-4487-ad8a-36cc90114489",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "7m-correo",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "name": "Webhook",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "d6f632ac-1083-44d1-a960-0fb2cd72859c",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "credencial-7m-webhook",
+          "name": "7M Webhook"
+        }
+      }
+    },
+    {
+      "id": "9e3a6ffc-08f0-47e7-ad4a-c3cd4dd9bc34",
+      "parameters": {
+        "fromEmail": "PONER la casilla de 7M",
+        "toEmail": "={{ $json.body.para }}",
+        "subject": "={{ $json.body.asunto }}",
+        "emailFormat": "text",
+        "text": "={{ $json.body.texto }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "name": "Mandar",
+      "position": [
+        220,
+        0
+      ],
+      "webhookId": "565193ff-a6e8-4d3e-ac80-9c6604f87016",
+      "credentials": {
+        "smtp": {
+          "id": "credencial-7m-correo",
+          "name": "7M Correo"
+        }
+      }
+    },
+    {
+      "id": "a4a7c7a2-5a67-4220-aa66-ea6a963b4aa2",
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"ok\": true }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "name": "Contestar",
+      "position": [
+        440,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Mandar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandar": {
+      "main": [
+        [
+          {
+            "node": "Contestar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

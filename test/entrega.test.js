@@ -138,3 +138,17 @@ test('sinIA es false si no se pide y true si se pide; la lista que se commitea (
   const lista = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'pagina', 'lista.json'), 'utf8'));
   assert.equal(lista.sinIA, false);
 });
+
+test('capa 4: sin pasarlas, la lista trae provisorias 0, cliente vacío y paginaViejaMinutos 60', () => {
+  const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas });
+  assert.equal(e.provisorias, 0);
+  assert.equal(e.cliente, '');
+  assert.equal(e.paginaViejaMinutos, 60);
+});
+
+test('capa 4: pasándolas, la lista trae provisorias, cliente y paginaViejaMinutos', () => {
+  const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas, provisorias: 2, cliente: 'Canal 2', paginaViejaMinutos: 90 });
+  assert.equal(e.provisorias, 2);
+  assert.equal(e.cliente, 'Canal 2');
+  assert.equal(e.paginaViejaMinutos, 90);
+});

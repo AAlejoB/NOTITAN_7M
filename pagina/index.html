@@ -105,6 +105,8 @@
   .mensaje { color: var(--verde); font-size: 14px; font-weight: 600; min-height: 1.2em; }
   .manual { margin: 12px 0 0; }
   .manual textarea { width: 100%; min-height: 160px; font: 14px/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--tarjeta); color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; padding: 10px; }
+  .salir { margin: 0; }
+  .salir button { background: none; border: 0; padding: 4px 0; color: var(--suave); font-size: 13px; text-decoration: underline; min-height: 0; }
   [hidden] { display: none !important; }
   :focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
 
@@ -117,9 +119,10 @@
 <body>
 <header class="arriba">
   <div class="ancho">
-    <h1>7M</h1>
+    <h1 id="marca">7M</h1>
     <div class="actualizada" id="actualizada" aria-live="polite">Cargando…</div>
     <button class="boton" id="traer" type="button">Traer noticias</button>
+    <form class="salir" method="post" action="/salir"><button type="submit">Salir</button></form>
   </div>
 </header>
 
@@ -270,8 +273,15 @@
     var franjas = $('franjas');
     franjas.textContent = '';
     if (lista.ejemplo) franjas.appendChild(h('p', { clase: 'franja ejemplo', texto: 'Datos de ejemplo, inventados' }));
+    $('marca').textContent = lista.cliente ? lista.cliente + ' · 7M' : '7M';
     if (lista.sinIA) franjas.appendChild(h('p', { clase: 'franja sinia', texto: 'Sin el juicio de la IA: el bloque de cada noticia es provisorio' }));
-    if (cuando.vieja) franjas.appendChild(h('p', { clase: 'franja vieja', texto: 'No se actualiza desde las ' + L.horaAR(lista.generadaEn) }));
+    else if (lista.provisorias > 0) {
+      var n = lista.provisorias;
+      franjas.appendChild(h('p', { clase: 'franja sinia', texto: n + (n === 1 ? ' noticia con bloque provisorio: la IA no contestó por ella' : ' noticias con bloque provisorio: la IA no contestó por ellas') }));
+    }
+    // Vieja: más minutos que paginaViejaMinutos (lo pone la vuelta en la lista; 60 si no viene).
+    var minutos = (Date.parse(ahora()) - Date.parse(lista.generadaEn)) / 60000;
+    if (!(minutos <= (lista.paginaViejaMinutos || 60))) franjas.appendChild(h('p', { clase: 'franja vieja', texto: 'No se actualiza desde las ' + L.horaAR(lista.generadaEn) + ' · contactá al administrador' }));
 
     var elegidas = orden.filter(function (t) { return L.estaTildada(t, tildadas); });
     var barra = L.textoBarra(elegidas.length);
@@ -301,8 +311,14 @@
   function traer() {
     $('mensaje').textContent = '';
     fetch('lista.json', { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (r) {
+        // Sin sesión (la página servida por scripts/servir.js): a entrar.
+        if (r.status === 401) { location.href = '/entrar'; return null; }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
       .then(function (datos) {
+        if (!datos) return;
         lista = datos;
         var todas = todasLasTarjetas();
         // "Nueva" y "Recién confirmada" duran esa visita: las que ya lo eran siguen siéndolo, y se suman las que nunca se vieron
