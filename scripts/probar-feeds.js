@@ -13,7 +13,7 @@ const FRESCO_HORAS = 48;
 const args = process.argv.slice(2);
 const iJson = args.indexOf('--json');
 const salidaJson = iJson >= 0 ? args[iJson + 1] : null;
-const archivo = args.find((a, i) => !a.startsWith('--') && i !== iJson + 1) ?? 'config/feeds-candidatos.txt';
+const archivo = args.find((a, i) => !a.startsWith('--') && !(iJson >= 0 && i === iJson + 1)) ?? 'config/feeds-candidatos.txt';
 
 function leerCandidatos(texto) {
   return texto
