@@ -1,5 +1,63 @@
 # Pendientes
 
+# Cowork → pendientes · 14-10-2026 · 22:30 (hora de Argentina) · el después (audio de Don Julio)
+
+No es una carta de cambios. La medición sigue corriendo en la compu de Alejo hasta el 16/10 después de las 00:30; hasta entonces no se toca la página ni se escribe carta para Claude Code. Esta sección se guarda en buzon/pendientes.md tal cual, arriba de la de las 20:15, y las dos juntas son la base de las cartas de la página nueva.
+
+Dibujo de todo esto (artifact privado de Alejo): https://claude.ai/artifact/LmLyF2NgRYmv73sA5qgkUZ («El después de una noticia»). El tablero «La vida de una noticia» sigue siendo https://claude.ai/artifact/4U1sirot5pTVdMp2jJB6qd y la Opción C https://claude.ai/artifact/477KpBW4ZuXPAPuR8eDv6G.
+
+## Lo que dijo Don Julio (audio del 14-10, transcripto por Alejo)
+
+- La pieza 1 le alcanza tal como está: «con que encuentre la noticia, la compruebe contra los sitios importantes, descarte lo que no va y diga: esta noticia es real, comprobada contra estos medios, listo, con eso ya está».
+- El después: tener el texto completo («me imagino que baja el artículo»), pedirle a la IA «re-redactame este texto con otras palabras y en otro orden, y re-redactame un título». De ahí sale una re-redacción «de X cantidad de líneas» con otro título.
+- «El mismo título se puede usar para el Facebook un poquito más ampliado, y el mismo título con otro texto para Instagram; para el resto lo vamos reutilizando».
+- «En la próxima búsqueda, si encontré una misma noticia, ya fue, no va. Buscate otras, más actuales».
+- «El resto es que una IA haga algo y no haga cagada, pero eso se ve después».
+- No nombró fotos ni voz.
+
+## Decidió Alejo (14-10-2026, entre las 21:52 y las 22:23)
+
+1. **«Ya fue» = lo que tocaste.** Nada se va de Por decidir por haberla mirado; se va cuando se toca un botón, y siempre con «Deshacer» unos segundos y «Volver» en cada pestaña. Lo que todavía no pasó por el pivote se queda hasta caerse a las 24 h. La marca «visto / no visto» no existe.
+2. **Una página, dos escalones.** Normal y Plus en la misma página, elegido por cliente en config/ (campo `escalon`, valores `normal` o `plus`), cambiable después sin tocar código; más adelante, un botón en la página. Igual en los dos: una tarjeta abierta arriba (pivote), sube sola la siguiente, Deshacer, Volver, ningún menú. **Normal:** dos botones, «Me interesa» y «Siguiente» («Siguiente» es «no por hoy» sin preguntar el motivo); pestañas Por decidir / Me interesa / Pasadas; sin motivo, sin Archivo, sin Combinar, sin temas. **Plus:** todo lo de la Opción C (tres botones, motivo, Archivo, Combinar cuando hay una parecida, temas). Esto refina el punto 2 de la sección de las 20:15, no lo reemplaza: la Opción C es el escalón Plus.
+3. **Botones con palabras cortas:** «Traer noticias» pasa a «↻ Actualizar» (valor por defecto de Cowork; se cierra con los colores).
+4. **Pieza 2, títulos: un título para todo** (opción A). Corto y con gancho, hasta 60 letras, el mismo para Instagram, Facebook y el portal. Se descartó un título por red (B) porque la IA tiene tres chances de errarle. La variante corta derivada del título (C, dibujada con «↳») se agrega solo si Instagram la pide, nunca de entrada. Destinos por ahora: Instagram, Facebook y el portal. La voz y lo demás, después.
+5. **«Armar» vive en la misma página.** En Me interesa, cada noticia tiene un botón «Armar»; lo que devuelve la IA (la bandeja) se abre debajo de la misma tarjeta, pieza por pieza, con un «Copiar» por pieza. «Copiar todo» sigue existiendo para quien no arma. La comodidad de la persona se revisa cuando se diseñe la pantalla.
+6. **La puerta: la IA lee el artículo completo.** Al tocar «Armar», el sistema baja el cuerpo de hasta 3 notas de los medios que confirmaron la noticia. Si un portal bloquea, sigue con el siguiente de la lista; con 0 cuerpos, la IA escribe con títulos y bajadas y la bandeja lo dice. Reglas: el texto original nunca se muestra ni se copia, solo lo re-escrito; lo bajado se guarda 48 h como todo lo demás y después se borra; las fuentes van siempre al pie.
+7. **Plan B por casillero**, con una regla: cuando entra el plan B, la página lo dice, nunca se queda muda. Los casilleros de hoy ya lo tienen (feed roto, 4/5 a mano, sin IA → provisorio, Deshacer/Volver). Los dos nuevos son los de la pieza 2 (punto 6 y valores por defecto).
+8. **Largos, como valor límite:** título hasta 60 letras; portal (texto base) 8 a 12 líneas (~150 palabras); Facebook 10 a 15 líneas (~200 palabras); Instagram 4 a 6 líneas (~70 palabras); fuentes 1 renglón, siempre. Una línea son unas 15 palabras en el celular. Se cambian por cliente en config/, como el escalón.
+9. **Crédito a los medios:** cada pieza que escribe la IA termina con «Fuentes: …» y sus links, sin opción de sacarlo. La pieza 1 ya copia los links de todos los medios.
+10. **Estándar de dibujo y de página:** la flechita «↳» corrida a la derecha quiere decir «de ahí sale» (un derivado).
+
+## Valores por defecto de Cowork (no son decisiones de Alejo; se cambian)
+
+- Entra al quinchito una noticia por vez, la que la persona toca; no todas las de Me interesa juntas.
+- El canal de Don Julio arranca en Plus; «normal» queda para quien diga «es mucho bardo».
+- Si la IA no contesta o contesta cualquier cosa (sin título, sin fuentes, o texto fuera de largo), se reintenta 1 vez; si falla, «No pude armarla, probá de nuevo» y la tarjeta queda como estaba. Nunca sale una pieza sin título o sin fuentes.
+- La bandeja dice con cuántas notas se escribió («escrita con 2 de 3 notas»).
+- Sin hashtags ni emojis, salvo que el cliente lo pida.
+- Quién publica: la persona copia y pega, como hoy. Que el sistema publique solo no se diseña.
+- La pieza 2 usa la misma IA de la etapa 2 (la que juzga), en el mismo lugar donde corra (n8n, capa 4). Por eso va después de la etapa 2, nunca antes.
+
+## Abierto (sin resolver, con valor por defecto mientras tanto)
+
+- **Fotos:** Don Julio no las nombró; Alejo sí. Sigue como ítem de «Más adelante» (derechos de las imágenes). Mientras tanto: la pieza 2 sale sin fotos.
+- **Cómo se baja el cuerpo de cada portal:** cada uno arma su página distinto y alguno bloquea. Trabajo para Claude Code después de la medición: probar con los 19 portales de la lista qué cuerpo se puede sacar y anotar los que bloquean. Mientras tanto: nada.
+- **Costo de IA por armado:** medir cuántas palabras entran (3 cuerpos) y salen (3 textos) y cuánto cuesta cada «Armar» con el modelo de la capa 4. Mientras tanto: la cuenta de la capa 4 (US$1 a 5 por mes) no lo incluye.
+- **Respuestas de Don Julio a la capa 4:** al 14-10 a las 22:00 la colección `respuestas` de la página sigue vacía. Vale lo del 09-10 (Alejo contestó con los valores por defecto).
+- **Un solo artifact con todo, paso a paso** (idea de Alejo, 22:23): al final, juntar tablero, Opción C y «El después» en un solo lugar para mostrar a clientes. Se hace cuando la página nueva esté decidida del todo, no antes.
+
+## Qué cambia respecto de lo ya anotado
+
+- El ítem «Más adelante · la visión a largo plazo» (pieza 2) ahora tiene diseño: puntos 4 a 9 de arriba. La pieza 3 (voz) sigue sin diseñar.
+- En Normal no hay motivo de «No por hoy»: los seis chips de motivo son solo del escalón Plus.
+- «Traer noticias» (decidido el 04-10) pasa a «↻ Actualizar».
+
+## Qué viene después
+
+1. Al terminar la medición, lo mismo que decía la sección de las 20:15: Alejo manda la salida de npm run medir y datos/vueltas.jsonl; Cowork revisa a ojo.
+2. Carta de la página C, en este orden: flujo (con el escalón Normal/Plus), temas, anillos.
+3. La pieza 2 (quinchito) va en una carta aparte, después de la etapa 2 (la IA que juzga), con la prueba de bajar cuerpos de los 19 portales adelante de todo.
+
 # Cowork → pendientes · 14-10-2026 · 20:15 (hora de Argentina) · charla de diseño
 
 No es una carta de cambios. La medición corre en la compu de Alejo desde el 14/10 a las 14:15 y se corta el 16/10 después de las 00:30. Hasta entonces no se toca la página ni se escribe carta para Claude Code. Esto se guarda en buzon/pendientes.md tal cual, para que después de la medición se convierta en la carta de la página nueva.
