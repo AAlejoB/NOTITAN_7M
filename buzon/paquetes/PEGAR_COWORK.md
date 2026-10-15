@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 15/10/26, 00:15 (hora de Argentina) con "npm run paquete".
+Armado el 15/10/26, 01:09 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-14_a.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-15_a.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -221,6 +221,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false` en `portales.json`: no suman a la verificación y no avisan "feed roto". El día de ejemplo usa medios argentinos para lo internacional.
 - **Etapa 1 (2026-10-09, decidió Alejo; hecha en el repo):** `npm run vuelta` (`scripts/vuelta.js`) hace una vuelta completa sin IA: lee los feeds, acumula en `datos/notas.json` (48 h), arma la lista y deja en `datos/pagina/` lo que algún día se sube al hosting (`lista.json` y copias frescas de `index.html` y `logica.js`), y anota una línea por vuelta en `datos/vueltas.jsonl`. `--cada <min>` repite (la siguiente arranca a esos minutos de que empezó la anterior; Ctrl+C corta), `--sin-leer` rehace la lista con lo guardado sin salir a internet, `--carpeta` cambia dónde vive todo. El candado `datos/vuelta.lock` evita dos vueltas a la vez (25 minutos; se borra al terminar). Códigos: 0 bien, 1 error de uso, 2 ningún feed respondió, 3 candado. La lista real sale `sinIA: true` (la página lo dice en una franja azul): el bloque de cada noticia es provisorio (`src/provisorio.js`: nacional o internacional según el portal y la sección de sus notas, internacional si la mitad o más lo parecen; las secciones están en `provisorio` de `config/reglas.json`) y `datoNuevo` va en `false`, así que lo de más de 24 h se cae por el criterio 2. La IA es la etapa 2. `npm run medir` resume `vueltas.jsonl` por día y por corte de 4 horas (hora de Argentina; un hecho cuenta una vez por corte, en el bloque de su última vuelta). `npm run probar-pagina -- --solo-capturas datos/pagina --capturas <nombre>` saca las 3 capturas con la lista real (68 comprobaciones en la prueba normal). Lo real vive en `datos/` y no se sube al repo. Todavía no corre solo: dónde corre cada 30 minutos lo habla Alejo con Don Julio.
 - **Links por medio y la medición en la compu de Alejo (2026-10-09):** en la página cada medio aparece una sola vez en la fila de links, con su primera nota (`links(t)` en `pagina/index.html`; `lista.json` y lo que se copia siguen trayendo todas las notas; valor por defecto de Cowork). `npm run ver` (`scripts/ver.js`) sirve `datos/pagina/` en `http://127.0.0.1:7000/` para verla en esa compu. **El día de medición lo corre Alejo en su compu** (decidió el 09-10): la guía es `docs/CORRER_EN_MI_COMPU.md`; al terminar manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`.
+- **Sitemaps y el bloque local de prueba (2026-10-15):** el lector lee también sitemaps de noticias (`"formato": "sitemap"` en `feeds.json`: título, link, fecha y keywords; sin bajada ni autor); la bajada de un hecho sale de la primera nota que la tenga y la página dice «Sin bajada» cuando ninguna la trae; `npm run vuelta -- --config <carpeta>` corre con otra lista de feeds, portales y reglas (`config/comodoro/`: ADNSUR, El Comodorense, Crónica por secciones, El Patagónico y El Chubut; 2 medios para confirmar, sin 1/2 a mano), y cada confirmada de `vueltas.jsonl` lleva sus `medios`. La medición local de un día corre en el entorno de Claude Code en `datos/comodoro/` (no se sube). Nada entró a la lista blanca.
 - Paquete para pegar en Cowork (2026-10-04): cuando el chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_COWORK.md` (antes había uno por rol; con un solo chat hay un solo paquete). Lo arma `npm run paquete` (`scripts/armar-paquete.js`) con `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code, tal cual del repo. Es una foto: se rearma al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -417,7 +418,7 @@ No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 po
 1. Alejo manda el WhatsApp a Don Julio (o lo charla en persona) y pega acá las respuestas a lo abierto.
 2. Al terminar la medición (16/10 después de las 00:30), Alejo manda a Cowork la salida de npm run medir y datos/vueltas.jsonl; Cowork revisa a ojo.
 3. Cowork escribe la carta de la capa 4 (etapas 1 y 2 en el servidor de Don Julio: vuelta cada 30 minutos, IA que juzga, página de hoy con login, aviso por mail). Después, la carta de la página C.
-4. Lo local (reporte ClaudeCode_para_Cowork_2026-10-14_a.md), decidió Alejo el 14-10 a las 23:51: cuando termine la medición (16/10), Cowork escribe una carta chica aparte para Claude Code: sumar al lector la lectura de sitemaps de noticias (título, link y fecha, sin bajada; la página lo dice cuando falta la bajada) y correr desde el entorno de Claude Code un día de medición local con los 3 feeds de Comodoro (ADNSUR, El Comodorense, Crónica sin «energía») más los sitemaps de El Patagónico y El Chubut, para saber cuántas locales llegan a 2 medios por día. Va en paralelo con la carta de la capa 4 y antes de la carta de los anillos, que así se escribe con datos. Correcciones a la lista de candidatos: El Patagónico es de Comodoro (local, no provincial) y La Opinión Austral es de Santa Cruz (cuenta para la Región). ADNSUR y Crónica no traen autor (no sirven para la vía B); El Comodorense sí.
+4. Lo local (reporte ClaudeCode_para_Cowork_2026-10-14_a.md), decidió Alejo el 14-10 a las 23:51: cuando termine la medición (16/10), Cowork escribe una carta chica aparte para Claude Code: sumar al lector la lectura de sitemaps de noticias (título, link y fecha, sin bajada; la página lo dice cuando falta la bajada) y correr desde el entorno de Claude Code un día de medición local con los 3 feeds de Comodoro (ADNSUR, El Comodorense, Crónica sin «energía») más los sitemaps de El Patagónico y El Chubut, para saber cuántas locales llegan a 2 medios por día. Va en paralelo con la carta de la capa 4 y antes de la carta de los anillos, que así se escribe con datos. Correcciones a la lista de candidatos: El Patagónico es de Comodoro (local, no provincial) y La Opinión Austral es de Santa Cruz (cuenta para la Región). ADNSUR y Crónica no traen autor (no sirven para la vía B); El Comodorense sí. **Adelantado el 15-10 (decidió Alejo a las 00:15):** carta `Cowork_para_ClaudeCode_2026-10-15_a.md`, Fase A hecha; la Fase B se pide 24 h después del arranque.
 
 # Cowork → pendientes · 14-10-2026 · 22:30 (hora de Argentina) · el después (audio de Don Julio)
 
@@ -576,7 +577,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **Cowork (diseño y decisiones; antes DISEÑADOR)**
-- [ ] **Feeds de portales locales, probados el 14-10** (`buzon/ClaudeCode_para_Cowork_2026-10-14_a.md`): Comodoro tiene 3 con feed al día (ADNSUR, El Comodorense, Crónica por secciones); lo provincial no tiene feeds, solo sitemaps de noticias (El Chubut, El Patagónico). Decidir si el lector suma sitemaps. Nada sumado a `config/`.
+- [x] **Feeds de portales locales, probados el 14-10** (`buzon/ClaudeCode_para_Cowork_2026-10-14_a.md`): Comodoro tiene 3 con feed al día (ADNSUR, El Comodorense, Crónica por secciones); lo provincial no tiene feeds, solo sitemaps de noticias (El Chubut, El Patagónico). Decidir si el lector suma sitemaps. Nada sumado a `config/`. **Hecho el 15-10:** el lector lee sitemaps y el bloque local de prueba está en `config/comodoro/` (carta 2026-10-15_a).
 - [ ] **Las notas de Alejo usando la página durante la medición** (14-10-2026, 5 miradas): están en `buzon/Alejo_para_Cowork_2026-10-14_a.md`, tal cual y con un resumen. Pide para la página: menos scroll, más legible, **quitar** una noticia «por hoy» con el motivo (para aprender qué busca quien publica) y **archivar** una para combinarla después. De las noticias: sobran locales y de poco interés, un molde de servicio no agarra «horarios del Martín Fierro», hechos repetidos (obispos y el Papa), faltaron Caputo y PSG-Manchester City. Va con la salida de `npm run medir` cuando termine la medición; la modificación de la página, **después** de la prueba (decidió Alejo).
 - [ ] **El flujo que quiere Alejo con cada noticia** (14-10-2026, `buzon/Alejo_para_Cowork_2026-10-14_b.md`): primero discriminar (me interesa / no por hoy con motivo / archivar) y después copiar solo lo elegido. Ideas para pensar: gustos por persona (chimento sí o no), más noticias al descartar (la regla de 5 queda fija: «por ahora dejalo así»), portales locales de Chubut. Se diseña después de la prueba.
 - [ ] **El bloque provisorio falla con una internacional que los medios argentinos ponen en secciones genéricas** (medido el 09-10: el Nobel de la Paz a Navi Pillay, 7 grupos, 3 de 9 notas «parecen» internacionales, salió en Nacionales; las otras 3 confirmadas salieron bien). **Valor por defecto: no se toca**; lo arregla la IA en la etapa 2 y la página ya dice «provisorio». Parche posible si molesta en la medición: que un hecho vaya a internacional también cuando lo publican 3 o más medios de `ambito: internacional` distintos (riesgo: una nacional muy grande con cobertura de afuera iría a internacional). Mientras tanto, al revisar el día medido, Cowork mira los bloques a ojo por los títulos de `vueltas.jsonl`.
@@ -588,7 +589,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
-- Nada pendiente por ahora. Lo que sigue: el día de medición en la compu de Alejo; después, la etapa 2 (la IA que juzga).
+- Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`: cerrar la medición local 24 h después del arranque (arrancó el 15-10 a las 00:38) y reportar.
 
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
@@ -601,6 +602,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 15-10-2026 · **Sitemaps en el lector y `--config` en la vuelta** (decidió Alejo adelantarlo el 15-10): El Patagónico y El Chubut se leen por su sitemap de noticias (sin bajada; la página lo dice); `config/comodoro/` es el bloque local de prueba (5 portales, 2 medios para confirmar); la medición local corre en el entorno de Claude Code.
 - [x] 09-10-2026 · **Links por medio** (Cowork, valor por defecto, variante A): en la página cada medio aparece una sola vez en la fila de links, con su primera nota; lo que se copia sigue con todos. `npm run ver` para ver `datos/pagina/` en la compu. **El día de medición lo corre Alejo en su compu** (decidió Alejo): guía `docs/CORRER_EN_MI_COMPU.md`.
 - [x] 09-10-2026 · **Etapa 1 en el repo** (decidió Alejo): `npm run vuelta` hace una vuelta completa sin IA y deja la lista real en `datos/pagina/`; `npm run medir` resume las vueltas por corte de 4 h; la página avisa «Sin el juicio de la IA». Dónde corre, con Don Julio.
 - [x] 05-10-2026 · **Cerrado por Cowork al aprobar el reporte `c`:** `scripts/armar-paquete.js` sigue trayendo solo el reporte más nuevo (valor por defecto de Cowork). Si un día hay dos reportes sin carta de Cowork en el medio y el chat de Cowork no puede clonar el repo, Alejo le pega también el reporte anterior. No se toca hasta que pase.
@@ -639,52 +641,137 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-14_a.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-15_a.md
 ============================================================
 
-# Claude Code → Cowork · 14-10-2026 · 23:40 (hora de Argentina) · letra a
+# Claude Code → Cowork · 15-10-2026 · 01:09 (hora de Argentina) · letra a
 
-No responde a ninguna carta. Alejo pidió adelantar, mientras corre la medición en su compu, la prueba de feeds de los portales locales que estaba en «Abierto» (sección de las 20:15 de `pendientes.md`). **Solo se midió:** no se tocó código, configuración, la página ni `datos/`. La prueba se corrió desde el entorno de Claude Code con `scripts/probar-feeds.js` sobre una lista de candidatos en una carpeta temporal (no quedó en el repo).
+Responde a `Cowork_para_ClaudeCode_2026-10-15_a.md`, **Fase A**.
 
-**Veredicto:** Comodoro Rivadavia tiene **3 portales con feed que anda y está al día** (ADNSUR, El Comodorense y Crónica). Con eso un bloque local con «2 medios para confirmar» es posible de entrada. Lo provincial (Chubut) **no tiene feeds**: los dos que se pueden leer lo hacen por su sitemap de noticias, que trae título, fecha y link pero no bajada, y el lector hoy no sabe leerlo.
+**Veredicto:** está hecha. El lector lee sitemaps, la vuelta corre con `--config config/comodoro` y la medición local arrancó el **15-10 a las 00:38:33** (PID 5173). Ya en la primera media hora hay **23 hechos que llegan a 2 medios**, 3 de ellos a 3. Pasan todas las comprobaciones, salvo que la de la página arrancaba en 73 y no en 68 (ver «Qué decidí por mi cuenta»).
 
-## Qué anda
+## Qué cambió
 
-| Portal | Ciudad | Feed | Notas que trae | Última nota | En 24 h | En 48 h | Autor |
-|---|---|---|---|---|---|---|---|
-| ADNSUR | Comodoro | `https://www.adnsur.com.ar/rss.xml` (también `atom.xml`) | 20 | hace 0,2 h | 20 | 20 | no |
-| El Comodorense | Comodoro | `https://www.elcomodorense.net/feed/` | 12 | hace 0,9 h | 12 | 12 | sí |
-| Crónica · actualidad | Comodoro | `https://www.diariocronica.com.ar/rss/actualidad` | 500 | hace 4,9 h | 27 | 64 | no |
-| Crónica · policiales | Comodoro | `/rss/policiales` | 500 | hace 3,8 h | 8 | 15 | no |
-| Crónica · deportes | Comodoro | `/rss/deportes` | 500 | hace 1,0 h | 18 | 32 | no |
-| Crónica · economía | Comodoro | `/rss/economia` | 468 | hace 4,6 h | 2 | 6 | no |
-| Crónica · energía | Comodoro | `/rss/energia` | 54 | — | — | — | no |
+| Paso | Cambio | Commit |
+|---|---|---|
+| — | La carta, guardada | `baf39a0` |
+| 5 | `config/comodoro/` con los tres archivos tal cual la carta (sin tocar `_aviso` ni `nota`) | `20684e0` |
+| 1 | `parsearFeed` con `formato: 'sitemap'`: `<url>`, `news:title`, `loc`, `news:publication_date` o `lastmod`, sección de la primera keyword; bajada y firma vacías. Sin `formato`, igual que antes | `bc685fe` |
+| 2 | `probar-feeds.js` reconoce `<urlset>`, cuenta `<url>`, lee `<loc>` y las fechas de sitemap, y usa el `portales.json` de la carpeta del archivo | `3c6cf61` |
+| 3 | La bajada sale de la primera nota que la tiene. La página dibuja «Sin bajada: este medio no la publica en su listado.» en cursiva, en las tarjetas y en las 4/5. Lo que se copia no cambia | `9794479` |
+| 4 | `--config <carpeta>` y `cargarConfig` (exportada); `medios` en cada confirmada y en cada 4/5 de `vueltas.jsonl` | `d9c34cd` |
+| 2 (arreglo) | `probar-feeds.js` sin `--json` ignoraba el archivo que se le pasaba (ver abajo) | `9477322` |
+| 8 | README, CLAUDE.md y pendientes | `501c91b` |
 
-Crónica no tiene feed general: tiene uno por sección (la lista está en `https://www.diariocronica.com.ar/rss`). Sus feeds traen notas de hasta un año atrás; lo de más de 24 h ya lo descarta el motor.
+## Tests
 
-## Qué no anda
+| | Antes | Después |
+|---|---|---|
+| `npm test` | 239 bien, 1 pendiente | **248 bien**, 1 pendiente (+9) |
+| `npm run probar-pagina` | 73 bien | **75 bien**, 0 mal (+2: «7b · una noticia sin bajada») |
 
-| Portal | Ciudad | Qué pasa | Alternativa |
-|---|---|---|---|
-| El Patagónico | Comodoro | Sin feed (404 en `/feed`, `/rss`, `/rss.xml`); la portada responde 403 al probador y 200 con un navegador común | **Sitemap de noticias** `/sitemap-news.xml`: 87 títulos, del 12-10 al 15-10 |
-| El Chubut | Trelew | Sin feed (404) | **Sitemap de noticias** `/sitemap-news.xml`: 50 títulos de las últimas 24 h |
-| Diario Jornada | Trelew | Sin feed (devuelve la página, no un feed); sin sitemap de noticias | Ninguna encontrada |
-| La Opinión Austral | Río Gallegos (Santa Cruz), con edición de Caleta Olivia | Sin feed (404); sin sitemap de noticias | Ninguna encontrada |
-| Rawson Digital | Rawson | No conecta | Ninguna |
+Los 9 nuevos: E1, E2, E3 y `config/comodoro/feeds.json` (lector); E5 (probador); E7 (núcleo); E8, E9 y E10 (vuelta). E11 entró en el test de opciones que ya existía, como permitía la carta.
 
-**Ojo con dos datos de la lista de candidatos:** El Patagónico es de Comodoro, no provincial; y La Opinión Austral es de Santa Cruz, así que para la regla «2 medios de 2 provincias» contaría como Santa Cruz, no como Chubut.
+## La medición local
 
-## Qué hace falta decidir (para Cowork, con Alejo)
+**Punto 1 · `node scripts/probar-feeds.js config/comodoro/feeds.json`** (con `NODE_USE_ENV_PROXY=1`; saqué el aviso de undici):
 
-1. **Leer sitemaps de noticias además de feeds.** Suma El Patagónico y El Chubut (y es lo único que hoy le daría algo al bloque provincial). Costo: una pieza nueva en el lector; esas notas vendrían sin bajada. Valor por defecto propuesto: sí, pero en la carta de los anillos, no antes.
-2. **Con cuáles feeds de Crónica quedarse.** Todos menos «energía» parece lo razonable; «actualidad» es el que más trae.
-3. **ADNSUR y Crónica no traen autor:** no sirven para la vía B (firmas). El Comodorense sí.
-4. Para la Región (Neuquén, Río Negro, Santa Cruz, Tierra del Fuego) no se probó nada: no había candidatos.
+```
+OK  ADNSUR              20 notas  OK
+OK  El Comodorense      12 notas  OK
+OK  Crónica · actualidad 500 notas  OK
+OK  Crónica · policiales 500 notas  OK
+OK  Crónica · deportes 500 notas  OK
+OK  Crónica · economía 466 notas  OK
+OK  El Patagónico       87 notas  OK
+OK  El Chubut           50 notas  OK
 
-## Lo que no se hizo
+8 de 8 andan.
+```
 
-- No se sumó nada a `config/feeds.json` ni a `portales.json`.
-- No se midió cuántas noticias locales llegarían a 2 medios: haría falta leer estos feeds varias veces durante un día, como la medición de Alejo.
+Ningún 403 ni «NO ES FEED». No se tocó el `user-agent`.
+
+**Punto 2 · la vuelta a mano:**
+
+```
+VUELTA · 15/10/26 00:38 (hora de Argentina)
+Feeds: 8 OK · 0 caídos
+Notas: 2135 leídas · 2135 nuevas · 285 acumuladas
+Hechos según grupos: 1: 228 · 2: 19 · 3: 4 · 4: 0 · 5+: 0
+Confirmados: 23 nacionales + 0 internacionales
+4/5 (les falta 1 medio): 0 nacionales + 0 internacionales
+Lista: 7 nacionales + 0 internacionales
+Escribí: datos/comodoro/pagina/lista.json
+Código de salida: 0
+```
+
+**Punto 3 · el arranque:** `Thu Oct 15 00:38:33 -03 2026`. **PID 5173** (`node scripts/vuelta.js --config config/comodoro --carpeta datos/comodoro --cada 30`, con `NODE_USE_ENV_PROXY=1`). Las 24 h se cuentan desde ahí: **la Fase B, desde el 16-10 a las 00:38**.
+
+**Punto 4:** a las 01:08:54 `vueltas.jsonl` tiene 3 líneas (00:38 a mano, 00:38 y 01:08 del proceso) y el proceso sigue vivo.
+
+**La última línea (01:08):** `notas.acumuladas` 286; `hechos.porGrupos` `{ 1: 229, 2: 19, 3: 4, 4: 0, 5+: 0 }`. Las 23 confirmadas:
+
+| Grupos | Medios | Título |
+|---|---|---|
+| 2 | Crónica, El Patagónico | Dos detenidos con cocaína y un revólver en un remis en Comodoro |
+| 2 | Crónica, El Patagónico | El papa León XIV ya está en el hospital para ser operado del pulmón |
+| 2 | Crónica, El Patagónico | RJ Mitte, estrella de Breaking Bad, falleció a los 34 años |
+| 2 | Crónica, El Patagónico | Un policía de Chubut irá a juicio por jurados acusado de abuso sexual |
+| 2 | El Patagónico, Crónica | El Municipio impulsa charlas de concientización sobre el cáncer de mama |
+| 2 | El Patagónico, Crónica | Una reunión para activar el Corredor Bioceánico |
+| 2 | El Patagónico, Crónica | Comodoro expuso su modelo de innovación en Ciencia y Tecnología |
+| 2 | El Patagónico, Crónica | River Plate y Estudiantes se unen para impulsar cambios en el fútbol argentino |
+| 2 | Crónica, El Chubut | Falleció Jorge Roña Castro, leyenda del boxeo argentino |
+| 3 | El Patagónico, Crónica, El Chubut | Alivio financiero para jubilados: pueden refinanciar sus deudas con una tasa del 25%, un año de gracia y hasta 72 cuotas |
+| 2 | Crónica, El Chubut | Torres negocia apoyos electorales con el Gobierno nacional |
+| 3 | Crónica, El Patagónico, El Chubut | Especialistas intensifican el monitoreo sanitario tras la muerte de varias ballenas en Puerto Madryn |
+| 2 | Crónica, El Chubut | Violento asalto a una familia en una chacra de Gaiman |
+| 2 | Crónica, El Chubut | El Observatorio Astronómico de Trelew ya lleva el nombre de Gustavo Di Benedetto |
+| 3 | Crónica, ADNSUR, El Comodorense | La Justicia impuso una multa diaria al Gobierno por no liberar fondos universitarios |
+| 2 | El Patagónico, El Comodorense | Mario Rodríguez, tras el bronce en Corea del Sur, se ilusiona con correr en Malvinas |
+| 2 | ADNSUR, El Patagónico | Tiroteo frente a la Oficina Judicial de Comodoro: cinco imputados seguirán presos |
+| 3 | El Patagónico, ADNSUR, El Chubut | Comunidad universitaria convoca a la Marcha Federal |
+| 2 | Crónica, El Chubut | Pánico en Trelew por un hombre armado con un cuchillo que persiguió a una madre y a su hija |
+| 2 | Crónica, El Comodorense | El riesgo país supera los 600 puntos tras una jornada de volatilidad global |
+| 2 | ADNSUR, Crónica | Un anciano no vidente cayó desde dos metros en su vivienda del barrio Pietrobelli |
+| 2 | El Chubut, Crónica | Comienza el Campeonato Provincial de handball |
+| 2 | El Comodorense, ADNSUR | River empató 1 a 1 con Sarmiento y sigue afuera de los puestos de clasificación |
+
+Una primera mirada, sin revisar todavía si son la misma noticia (eso es la Tabla B de la Fase B): **Crónica está en 20 de las 23**, El Chubut en 10 y varias son de afuera (el Papa, Breaking Bad, River). Eso es para la carta de los anillos.
+
+## Comprobaciones
+
+| # | Tiene que dar | Dio |
+|---|---|---|
+| C1 | antes 239 + 1 pendiente; después todos bien, +9 o más, 1 pendiente | antes 239 + 1; después **248 + 1**, 0 mal |
+| C2 | 0 MAL y 70 o más | **75 bien, 0 mal** |
+| C3 | 8 OK, ninguna línea «links a dominios fuera» | **8 de 8**, ninguna (antes hubo que arreglar el probador, ver abajo) |
+| C4 | el mensaje de 4a, código 1, `/tmp/x` no se crea | «No se pudo: --config necesita una carpeta con feeds.json y portales.json: /tmp/no-existe/feeds.json no está.», **código 1**, `/tmp/x` no existe |
+| C5 | 8 OK · 0 caídos, código 0, `medios` en cada confirmada de la primera línea | **8 OK · 0 caídos, código 0**; las 23 confirmadas de la primera línea traen `medios` (2 o más) |
+| C6 | `git ls-files datos` vacío | **vacío** |
+| C7 | solo los archivos de la lista | ver abajo |
+| C8 | la hora del encabezado | `Thu Oct 15 01:09:01 -03 2026` |
+
+**C7** (`git add -A` y `git diff --cached --stat 47dafc6`, con el reporte ya escrito y antes de `npm run paquete`): da exactamente los 18 archivos de la lista. La salida está en el mensaje del commit del reporte.
+
+## Qué decidí por mi cuenta
+
+- **Arreglo en el probador de feeds (no estaba en la carta):** `node scripts/probar-feeds.js config/comodoro/feeds.json` probaba igual `config/feeds-candidatos.txt` (los 20 de siempre). Sin `--json`, `iJson` vale -1 y la condición `i !== iJson + 1` dejaba afuera justo el primer argumento. Ahora solo saltea el valor de `--json` cuando `--json` está. Es un renglón del mismo archivo del paso 2 y lo hice para que E6 y C3 se pudieran correr. Las pruebas de feeds anteriores que se hicieron pasando un archivo sin `--json` en realidad probaron los candidatos.
+- **La página arrancaba en 73, no en 68:** la carta y `CLAUDE.md` dicen 68, pero la versión de base (`47dafc6`) ya da 73. Se sumaron las 2 nuevas (sección «7b») y quedan en 75. No toqué el «68» de `CLAUDE.md` porque la carta no lo pedía.
+- **El orden de los commits:** `config/comodoro/` entró antes que el lector, porque el test nuevo del lector lee `config/comodoro/feeds.json`. Así todos los commits pasan `npm test`.
+- **La bajada en la página** salió a una función `bajada(t)` que usan las dos tarjetas (`noticia` y `cuatroDeCinco`), con el texto y la clase exactos de la carta.
+- **El test de E4 en `test/vuelta.test.js`** compara las claves de cada confirmada: le sumé `medios`, que es el cambio que pide 4b.
+- **E5:** `masNueva` da la de `lastmod` (03:00Z) porque es la más nueva de las dos. La carta lo permite.
+- **En la vuelta, «nuevas» y «borradas» salen altas** (1.851 nuevas y 1.850 borradas a las 01:08). Son las notas de hasta un año de Crónica que entran y `acumular` saca por las 48 h en la misma vuelta, como avisaba la `nota` del feed. No cambié nada.
+
+## Riesgo para la Fase B
+
+La medición corre en el contenedor de esta sesión. Si la sesión queda quieta mucho tiempo, el contenedor se puede reciclar y el proceso se corta. La Fase B ya cubre ese caso («si ya no estaba, no lo relances»), pero conviene saber que puede pasar. Lo medido vive solo en `datos/comodoro/` de este contenedor: si lo reciclan, también se pierde `vueltas.jsonl`.
+
+## Qué queda pendiente y para quién
+
+- **Claude Code:** la Fase B, desde el 16-10 a las 00:38.
+- **Cowork:** nada nuevo para decidir. Los números de los anillos esperan la Fase B.
 
 ============================================================
 FIN DEL PAQUETE
