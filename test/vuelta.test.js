@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const { mkdtempSync, writeFileSync, readFileSync, readdirSync, existsSync, utimesSync, rmSync } = require('node:fs');
 const { join } = require('node:path');
 const { tmpdir } = require('node:os');
-const { vuelta, leerOpciones } = require('../scripts/vuelta.js');
+const { vuelta, leerOpciones, cargarConfig } = require('../scripts/vuelta.js');
 const { ErrorDeUso } = require('../scripts/leer.js');
 const reglas = require('../config/reglas.json');
 const { portales } = require('../config/portales.json');
@@ -56,7 +56,7 @@ test('E4: carpeta vacía y todos los feeds andan: notas, página, una línea y s
   assert.deepEqual(Object.keys(l[0].notas), ['leidas', 'nuevas', 'repetidas', 'borradas', 'acumuladas']);
   assert.deepEqual(Object.keys(l[0].hechos), ['total', 'porGrupos']);
   assert.deepEqual(Object.keys(l[0].hechos.porGrupos), ['1', '2', '3', '4', '5+']);
-  assert.deepEqual(Object.keys(l[0].confirmados[0]), ['id', 'bloque', 'grupos', 'via', 'viejo', 'titulo']);
+  assert.deepEqual(Object.keys(l[0].confirmados[0]), ['id', 'bloque', 'grupos', 'via', 'viejo', 'medios', 'titulo']);
   assert.deepEqual(Object.keys(l[0].lista), ['nacional', 'internacional', 'aManoNacional', 'aManoInternacional', 'noFresco']);
   assert.equal(l[0].hora, AHORA);
   assert.equal(typeof l[0].duracionMs, 'number');
@@ -191,10 +191,64 @@ test('una sección «mundo» en medios argentinos también da internacional', as
   assert.equal(lineas(c)[0].confirmados[0].bloque, 'internacional');
 });
 
-test('opciones: --cada tiene que ser un entero de 1 o más; --carpeta y --cada necesitan valor', () => {
-  assert.deepEqual(leerOpciones([]), { carpeta: 'datos', cada: null, sinLeer: false });
-  assert.deepEqual(leerOpciones(['--carpeta', 'x', '--cada', '30', '--sin-leer']), { carpeta: 'x', cada: 30, sinLeer: true });
-  for (const malas of [['--cada'], ['--cada', 'abc'], ['--cada', '1.5'], ['--cada', '0'], ['--cada', '--sin-leer'], ['--carpeta']]) {
+test('opciones: --cada tiene que ser un entero de 1 o más; --carpeta, --cada y --config necesitan valor', () => {
+  assert.deepEqual(leerOpciones([]), { carpeta: 'datos', cada: null, sinLeer: false, config: null });
+  assert.deepEqual(leerOpciones(['--carpeta', 'x', '--cada', '30', '--sin-leer']), { carpeta: 'x', cada: 30, sinLeer: true, config: null });
+  assert.equal(leerOpciones(['--config', 'config/comodoro']).config, 'config/comodoro');
+  for (const malas of [['--cada'], ['--cada', 'abc'], ['--cada', '1.5'], ['--cada', '0'], ['--cada', '--sin-leer'], ['--carpeta'], ['--config'], ['--config', '--sin-leer']]) {
     assert.throws(() => leerOpciones(malas), ErrorDeUso, malas.join(' '));
   }
+});
+
+/* ───────── --config: otra lista de feeds, portales y reglas ───────── */
+
+const T_LOCAL = 'El intendente inauguró la planta de agua en Comodoro';
+const feedsLocales = [
+  { nombre: 'Feed A', dominio: 'a.com', grupo: 'A', ambito: 'nacional', url: 'https://fa.test/rss' },
+  { nombre: 'Feed B', dominio: 'b.com', grupo: 'B', ambito: 'nacional', url: 'https://fb.test/rss' },
+];
+const portalesLocales = [
+  { dominio: 'a.com', grupo: 'A', ambito: 'nacional', tipo: 'medio' },
+  { dominio: 'b.com', grupo: 'B', ambito: 'nacional', tipo: 'medio' },
+];
+const carpetaConfig = (archivos) => {
+  const c = mkdtempSync(join(tmpdir(), 'notitan-config-'));
+  for (const [nombre, contenido] of Object.entries(archivos)) writeFileSync(join(c, nombre), JSON.stringify(contenido));
+  return c;
+};
+const configLocal = () => carpetaConfig({
+  'feeds.json': { feeds: feedsLocales },
+  'portales.json': { portales: portalesLocales },
+  'reglas.json': { minGrupos: 2, aMano: { activa: false } },
+});
+
+test('cargarConfig: feeds y portales de la carpeta; reglas.json pisa claves enteras; sin firmas.json, ninguna', () => {
+  const c = cargarConfig(configLocal());
+  assert.deepEqual(c.feeds, feedsLocales);
+  assert.deepEqual(c.portales, portalesLocales);
+  assert.equal(c.reglas.minGrupos, 2);
+  assert.deepEqual(c.reglas.aMano, { activa: false });
+  assert.equal(c.reglas.umbralSimilitud, reglas.umbralSimilitud);
+  assert.equal(c.reglas.umbralSimilitud, 0.3);
+  assert.deepEqual(c.firmas, []);
+});
+
+test('cargarConfig: sin feeds.json (o sin la carpeta) corta con ErrorDeUso', () => {
+  const c = carpetaConfig({ 'portales.json': { portales: portalesLocales } });
+  assert.throws(() => cargarConfig(c), e => e instanceof ErrorDeUso && /feeds\.json no está/.test(e.message));
+  assert.throws(() => cargarConfig(join(tmpdir(), 'notitan-no-existe-' + Date.now())), ErrorDeUso);
+});
+
+test('--config: con 2 medios alcanza, la confirmada lleva sus medios y no hay 1/2 a mano', async () => {
+  const { feeds: fs, portales: ps, reglas: rs } = cargarConfig(configLocal());
+  const c = carpeta();
+  const xml = (d) => rss(`<item><title>${T_LOCAL}</title><link>https://www.${d}/locales/planta-agua</link><description>Una bajada de prueba.</description><pubDate>Sun, 04 Oct 2026 09:00:00 +0000</pubDate></item>`);
+  const mapa = { 'https://fa.test/rss': () => ({ status: 200, text: async () => xml('a.com') }), 'https://fb.test/rss': () => ({ status: 200, text: async () => xml('b.com') }) };
+  const r = await vuelta({ carpeta: c, ahora: AHORA, fetch: fetchPorUrl(mapa), feeds: fs, portales: ps, reglas: rs, firmas: [] });
+  const [l] = lineas(c);
+  assert.equal(l.confirmados.length, 1);
+  assert.equal(l.confirmados[0].grupos, 2);
+  assert.deepEqual(l.confirmados[0].medios, ['A', 'B']);
+  assert.deepEqual(l.cuatroDeCinco, []);
+  assert.ok(r.resumen.includes('Confirmados: 1 nacionales + 0 internacionales'));
 });

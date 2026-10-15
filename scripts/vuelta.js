@@ -1,16 +1,18 @@
 'use strict';
 // Una vuelta completa, sin IA: lee los feeds, acumula las notas, arma la lista con el bloque provisorio,
 // la deja lista para la página y anota lo medido. Lo real vive en la carpeta de datos (datos/), que no se sube al repo.
-// Uso: node scripts/vuelta.js [--carpeta datos] [--cada 30] [--sin-leer]
+// Uso: node scripts/vuelta.js [--carpeta datos] [--cada 30] [--sin-leer] [--config <carpeta>]
 //   --carpeta <dir>  dónde vive todo lo real (por defecto datos): notas.json, pagina/, vueltas.jsonl y vuelta.lock.
 //   --cada <min>     repite para siempre: la vuelta siguiente arranca <min> minutos después de que empezó la anterior. Se corta con Ctrl+C.
 //   --sin-leer       no sale a internet ni escribe notas.json ni vueltas.jsonl; rehace pagina/lista.json con lo ya guardado.
+//   --config <dir>   usa los feeds.json y portales.json de esa carpeta; su reglas.json (si hay) pisa claves de config/reglas.json,
+//                    y su firmas.json (si hay) reemplaza la lista de firmas. config/comodoro es el bloque local de prueba.
 // Códigos: 0 bien · 1 error de uso · 2 ningún feed respondió (la lista igual se rehizo con lo guardado) · 3 hay otra vuelta corriendo.
 // Con proxy: NODE_USE_ENV_PROXY=1 node scripts/vuelta.js
-const { appendFileSync, copyFileSync, existsSync, mkdirSync, renameSync, rmSync, statSync, writeFileSync } = require('node:fs');
+const { appendFileSync, copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { leerFeeds } = require('../src/lector.js');
-const { acumular, preparar, decidir } = require('../src/nucleo.js');
+const { acumular, preparar, decidir, buscarPortal, dominioDe } = require('../src/nucleo.js');
 const { juiciosProvisorios } = require('../src/provisorio.js');
 const { armarEntrega } = require('../src/entrega.js');
 const { cargarNotas, guardarNotas, filtrarRutas, fechaCorta, ErrorDeUso } = require('./leer.js');
@@ -36,7 +38,25 @@ function leerOpciones(args) {
   const cada = valor('--cada');
   if (cada !== null && !/^\d+$/.test(cada)) throw new ErrorDeUso(`--cada tiene que ser un número entero de minutos, 1 o más, no "${cada}".`);
   if (cada !== null && Number(cada) < 1) throw new ErrorDeUso('--cada tiene que ser de 1 minuto o más.');
-  return { carpeta: valor('--carpeta') || 'datos', cada: cada === null ? null : Number(cada), sinLeer: args.includes('--sin-leer') };
+  return { carpeta: valor('--carpeta') || 'datos', cada: cada === null ? null : Number(cada), sinLeer: args.includes('--sin-leer'), config: valor('--config') };
+}
+
+// --config <carpeta>: feeds.json y portales.json obligatorios; reglas.json pisa claves de primer nivel de config/reglas.json
+// (un objeto se reemplaza entero, no se mezcla); firmas.json, si no está, deja la lista vacía.
+function cargarConfig(carpeta) {
+  const leerJson = archivo => JSON.parse(readFileSync(join(carpeta, archivo), 'utf8'));
+  for (const archivo of ['feeds.json', 'portales.json']) {
+    if (!existsSync(join(carpeta, archivo))) {
+      throw new ErrorDeUso(`--config necesita una carpeta con feeds.json y portales.json: ${join(carpeta, archivo)} no está.`);
+    }
+  }
+  const hay = archivo => existsSync(join(carpeta, archivo));
+  return {
+    feeds: leerJson('feeds.json').feeds,
+    portales: leerJson('portales.json').portales,
+    reglas: hay('reglas.json') ? { ...configReglas, ...leerJson('reglas.json') } : configReglas,
+    firmas: hay('firmas.json') ? leerJson('firmas.json').firmas : [],
+  };
 }
 
 /* ───────────── lo que se mide ───────────── */
@@ -55,7 +75,13 @@ function hechosPorGrupos(p) {
   return por;
 }
 
-function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d }) {
+// Los grupos distintos de las notas de un hecho, en el orden de las notas (el dominio, si el portal no está en la lista).
+function mediosDe(hecho, portales) {
+  const grupos = hecho.notas.map(n => { const d = dominioDe(n); return (buscarPortal(d, portales) || {}).grupo || d; });
+  return [...new Set(grupos)];
+}
+
+function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, portales = [] }) {
   const feeds = lectura ? lectura.feeds : [];
   const mal = feeds.filter(f => f.estado !== 'ok');
   return {
@@ -70,8 +96,8 @@ function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d }) {
       acumuladas: acumulado.notas.length,
     },
     hechos: { total: p.resumen.hechos, porGrupos: hechosPorGrupos(p) },
-    confirmados: p.candidatos.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, via: c.via, viejo: c.viejo, titulo: c.titulo })),
-    cuatroDeCinco: p.elegiblesAMano.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, conFirma: (c.firmasReconocidas || []).length > 0, titulo: c.titulo })),
+    confirmados: p.candidatos.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, via: c.via, viejo: c.viejo, medios: mediosDe(c, portales), titulo: c.titulo })),
+    cuatroDeCinco: p.elegiblesAMano.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, conFirma: (c.firmasReconocidas || []).length > 0, medios: mediosDe(c, portales), titulo: c.titulo })),
     lista: {
       nacional: d.nacionales.length,
       internacional: d.internacionales.length,
@@ -159,7 +185,7 @@ async function vuelta({ carpeta = 'datos', ahora = new Date().toISOString(), fet
     // 9. La carpeta de la página.
     escribirPagina(carpeta, lista);
     // 10. La línea de la medición.
-    const linea = armarLinea({ ahora, duracionMs: Date.now() - inicio, lectura, acumulado, p, juicios, d });
+    const linea = armarLinea({ ahora, duracionMs: Date.now() - inicio, lectura, acumulado, p, juicios, d, portales });
     if (!sinLeer) appendFileSync(join(carpeta, 'vueltas.jsonl'), JSON.stringify(linea) + '\n');
     // 12. Código de salida: 2 si ningún feed respondió.
     const codigo = !sinLeer && linea.feeds.ok === 0 ? 2 : 0;
@@ -175,9 +201,10 @@ async function vuelta({ carpeta = 'datos', ahora = new Date().toISOString(), fet
 const pausa = ms => new Promise(r => setTimeout(r, ms));
 
 async function main() {
-  const { carpeta, cada, sinLeer } = leerOpciones(process.argv.slice(2));
+  const { carpeta, cada, sinLeer, config } = leerOpciones(process.argv.slice(2));
+  const otra = config === null ? {} : cargarConfig(config);
   if (cada === null) {
-    const r = await vuelta({ carpeta, sinLeer });
+    const r = await vuelta({ carpeta, sinLeer, ...otra });
     console.log('\n' + r.resumen.join('\n') + '\n');
     process.exitCode = r.codigo;
     return;
@@ -185,7 +212,7 @@ async function main() {
   for (;;) {
     const empezo = Date.now();
     try {
-      const r = await vuelta({ carpeta, sinLeer });
+      const r = await vuelta({ carpeta, sinLeer, ...otra });
       console.log('\n' + r.resumen.join('\n') + '\n');
     } catch (e) {
       console.error(`\nLa vuelta falló: ${e instanceof ErrorDeUso ? e.message : e.stack || e}\n`);
@@ -202,4 +229,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { vuelta, leerOpciones, hechosPorGrupos, armarLinea, resumenEnPantalla };
+module.exports = { vuelta, leerOpciones, cargarConfig, hechosPorGrupos, armarLinea, resumenEnPantalla };
