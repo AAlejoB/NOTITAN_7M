@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 15/10/26, 11:05 (hora de Argentina) con "npm run paquete".
+Armado el 15/10/26, 11:15 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -417,7 +417,7 @@ No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 po
 ## Qué viene después
 
 1. Alejo manda el WhatsApp a Don Julio (o lo charla en persona) y pega acá las respuestas a lo abierto.
-2. Al terminar la medición (16/10 después de las 00:30), Alejo manda a Cowork la salida de npm run medir y datos/vueltas.jsonl; Cowork revisa a ojo.
+2. Al terminar la medición (16/10 después de las 00:30), Alejo manda a Cowork, de su compu, cinco cosas: la salida de `npm run medir` (nacional), `datos/vueltas.jsonl`, la salida de `npm run medir -- --carpeta datos/comodoro`, `datos/comodoro/vueltas.jsonl` y `datos/comodoro/notas.json` (este último para ver de qué notas se arma cada hecho local; es una foto, no se sube al repo). Cowork revisa a ojo las dos.
 3. Cowork escribe la carta de la capa 4 (etapas 1 y 2 en el servidor de Don Julio: vuelta cada 30 minutos, IA que juzga, página de hoy con login, aviso por mail). Después, la carta de la página C.
 4. Lo local (reporte ClaudeCode_para_Cowork_2026-10-14_a.md), decidió Alejo el 14-10 a las 23:51: cuando termine la medición (16/10), Cowork escribe una carta chica aparte para Claude Code: sumar al lector la lectura de sitemaps de noticias (título, link y fecha, sin bajada; la página lo dice cuando falta la bajada) y correr desde el entorno de Claude Code un día de medición local con los 3 feeds de Comodoro (ADNSUR, El Comodorense, Crónica sin «energía») más los sitemaps de El Patagónico y El Chubut, para saber cuántas locales llegan a 2 medios por día. Va en paralelo con la carta de la capa 4 y antes de la carta de los anillos, que así se escribe con datos. Correcciones a la lista de candidatos: El Patagónico es de Comodoro (local, no provincial) y La Opinión Austral es de Santa Cruz (cuenta para la Región). ADNSUR y Crónica no traen autor (no sirven para la vía B); El Comodorense sí. **Adelantado el 15-10 (decidió Alejo a las 00:15):** carta `Cowork_para_ClaudeCode_2026-10-15_a.md`, Fase A hecha; la Fase B se pide 24 h después del arranque.
 
@@ -593,7 +593,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **Cowork (diseño y decisiones; antes DISEÑADOR)**
-- [ ] **La medición local en la nube se cortó (15-10):** la compu de Claude Code se apaga cuando la sesión queda quieta; hizo solo 3 vueltas (desde las 00:38). Un día entero no se puede correr desde ahí. Alejo la arranca en su compu el 15-10, en paralelo con la nacional (`--config config/comodoro --carpeta datos/comodoro`); al terminar manda también `npm run medir -- --carpeta datos/comodoro` y `datos/comodoro/vueltas.jsonl`.
+- [ ] **La medición local en la nube se cortó (15-10):** la compu de Claude Code se apaga cuando la sesión queda quieta; hizo solo 3 vueltas (desde las 00:38). Un día entero no se puede correr desde ahí. Alejo la arranca en su compu el 15-10, en paralelo con la nacional (`--config config/comodoro --carpeta datos/comodoro`); al terminar manda también `npm run medir -- --carpeta datos/comodoro` y `datos/comodoro/vueltas.jsonl`. **Cowork (carta `c`): la Fase B de la carta `a` queda cancelada; la revisión la hace Cowork con esos archivos.**
   - **Hueco en la medición nacional:** la ventana de la vuelta se cerró en la compu de Alejo cerca de las 07:43 del 15-10 y se rearrancó a las 09:45 (unas 2 horas sin vueltas). La local arrancó a la misma hora, en su compu, con `Feeds: 8 OK`. Las dos cortan el 16-10 después de las 00:30.
 - [x] **Feeds de portales locales, probados el 14-10** (`buzon/ClaudeCode_para_Cowork_2026-10-14_a.md`): Comodoro tiene 3 con feed al día (ADNSUR, El Comodorense, Crónica por secciones); lo provincial no tiene feeds, solo sitemaps de noticias (El Chubut, El Patagónico). Decidir si el lector suma sitemaps. Nada sumado a `config/`. **Hecho el 15-10:** el lector lee sitemaps y el bloque local de prueba está en `config/comodoro/` (carta 2026-10-15_a).
 - [ ] **Las notas de Alejo usando la página durante la medición** (14-10-2026, 5 miradas): están en `buzon/Alejo_para_Cowork_2026-10-14_a.md`, tal cual y con un resumen. Pide para la página: menos scroll, más legible, **quitar** una noticia «por hoy» con el motivo (para aprender qué busca quien publica) y **archivar** una para combinarla después. De las noticias: sobran locales y de poco interés, un molde de servicio no agarra «horarios del Martín Fierro», hechos repetidos (obispos y el Papa), faltaron Caputo y PSG-Manchester City. Va con la salida de `npm run medir` cuando termine la medición; la modificación de la página, **después** de la prueba (decidió Alejo).
@@ -607,7 +607,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
-- Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`: cerrar la medición local 24 h después del arranque (arrancó el 15-10 a las 00:38) y reportar.
+- ~~Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`~~: **cancelada el 15-10 (carta `c`)**: la medición local corre en la compu de Alejo y la revisa Cowork con los archivos que él mande. Claude Code no tiene nada que hacer con lo local hasta la carta de los bloques por zona.
 - Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`: instalar la capa 4 en el servidor de Don Julio el día que Alejo vaya, en una tanda.
 
 **Más adelante**
