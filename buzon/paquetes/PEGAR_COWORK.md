@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 14/10/26, 23:40 (hora de Argentina) con "npm run paquete".
+Armado el 15/10/26, 00:15 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -417,6 +417,7 @@ No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 po
 1. Alejo manda el WhatsApp a Don Julio (o lo charla en persona) y pega acá las respuestas a lo abierto.
 2. Al terminar la medición (16/10 después de las 00:30), Alejo manda a Cowork la salida de npm run medir y datos/vueltas.jsonl; Cowork revisa a ojo.
 3. Cowork escribe la carta de la capa 4 (etapas 1 y 2 en el servidor de Don Julio: vuelta cada 30 minutos, IA que juzga, página de hoy con login, aviso por mail). Después, la carta de la página C.
+4. Lo local (reporte ClaudeCode_para_Cowork_2026-10-14_a.md), decidió Alejo el 14-10 a las 23:51: cuando termine la medición (16/10), Cowork escribe una carta chica aparte para Claude Code: sumar al lector la lectura de sitemaps de noticias (título, link y fecha, sin bajada; la página lo dice cuando falta la bajada) y correr desde el entorno de Claude Code un día de medición local con los 3 feeds de Comodoro (ADNSUR, El Comodorense, Crónica sin «energía») más los sitemaps de El Patagónico y El Chubut, para saber cuántas locales llegan a 2 medios por día. Va en paralelo con la carta de la capa 4 y antes de la carta de los anillos, que así se escribe con datos. Correcciones a la lista de candidatos: El Patagónico es de Comodoro (local, no provincial) y La Opinión Austral es de Santa Cruz (cuenta para la Región). ADNSUR y Crónica no traen autor (no sirven para la vía B); El Comodorense sí.
 
 # Cowork → pendientes · 14-10-2026 · 22:30 (hora de Argentina) · el después (audio de Don Julio)
 
