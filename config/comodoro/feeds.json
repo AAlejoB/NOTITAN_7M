@@ -1,0 +1,14 @@
+{
+  "_aviso": "Bloque local de prueba (Comodoro Rivadavia y Chubut). Feeds y sitemaps probados el 14-10-2026 (buzon/ClaudeCode_para_Cowork_2026-10-14_a.md). Se usa con: node scripts/vuelta.js --config config/comodoro --carpeta datos/comodoro. Nada de acá entra a config/feeds.json ni a la lista blanca: lo decide Alejo.",
+  "verificado": "2026-10-14",
+  "feeds": [
+    { "nombre": "ADNSUR",               "dominio": "adnsur.com.ar",        "grupo": "ADNSUR",         "ambito": "nacional", "url": "https://www.adnsur.com.ar/rss.xml", "nota": "Comodoro. Sin autor: no sirve para la vía B." },
+    { "nombre": "El Comodorense",       "dominio": "elcomodorense.net",    "grupo": "El Comodorense", "ambito": "nacional", "url": "https://www.elcomodorense.net/feed/", "nota": "Comodoro. Trae autor." },
+    { "nombre": "Crónica · actualidad", "dominio": "diariocronica.com.ar", "grupo": "Crónica",        "ambito": "nacional", "url": "https://www.diariocronica.com.ar/rss/actualidad", "nota": "Comodoro. Un feed por sección; sin autor. Trae notas de hasta un año: lo viejo lo saca acumular." },
+    { "nombre": "Crónica · policiales", "dominio": "diariocronica.com.ar", "grupo": "Crónica",        "ambito": "nacional", "url": "https://www.diariocronica.com.ar/rss/policiales" },
+    { "nombre": "Crónica · deportes",   "dominio": "diariocronica.com.ar", "grupo": "Crónica",        "ambito": "nacional", "url": "https://www.diariocronica.com.ar/rss/deportes" },
+    { "nombre": "Crónica · economía",   "dominio": "diariocronica.com.ar", "grupo": "Crónica",        "ambito": "nacional", "url": "https://www.diariocronica.com.ar/rss/economia", "nota": "«energía» queda afuera (decidió Alejo el 14-10)." },
+    { "nombre": "El Patagónico",        "dominio": "elpatagonico.com",     "grupo": "El Patagónico",  "ambito": "nacional", "formato": "sitemap", "url": "https://www.elpatagonico.com/sitemap-news.xml", "nota": "Comodoro. Sin feed: sitemap de noticias, sin bajada, sin sección ni autor." },
+    { "nombre": "El Chubut",            "dominio": "elchubut.com.ar",      "grupo": "El Chubut",      "ambito": "nacional", "formato": "sitemap", "url": "https://www.elchubut.com.ar/sitemap-news.xml", "nota": "Trelew (provincial). Sin feed: sitemap de noticias, sin bajada ni autor; la sección sale de sus keywords." }
+  ]
+}

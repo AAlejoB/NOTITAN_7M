@@ -1,0 +1,5 @@
+{
+  "_aviso": "Solo lo que cambia respecto de config/reglas.json para el bloque local de prueba: 2 medios para confirmar y sin excepción a mano (una 1/2 no se ofrece). Todo lo demás (ventanas, agrupador, criterio 1, provisorio) se toma de config/reglas.json.",
+  "minGrupos": 2,
+  "aMano": { "activa": false }
+}

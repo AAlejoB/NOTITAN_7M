@@ -1,0 +1,10 @@
+{
+  "_aviso": "Portales del bloque local de prueba (Comodoro Rivadavia y Chubut), para la medición local con --config config/comodoro. No es la lista blanca: esa la decide Alejo.",
+  "portales": [
+    { "dominio": "adnsur.com.ar",        "grupo": "ADNSUR",         "ambito": "nacional", "tipo": "medio", "ciudad": "Comodoro Rivadavia" },
+    { "dominio": "elcomodorense.net",    "grupo": "El Comodorense", "ambito": "nacional", "tipo": "medio", "ciudad": "Comodoro Rivadavia" },
+    { "dominio": "diariocronica.com.ar", "nombre": "Crónica", "grupo": "Crónica", "ambito": "nacional", "tipo": "medio", "ciudad": "Comodoro Rivadavia" },
+    { "dominio": "elpatagonico.com",     "grupo": "El Patagónico",  "ambito": "nacional", "tipo": "medio", "ciudad": "Comodoro Rivadavia" },
+    { "dominio": "elchubut.com.ar",      "grupo": "El Chubut",      "ambito": "nacional", "tipo": "medio", "ciudad": "Trelew" }
+  ]
+}
