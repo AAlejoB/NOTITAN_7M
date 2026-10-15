@@ -168,6 +168,65 @@ test('categorías: van a etiqueta, y una nota de opinión la descarta el criteri
   assert.match(p.descartadas.find(d => d.tipo === 'nota').motivo, /etiqueta opinion/);
 });
 
+/* ───────── sitemaps de noticias ───────── */
+
+const sitemap = urls => `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${urls}</urlset>`;
+const feedSitemap = (extra = {}) => ({ nombre: 'El Chubut', dominio: 'elchubut.com.ar', formato: 'sitemap', ...extra });
+const AHORA_SITEMAP = '2026-10-15T03:30:00.000Z';
+
+test('sitemap (como El Chubut): título, link y fecha de news:*, sección de la primera keyword, sin bajada ni autor', () => {
+  const xml = sitemap(`<url>
+    <loc>https://www.elchubut.com.ar/regionales/el-centro-astronomico-de-trelew-ya-lleva-el-nombre-de-gustavo_123</loc>
+    <lastmod>2026-10-15T03:00:00Z</lastmod>
+    <news:news><news:publication><news:name>El Chubut</news:name><news:language>es</news:language></news:publication>
+    <news:publication_date>2026-10-14T23:35:00Z</news:publication_date>
+    <news:title>El Centro Astronómico de Trelew ya lleva el nombre de Gustavo</news:title>
+    <news:keywords>Regionales</news:keywords></news:news>
+    <image:image><image:loc>https://www.elchubut.com.ar/foto.jpg</image:loc></image:image>
+  </url>
+  <url><loc>https://www.elchubut.com.ar/policiales/otra-nota_124</loc>
+    <news:news><news:publication_date>2026-10-14T20:00:00Z</news:publication_date><news:title>Otra nota</news:title></news:news>
+  </url>`);
+  const { notas, items } = L.parsearFeed(xml, feedSitemap(), { ahora: AHORA_SITEMAP });
+  assert.equal(items, 2);
+  assert.equal(notas.length, 2);
+  const n = notas[0];
+  assert.equal(n.titulo, 'El Centro Astronómico de Trelew ya lleva el nombre de Gustavo');
+  assert.equal(n.url, 'https://www.elchubut.com.ar/regionales/el-centro-astronomico-de-trelew-ya-lleva-el-nombre-de-gustavo_123');
+  assert.equal(n.fecha, '2026-10-14T23:35:00.000Z');
+  assert.equal(n.bajada, '');
+  assert.equal(n.seccion, 'regionales');
+  assert.equal(n.etiqueta, 'Regionales');
+  assert.equal(n.firma, '');
+  assert.equal(n.portal, 'elchubut.com.ar');
+  assert.equal(n.feed, 'El Chubut');
+});
+
+test('sitemap (como El Patagónico): sin keywords la sección queda vacía y no sale de la dirección', () => {
+  const xml = sitemap(`<url>
+    <loc>https://www.elpatagonico.com/futsal-comodoro-ya-luce-su-nueva-indumentaria-el-argentino-c17-n6333909</loc>
+    <news:news><news:publication_date>2026-10-15T00:00:00Z</news:publication_date>
+    <news:title>Futsal: Comodoro ya luce su nueva indumentaria para el Argentino C17</news:title></news:news>
+  </url>`);
+  const { notas } = L.parsearFeed(xml, feedSitemap({ nombre: 'El Patagónico', dominio: 'elpatagonico.com' }), { ahora: AHORA_SITEMAP });
+  assert.equal(notas.length, 1);
+  assert.equal(notas[0].seccion, '');
+  assert.equal(notas[0].etiqueta, '');
+  assert.equal(notas[0].bajada, '');
+  assert.equal(notas[0].fecha, '2026-10-15T00:00:00.000Z');
+});
+
+test('sitemap: sin título, sin link o con fecha futura se descarta con su motivo', () => {
+  const xml = sitemap(`
+    <url><loc>https://www.elchubut.com.ar/a_1</loc><news:news><news:publication_date>2026-10-14T20:00:00Z</news:publication_date></news:news></url>
+    <url><news:news><news:publication_date>2026-10-14T20:00:00Z</news:publication_date><news:title>Sin link</news:title></news:news></url>
+    <url><loc>https://www.elchubut.com.ar/b_2</loc><news:news><news:publication_date>2026-10-17T03:30:00Z</news:publication_date><news:title>Del futuro</news:title></news:news></url>`);
+  const { notas, items, descartadas } = L.parsearFeed(xml, feedSitemap(), { ahora: AHORA_SITEMAP });
+  assert.equal(items, 3);
+  assert.equal(notas.length, 0);
+  assert.deepEqual(descartadas.map(d => d.motivo), ['sin_titulo', 'sin_url', 'fecha_futura']);
+});
+
 /* ───────── todos los feeds ───────── */
 
 const respuesta = (status, cuerpo) => async () => ({ status, text: async () => cuerpo });
@@ -263,4 +322,11 @@ test('config/feeds.json: Infobae excluye España, Perú, México y Colombia, y d
   const rutas = feedsJson.feeds.find(f => f.nombre === 'Infobae').excluirRutas;
   assert.deepEqual([...rutas].sort(), ['/colombia/', '/espana/', '/mexico/', '/peru/']);
   assert.ok(!rutas.includes('/america/'));
+});
+
+test('config/comodoro/feeds.json: los que tienen formato son sitemap, y son El Patagónico y El Chubut', () => {
+  const { feeds } = require('../config/comodoro/feeds.json');
+  const conFormato = feeds.filter(f => f.formato !== undefined);
+  for (const f of conFormato) assert.equal(f.formato, 'sitemap', f.nombre);
+  assert.deepEqual(conFormato.map(f => f.nombre).sort(), ['El Chubut', 'El Patagónico']);
 });

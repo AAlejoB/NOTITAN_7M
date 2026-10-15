@@ -115,6 +115,21 @@ function firmaDe(bloque) {
   return limpiarFirma(nombre !== null ? nombre : autor);
 }
 
+// Sitemap de noticias: la fecha de publicación; si no está, la de la última modificación.
+function fechaDeSitemap(bloque) {
+  for (const etiqueta of ['news:publication_date', 'lastmod']) {
+    const c = contenido(bloque, etiqueta);
+    const t = c !== null ? Date.parse(limpiarHtml(c)) : NaN;
+    if (Number.isFinite(t)) return new Date(t).toISOString();
+  }
+  return null;
+}
+
+function keywordsDe(bloque) {
+  const c = contenido(bloque, 'news:keywords');
+  return c === null ? [] : limpiarHtml(c).split(',').map(k => k.trim()).filter(Boolean);
+}
+
 function categoriasDe(bloque) {
   const texto = todos(bloque, 'category').map(limpiarHtml);
   const atom = [...bloque.matchAll(/<category\b[^>]*\bterm=["']([^"']+)["']/gi)].map(m => decodificar(m[1]).trim());
@@ -172,24 +187,56 @@ function rutaExcluida(url, excluirRutas) {
   return null;
 }
 
-// feed = una entrada de config/feeds.json: { nombre, dominio, url, excluirRutas? }
+// Lo que cambia entre un feed (RSS, Atom, RDF) y un sitemap de noticias: de dónde sale cada campo.
+// El sitemap no trae bajada ni autor, y su sección sale de la primera keyword, nunca de la dirección.
+const LEER_FEED = {
+  bloques: xml => xml.match(/<(item|entry)[\s>][\s\S]*?<\/\1>/gi) || [],
+  titulo: bloque => contenido(bloque, 'title'),
+  enlace: enlaceDe,
+  fecha: fechaDe,
+  resto(bloque, url) {
+    const categorias = categoriasDe(bloque);
+    const descripcion = contenido(bloque, 'description') ?? contenido(bloque, 'summary');
+    return {
+      bajada: recortar(descripcion !== null ? limpiarHtml(descripcion) : '', BAJADA_MAX),
+      seccion: seccionDeUrl(url) || (categorias[0] || '').toLowerCase(),
+      etiqueta: categorias.join(' / '),
+      firma: firmaDe(bloque),
+    };
+  },
+};
+
+const LEER_SITEMAP = {
+  bloques: xml => xml.match(/<url[\s>][\s\S]*?<\/url>/gi) || [],
+  titulo: bloque => contenido(bloque, 'news:title'),
+  enlace: bloque => { const c = contenido(bloque, 'loc'); return c !== null ? limpiarHtml(c) : ''; },
+  fecha: fechaDeSitemap,
+  resto(bloque) {
+    const keywords = keywordsDe(bloque);
+    return { bajada: '', seccion: (keywords[0] || '').toLowerCase(), etiqueta: keywords.join(' / '), firma: '' };
+  },
+};
+
+// feed = una entrada de config/feeds.json: { nombre, dominio, url, excluirRutas?, formato? }
+// formato 'sitemap' = sitemap de noticias; sin formato (o 'rss'), RSS, Atom o RDF.
 // Devuelve { items, notas, descartadas: [{ motivo, titulo, url }] }.
 function parsearFeed(xml, feed, { ahora } = {}) {
-  const bloques = String(xml ?? '').match(/<(item|entry)[\s>][\s\S]*?<\/\1>/gi) || [];
+  const leer = feed.formato === 'sitemap' ? LEER_SITEMAP : LEER_FEED;
+  const bloques = leer.bloques(String(xml ?? ''));
   const tope = ahora ? Date.parse(ahora) + FECHA_FUTURA_HORAS * 3600 * 1000 : Infinity;
   const vistas = new Set();
   const notas = [];
   const descartadas = [];
 
   for (const bloque of bloques) {
-    const tituloCrudo = contenido(bloque, 'title');
+    const tituloCrudo = leer.titulo(bloque);
     const titulo = tituloCrudo !== null ? limpiarHtml(tituloCrudo) : '';
-    const url = urlLimpia(enlaceDe(bloque));
+    const url = urlLimpia(leer.enlace(bloque));
     const baja = motivo => descartadas.push({ motivo, titulo, url: url || '' });
 
     if (!titulo) { baja('sin_titulo'); continue; }
     if (!url) { baja('sin_url'); continue; }
-    const fecha = fechaDe(bloque);
+    const fecha = leer.fecha(bloque);
     if (!fecha) { baja('sin_fecha'); continue; }
     if (Date.parse(fecha) > tope) { baja('fecha_futura'); continue; }
     const excluida = rutaExcluida(url, feed.excluirRutas);
@@ -198,18 +245,17 @@ function parsearFeed(xml, feed, { ahora } = {}) {
     if (vistas.has(clave)) { baja('url_repetida'); continue; }
     vistas.add(clave);
 
-    const categorias = categoriasDe(bloque);
-    const descripcion = contenido(bloque, 'description') ?? contenido(bloque, 'summary');
+    const { bajada, seccion, etiqueta, firma } = leer.resto(bloque, url);
     notas.push({
       id: idDe(feed.dominio, url),
       titulo,
-      bajada: recortar(descripcion !== null ? limpiarHtml(descripcion) : '', BAJADA_MAX),
+      bajada,
       url,
       portal: feed.dominio,
       fecha,
-      seccion: seccionDeUrl(url) || (categorias[0] || '').toLowerCase(),
-      etiqueta: categorias.join(' / '),
-      firma: firmaDe(bloque),
+      seccion,
+      etiqueta,
+      firma,
       feed: feed.nombre,
     });
   }
