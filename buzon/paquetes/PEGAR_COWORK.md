@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 15/10/26, 01:09 (hora de Argentina) con "npm run paquete".
+Armado el 15/10/26, 11:05 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-15_a.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-15_b.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -206,7 +206,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 231 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 280 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--sin-notas-de-servicio`, `--acumular <archivo>`, `--sin-leer` y `--sin-excluir-rutas`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
@@ -222,6 +222,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - **Etapa 1 (2026-10-09, decidió Alejo; hecha en el repo):** `npm run vuelta` (`scripts/vuelta.js`) hace una vuelta completa sin IA: lee los feeds, acumula en `datos/notas.json` (48 h), arma la lista y deja en `datos/pagina/` lo que algún día se sube al hosting (`lista.json` y copias frescas de `index.html` y `logica.js`), y anota una línea por vuelta en `datos/vueltas.jsonl`. `--cada <min>` repite (la siguiente arranca a esos minutos de que empezó la anterior; Ctrl+C corta), `--sin-leer` rehace la lista con lo guardado sin salir a internet, `--carpeta` cambia dónde vive todo. El candado `datos/vuelta.lock` evita dos vueltas a la vez (25 minutos; se borra al terminar). Códigos: 0 bien, 1 error de uso, 2 ningún feed respondió, 3 candado. La lista real sale `sinIA: true` (la página lo dice en una franja azul): el bloque de cada noticia es provisorio (`src/provisorio.js`: nacional o internacional según el portal y la sección de sus notas, internacional si la mitad o más lo parecen; las secciones están en `provisorio` de `config/reglas.json`) y `datoNuevo` va en `false`, así que lo de más de 24 h se cae por el criterio 2. La IA es la etapa 2. `npm run medir` resume `vueltas.jsonl` por día y por corte de 4 horas (hora de Argentina; un hecho cuenta una vez por corte, en el bloque de su última vuelta). `npm run probar-pagina -- --solo-capturas datos/pagina --capturas <nombre>` saca las 3 capturas con la lista real (68 comprobaciones en la prueba normal). Lo real vive en `datos/` y no se sube al repo. Todavía no corre solo: dónde corre cada 30 minutos lo habla Alejo con Don Julio.
 - **Links por medio y la medición en la compu de Alejo (2026-10-09):** en la página cada medio aparece una sola vez en la fila de links, con su primera nota (`links(t)` en `pagina/index.html`; `lista.json` y lo que se copia siguen trayendo todas las notas; valor por defecto de Cowork). `npm run ver` (`scripts/ver.js`) sirve `datos/pagina/` en `http://127.0.0.1:7000/` para verla en esa compu. **El día de medición lo corre Alejo en su compu** (decidió el 09-10): la guía es `docs/CORRER_EN_MI_COMPU.md`; al terminar manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`.
 - **Sitemaps y el bloque local de prueba (2026-10-15):** el lector lee también sitemaps de noticias (`"formato": "sitemap"` en `feeds.json`: título, link, fecha y keywords; sin bajada ni autor); la bajada de un hecho sale de la primera nota que la tenga y la página dice «Sin bajada» cuando ninguna la trae; `npm run vuelta -- --config <carpeta>` corre con otra lista de feeds, portales y reglas (`config/comodoro/`: ADNSUR, El Comodorense, Crónica por secciones, El Patagónico y El Chubut; 2 medios para confirmar, sin 1/2 a mano), y cada confirmada de `vueltas.jsonl` lleva sus `medios`. La medición local de un día corre en el entorno de Claude Code en `datos/comodoro/` (no se sube). Nada entró a la lista blanca.
+- **Capa 4 escrita (2026-10-15):** `src/capa4.js` parte la vuelta en `mitadUno` (leer, acumular, preparar, armar las preguntas de juicio) y `mitadDos` (leer las respuestas, guardar juicios, decidir, lista); n8n la corre cada 30 minutos (`n8n/vuelta.json`, con `n8n/correo.json`, `n8n/error.json` y `n8n/prueba-union.json`), guarda lo acumulado y lo juzgado en los datos estáticos del workflow y escribe `lista.json` en `<datos>/pagina/`; `scripts/servir.js` sirve la página con login (mail y contraseña, «olvidé mi clave» por el webhook de correo; usuarios con `scripts/usuario.js` en `<datos>/usuarios.json`, nunca en el repo); la IA es `ia.modelo` de `config/reglas.json`, temperatura 0, y se vuelve a preguntar solo por lo que no tiene juicio, lo que tiene un desmentido nuevo o lo que pasó a viejo; si no contesta, el hecho lleva el juicio provisorio y la página lo dice; aviso por mail con tope de 1 por hora; la unión sigue apagada hasta que `prueba-union` pase 3 de 3. Falta instalarlo en el servidor de Don Julio (`docs/INSTALAR_EN_EL_SERVIDOR.md`). Probado en el entorno de Claude Code con n8n 2.43.6 (npm, Node 24) y la IA falsa (`scripts/ia-falsa.js`): dos vueltas del reloj, 19 feeds, 5 preguntas y después 0. `ia.modelo` es `claude-haiku-4-5`, que la documentación de Anthropic marca «legacy» (retiro no antes del 15-10-2026; el Haiku actual es `claude-haiku-5-5`): ver el reporte `ClaudeCode_para_Cowork_2026-10-15_b.md`.
 - Paquete para pegar en Cowork (2026-10-04): cuando el chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_COWORK.md` (antes había uno por rol; con un solo chat hay un solo paquete). Lo arma `npm run paquete` (`scripts/armar-paquete.js`) con `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code, tal cual del repo. Es una foto: se rearma al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -308,7 +309,7 @@ Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 
 
 ## Siguiente paso
 
-La etapa 1 está hecha en el repo. El día de medición lo corre Alejo en su compu (decidió el 09-10; guía en `docs/CORRER_EN_MI_COMPU.md`) y le manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`; con eso Cowork revisa a ojo los bloques por los títulos. Dónde corre de verdad cada 30 minutos (preguntas 1 y 2 de la capa 4) sigue siendo de Alejo con Don Julio. Después vienen la etapa 2 (la IA que juzga, con `preguntaJuicio`), la 3 (la página en su hosting, pregunta 5) y la 4 (la unión de hechos partidos, tras la prueba de 3 veces). Las 14 preguntas de la capa 4 quedaron contestadas por Alejo con los valores por defecto el 2026-10-09 (están en `buzon/pendientes.md`, ítem «Capa 4»). El lector (`src/lector.js`) devuelve notas `{id, titulo, bajada, url, portal, fecha, seccion, etiqueta, firma, feed}`.
+La capa 4 está escrita; falta instalarla en el servidor de Don Julio (Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`). Después, la página C y la pieza 2.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -406,7 +407,7 @@ No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 po
 
 ## Abierto (sin resolver, con valor por defecto mientras tanto)
 
-- Datos del servidor de Don Julio que faltan para la carta: versión de n8n, si corre con Docker o npm (por el cambio de la 3.0), y cómo se entra (SSH o lo sube él). Se piden en el WhatsApp. Mientras tanto: se asume Docker.
+- Datos del servidor de Don Julio que faltan para la carta: versión de n8n, si corre con Docker o npm (por el cambio de la 3.0), y cómo se entra (SSH o lo sube él). Se piden en el WhatsApp. Mientras tanto: se asume Docker. **Están en el cuadro 1 de `docs/INSTALAR_EN_EL_SERVIDOR.md`.**
 - Canal 2: cuántas personas lo usan y si entran desde el celular o la compu. Entra en el login (usuarios) y en la página C (versión ancha si es compu). Mientras tanto: 3 personas, celular.
 - Cuántas horas por semana tiene Don Julio. Mientras tanto: sin plazo.
 - Cuánto esperar a un feed lento antes de seguir sin él. Mientras tanto: lo que ya hace el lector.
@@ -533,6 +534,21 @@ Dibujo de todo esto (artifact privado de Alejo, él lo tiene): https://claude.ai
 - De 4 a 5 nuevas por mirada, elegiría entre 0 y 3. Cruzar con npm run medir.
 - «Más noticias al descartar» (bajar de 5 portales): Alejo dijo «por ahora dejalo así», lo habla con Don Julio. La regla de 5 sigue fija.
 
+**Parcial, hasta las 09:44 del 15-10 (38 vueltas desde el 14-10 13:18), revisado por Cowork el 15-10; el día completo se cruza cuando termine la medición (16/10):**
+
+| Qué | Número |
+|---|---|
+| Noticias distintas que llegaron a 5 medios en el día | 32 (22 nacionales + 10 internacionales) |
+| Noticias distintas que pasaron por 4/5 | 46; 23 de ellas llegaron después a 5, 23 nunca |
+| Confirmadas que estuvieron antes en 4/5 | 23 de 32 (entre 1 y 7 horas antes) |
+| Vueltas con la lista de nacionales llena (7) | desde las 18:43 en adelante, todas |
+| Internacionales en la lista | 1 hasta las 19:13, 3 o 4 después |
+| Confirmadas nuevas de madrugada (23:43 a 07:13) | 0 |
+| Bloque provisorio equivocado (internacionales que salieron nacionales) | 4 de 22 confirmadas y 3 de las 4/5 |
+| La misma noticia partida en varios hechos | el Papa en 6 hechos; Martín Fierro en 3; riesgo país en 2; Caputo en 2; Roña Castro en 2 |
+| Notas de servicio que los moldes no agarran y llegaron a 5 | horario del Martín Fierro, el clima de Tucumán, «Anses: quiénes cobran», «Precio del euro hoy en Chile», «Cuánto cobran los empleados de McDonald's» |
+| Feeds caídos | Al Jazeera, 1 vuelta de 38 |
+
 ## Qué viene después
 
 1. Antes de la carta, en el mismo chat de Cowork: Alejo pidió estudiar «el comportamiento de una noticia», qué le pasa desde que sucede hasta que se publica y qué le pasa cuando la toma el agente. Cowork lo dibuja como un tablero interactivo (la noticia es una ficha que avanza por etapas, con un control de tiempo). No es carta ni cambio: es para entendernos.
@@ -577,6 +593,8 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **Cowork (diseño y decisiones; antes DISEÑADOR)**
+- [ ] **La medición local en la nube se cortó (15-10):** la compu de Claude Code se apaga cuando la sesión queda quieta; hizo solo 3 vueltas (desde las 00:38). Un día entero no se puede correr desde ahí. Alejo la arranca en su compu el 15-10, en paralelo con la nacional (`--config config/comodoro --carpeta datos/comodoro`); al terminar manda también `npm run medir -- --carpeta datos/comodoro` y `datos/comodoro/vueltas.jsonl`.
+  - **Hueco en la medición nacional:** la ventana de la vuelta se cerró en la compu de Alejo cerca de las 07:43 del 15-10 y se rearrancó a las 09:45 (unas 2 horas sin vueltas). La local arrancó a la misma hora, en su compu, con `Feeds: 8 OK`. Las dos cortan el 16-10 después de las 00:30.
 - [x] **Feeds de portales locales, probados el 14-10** (`buzon/ClaudeCode_para_Cowork_2026-10-14_a.md`): Comodoro tiene 3 con feed al día (ADNSUR, El Comodorense, Crónica por secciones); lo provincial no tiene feeds, solo sitemaps de noticias (El Chubut, El Patagónico). Decidir si el lector suma sitemaps. Nada sumado a `config/`. **Hecho el 15-10:** el lector lee sitemaps y el bloque local de prueba está en `config/comodoro/` (carta 2026-10-15_a).
 - [ ] **Las notas de Alejo usando la página durante la medición** (14-10-2026, 5 miradas): están en `buzon/Alejo_para_Cowork_2026-10-14_a.md`, tal cual y con un resumen. Pide para la página: menos scroll, más legible, **quitar** una noticia «por hoy» con el motivo (para aprender qué busca quien publica) y **archivar** una para combinarla después. De las noticias: sobran locales y de poco interés, un molde de servicio no agarra «horarios del Martín Fierro», hechos repetidos (obispos y el Papa), faltaron Caputo y PSG-Manchester City. Va con la salida de `npm run medir` cuando termine la medición; la modificación de la página, **después** de la prueba (decidió Alejo).
 - [ ] **El flujo que quiere Alejo con cada noticia** (14-10-2026, `buzon/Alejo_para_Cowork_2026-10-14_b.md`): primero discriminar (me interesa / no por hoy con motivo / archivar) y después copiar solo lo elegido. Ideas para pensar: gustos por persona (chimento sí o no), más noticias al descartar (la regla de 5 queda fija: «por ahora dejalo así»), portales locales de Chubut. Se diseña después de la prueba.
@@ -590,6 +608,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
 - Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`: cerrar la medición local 24 h después del arranque (arrancó el 15-10 a las 00:38) y reportar.
+- Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`: instalar la capa 4 en el servidor de Don Julio el día que Alejo vaya, en una tanda.
 
 **Más adelante**
 - [ ] Portales y firmas por país, para vender a otros países (Uruguay, por ejemplo).
@@ -602,6 +621,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 ## Hecho
 
+- [x] 15-10-2026 · **Capa 4 escrita** (carta `b`): `src/capa4.js`, los cuatro workflows en `n8n/`, la página con login (`scripts/servir.js`, `scripts/usuario.js`), la IA falsa y la guía de instalación. Falta instalar (Fase B).
 - [x] 15-10-2026 · **Sitemaps en el lector y `--config` en la vuelta** (decidió Alejo adelantarlo el 15-10): El Patagónico y El Chubut se leen por su sitemap de noticias (sin bajada; la página lo dice); `config/comodoro/` es el bloque local de prueba (5 portales, 2 medios para confirmar); la medición local corre en el entorno de Claude Code.
 - [x] 09-10-2026 · **Links por medio** (Cowork, valor por defecto, variante A): en la página cada medio aparece una sola vez en la fila de links, con su primera nota; lo que se copia sigue con todos. `npm run ver` para ver `datos/pagina/` en la compu. **El día de medición lo corre Alejo en su compu** (decidió Alejo): guía `docs/CORRER_EN_MI_COMPU.md`.
 - [x] 09-10-2026 · **Etapa 1 en el repo** (decidió Alejo): `npm run vuelta` hace una vuelta completa sin IA y deja la lista real en `datos/pagina/`; `npm run medir` resume las vueltas por corte de 4 h; la página avisa «Sin el juicio de la IA». Dónde corre, con Don Julio.
@@ -641,137 +661,149 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-15_a.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-15_b.md
 ============================================================
 
-# Claude Code → Cowork · 15-10-2026 · 01:09 (hora de Argentina) · letra a
+# Claude Code → Cowork · 15-10-2026 · 11:04 (hora de Argentina) · letra b
 
-Responde a `Cowork_para_ClaudeCode_2026-10-15_a.md`, **Fase A**.
+Responde a `Cowork_para_ClaudeCode_2026-10-15_b.md` (la capa 4), **Fase A**.
 
-**Veredicto:** está hecha. El lector lee sitemaps, la vuelta corre con `--config config/comodoro` y la medición local arrancó el **15-10 a las 00:38:33** (PID 5173). Ya en la primera media hora hay **23 hechos que llegan a 2 medios**, 3 de ellos a 3. Pasan todas las comprobaciones, salvo que la de la página arrancaba en 73 y no en 68 (ver «Qué decidí por mi cuenta»).
+**Veredicto:** la capa 4 está escrita, con tests, y **corrió de verdad adentro de un n8n** en mi entorno: n8n 2.43.6 instalado con npm, los 4 workflows importados tal cual del repo, 6 vueltas seguidas disparadas por el reloj, todas en verde, con los 19 feeds reales y la IA falsa (5 preguntas en la primera, 0 en las siguientes: lo juzgado quedó guardado en los datos estáticos). Ojo con dos cosas para Alejo y Cowork: **Claude Haiku 4.5 figura como «legacy» en la documentación de Anthropic, con retiro «no antes del 15-10-2026» (hoy)**, y **n8n 2.x corre los nodos Code en un «task runner»**: si Don Julio usa runners externos, las carpetas y las variables van en ese contenedor (está en la guía).
 
 ## Qué cambió
 
-| Paso | Cambio | Commit |
-|---|---|---|
-| — | La carta, guardada | `baf39a0` |
-| 5 | `config/comodoro/` con los tres archivos tal cual la carta (sin tocar `_aviso` ni `nota`) | `20684e0` |
-| 1 | `parsearFeed` con `formato: 'sitemap'`: `<url>`, `news:title`, `loc`, `news:publication_date` o `lastmod`, sección de la primera keyword; bajada y firma vacías. Sin `formato`, igual que antes | `bc685fe` |
-| 2 | `probar-feeds.js` reconoce `<urlset>`, cuenta `<url>`, lee `<loc>` y las fechas de sitemap, y usa el `portales.json` de la carpeta del archivo | `3c6cf61` |
-| 3 | La bajada sale de la primera nota que la tiene. La página dibuja «Sin bajada: este medio no la publica en su listado.» en cursiva, en las tarjetas y en las 4/5. Lo que se copia no cambia | `9794479` |
-| 4 | `--config <carpeta>` y `cargarConfig` (exportada); `medios` en cada confirmada y en cada 4/5 de `vueltas.jsonl` | `d9c34cd` |
-| 2 (arreglo) | `probar-feeds.js` sin `--json` ignoraba el archivo que se le pasaba (ver abajo) | `9477322` |
-| 8 | README, CLAUDE.md y pendientes | `501c91b` |
+| Archivo | Qué |
+|---|---|
+| `src/capa4.js` (nuevo) | `mitadUno`, `mitadDos`, `escribir`; copias de `filtrarRutas`, `armarLinea`, `hechosPorGrupos`, `mediosDe`, `resumenEnPantalla`; y lo que usan los nodos de n8n: `cuerpoIA`, `textoDeRespuesta`, `preguntaUnionDePrueba`, `itemsDePrueba`, `resultadoPrueba` |
+| `test/capa4.test.js` (nuevo) | 16 tests: E1 a E5 y los extra de la carta, más el aviso por portales, una provisoria de dos, el reemplazo de un juicio y la prueba de la unión |
+| `config/reglas.json` | `ia.modelo` `claude-haiku-4-5`, `ia.temperatura` 0, `ia.maxTokens` {juicio 400, union 200}; `avisos` {topeMinutos 60, paginaViejaMinutos 60}; `cliente` «Canal 2» |
+| `src/entrega.js`, `test/entrega.test.js` | `provisorias`, `cliente` y `paginaViejaMinutos` en la lista (por defecto 0, '' y 60); 2 tests |
+| `n8n/vuelta.json`, `correo.json`, `error.json`, `prueba-union.json`, `LEEME.md` (nuevos) | Los 4 workflows, importables; el LEEME dice qué editar después de importar |
+| `test/n8n.test.js` (nuevo) | 4 tests: JSON válido, los 10 nodos y las flechas de la vuelta, los nodos de los otros 3, sin claves ni mails ni «password» |
+| `scripts/servir.js`, `scripts/usuario.js`, `pagina/entrar.html` (nuevos) | La página con login, los usuarios con scrypt, el formulario (entrar, olvidé mi clave, clave nueva) |
+| `test/servir.test.js`, `test/usuario.test.js` (nuevos) | 7 + 3 tests: E6, E7, E8, Secure, salir, opciones, sal distinta |
+| `package.json` | `npm run servir` |
+| `pagina/index.html` | 401 → `/entrar`; «No se actualiza desde las HH:MM · contactá al administrador» con más de `paginaViejaMinutos`; franja de provisorias; «Canal 2 · 7M»; «Salir» |
+| `scripts/probar-pagina.js` | Sección «8 · capa 4» con 3 comprobaciones; las capturas pasan a la sección 9; la comprobación vieja del aviso ámbar ahora espera el texto nuevo |
+| `scripts/ia-falsa.js` (nuevo) | La IA de mentira, con `--fallar <n>` |
+| `docs/INSTALAR_EN_EL_SERVIDOR.md` (nuevo) | La guía, en las 7 secciones de la carta, más «La IA falsa (solo para probar)» |
+| `README.md`, `CLAUDE.md`, `buzon/pendientes.md` | Como pide el paso 8 (y en `CLAUDE.md`, el número de tests, que decía 231) |
 
-## Tests
-
-| | Antes | Después |
-|---|---|---|
-| `npm test` | 239 bien, 1 pendiente | **248 bien**, 1 pendiente (+9) |
-| `npm run probar-pagina` | 73 bien | **75 bien**, 0 mal (+2: «7b · una noticia sin bajada») |
-
-Los 9 nuevos: E1, E2, E3 y `config/comodoro/feeds.json` (lector); E5 (probador); E7 (núcleo); E8, E9 y E10 (vuelta). E11 entró en el test de opciones que ya existía, como permitía la carta.
-
-## La medición local
-
-**Punto 1 · `node scripts/probar-feeds.js config/comodoro/feeds.json`** (con `NODE_USE_ENV_PROXY=1`; saqué el aviso de undici):
+Así queda la vuelta en n8n:
 
 ```
-OK  ADNSUR              20 notas  OK
-OK  El Comodorense      12 notas  OK
-OK  Crónica · actualidad 500 notas  OK
-OK  Crónica · policiales 500 notas  OK
-OK  Crónica · deportes 500 notas  OK
-OK  Crónica · economía 466 notas  OK
-OK  El Patagónico       87 notas  OK
-OK  El Chubut           50 notas  OK
-
-8 de 8 andan.
+Cada 30 minutos → Rutas → Feeds → Bajar (19 feeds) → Preparar (mitadUno)
+                                                        │
+                                              ¿Hay preguntas?
+                                     sí ↙                    ↘ no
+                          IA (Anthropic, de a 5)                │
+                                     ↘                         ↙
+                                    Decidir (mitadDos + escribir)
+                                                │
+                                            ¿Avisar? ── sí → Avisar (mail)
 ```
-
-Ningún 403 ni «NO ES FEED». No se tocó el `user-agent`.
-
-**Punto 2 · la vuelta a mano:**
-
-```
-VUELTA · 15/10/26 00:38 (hora de Argentina)
-Feeds: 8 OK · 0 caídos
-Notas: 2135 leídas · 2135 nuevas · 285 acumuladas
-Hechos según grupos: 1: 228 · 2: 19 · 3: 4 · 4: 0 · 5+: 0
-Confirmados: 23 nacionales + 0 internacionales
-4/5 (les falta 1 medio): 0 nacionales + 0 internacionales
-Lista: 7 nacionales + 0 internacionales
-Escribí: datos/comodoro/pagina/lista.json
-Código de salida: 0
-```
-
-**Punto 3 · el arranque:** `Thu Oct 15 00:38:33 -03 2026`. **PID 5173** (`node scripts/vuelta.js --config config/comodoro --carpeta datos/comodoro --cada 30`, con `NODE_USE_ENV_PROXY=1`). Las 24 h se cuentan desde ahí: **la Fase B, desde el 16-10 a las 00:38**.
-
-**Punto 4:** a las 01:08:54 `vueltas.jsonl` tiene 3 líneas (00:38 a mano, 00:38 y 01:08 del proceso) y el proceso sigue vivo.
-
-**La última línea (01:08):** `notas.acumuladas` 286; `hechos.porGrupos` `{ 1: 229, 2: 19, 3: 4, 4: 0, 5+: 0 }`. Las 23 confirmadas:
-
-| Grupos | Medios | Título |
-|---|---|---|
-| 2 | Crónica, El Patagónico | Dos detenidos con cocaína y un revólver en un remis en Comodoro |
-| 2 | Crónica, El Patagónico | El papa León XIV ya está en el hospital para ser operado del pulmón |
-| 2 | Crónica, El Patagónico | RJ Mitte, estrella de Breaking Bad, falleció a los 34 años |
-| 2 | Crónica, El Patagónico | Un policía de Chubut irá a juicio por jurados acusado de abuso sexual |
-| 2 | El Patagónico, Crónica | El Municipio impulsa charlas de concientización sobre el cáncer de mama |
-| 2 | El Patagónico, Crónica | Una reunión para activar el Corredor Bioceánico |
-| 2 | El Patagónico, Crónica | Comodoro expuso su modelo de innovación en Ciencia y Tecnología |
-| 2 | El Patagónico, Crónica | River Plate y Estudiantes se unen para impulsar cambios en el fútbol argentino |
-| 2 | Crónica, El Chubut | Falleció Jorge Roña Castro, leyenda del boxeo argentino |
-| 3 | El Patagónico, Crónica, El Chubut | Alivio financiero para jubilados: pueden refinanciar sus deudas con una tasa del 25%, un año de gracia y hasta 72 cuotas |
-| 2 | Crónica, El Chubut | Torres negocia apoyos electorales con el Gobierno nacional |
-| 3 | Crónica, El Patagónico, El Chubut | Especialistas intensifican el monitoreo sanitario tras la muerte de varias ballenas en Puerto Madryn |
-| 2 | Crónica, El Chubut | Violento asalto a una familia en una chacra de Gaiman |
-| 2 | Crónica, El Chubut | El Observatorio Astronómico de Trelew ya lleva el nombre de Gustavo Di Benedetto |
-| 3 | Crónica, ADNSUR, El Comodorense | La Justicia impuso una multa diaria al Gobierno por no liberar fondos universitarios |
-| 2 | El Patagónico, El Comodorense | Mario Rodríguez, tras el bronce en Corea del Sur, se ilusiona con correr en Malvinas |
-| 2 | ADNSUR, El Patagónico | Tiroteo frente a la Oficina Judicial de Comodoro: cinco imputados seguirán presos |
-| 3 | El Patagónico, ADNSUR, El Chubut | Comunidad universitaria convoca a la Marcha Federal |
-| 2 | Crónica, El Chubut | Pánico en Trelew por un hombre armado con un cuchillo que persiguió a una madre y a su hija |
-| 2 | Crónica, El Comodorense | El riesgo país supera los 600 puntos tras una jornada de volatilidad global |
-| 2 | ADNSUR, Crónica | Un anciano no vidente cayó desde dos metros en su vivienda del barrio Pietrobelli |
-| 2 | El Chubut, Crónica | Comienza el Campeonato Provincial de handball |
-| 2 | El Comodorense, ADNSUR | River empató 1 a 1 con Sarmiento y sigue afuera de los puestos de clasificación |
-
-Una primera mirada, sin revisar todavía si son la misma noticia (eso es la Tabla B de la Fase B): **Crónica está en 20 de las 23**, El Chubut en 10 y varias son de afuera (el Papa, Breaking Bad, River). Eso es para la carta de los anillos.
 
 ## Comprobaciones
 
-| # | Tiene que dar | Dio |
+| # | Comprobación | Dio |
 |---|---|---|
-| C1 | antes 239 + 1 pendiente; después todos bien, +9 o más, 1 pendiente | antes 239 + 1; después **248 + 1**, 0 mal |
-| C2 | 0 MAL y 70 o más | **75 bien, 0 mal** |
-| C3 | 8 OK, ninguna línea «links a dominios fuera» | **8 de 8**, ninguna (antes hubo que arreglar el probador, ver abajo) |
-| C4 | el mensaje de 4a, código 1, `/tmp/x` no se crea | «No se pudo: --config necesita una carpeta con feeds.json y portales.json: /tmp/no-existe/feeds.json no está.», **código 1**, `/tmp/x` no existe |
-| C5 | 8 OK · 0 caídos, código 0, `medios` en cada confirmada de la primera línea | **8 OK · 0 caídos, código 0**; las 23 confirmadas de la primera línea traen `medios` (2 o más) |
-| C6 | `git ls-files datos` vacío | **vacío** |
-| C7 | solo los archivos de la lista | ver abajo |
-| C8 | la hora del encabezado | `Thu Oct 15 01:09:01 -03 2026` |
+| C1 | `npm test` | antes 248 bien y 1 pendiente (249); después **280 bien, 0 mal, 1 pendiente** (281): 32 más |
+| C2 | `npm run probar-pagina` | **78 bien, 0 mal** |
+| C3 | `node scripts/vuelta.js --sin-leer` sobre una copia de `datos/`, con el código de hoy y con el de `da5ef4e` | las dos listas son **idénticas salvo los 3 campos nuevos** (`provisorias` 0, `cliente` '', `paginaViejaMinutos` 60). Lo guardado en `datos/` ya tiene más de 48 h (0 hechos), así que también corrí `npm run demo`: anda igual |
+| C4 | Script descartable: 19 feeds con `fetch` → `mitadUno` → IA falsa → `mitadDos` → `escribir` | código 0. `resumen` `{"hechos":742,"candidatos":2,"elegiblesAMano":3,"conJuicioGuardado":0,"aPreguntar":5}`; `linea.ia` `{"preguntadas":5,"contestadas":5,"fallidas":0}`; `lista.provisorias` 0; `lista.sinIA` false; primeras líneas: «VUELTA · 15/10/26 11:00 (hora de Argentina)» · «Feeds: 19 OK · 0 caídos» · «Notas: 979 leídas · 979 nuevas · 872 acumuladas». **Con `--fallar 2`:** `linea.ia` `{5, 3, 2}`, `provisorias` **2**, `sinIA` **false** |
+| C5 | El mismo script, dos vueltas pasando el `guardado` | segunda vuelta: `aPreguntar` **0** (antes 5) y `conJuicioGuardado` **5** (los 5 que juzgó la primera) |
+| C6 | `node --test test/n8n.test.js` | 4 bien |
+| C7 | `git grep -n "sk-ant\|password\|contraseña:" -- n8n docs scripts src config` | una sola línea: `scripts/usuario.js:61` («Para darle otra contraseña: nueva-clave …»), texto para la persona. Ninguna clave |
+| C8 | `git ls-files datos` | vacío |
+| C9 | `git diff --cached --stat da5ef4e` | solo los archivos de la tabla de pasos, la carta y este reporte (ver el commit) |
+| C10 | `TZ=America/Argentina/Buenos_Aires date` | `Thu Oct 15 11:04:00 -03 2026` |
+| C11 | 3f, n8n en mi entorno | **Corrió.** Ver abajo |
 
-**C7** (`git add -A` y `git diff --cached --stat 47dafc6`, con el reporte ya escrito y antes de `npm run paquete`): da exactamente los 18 archivos de la lista. La salida está en el mensaje del commit del reporte.
+### C11 · la vuelta adentro de n8n
+
+Lo que hice: `npm i n8n@2.43.6` en el scratchpad; n8n 2.43 **no arranca con Node 22** (pide Node 24): bajé Node 24 aparte y recompilé `isolated-vm` con él. Importé las credenciales de prueba (con los nombres `7M Anthropic`, `7M Correo`, `7M Webhook`) y los 4 workflows con `n8n import:workflow` (los 4 importaron sin tocarlos). En una copia de la vuelta cambié solo el nodo Rutas (mi repo y una carpeta temporal), la dirección de IA (la IA falsa) y el reloj a 1 minuto; la activé con `n8n publish:workflow` y arranqué `n8n start` con `NODE_FUNCTION_ALLOW_EXTERNAL=*` y `NODE_FUNCTION_ALLOW_BUILTIN=*` (runner interno). `n8n execute` no sirve para la vuelta: pide un disparador manual. Unos 12 minutos de reloj, contando la instalación.
+
+| Vuelta (hora UTC) | Feeds OK | Notas acumuladas | IA (preguntadas, contestadas, fallidas) | tardoMs |
+|---|---|---|---|---|
+| 13:58 | 19 | 876 | 5, 5, 0 | 1.821 |
+| 13:59 | 19 | 879 | 0, 0, 0 | 1.574 |
+| 14:00 | 19 | 880 | 0, 0, 0 | 1.743 |
+| 14:01 | 19 | 886 | 0, 0, 0 | 1.498 |
+| 14:02 | 19 | 889 | 0, 0, 0 | 1.536 |
+| 14:03 | 19 | 890 | 0, 0, 0 | 1.482 |
+
+Salida del nodo Decidir en la primera vuelta:
+
+```
+avisar: { hayQue: false, asunto: "", texto: "", ultimoAviso: null }
+ia: { preguntadas: 5, contestadas: 5, fallidas: 0 } · provisorias: 0 · tardoMs: 1821
+VUELTA · 15/10/26 10:58 (hora de Argentina)
+Feeds: 19 OK · 0 caídos
+Notas: 982 leídas · 982 nuevas · 876 acumuladas
+Hechos según grupos: 1: 709 · 2: 23 · 3: 8 · 4: 3 · 5+: 2
+Confirmados: 2 nacionales + 0 internacionales
+4/5 (les falta 1 medio): 3 nacionales + 0 internacionales
+Lista: 2 nacionales + 0 internacionales
+Código de salida: 0
+```
+
+- **Los datos estáticos pesan 547 KB** (890 notas y 5 juicios). Cada vuelta completa tarda 1,5 a 1,8 s (de Preparar al final de Decidir); la ejecución entera, unos 3 s con la bajada de los feeds. Guardar no la enlentece acá; con 48 h de notas reales (unas 1.000 a 1.300) serían unos 0,8 MB. Se mide de nuevo en la Fase B, en la máquina de Don Julio.
+- **La prueba de la unión** (`n8n execute`, sí anda: tiene disparador manual) corrió entera: 5 casos × 3 = 15 llamadas, **9 de 15 y «no pasa»**, que es lo correcto con la IA falsa (siempre dice «no»: fallan los 2 casos `true`).
+- No probé el mail de aviso ni el de «olvidé mi clave» adentro de n8n (no hay SMTP en mi entorno). El login contra un n8n falso sí está probado (E7).
+
+## El modelo
+
+- Escribí **`claude-haiku-4-5`** (el alias; apunta a `claude-haiku-4-5-20251001`). Verificado hoy en https://platform.claude.com/docs/en/models/haiku-4-5/overview (docs.claude.com redirige ahí) y en la lista de modelos.
+- **Para decidir (Cowork / Alejo):** la página dice «Legacy… you should consider migrating to Claude Haiku 5.5» y «Retirement: Not sooner than October 15, 2026». Sigue disponible, por eso respeté la decisión, pero lo pueden retirar con aviso. El Haiku actual es **`claude-haiku-5-5`** (desde US$0,10 por millón de tokens de entrada y US$0,50 de salida, contra US$1 y US$5 de Haiku 4.5). Cambiarlo es un valor de `config/reglas.json`, sin tocar código; la prueba de la unión 3 veces se haría con ese modelo. No verifiqué si Haiku 5.5 acepta `temperature` igual que 4.5.
+- La API: `POST https://api.anthropic.com/v1/messages`, cabeceras `x-api-key`, `anthropic-version: 2023-06-01` y `content-type: application/json`; el texto viene en `content[0].text` (`textoDeRespuesta` busca el primer bloque `type: "text"`).
+
+## Nodos y versiones
+
+Sacadas del código de `n8n-nodes-base` de la 2.43.6 (la versión más nueva de cada nodo), e importadas y corridas en esa versión:
+
+| Nodo | Tipo | typeVersion |
+|---|---|---|
+| Cada 30 minutos | Schedule Trigger | 1.4 |
+| Rutas | Edit Fields (Set) | 3.5 |
+| Feeds, Preparar, Decidir, Casos, Resultado | Code | 2 |
+| Bajar, IA | HTTP Request | 4.5 |
+| ¿Hay preguntas?, ¿Avisar? | If | 2.3 |
+| Avisar, Mandar | Send Email | 2.1 |
+| Webhook | Webhook | 2.2 |
+| Contestar | Respond to Webhook | 1.5 |
+| Si se rompe | Error Trigger | 1 |
+| Probar | Manual Trigger | 1 |
 
 ## Qué decidí por mi cuenta
 
-- **Arreglo en el probador de feeds (no estaba en la carta):** `node scripts/probar-feeds.js config/comodoro/feeds.json` probaba igual `config/feeds-candidatos.txt` (los 20 de siempre). Sin `--json`, `iJson` vale -1 y la condición `i !== iJson + 1` dejaba afuera justo el primer argumento. Ahora solo saltea el valor de `--json` cuando `--json` está. Es un renglón del mismo archivo del paso 2 y lo hice para que E6 y C3 se pudieran correr. Las pruebas de feeds anteriores que se hicieron pasando un archivo sin `--json` en realidad probaron los candidatos.
-- **La página arrancaba en 73, no en 68:** la carta y `CLAUDE.md` dicen 68, pero la versión de base (`47dafc6`) ya da 73. Se sumaron las 2 nuevas (sección «7b») y quedan en 75. No toqué el «68» de `CLAUDE.md` porque la carta no lo pedía.
-- **El orden de los commits:** `config/comodoro/` entró antes que el lector, porque el test nuevo del lector lee `config/comodoro/feeds.json`. Así todos los commits pasan `npm test`.
-- **La bajada en la página** salió a una función `bajada(t)` que usan las dos tarjetas (`noticia` y `cuatroDeCinco`), con el texto y la clase exactos de la carta.
-- **El test de E4 en `test/vuelta.test.js`** compara las claves de cada confirmada: le sumé `medios`, que es el cambio que pide 4b.
-- **E5:** `masNueva` da la de `lastmod` (03:00Z) porque es la más nueva de las dos. La carta lo permite.
-- **En la vuelta, «nuevas» y «borradas» salen altas** (1.851 nuevas y 1.850 borradas a las 01:08). Son las notas de hasta un año de Crónica que entran y `acumular` saca por las 48 h en la misma vuelta, como avisaba la `nota` del feed. No cambié nada.
+1. **`acumulado.borradas` viaja como ids** (no las notas enteras) y **`lectura` sin sus notas**: pesan en los datos estáticos y la línea solo cuenta cuántas. `leidas` sale de sumar las notas de cada feed.
+2. **`mitadDos` recalcula los desmentidos y el `viejo` de cada hecho** en vez de recibirlos de las preguntas: `preparar` es determinista con las mismas notas, así que dan lo mismo y n8n pasa solo `{ id, texto }`.
+3. **`sinIA` es true solo si hubo juicios y todos son provisorios.** Sin ninguna noticia que juzgar, la lista no dice «sin IA».
+4. **El aviso por portales es «había feeds y ninguno contestó».** La carta, leída al pie de la letra, choca en E3: con el `guardado` de E2 (todos los cuerpos en 0) E3 avisaría por portales, y la carta pide `hayQue: false`. En los tests E2 a E5 usan una lista de feeds vacía; la caída de todos los portales tiene su propio test. Si caen los portales y también la IA, el asunto dice «la IA no contestó y ningún portal contestó».
+5. **Los nodos Code son finos:** casi todo vive en `src/capa4.js` (`cuerpoIA`, `textoDeRespuesta`, `itemsDePrueba`, `resultadoPrueba`), con tests, y los nodos solo pegan.
+6. **`config/` se lee del disco en cada vuelta** (con `fs`, no `require`): un `git pull` de `config/` vale desde la vuelta siguiente. `src/capa4.js` queda en memoria: un cambio de código vale después de reiniciar n8n (está en el LEEME y en la guía).
+7. **Bajar** lleva «Never Error» (un 404 llega como `statusCode` y sale «HTTP 404», como en `npm run vuelta`) y la respuesta en `body`. **IA** va de a 5 pedidos por segundo («Batching»), por el límite de pedidos por minuto de una cuenta nueva; el cuerpo va con `JSON.stringify($json.cuerpoIA)`.
+8. **Preparar pone `sinPreguntas` en todos los ítems** (true o false) y el IF pregunta «es false»: así no compara contra un campo que no existe.
+9. **Las credenciales en los JSON llevan un id fijo de mentira** (`credencial-7m-anthropic`, etc.) y el nombre: con `n8n import:credentials` y esos ids quedan enganchadas solas; desde la pantalla, se eligen a mano. **`errorWorkflow` no está en `settings`** (vacío).
+10. **El login:** al cambiar la contraseña se cierran las sesiones de esa persona; contraseña nueva de 8 letras o más; al sexto intento fallido contesta 429 **aunque la contraseña sea la buena** (si no, el tope no frena nada); `GET /olvide` y `GET /nueva-clave` sirven el mismo `entrar.html`, que muestra el formulario que toca; el pedido a n8n no se espera (la respuesta tarda lo mismo exista o no el mail); `usuarios.json` se escribe con permisos 600.
+11. **La franja «contactá al administrador» sale también en una lista de ejemplo vieja** (antes ya salía «No se actualiza desde…»). Con 1 provisoria dice «1 noticia con bloque provisorio: la IA no contestó por ella».
+12. **La IA falsa** busca «internacional» sin mirar mayúsculas.
 
-## Riesgo para la Fase B
+## Lo que a la guía le puede faltar (para alguien que no sabe de n8n)
 
-La medición corre en el contenedor de esta sesión. Si la sesión queda quieta mucho tiempo, el contenedor se puede reciclar y el proceso se corta. La Fase B ya cubre ese caso («si ya no estaba, no lo relances»), pero conviene saber que puede pasar. Lo medido vive solo en `datos/comodoro/` de este contenedor: si lo reciclan, también se pierde `vueltas.jsonl`.
+- **Node 24:** si Don Julio instaló n8n 2.x con npm, necesita Node 24; con Docker no importa (la imagen trae el suyo). El login necesita Node 20 o más **afuera** de Docker: la guía dice cómo instalarlo.
+- **Runners externos:** si Don Julio los usa, la documentación de n8n dice que `NODE_FUNCTION_ALLOW_*` van en el contenedor de runners; que también haya que montar ahí las carpetas lo deduzco (el código corre en ese proceso), no lo probé. Se ve en la Fase B.
+- **Permisos:** el usuario de n8n en Docker es el 1000; la guía hace `chown` de la carpeta de datos y corre el login como 1000. Si Don Julio tiene otro esquema, se adapta en la tanda.
+- **«Activar» en n8n 2.x** es «Publish»; la guía nombra los dos.
+- **Cuentas nuevas de Anthropic** tienen límites bajos de pedidos por minuto: la primera vuelta pregunta por todos los hechos a juzgar (5 hoy, con la lista real pueden ser 10 a 15). Con el batching de 5 por segundo no debería pasar; si pasa, esos hechos salen provisorios y se vuelven a preguntar en la vuelta siguiente.
+- Visto de paso (no lo toqué; es de antes): las notas de más de 48 h que el feed sigue mostrando se cuentan como «nuevas» en cada vuelta (`acumular` las borra y las vuelve a agregar): por eso la segunda vuelta dice 108 nuevas. No cambia ninguna decisión.
 
 ## Qué queda pendiente y para quién
 
-- **Claude Code:** la Fase B, desde el 16-10 a las 00:38.
-- **Cowork:** nada nuevo para decidir. Los números de los anillos esperan la Fase B.
+- **Alejo / Cowork:** si se pasa a `claude-haiku-5-5` antes de instalar (un valor en `config/reglas.json`).
+- **Alejo con Don Julio:** las respuestas del cuadro 1 de `docs/INSTALAR_EN_EL_SERVIDOR.md`, la casilla SMTP, la clave de Anthropic y los mails de Canal 2.
+- **Claude Code (Fase B):** acompañar la instalación, la prueba de la unión 3 veces con la IA real, la primera vuelta real, D1 a D6 y su reporte.
+- **Cowork:** la medición completa del 16/10 (la tabla parcial ya está en `pendientes.md`).
 
 ============================================================
 FIN DEL PAQUETE
