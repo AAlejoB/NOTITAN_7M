@@ -87,3 +87,16 @@ test('config/portales.json: los portales sin feed están inactivos', () => {
   const inactivos = portales.filter(x => x.activo === false).map(x => x.dominio).sort();
   assert.deepEqual(inactivos, sinFeed, 'ningún otro portal puede estar inactivo');
 });
+
+test('sitemap de noticias: formato, cuenta los <url> (no el <urlset>), fechas de news:* y lastmod, dominios de <loc>', () => {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+<url><loc>https://www.elchubut.com.ar/regionales/el-centro-astronomico_123</loc><lastmod>2026-10-15T03:00:00Z</lastmod>
+<news:news><news:publication_date>2026-10-14T23:35:00Z</news:publication_date><news:title>El Centro Astronómico</news:title><news:keywords>Regionales</news:keywords></news:news></url>
+<url><loc>https://www.elchubut.com.ar/policiales/otra_124</loc><news:news><news:publication_date>2026-10-14T20:00:00Z</news:publication_date><news:title>Otra</news:title></news:news></url>
+</urlset>`;
+  const r = analizarCuerpo(xml);
+  assert.equal(r.formato, 'sitemap');
+  assert.equal(r.items, 2);
+  assert.equal(r.masNueva, Date.parse('2026-10-15T03:00:00Z'));
+  assert.deepEqual(r.dominios, { 'elchubut.com.ar': 2 });
+});

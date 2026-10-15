@@ -2,7 +2,8 @@
 // Uso: node scripts/probar-feeds.js [config/feeds.json | candidatos.txt] [--json salida.json]
 // Sin dependencias. Si la red pasa por proxy: NODE_USE_ENV_PROXY=1 node scripts/probar-feeds.js
 'use strict';
-const { readFileSync, writeFileSync } = require('node:fs');
+const { readFileSync, writeFileSync, existsSync } = require('node:fs');
+const path = require('node:path');
 
 const UA = 'Mozilla/5.0 (compatible; NOTITAN_7M feed-probe)';
 const TIMEOUT_MS = 20000;
@@ -38,10 +39,11 @@ function analizarCuerpo(cuerpo) {
   if (/<rss[\s>]/.test(inicio)) formato = 'rss';
   else if (/<feed[\s>]/.test(inicio)) formato = 'atom';
   else if (/<rdf:rdf[\s>]/.test(inicio)) formato = 'rdf';
+  else if (/<urlset[\s>]/.test(inicio)) formato = 'sitemap';
   else if (/<!doctype html|<html/.test(inicio)) formato = 'html';
 
-  const items = (cuerpo.match(/<(item|entry)[\s>]/gi) ?? []).length;
-  const fechas = [...cuerpo.matchAll(/<(?:pubDate|published|updated|dc:date)[^>]*>\s*(?:<!\[CDATA\[)?\s*([^<\]]+?)\s*(?:\]\]>)?\s*</gi)]
+  const items = (cuerpo.match(formato === 'sitemap' ? /<url[\s>]/gi : /<(item|entry)[\s>]/gi) ?? []).length;
+  const fechas = [...cuerpo.matchAll(/<(?:pubDate|published|updated|dc:date|news:publication_date|lastmod)[^>]*>\s*(?:<!\[CDATA\[)?\s*([^<\]]+?)\s*(?:\]\]>)?\s*</gi)]
     .map((m) => Date.parse(m[1].trim()))
     .filter((t) => Number.isFinite(t));
   const masNueva = fechas.length ? Math.max(...fechas) : null;
@@ -50,10 +52,11 @@ function analizarCuerpo(cuerpo) {
 
 // Dominio (sin www.) de cada nota del feed, con cuántas notas trae cada uno.
 function dominiosDeLinks(cuerpo) {
-  const bloques = cuerpo.match(/<(item|entry)[\s>][\s\S]*?<\/\1>/gi) ?? [];
+  const bloques = cuerpo.match(/<(item|entry|url)[\s>][\s\S]*?<\/\1>/gi) ?? [];
   const cuenta = {};
   for (const b of bloques) {
     const link =
+      b.match(/<loc>\s*(?:<!\[CDATA\[)?\s*([^<\s\]]+)/i)?.[1] ??
       b.match(/<link>\s*(?:<!\[CDATA\[)?\s*([^<\s\]]+)/i)?.[1] ??
       b.match(/<link\b[^>]*href=["']([^"']+)["']/i)?.[1];
     if (!link) continue;
@@ -106,7 +109,7 @@ async function probar({ nombre, ambito, url }) {
   let veredicto;
   if (r.status === 0) veredicto = `NO CONECTA (${r.error})`;
   else if (r.status >= 400) veredicto = `HTTP ${r.status}`;
-  else if (!['rss', 'atom', 'rdf'].includes(formato)) veredicto = `NO ES FEED (${formato ?? 'vacío'})`;
+  else if (!['rss', 'atom', 'rdf', 'sitemap'].includes(formato)) veredicto = `NO ES FEED (${formato ?? 'vacío'})`;
   else if (items === 0) veredicto = 'FEED VACÍO';
   else if (horas !== null && horas > FRESCO_HORAS) veredicto = `VIEJO (${Math.round(horas)} h)`;
   else veredicto = 'OK';
@@ -139,7 +142,9 @@ async function main() {
       }
     }),
   );
-  const portales = JSON.parse(readFileSync('config/portales.json', 'utf8')).portales;
+  // Los portales de la misma carpeta que el archivo probado (config/comodoro/…), si hay; si no, los de siempre.
+  const deLaCarpeta = path.join(path.dirname(archivo), 'portales.json');
+  const portales = JSON.parse(readFileSync(existsSync(deLaCarpeta) ? deLaCarpeta : 'config/portales.json', 'utf8')).portales;
   const enLista = (host) => portales.some((p) => host === p.dominio || host.endsWith('.' + p.dominio));
   for (const r of resultados) {
     const marca = r.veredicto === 'OK' ? 'OK ' : 'MAL';
