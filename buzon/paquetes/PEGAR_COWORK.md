@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 14/10/26, 22:36 (hora de Argentina) con "npm run paquete".
+Armado el 14/10/26, 23:40 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-09_b.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-14_a.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -196,6 +196,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - De adentro hacia afuera: 1 núcleo, 2 motor, 3 datos (portales), 4 orquestación, 5 botón y entrega.
 - Cada entrega termina con el molde «▶ QUÉ HACÉS AHORA» (decidió Alejo el 05-10-2026), en el mensaje del chat y nunca en tabla: por cada destinatario, «ESTO mandale a …:» (palabras de Alejo), un recuadro con exactamente lo que se pega (sea una línea o una carta entera, de DESDE ACÁ a HASTA ACÁ) y el molde afuera, con sus cinco campos de una línea (A QUIÉN, QUÉ LE PASÁS, QUÉ ESPERÁS, SE APLICA, A EJECUTAR). Lo que se pega nunca lleva adentro recuadros ni moldes de ejemplo. Detalle en `buzon/LEEME_COWORK.md` («El molde»).
 - No poner diagramas con forma de comando dentro de bloques de código: una vez los copió en PowerShell.
+- Para trabajos delicados o estructurales (diseño, decisiones, cartas grandes), recomendarle siempre el modelo de pensamiento más fuerte que haya y con esfuerzo al máximo, y decirle qué modelo y qué esfuerzo usar en cada lado (pidió Alejo el 14-10-2026).
 - Dice "andá para adelante": no pedirle permiso por cada paso, solo parar si hay algo que solo él puede hacer.
 - Trabaja con **dos bloques** (desde el 2026-10-04; antes eran tres, como en su otro proyecto ST: DISEÑADOR, PREPARADOR y Claude Code, y se mareaba llevando archivos entre tres chats): **un solo chat de Cowork** (el modelo más fuerte que haya, esfuerzo al máximo; piensa, le pregunta a Alejo, dibuja con artifacts y escribe el pedido exacto) y **Claude Code** (Sonnet 5.5, ejecuta). **Claude Code habla solo con Cowork, por archivos en `buzon/`** (`Cowork_para_ClaudeCode_*` y `ClaudeCode_para_Cowork_*`). Alejo lleva los archivos de uno a otro. Al empezar: `buzon/LEEME_CLAUDECODE.md` y `buzon/pendientes.md`. Lo chico se le pide directo a Claude Code; pasa por Cowork lo que toca una decisión de Alejo o más de un archivo. Donde este archivo o `pendientes.md` dicen DISEÑADOR o PREPARADOR, hoy es Cowork; las cartas viejas con esos nombres quedan en `buzon/` como historia.
 - Hay **una sola sesión de Claude Code**: la de la rama `claude/trusting-knuth-brmpsy` (decidido por Alejo el 2026-10-04; la sesión original se retiró). Esa rama es la principal del repo, así que nadie tiene que igualar nada.
@@ -370,6 +371,53 @@ ARCHIVO 4 de 5 · buzon/pendientes.md
 
 # Pendientes
 
+# Cowork → pendientes · 14-10-2026 · 23:30 (hora de Argentina) · las 14 respuestas de Don Julio
+
+No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 por WhatsApp (la colección «respuestas» de la página quedó vacía). Alejo las cruzó con Cowork una por una. Regla que puso Alejo para leerlas: lo que sienta bases (dónde corre, dónde se guarda, dónde vive la página, cómo se entra, quién paga, el orden) va como lo dijo Don Julio; lo interno lo acomoda Cowork. Esta sección es la base de la carta de la capa 4, que se escribe después de la medición y ANTES que la carta de la página C.
+
+## Decidió Alejo (14-10-2026, 22:45 a 23:28)
+
+1. Todo corre en el servidor de Don Julio: su n8n ya instalado, accesible desde internet (pregunta 1, opción B). Se cae n8n Cloud y los €20 por mes.
+2. El código entra por carpeta en ese servidor y n8n lo lee del disco (pregunta 2, opción B); hace falta habilitar NODE_FUNCTION_ALLOW_EXTERNAL (con Docker, montar la carpeta en el contenedor). Un cambio es un git pull. Don Julio no entendió la pregunta (la leyó como «dónde se guardan los datos»); en el WhatsApp se le vuelve a explicar.
+3. Los feeds los baja n8n y nuestro código los interpreta (pregunta 3, opción A, como estaba).
+4. Lo acumulado, lo juzgado por la IA y la última lista se guardan adentro de n8n si no lo enlentece; plan B, una base de datos en el mismo Linux (pregunta 4, opción A). Supabase sale de la lista. Dato para la carta: hoy ya anda con archivos (datos/) en la compu de Alejo; se nombra, no se propone.
+5. La página vive en el mismo servidor que n8n (pregunta 5, opción B; Alejo eligió el mismo servidor y no InMotion). Nada que subir: la lista se escribe en la carpeta que sirve el servidor web.
+6. Se entra con mail y contraseña, con «olvidé mi clave» por mail (pregunta 6, opción C). Una sola empresa al principio. El login lo arma Claude Code (pieza chica en Node, sin librerías, en el mismo servidor); a Don Julio se le pide solo una casilla de correo para mandar esos mails.
+7. La IA la pagan Alejo y Don Julio con su propia cuenta y el cliente paga un cargo mensual (pregunta 7). El proveedor no cambia: Claude Haiku 4.5. Los planes de servicio (cuántas por día, qué temas, Normal o Plus) son negocio de Alejo y Don Julio y se arman con las perillas que ya existen en config/; para el motor no cambia nada: sigue mirando los portales cada 30 minutos y la página muestra siempre lo último.
+8. Cómo avisa si falla: como estaba (pregunta 9, opción C) más lo que sumó Don Julio: la página dice «contactá al administrador» y el aviso llega con el detalle del error. Destinatarios: Alejo y Don Julio.
+9. Pruebas contra lo real: un solo workflow hasta que esté fino; después dos, real y pruebas, y lo que anda se clona al real (pregunta 10, termina en A).
+10. Primer cliente: Canal 2 (pregunta 11). Canal 2 o Don Julio paga el desarrollo a medida; terminado (versión 1.0), paga un valor mensual con precio preferencial por primer cliente; los demás, otro precio.
+11. Orden (pregunta 12): capa 4 primero (poner lo de hoy en el servidor de Julio y conectar la IA), página C después, pieza 2 al final. Da vuelta el orden escrito en la sección de las 22:30.
+12. Repo: sigue público (pregunta 13). A Don Julio no le molesta mientras sea seguro.
+13. Una sola empresa ahora (pregunta 14); multi-empresa después, por clonado o por licencia por empresa.
+14. Las analogías de Alejo y Cowork (anillos, linterna, cono) son solo para entenderse entre ellos: en cartas a Claude Code y mensajes a Don Julio van con nombre real (bloque regional, filtro por tema, portales locales).
+
+## Valores por defecto de Cowork (no son decisiones de Alejo; se cambian)
+
+- Recursos del servidor: con el mínimo de n8n (1 vCPU, 2 GB de RAM) alcanza; 2 vCPU y 4 GB si el equipo comparte; 10 GB libres de disco sobran. 7M hace 48 vueltas por día de menos de 1 segundo y guarda ~0,5 MB.
+- Acceso: la gente de Canal 2 entra a la página, nunca a n8n. A n8n entran Alejo y Don Julio; Claude Code necesita un usuario de n8n o SSH para dejar el código.
+- Con login, las decisiones de la página C (me interesa, no por hoy con motivo, archivo, «no la vi») pasan a guardarse en el servidor por persona, en vez de localStorage. Esto destraba dos pendientes: «que las personas del mismo canal vean lo que se llevó cada una» y «dónde viajan los motivos de No por hoy».
+- Aviso de falla por mail, con la misma casilla que usa el login; tope 1 mail por hora. La página agrega «contactá al administrador» si la última vuelta tiene más de 1 hora.
+- El workflow de pruebas escribe en otra carpeta y otra página, nunca en lo que ve Canal 2.
+- La prueba de la unión (pregunta 8) la escribe Claude Code como workflow aparte en el n8n de Don Julio, con la misma configuración que lo real; temperatura y tope de tokens los fija Claude Code en la carta. Don Julio no la entendió y no hace falta que la entienda: es interna.
+- Seguridad en el servidor: en el repo nunca hay claves ni texto de los portales; la clave de la IA y la casilla de correo viven en las credenciales de n8n y en un archivo de configuración del servidor que no se sube. Como el repo es público, el servidor lo baja con git clone sin permisos.
+- Regla para Claude Code: todo lo que es de un cliente vive en config/ (cupo, temas, escalón, usuarios). Así clonar para otra empresa es copiar una carpeta.
+
+## Abierto (sin resolver, con valor por defecto mientras tanto)
+
+- Datos del servidor de Don Julio que faltan para la carta: versión de n8n, si corre con Docker o npm (por el cambio de la 3.0), y cómo se entra (SSH o lo sube él). Se piden en el WhatsApp. Mientras tanto: se asume Docker.
+- Canal 2: cuántas personas lo usan y si entran desde el celular o la compu. Entra en el login (usuarios) y en la página C (versión ancha si es compu). Mientras tanto: 3 personas, celular.
+- Cuántas horas por semana tiene Don Julio. Mientras tanto: sin plazo.
+- Cuánto esperar a un feed lento antes de seguir sin él. Mientras tanto: lo que ya hace el lector.
+- Precios de los planes y del mensual de Canal 2: de Alejo y Don Julio.
+- Nombre del producto: sigue 7M hasta que Alejo decida.
+
+## Qué viene después
+
+1. Alejo manda el WhatsApp a Don Julio (o lo charla en persona) y pega acá las respuestas a lo abierto.
+2. Al terminar la medición (16/10 después de las 00:30), Alejo manda a Cowork la salida de npm run medir y datos/vueltas.jsonl; Cowork revisa a ojo.
+3. Cowork escribe la carta de la capa 4 (etapas 1 y 2 en el servidor de Don Julio: vuelta cada 30 minutos, IA que juzga, página de hoy con login, aviso por mail). Después, la carta de la página C.
+
 # Cowork → pendientes · 14-10-2026 · 22:30 (hora de Argentina) · el después (audio de Don Julio)
 
 No es una carta de cambios. La medición sigue corriendo en la compu de Alejo hasta el 16/10 después de las 00:30; hasta entonces no se toca la página ni se escribe carta para Claude Code. Esta sección se guarda en buzon/pendientes.md tal cual, arriba de la de las 20:15, y las dos juntas son la base de las cartas de la página nueva.
@@ -413,7 +461,7 @@ Dibujo de todo esto (artifact privado de Alejo): https://claude.ai/artifact/LmLy
 - **Fotos:** Don Julio no las nombró; Alejo sí. Sigue como ítem de «Más adelante» (derechos de las imágenes). Mientras tanto: la pieza 2 sale sin fotos.
 - **Cómo se baja el cuerpo de cada portal:** cada uno arma su página distinto y alguno bloquea. Trabajo para Claude Code después de la medición: probar con los 19 portales de la lista qué cuerpo se puede sacar y anotar los que bloquean. Mientras tanto: nada.
 - **Costo de IA por armado:** medir cuántas palabras entran (3 cuerpos) y salen (3 textos) y cuánto cuesta cada «Armar» con el modelo de la capa 4. Mientras tanto: la cuenta de la capa 4 (US$1 a 5 por mes) no lo incluye.
-- **Respuestas de Don Julio a la capa 4:** al 14-10 a las 22:00 la colección `respuestas` de la página sigue vacía. Vale lo del 09-10 (Alejo contestó con los valores por defecto).
+- Respuestas de Don Julio: llegaron el 14-10 por WhatsApp; ver la sección de las 23:30.
 - **Un solo artifact con todo, paso a paso** (idea de Alejo, 22:23): al final, juntar tablero, Opción C y «El después» en un solo lugar para mostrar a clientes. Se hace cuando la página nueva esté decidida del todo, no antes.
 
 ## Qué cambia respecto de lo ya anotado
@@ -511,6 +559,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Orden por etapas (valor por defecto de Cowork; se le pregunta a Don Julio en la pregunta 12):** 1) leer y guardar cada 30 minutos, sin IA, que ya sirve para medir un día real; 2) la IA que juzga; 3) la página con la lista real; 4) la unión, después de la prueba de 3 veces.
   - **Datos consultados por Cowork el 05-10 en las páginas oficiales:** n8n 3.0 todavía no salió (está anunciado para octubre de 2026); con esa versión el servidor propio va solo con Docker y el tiempo máximo de un nodo Code baja de 5 minutos a 1. n8n Cloud Starter sigue en €20 por mes con pago anual y 2.500 ejecuciones. Claude Haiku 4.5 sigue en US$1 por millón de tokens de entrada y US$5 de salida. `preparar` tarda menos de 1 segundo con 1.300 notas inventadas (medido por Cowork).
   - **09-10 (Alejo):** Don Julio no contestó la página; Alejo contestó las 14 preguntas con los valores por defecto. Dónde corre cada 30 minutos (preguntas 1 y 2) lo habla con Don Julio después. Lo demás vale hasta que Don Julio diga otra cosa.
+  - 14-10 23:30: Don Julio contestó por WhatsApp; ver la sección de las 23:30 arriba.
 
 **Alejo**
 - [ ] **Deportes y espectáculos: pendiente** (Alejo: «dejalo como pendiente»). Por defecto: **deportes sí, farándula no** (`config/reglas.json`, sección `ia`: `deportes` y `farandula`). Esos dos valores entran en el texto de la pregunta de juicio de la IA.
@@ -526,6 +575,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **Cowork (diseño y decisiones; antes DISEÑADOR)**
+- [ ] **Feeds de portales locales, probados el 14-10** (`buzon/ClaudeCode_para_Cowork_2026-10-14_a.md`): Comodoro tiene 3 con feed al día (ADNSUR, El Comodorense, Crónica por secciones); lo provincial no tiene feeds, solo sitemaps de noticias (El Chubut, El Patagónico). Decidir si el lector suma sitemaps. Nada sumado a `config/`.
 - [ ] **Las notas de Alejo usando la página durante la medición** (14-10-2026, 5 miradas): están en `buzon/Alejo_para_Cowork_2026-10-14_a.md`, tal cual y con un resumen. Pide para la página: menos scroll, más legible, **quitar** una noticia «por hoy» con el motivo (para aprender qué busca quien publica) y **archivar** una para combinarla después. De las noticias: sobran locales y de poco interés, un molde de servicio no agarra «horarios del Martín Fierro», hechos repetidos (obispos y el Papa), faltaron Caputo y PSG-Manchester City. Va con la salida de `npm run medir` cuando termine la medición; la modificación de la página, **después** de la prueba (decidió Alejo).
 - [ ] **El flujo que quiere Alejo con cada noticia** (14-10-2026, `buzon/Alejo_para_Cowork_2026-10-14_b.md`): primero discriminar (me interesa / no por hoy con motivo / archivar) y después copiar solo lo elegido. Ideas para pensar: gustos por persona (chimento sí o no), más noticias al descartar (la regla de 5 queda fija: «por ahora dejalo así»), portales locales de Chubut. Se diseña después de la prueba.
 - [ ] **El bloque provisorio falla con una internacional que los medios argentinos ponen en secciones genéricas** (medido el 09-10: el Nobel de la Paz a Navi Pillay, 7 grupos, 3 de 9 notas «parecen» internacionales, salió en Nacionales; las otras 3 confirmadas salieron bien). **Valor por defecto: no se toca**; lo arregla la IA en la etapa 2 y la página ya dice «provisorio». Parche posible si molesta en la medición: que un hecho vaya a internacional también cuando lo publican 3 o más medios de `ambito: internacional` distintos (riesgo: una nacional muy grande con cobertura de afuera iría a internacional). Mientras tanto, al revisar el día medido, Cowork mira los bloques a ojo por los títulos de `vueltas.jsonl`.
@@ -588,97 +638,52 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-09_b.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-14_a.md
 ============================================================
 
-# Claude Code → Cowork · 09-10-2026 · 23:00 (hora de Argentina) · letra b
+# Claude Code → Cowork · 14-10-2026 · 23:40 (hora de Argentina) · letra a
 
-Responde a la carta `Cowork_para_ClaudeCode_2026-10-09_b.md` (base: commit `ac8b9a2`).
+No responde a ninguna carta. Alejo pidió adelantar, mientras corre la medición en su compu, la prueba de feeds de los portales locales que estaba en «Abierto» (sección de las 20:15 de `pendientes.md`). **Solo se midió:** no se tocó código, configuración, la página ni `datos/`. La prueba se corrió desde el entorno de Claude Code con `scripts/probar-feeds.js` sobre una lista de candidatos en una carpeta temporal (no quedó en el repo).
 
-**Veredicto:** los 4 pasos están hechos y probados. `npm test` pasó de 231 a 239 bien (+8) y sigue 1 pendiente; `npm run probar-pagina` da 73 bien y 0 mal (68 + 5). En la captura de 390 de una vuelta real, ninguna de las 5 tarjetas ni de las 2 en observación repite un medio. Nada de `datos/` entró al repo.
+**Veredicto:** Comodoro Rivadavia tiene **3 portales con feed que anda y está al día** (ADNSUR, El Comodorense y Crónica). Con eso un bloque local con «2 medios para confirmar» es posible de entrada. Lo provincial (Chubut) **no tiene feeds**: los dos que se pueden leer lo hacen por su sitemap de noticias, que trae título, fecha y link pero no bajada, y el lector hoy no sabe leerlo.
 
-## Qué cambió
+## Qué anda
 
-| Paso | Archivo | Qué cambió |
-|---|---|---|
-| carta | `buzon/Cowork_para_ClaudeCode_2026-10-09_b.md` | La carta guardada tal cual. |
-| 1 | `pagina/index.html` | `links(t)` dibuja el primer link de cada `medio`; el orden no cambia. Nada más se tocó (ni `entrega.js` ni `logica.js`). |
-| 1 | `scripts/probar-pagina.js` | Parte nueva «7 · cada medio una sola vez» con 5 comprobaciones (E1 en 3, lo copiado con las 4 urls, E3). La de las capturas pasó a ser la «8». |
-| 2 | `scripts/ver.js` (nuevo) | `npm run ver`, con `--carpeta` y `--puerto`. Exporta `servir(carpeta, puerto)` y `leerOpciones`. |
-| 2 | `package.json` | El script `ver`. |
-| 2 | `test/ver.test.js` (nuevo) | 8 tests: los 5 pedidos (`/`, `/lista.json`, 404, E7, E6) y 3 más (solo escucha en `127.0.0.1`, puerto ocupado con código 1, opciones inválidas). |
-| 3 | `docs/CORRER_EN_MI_COMPU.md` (nuevo) | La guía de 9 secciones para Windows y PowerShell, en el orden de la carta. Los comandos van cada uno en su bloque; sin molde ni nada para Cowork. |
-| 4 | `CLAUDE.md`, `buzon/pendientes.md`, `README.md` | Los cambios de 4b, tal cual (renglón nuevo en «Estado», oración de «Siguiente paso», 4 cambios en `pendientes.md`, el comando y el link a la guía en el README). |
-| 4 | `buzon/capturas/pagina-real-2026-10-09-b-{390,1200,390-oscuro}.png` | Las 3 capturas con la lista real. |
+| Portal | Ciudad | Feed | Notas que trae | Última nota | En 24 h | En 48 h | Autor |
+|---|---|---|---|---|---|---|---|
+| ADNSUR | Comodoro | `https://www.adnsur.com.ar/rss.xml` (también `atom.xml`) | 20 | hace 0,2 h | 20 | 20 | no |
+| El Comodorense | Comodoro | `https://www.elcomodorense.net/feed/` | 12 | hace 0,9 h | 12 | 12 | sí |
+| Crónica · actualidad | Comodoro | `https://www.diariocronica.com.ar/rss/actualidad` | 500 | hace 4,9 h | 27 | 64 | no |
+| Crónica · policiales | Comodoro | `/rss/policiales` | 500 | hace 3,8 h | 8 | 15 | no |
+| Crónica · deportes | Comodoro | `/rss/deportes` | 500 | hace 1,0 h | 18 | 32 | no |
+| Crónica · economía | Comodoro | `/rss/economia` | 468 | hace 4,6 h | 2 | 6 | no |
+| Crónica · energía | Comodoro | `/rss/energia` | 54 | — | — | — | no |
 
-## Lo que se ve
+Crónica no tiene feed general: tiene uno por sección (la lista está en `https://www.diariocronica.com.ar/rss`). Sus feeds traen notas de hasta un año atrás; lo de más de 24 h ya lo descarta el motor.
 
-Antes y después de la fila de links (E1, el Nobel de tu captura):
+## Qué no anda
 
-```
-ANTES   La Gaceta · elDiarioAR · La Capital · El País · BBC · DW · Perfil · Perfil · Perfil     (9 links)
-AHORA   La Gaceta · elDiarioAR · La Capital · El País · BBC · DW · Perfil                        (7 links; «Perfil» va a la primera nota)
-COPIAR  sigue trayendo las 9 urls, una por renglón
-```
-
-En la vuelta real de esta ronda (links en pantalla / medios distintos):
-
-| Tarjeta | Links en la lista | Medios distintos | En pantalla |
+| Portal | Ciudad | Qué pasa | Alternativa |
 |---|---|---|---|
-| Navi Pillay (Nacionales) | 10 | 8 | 8 |
-| Enner Valencia / Paredes (Nacionales) | 8 | 5 | 5 |
-| Terremoto en Panamá (Internacionales) | 21 | 11 | 11 |
-| Trump y el diésel ruso | 8 | 8 | 8 |
-| Copiloto de Flydubai | 5 | 5 | 5 |
-| Huracán Isaías (4/5) | 4 | 4 | 4 |
-| ICE en Nueva York (4/5) | 4 | 4 | 4 |
+| El Patagónico | Comodoro | Sin feed (404 en `/feed`, `/rss`, `/rss.xml`); la portada responde 403 al probador y 200 con un navegador común | **Sitemap de noticias** `/sitemap-news.xml`: 87 títulos, del 12-10 al 15-10 |
+| El Chubut | Trelew | Sin feed (404) | **Sitemap de noticias** `/sitemap-news.xml`: 50 títulos de las últimas 24 h |
+| Diario Jornada | Trelew | Sin feed (devuelve la página, no un feed); sin sitemap de noticias | Ninguna encontrada |
+| La Opinión Austral | Río Gallegos (Santa Cruz), con edición de Caleta Olivia | Sin feed (404); sin sitemap de noticias | Ninguna encontrada |
+| Rawson Digital | Rawson | No conecta | Ninguna |
 
-Resumen de pantalla de esa vuelta, tal cual:
+**Ojo con dos datos de la lista de candidatos:** El Patagónico es de Comodoro, no provincial; y La Opinión Austral es de Santa Cruz, así que para la regla «2 medios de 2 provincias» contaría como Santa Cruz, no como Chubut.
 
-```
-VUELTA · 9/10/26 22:59 (hora de Argentina)
-Feeds: 19 OK · 0 caídos
-Notas: 1068 leídas · 140 nuevas · 1034 acumuladas
-Hechos según grupos: 1: 773 · 2: 49 · 3: 8 · 4: 3 · 5+: 5
-Confirmados: 2 nacionales + 3 internacionales
-4/5 (les falta 1 medio): 0 nacionales + 2 internacionales
-Lista: 2 nacionales + 3 internacionales
-Escribí: datos/pagina/lista.json
-Código de salida: 0
-```
+## Qué hace falta decidir (para Cowork, con Alejo)
 
-El Nobel de Navi Pillay sigue saliendo en Nacionales, como pedía la carta: no se tocó el bloque provisorio (quedó en `pendientes.md`).
+1. **Leer sitemaps de noticias además de feeds.** Suma El Patagónico y El Chubut (y es lo único que hoy le daría algo al bloque provincial). Costo: una pieza nueva en el lector; esas notas vendrían sin bajada. Valor por defecto propuesto: sí, pero en la carta de los anillos, no antes.
+2. **Con cuáles feeds de Crónica quedarse.** Todos menos «energía» parece lo razonable; «actualidad» es el que más trae.
+3. **ADNSUR y Crónica no traen autor:** no sirven para la vía B (firmas). El Comodorense sí.
+4. Para la Región (Neuquén, Río Negro, Santa Cruz, Tierra del Fuego) no se probó nada: no había candidatos.
 
-## Cuándo está listo (C1 a C8)
+## Lo que no se hizo
 
-| # | Comprobación | Dio |
-|---|---|---|
-| C1 | `npm test` antes y después | Antes: 231 bien y 1 pendiente (232 en total). Después: **239 bien, 0 mal, 1 pendiente** (+8, más de los 5 pedidos; 240 en total). El pendiente es el de «naftas = combustibles», el de siempre. |
-| C2 | `npm run probar-pagina` | **73 bien, 0 mal** (68 + 5). Con Playwright ya instalado en `node_modules` (no entra al repo). |
-| C3 | `npm run ver` con `datos/pagina/` armada y `curl` desde otra terminal | Línea impresa: `Viendo datos/pagina en http://127.0.0.1:7000/ (Ctrl+C para cortar)`. `/` → `200 text/html; charset=utf-8`; `/lista.json` → `200 application/json; charset=utf-8`; `/../package.json` (con `curl --path-as-is`, o sea sin que `curl` la arregle) → `404`. |
-| C4 | `npm run ver` con `--carpeta /tmp/vacia` | `No existe /tmp/vacia/pagina/index.html. Corré primero npm run vuelta.` y código 1. También probé `--puerto abc` → `--puerto tiene que ser un número entero de 1 a 65535, no "abc".` y código 1. |
-| C5 | Las 3 capturas | 3 archivos nuevos en `buzon/capturas/` (`pagina-real-2026-10-09-b-390.png`, `-1200.png` y `-390-oscuro.png`). Miré la de 390: ningún medio se repite en una misma tarjeta. |
-| C6 | `git ls-files datos` | Nada (0 archivos). |
-| C7 | `git add -A` y `git diff --cached --stat ac8b9a2` | Solo los 14 archivos esperados: `pagina/index.html`, `scripts/probar-pagina.js`, `scripts/ver.js`, `package.json`, `test/ver.test.js`, `docs/CORRER_EN_MI_COMPU.md`, `README.md`, `CLAUDE.md`, `buzon/pendientes.md`, la carta, este reporte y las 3 capturas. Se corrió con el reporte ya escrito (ver el cierre abajo). |
-| C8 | La hora del encabezado | `Fri Oct  9 23:00:31 -03 2026` (salida de `TZ=America/Argentina/Buenos_Aires date` justo antes de escribirlo). |
-
-## Cosas que decidí yo
-
-- **Un chequeo de más en `servir`:** además de la limpieza de `..` de la función copiada, `ver.js` rechaza con 404 cualquier ruta que no caiga adentro de `<carpeta>/pagina`. No cambia nada de lo pedido; es una segunda traba para el caso E7.
-- **Dos tests más de los pedidos en `test/ver.test.js`:** el puerto ocupado (porque el mensaje de 2a se podía romper sin que nadie se enterara) y las opciones inválidas.
-- **La fecha del archivo del reporte** es la de Argentina (09-10), no la de UTC (el reloj de la sesión ya marca 10-10). Si prefieren la otra, se renombra.
-- **El `pkill` que usé para cortar el servidor del C3 mató mi propio shell** (la línea de comandos del shell contenía el nombre del archivo). No dejó nada corriendo (lo verifiqué con `pgrep`). Solo lo anoto por si se ve en el registro.
-
-## Lo que no hice
-
-- No llamé a ningún modelo ni armé nada en n8n, GitHub Actions, Vercel ni Supabase.
-- No dejé `npm run vuelta -- --cada 30` corriendo: fue una vuelta suelta. `datos/` quedó con las notas de la ronda anterior más esta vuelta (1.034 acumuladas) y sigue en `.gitignore`.
-- No toqué `src/`, `pagina/logica.js`, `pagina/lista.json`, `config/`, los otros scripts ni los tests viejos.
-- No toqué el bloque provisorio. El caso del Nobel quedó en `pendientes.md`, primero entre los de Cowork, con el valor por defecto de la carta.
-
-## Quedó pendiente
-
-Nada de código. Lo que sigue es del lado de Alejo: el día de medición en su compu con `docs/CORRER_EN_MI_COMPU.md`, y mandarle a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`. Dónde corre de verdad cada 30 minutos (preguntas 1 y 2 de la capa 4) sigue esperando a Alejo con Don Julio.
+- No se sumó nada a `config/feeds.json` ni a `portales.json`.
+- No se midió cuántas noticias locales llegarían a 2 medios: haría falta leer estos feeds varias veces durante un día, como la medición de Alejo.
 
 ============================================================
 FIN DEL PAQUETE
