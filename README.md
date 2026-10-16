@@ -40,8 +40,10 @@ npm run vuelta # una vuelta completa sin IA: lee los feeds, acumula, arma la lis
                #                        en la lista y sus notas viven en datos/zona/notas.json. No va con --config.
                #                        Como la carpeta trae avisos.json, también el bloque «Avisos» (cortes de agua, luz y gas de
                #                        Comodoro y Rada Tilly), arriba de todo: lee los comunicados de la SCPL (lo bajado vive en
-               #                        datos/zona/avisos.json), suma los portales de la zona que hablan de un corte y el cronograma
-               #                        de verano de config/zona/cronograma-agua.json. Sin avisos.json, la vuelta es la de siempre.
+               #                        datos/zona/avisos.json), suma los portales de la zona que hablan de un corte (los de
+               #                        Comodoro siempre; El Chubut, solo si el título nombra Comodoro o Rada Tilly), los «se
+               #                        normalizó» (6 h, al final) y el cronograma de verano de config/zona/cronograma-agua.json
+               #                        (una excepción reemplaza el corte normal de esa semana). Sin avisos.json, la de siempre.
                # En la compu de Alejo se corre así: npm run vuelta -- --cada 30 --zona config/zona (una sola ventana para todo)
 npm run medir  # resume datos/vueltas.jsonl por día y por corte de 4 horas: confirmadas y 4/5, por bloque, la zona por anillo y los avisos (--dia AAAA-MM-DD)
 npm run ver    # sirve datos/pagina/ en http://127.0.0.1:7000/ para ver la lista real en esa compu; --carpeta y --puerto

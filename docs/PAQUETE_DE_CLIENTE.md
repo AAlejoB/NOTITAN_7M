@@ -12,7 +12,7 @@ Qué cosas son de un cliente (hoy, Canal 2), dónde vive cada una y en qué esta
 | Escalón Normal o Plus | todavía no existe (irá en `config/`, campo `escalon`) | Espera la página C |
 | Temas (cómo arranca cada botón) | todavía no existe (irá en `config/`) | Espera la página C |
 | Largos de la pieza 2 (título, portal, Facebook, Instagram) | todavía no existe (irá en `config/`) | Espera la pieza 2 |
-| Avisos de cortes (agua, luz, gas) | `config/zona/avisos.json` (fuentes: hoy la SCPL) y `config/zona/cronograma-agua.json` (el cronograma de verano, lo actualiza Alejo) | Hecho en `npm run vuelta -- --zona config/zona`; en el servidor (capa 4), la Fase B de la carta `c` |
+| Avisos de cortes (agua, luz, gas) | `config/zona/avisos.json` (fuentes: hoy la SCPL) y `config/zona/cronograma-agua.json` (el cronograma de verano, lo actualiza Alejo) | Hecho en `npm run vuelta -- --zona config/zona` y en el servidor (capa 4, la vuelta de n8n; carta `d`). Qué portal es de la ciudad y cuál provincial sale de `config/zona/portales.json` (`zona`): lo provincial entra a Avisos solo si el título nombra la ciudad (hoy Comodoro o Rada Tilly, escrito en `src/avisos.js`) |
 
 **Cómo se clonaría hoy para un segundo cliente.** Se copia `config/` a una carpeta propia del cliente nuevo (por ejemplo `clientes/<nombre>/config/`) y se cambian ahí el nombre, los cupos, los portales y, si tiene zona, su carpeta de zona. La vuelta corre con esa carpeta, y sus datos y su página van a otra carpeta de datos (por ejemplo `datos/<nombre>/`, con sus propios usuarios). El código es el mismo para los dos; lo único distinto son las carpetas.
 
