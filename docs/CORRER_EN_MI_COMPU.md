@@ -91,6 +91,7 @@ npm run vuelta -- --cada 30 --zona config/zona
 
 - No cierres esa ventana de PowerShell.
 - La zona ya no se corre aparte: va en la misma vuelta y escribe dos renglones más («Zona · feeds…» y «Zona · lista…»).
+- El bloque «Avisos» (cortes de agua, luz y gas) sale solo, con la misma línea de arranque: existe porque está el archivo `config/zona/avisos.json`. Escribe un renglón más («Avisos: 2 vigentes … · SCPL OK») y va arriba de todo en la página.
 - Cada 30 minutos escribe un resumen.
 - Lo ideal: arrancar antes de la medianoche y cortar después de la medianoche siguiente, así queda un día calendario entero. Como mínimo, 24 horas.
 - Si la compu se apagó o la ventana se cerró, volvé a correr el mismo comando (con `--zona config/zona`): sigue con lo que ya había guardado.

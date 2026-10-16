@@ -1,5 +1,30 @@
 # Pendientes
 
+## Cowork → pendientes · 16-10-2026 · 18:07 · los avisos
+
+Lo pide la carta `Cowork_para_ClaudeCode_2026-10-16_c.md`. La Fase A (la vuelta y la página) la hizo Claude Code: reporte `ClaudeCode_para_Cowork_2026-10-16_c.md`. La Fase B (capa 4) espera que Alejo apruebe la A.
+
+**Decidió Alejo (16-10):** opción B, un bloque «Avisos» aparte, leído de quien corta (la SCPL), nunca como noticia verificada por N medios (04:57 y 16:53); arrancar con lo legible: lo que tenga barrio y horario en texto se muestra, lo que no, con título y link (16:53); quiere el aviso con antelación («hoy cortan la luz en zona norte», «de 9 a 15»); el cronograma de verano de la SCPL vale como aviso programado mientras esté vigente (18:06: «es hermoso»).
+
+**Por dónde se entera Alejo de un corte (18:04):** la página de comunicados de la SCPL (`scpl.coop/index.php/site/ver-seccion?id=2`), `comodorohoy.ar/agua`, ADNSUR, la etiqueta «corte de luz» de El Patagónico, y Facebook e Instagram de la SCPL.
+
+| Fuente | ¿Se lee? |
+|---|---|
+| Comunicados de la SCPL (listado + nota) | Sí: fuente primaria (`config/zona/avisos.json`) |
+| ADNSUR, El Patagónico y los otros portales de la zona | Sí: las notas cuyo título pasa el molde `cortes` van a Avisos y no a la verificación |
+| Cronograma de verano de la SCPL | Sí: `config/zona/cronograma-agua.json` (2025-2026, vencido: hoy no muestra nada) |
+| `comodorohoy.ar/agua` | No: es una página derivada de la SCPL, sirve de modelo del formato |
+| Facebook e Instagram de la SCPL | No: piden login y no tienen feed |
+
+**Valores por defecto de Cowork:** 1 sola fuente alcanza; Avisos va primero y vacío no se dibuja; vive 12 h después del fin o 72 h desde que se publicó.
+
+### Abierto
+
+- **Caleta Olivia (SPSE, por el feed de Prensa Santa Cruz) y el gas (Camuzzi no publica):** fuentes a sumar en `config/zona/avisos.json` cuando se decida.
+- **El barrio en imagen** de las averías de la SCPL: lo lee la IA en la etapa 2.
+- **El cronograma 2026-2027:** Alejo lo carga en `config/zona/cronograma-agua.json` cuando la SCPL lo publique.
+- **Para Cowork (lo vio Claude Code en la vuelta real del 16-10; detalle en el reporte `c`):** (1) «Mañana habrá corte programado de energía en zona norte» de El Chubut es de Puerto Madryn y salió como aviso de Comodoro: el molde acepta «zona norte» como lugar y El Chubut es provincial; (2) la avería real de la SCPL (2902) sale como «Agua» y no «Agua · avería» porque el cuerpo dice «tareas»; (3) «SE NORMALIZA EL SERVICIO DE AGUA…» no pasa el molde; (4) el cronograma: qué hacer con el día normal cuando una excepción lo mueve (24-12 → 25-12).
+
 ## Cowork → pendientes · 16-10-2026 · 13:02 (hora de Argentina) · la medición y los anillos
 
 No es una carta de cambios: es el registro de las dos mediciones que corrió Alejo en su compu y de lo que decidió con eso. Los cambios están en `Cowork_para_ClaudeCode_2026-10-16_a.md`. La página de Cowork con los números y gráficos: https://claude.ai/artifact/8NAbjuLTQznf7xFe85ccAd (privada de Alejo).

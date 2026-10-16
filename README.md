@@ -38,8 +38,12 @@ npm run vuelta # una vuelta completa sin IA: lee los feeds, acumula, arma la lis
                #   --config <carpeta>  corre con los feeds.json, portales.json y reglas.json de esa carpeta (para medir otra lista aparte)
                #   --zona config/zona   además de lo nacional, en la misma vuelta, los anillos de la zona (Comodoro y Chubut): van primero
                #                        en la lista y sus notas viven en datos/zona/notas.json. No va con --config.
+               #                        Como la carpeta trae avisos.json, también el bloque «Avisos» (cortes de agua, luz y gas de
+               #                        Comodoro y Rada Tilly), arriba de todo: lee los comunicados de la SCPL (lo bajado vive en
+               #                        datos/zona/avisos.json), suma los portales de la zona que hablan de un corte y el cronograma
+               #                        de verano de config/zona/cronograma-agua.json. Sin avisos.json, la vuelta es la de siempre.
                # En la compu de Alejo se corre así: npm run vuelta -- --cada 30 --zona config/zona (una sola ventana para todo)
-npm run medir  # resume datos/vueltas.jsonl por día y por corte de 4 horas: confirmadas y 4/5, por bloque, y la zona por anillo (--dia AAAA-MM-DD)
+npm run medir  # resume datos/vueltas.jsonl por día y por corte de 4 horas: confirmadas y 4/5, por bloque, la zona por anillo y los avisos (--dia AAAA-MM-DD)
 npm run ver    # sirve datos/pagina/ en http://127.0.0.1:7000/ para ver la lista real en esa compu; --carpeta y --puerto
 npm run servir # la página con login para el servidor: --carpeta <datos> [--puerto 7000] [--escucha 127.0.0.1] [--n8n http://127.0.0.1:5678]
 node scripts/usuario.js --carpeta <datos> agregar|sacar|listar|nueva-clave <mail>  # quién entra a la página (usuarios.json, nunca en el repo)
