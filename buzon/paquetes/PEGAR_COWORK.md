@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 16/10/26, 20:07 (hora de Argentina) con "npm run paquete".
+Armado el 16/10/26, 20:19 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-16_d.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-16_e.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -206,7 +206,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 360 bien y 1 pendiente a propósito (16-10, carta `d`). `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 371 bien y 1 pendiente a propósito (16-10, carta `e`). `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--sin-notas-de-servicio`, `--acumular <archivo>`, `--sin-leer` y `--sin-excluir-rutas`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
@@ -227,6 +227,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - **La zona en la capa 4 (2026-10-16, carta `Cowork_para_ClaudeCode_2026-10-16_b.md`):** `mitadUno` y `mitadDos` de `src/capa4.js` reciben `zona` (lo de `cargarConfig('config/zona')`, o `null`) y corren Comodoro y Chubut **sin IA**, como `npm run vuelta -- --zona config/zona`: las notas de la zona viven en los datos estáticos de n8n (`guardado.zona.notas`, 48 h), la lista sale con `orden` de cuatro y la línea con `zona`. En `n8n/vuelta.json` el nodo Rutas trae `configZona` (`config/zona`; vacío = sin zona, como antes); Feeds baja primero los 19 nacionales y después los 8 de la zona. Con eso el servidor de Don Julio muestra los cuatro bloques. El molde «pronóstico del tiempo» no aplica si el título habla de «qué ver», Netflix, series o películas. `docs/PAQUETE_DE_CLIENTE.md` dice qué es de un cliente y dónde vive.
 - **El bloque «Avisos» de cortes, Fase A (2026-10-16, carta `Cowork_para_ClaudeCode_2026-10-16_c.md`; decidió Alejo: opción B, un bloque aparte leído de quien corta, arrancar con lo legible, y el cronograma de verano):** `config/zona/avisos.json` (fuentes: la SCPL, `scpl.coop` sin www; servicios, zonas, 72 h sin fin, 12 h después del fin, 5 notas por vuelta) y `config/zona/cronograma-agua.json` (2025-2026, vencido: hoy no muestra nada; lo actualiza Alejo). `src/avisos.js` (puro): lee el listado y las notas de la SCPL, `vale` (el molde sin la condición de lugar), `esAviso` (el molde `cortes.molde` de `config/reglas.json`, aparte de `avisos`, que son los mails), `datosDeAviso` (servicio, programado o avería, día, horario, barrios, zona) y `armarAvisos` (comunicado + notas del mismo corte con `agrupar`; primaria la SCPL; vive 12 h después del fin o 72 h; orden: cortando ahora → lo que viene → sin día; el cronograma suma ayer si sigue cortando, hoy y mañana). Con `--zona` y `avisos.json`, `npm run vuelta` baja el listado y las notas nuevas (lo bajado en `datos/zona/avisos.json`, 30 días, nunca se baja dos veces), **aparta de la zona las notas que son avisos** (no entran a la verificación) y `lista.json` empieza con `avisos`. La línea de `vueltas.jsonl` suma **`cortes`** (no `avisos`, que ya es la lista de avisos de la vuelta). La página dibuja la tarjeta con la pastilla (programado verde, avería naranja, cronograma o sin saber gris), la línea «Jueves 8/10 · desde las 15:00 · 24 h · Zona Norte · 23 barrios: …» (más de 6, «y N más») y copia una sola línea por aviso; una tarjeta sin link (el cronograma) se reconoce por `id:<id>`. `npm run medir` suma AVISOS. Facebook e Instagram no se leen. La Fase B (capa 4) espera que Alejo apruebe la A.
 - **Los avisos, carta `d` (2026-10-16; Alejo aprobó la Fase A a las 19:30 y decidió los 4 puntos):** (1) **lo local manda, lo provincial suma solo si nombra el lugar**: una nota de portal va a Avisos si pasa el molde y su portal es `"zona": "local"`, o si el título dice Comodoro o Rada Tilly (`esAvisoDeAca` en `src/avisos.js`); lo que no, sigue como noticia de la zona (el corte de Puerto Madryn de El Chubut se queda en Chubut). (2) **Programado o avería: manda el título**; el cuerpo desempata solo si el título no dice nada (la 2902 sale «Agua · avería»). (3) **«Se normalizó»** (`normaliz\w*` en el molde; `normalizado` si el título dice normaliz o restablec sin palabra de corte): aviso aparte, no se junta con su corte, pastilla verde llena («Agua · se normalizó»), línea «Se normalizó el servicio · Viernes 16/10 · 14:30», vive 6 h (de la SCPL, desde que se bajó) y va al final del bloque. (4) **Una excepción del cronograma reemplaza** el corte normal de su zona más cercano en la misma semana (empate: el anterior); `"suma": true` la agrega. La línea de `vueltas.jsonl` suma `cortes.apartadas` y `cortes.sinLugar`. **Fase B hecha:** `mitadUno` recibe `avisos` (lo que bajó n8n), `notasQueFaltan` (en `src/avisos.js`, la usan `vuelta.js` y n8n) dice qué notas bajar, `guardado.avisos.notas` guarda 30 días; `n8n/vuelta.json` tiene 13 nodos (`Bajar listado`, `Avisos` y `Bajar notas` entre `Bajar` y `Preparar`). `npm run probar-pagina` hace 93 comprobaciones.
+- **Los avisos, carta `e` (16-10, 20:15):** el día de un corte sale primero de la fecha pegada a la hora de inicio (lo que sigue a «desde las HH» o «a partir de las HH» hasta la primera coma, punto y coma o punto, 60 caracteres como mucho; el lector entiende también «sábado 17» sin mes: el mes de la publicación, o el siguiente si queda más de 7 días antes); si no hay, lo de antes sobre el texto entero. El 2903 de la SCPL sale «Sábado 17/10». Los lugares que hacen «de acá» un aviso de un portal provincial son `lugares` de `config/zona/avisos.json` (de cada cliente; sin la clave, Comodoro y Rada Tilly).
 - **Regla del proyecto (decidió Alejo el 16-10, 16:53): nada se guarda por id de hecho: el id cambia cuando se cae su primera nota. Lo que necesite reconocer la misma noticia usa sus links (la página, `src/ia.js`, `medir`).** Cada confirmado, cada 4/5 y cada confirmado de la zona en `vueltas.jsonl` lleva `urls`; `npm run medir` junta como un mismo hecho las entradas que comparten una url (también en cadena); las líneas viejas, sin `urls`, se cuentan por id.
 - Paquete para pegar en Cowork (2026-10-04): cuando el chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_COWORK.md` (antes había uno por rol; con un solo chat hay un solo paquete). Lo arma `npm run paquete` (`scripts/armar-paquete.js`) con `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code, tal cual del repo. Es una foto: se rearma al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
@@ -378,6 +379,10 @@ ARCHIVO 4 de 5 · buzon/pendientes.md
 
 # Pendientes
 
+## Claude Code → pendientes · 16-10-2026 · carta `e` hecha
+
+La fecha del corte y los `lugares` en la configuración (reporte `ClaudeCode_para_Cowork_2026-10-16_e.md`). Sin decisiones nuevas para Alejo. Sigue la página C.
+
 ## Cowork → pendientes · 16-10-2026 · 19:50 · Fase A aprobada, los 4 puntos y la Fase B
 
 Carta `Cowork_para_ClaudeCode_2026-10-16_d.md`. **Alejo aprobó la Fase A (19:30)** y decidió los 4 puntos del reporte `c`:
@@ -395,8 +400,13 @@ Valores por defecto de Cowork en la carta `d`: la condición del punto 1 es el t
 
 - **Apodos por ciudad** (preguntó Alejo, 18:58): «la ciudad del viento», «la villa», «Km 3»… hoy el molde busca palabras literales y no los reconoce. Para los avisos el riesgo es chico (la SCPL escribe formal); para noticias es tema de la IA (etapa 2). Idea: una lista de apodos por ciudad en `config/zona/`, que cada cliente carga la suya (lo general que Alejo quiere vender). Sin carta todavía.
 - **Endurecer «1 fuente alcanza»** si aparece una fake de un portal: «1 portal alcanza salvo que la SCPL diga lo contrario». Sin carta; se mira con los datos de las primeras semanas.
-- **E13 de la carta `d`:** un reclamo («vecinos reclaman que se normalice el agua») puede salir como «se normalizó». Aceptado por esta ronda; si aparece en la vuelta real, se ajusta el molde. **Visto por Claude Code al hacerla:** con `normaliz\w*`, tal cual pide la carta, «normalice» (con c) no entra: E13 hoy da `false` (ni aviso ni «se normalizó»). Si Cowork quiere que entre, es `normali[zc]\w*` en el molde y en `normalizadoDe` (valor por defecto de Claude Code: dejarlo con z, que es el más conservador).
-- **Para Cowork (reporte `d` de Claude Code):** (1) `src/entrega.js` se tocó una línea (la carta decía que no): sin eso `normalizado` y `publicado` no llegan a la página; (2) la SCPL no da hora: un «se normalizó» de la SCPL cuenta sus 6 h desde que se bajó (si no, uno publicado a la tarde nacería vencido, porque la fecha del listado es las 12:00); (3) «Comodoro o Rada Tilly» del paso 1 está escrito en `src/avisos.js`: para otro cliente, otra ciudad, iría a `config/zona/` (como los apodos); (4) E5 («Corte de agua en zona sur de Trelew») **sí** pasa `esAviso` («zona sur» está en el molde): lo frena `esAvisoDeAca`, no el molde. (5) **La fecha del comunicado 2903 de la SCPL sale mal:** el texto dice «Hoy, viernes 16 … finalizaron» y después «desde las 00:00hs. del sábado 17 … 18 horas»; `diaDe` toma la primera fecha con número y la tarjeta dice viernes. Idea: que gane la fecha pegada a «desde las HH del <día> N». Sin tocar. (6) «corta» se sumó a las palabras de corte de «se normalizó» (el 2903 decía «se normaliza … y se corta …»).
+- **Para Cowork (reporte `d` de Claude Code):** las 9 decisiones de «Qué decidí por mi cuenta» quedaron aceptadas por Cowork en la carta `e` (incluida la línea de `src/entrega.js`).
+
+### Resuelto en la carta `e` (16-10, 20:15)
+
+- ~~E13 («vecinos reclaman que se normalice el agua»)~~: se queda como está, con `normaliz\w*` (con z). Un reclamo no es un aviso y la SCPL escribe «se normaliza» con z (Cowork).
+- ~~La fecha del 2903 sale viernes~~: el día de un corte sale de la fecha pegada a la hora de inicio («desde las 00:00hs. del sábado 17» → sábado 17); el lector entiende «sábado 17» sin mes. La tarjeta dice «Sábado 17/10 · desde las 00:00 · 18 h».
+- ~~«Comodoro o Rada Tilly» escrito en el código~~: pasó a `lugares` de `config/zona/avisos.json`, de cada cliente.
 
 ## Cowork → pendientes · 16-10-2026 · 18:07 · los avisos
 
@@ -785,136 +795,87 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-16_d.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-16_e.md
 ============================================================
 
-# Claude Code → Cowork · 16-10-2026 · 20:07 (hora de Argentina) · letra d
+# Claude Code → Cowork · 16-10-2026 · 20:19 (hora de Argentina) · letra e
 
-Responde a `Cowork_para_ClaudeCode_2026-10-16_d.md` (los 4 ajustes de los avisos y la Fase B).
+Responde a `Cowork_para_ClaudeCode_2026-10-16_e.md` (la fecha del corte y los lugares en la configuración).
 
-**Veredicto:** está todo hecho, pasos 1 a 6. Los avisos ya corren adentro de n8n: dos vueltas del reloj en verde (la primera bajó 3 notas de la SCPL, la segunda 0) y una tercera con `configZona` vacío, que volvió a la lista de siempre. La vuelta real trajo dos cosas para que mire Cowork: el comunicado nuevo 2903 («SE NORMALIZA … Y SE CORTA …») y una fecha mal leída en ese mismo comunicado. El primero lo arreglé, porque era una palabra que faltaba; el segundo queda para Cowork (ver «Para Cowork»).
+**Veredicto:** hice los dos pasos y pasan los 11 ejemplos. En la vuelta real el 2903 ya sale «Sábado 17/10 · desde las 00:00 · 18 h». Comparé el código viejo con el nuevo sobre los 1.879 textos guardados y solo uno cambia de día: el 2903. No toqué la página, la zona, `n8n/` ni `config/reglas.json`.
 
-## Qué cambió, por paso
+## Qué cambió
 
 | Paso | Qué | Commit |
 |---|---|---|
-| 1 | `esAvisoDeAca` en `src/avisos.js`. `vuelta.js` la usa para apartar notas, y la línea suma `cortes.apartadas` y `cortes.sinLugar` | `420610c` |
-| 2 | `datosDeAviso(…, { titulo })`: programado o avería sale del título; el texto entero desempata. Las notas de la SCPL y las de los portales le pasan su título | `b05cad0` |
-| 3 | `normaliz\w*` en el molde; `normalizado` en `datosDeAviso` (y en cada aviso). Se agrupan aparte, viven 6 h (`HORAS_NORMALIZADO`) y van al final. Etiqueta «Agua · se normalizó». En la página: `sello lleno`, la línea «Se normalizó el servicio · Viernes 16/10 · 14:30» y lo que se copia. Suma 3 comprobaciones en Chromium | `08cefb4` |
-| 4 | `cortesDelCronograma`: arma la semana entera, la excepción reemplaza al corte normal más cercano (si empatan, el anterior) o suma con `"suma": true`, y recién después mira la ventana. Se cambió el `_aviso` de `cronograma-agua.json` | `8e6608a` |
-| 5 | Capa 4: `notasQueFaltan` (en `src/avisos.js`, y `vuelta.js` ahora la usa), `leerAvisosBajados`, `avisos` en `mitadUno`, los avisos en `mitadDos` y en la línea. `n8n/vuelta.json` pasa a 13 nodos. Se actualizaron `n8n/LEEME.md`, `test/n8n.test.js` y `docs/INSTALAR_EN_EL_SERVIDOR.md` | `e14361c` |
-| 6 | `README.md`, `docs/CORRER_EN_MI_COMPU.md`, `docs/PAQUETE_DE_CLIENTE.md`, `CLAUDE.md`, `buzon/pendientes.md` | `3f8fa0c` |
-| extra | «corta» suma a las palabras de corte de `normalizadoDe` (lo trajo el 2903) | `508a42b` |
+| 1 | `diaDe` en `src/avisos.js` se partió en tres lectores (`diaConMes`, `diaConSemanaYNumero`, `diaSinNumero`). Primero mira el pedazo que sigue a «desde las HH» o «a partir de las HH»; si ahí no hay fecha, hace lo de antes sobre el texto entero. `HH` y `hhmm` subieron arriba de `diaDe` (son los mismos de siempre) | `24a8fce` |
+| 2 | `esAvisoDeAca(nota, { reglas, portales, cfg })` lee `cfg.lugares`; sin la clave o con la lista vacía usa `["comodoro", "rada tilly"]`. `lugares` está en `config/zona/avisos.json` (también en su `_aviso`); `scripts/vuelta.js` y `src/capa4.js` le pasan `cfg: zona.avisos` y no cambian en nada más. Se agregó una línea en `docs/PAQUETE_DE_CLIENTE.md` | `1b85a29` |
+| cierre | `CLAUDE.md`, `buzon/pendientes.md` (E13, la fecha del 2903 y «Comodoro o Rada Tilly en el código» quedan resueltos), este reporte y el paquete | (este) |
 
-La vuelta en n8n, con los tres nodos nuevos:
+## Los 11 ejemplos
 
-| # | Nodo | Qué hace |
+| Ejemplo | Esperado | Obtenido |
 |---|---|---|
-| 4 | Bajar | los 19 + 8 feeds (como antes) |
-| 5 | **Bajar listado** | la página de comunicados de la SCPL, una sola vez por vuelta («Execute Once»); la dirección se la pasa Feeds (`listadoAvisos`) |
-| 6 | **Avisos** | `notasQueFaltan`; si no hay nada que bajar (o no hay avisos, o la SCPL se cayó), devuelve un ítem «nada» para que la vuelta siga |
-| 7 | **Bajar notas** | una nota por ítem |
-| 8 | Preparar | ahora lee los feeds de `$('Bajar')` (antes, de su entrada) y le pasa `avisos` a `mitadUno` |
+| E1 · 2903 («hoy, viernes 16 … desde las 00:00hs. del sábado 17, y por un lapso de 18 horas») | `2026-10-17`, 00:00, 18 h | `2026-10-17`, 00:00, 18 h |
+| E2 · 2902 («desde las 00:00 hs. de hoy viernes 16 de octubre y por 24 horas») | `2026-10-16` | `2026-10-16` |
+| E3 · «el jueves 8 de octubre, desde las 15:00 hs. y por un lapso de 24 horas, …» | `2026-10-08` | `2026-10-08` |
+| E4 · «… hasta mañana. … desde las 06:00 del lunes 20» | `2026-10-20` | `2026-10-20` |
+| E5 · publicación 30-10: «desde las 09:00 del domingo 1» | `2026-11-01` | `2026-11-01` |
+| E6 · «mañana habrá corte … de 9 a 13 horas» | `2026-10-17` | `2026-10-17` |
+| E7 · «desde las 10 hs del miércoles 14 …» | `2026-10-14` | `2026-10-14` |
+| E8 · Comodoro y Rada Tilly; El Chubut, «… en zona norte» (Puerto Madryn) | no es de acá | no es de acá |
+| E9 · Comodoro y Rada Tilly; El Chubut, «Corte de agua en Rada Tilly por una avería» | es de acá | es de acá |
+| E10 · Puerto Madryn y Madryn; El Chubut, «… zona norte de Puerto Madryn» | es de acá | es de acá |
+| E11 · sin `lugares`; El Chubut, «Corte de agua en Comodoro» | es de acá | es de acá (también con la lista vacía) |
 
-## Tests
+## Las cuentas
 
 | | Antes | Después |
 |---|---|---|
-| `npm test` | 344 bien + 1 pendiente | **360 bien** + 1 pendiente, 0 mal |
-| `npm run probar-pagina` | 90 bien | **93 bien**, 0 mal |
+| `npm test` | 360 bien + 1 pendiente | **371 bien + 1 pendiente** (11 nuevos, 0 mal) |
+| `npm run probar-pagina` | 93 | **93** bien, 0 mal |
 
-Los 16 títulos de la carta `c` siguen pasando. Los ejemplos E1 a E22 están en `test/avisos.test.js`, `test/vuelta.test.js`, `test/logica.test.js`, `test/entrega.test.js` y `test/capa4.test.js`; E14 a E18 corren con el reloj fijo.
+## La vuelta real (paso 3)
 
-## La vuelta real (16-10, 20:05)
+`npm run vuelta -- --zona config/zona`, una sola vez, a las 20:17. Salió con código 0.
 
-`Avisos: 2 vigentes (1 agua avería, 1 agua) · SCPL OK · 2182 comunicados en el listado · 1 bajados`
+- Línea de Avisos: `Avisos: 2 vigentes (1 agua avería, 1 agua) · SCPL OK · 2182 comunicados en el listado · 0 bajados`
+- La tarjeta del 2903, cómo se veía y cómo se ve ahora:
 
-| Aviso | Pastilla | Día y horario | Zona | Barrios | Fuentes |
-|---|---|---|---|---|---|
-| 2902 · CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR AVERÍA EN EL ACUEDUCTO DEL ‘99 | **Agua · avería** | viernes 16/10 desde las 00:00, 24 h | — | 23 (Laprida, Güemes, Sarmiento…) | SCPL, El Patagónico, Crónica |
-| 2903 · SE NORMALIZA EL SERVICIO EN 23 BARRIOS Y SE CORTA EL AGUA EN EL RESTO DE LA ZONA SUR Y CENTRAL PARA RECUPERAR RESERVAS | Agua (gris) | viernes 16/10 desde las 00:00, 18 h (**mal**: es el sábado 17) | Zona Sur y Zona Central | — | SCPL |
+| | Etiqueta | Línea de la tarjeta |
+|---|---|---|
+| Antes | Agua | Viernes 16/10 · desde las 00:00 · 18 h · Zona Sur y Zona Central |
+| Ahora | Agua | **Sábado 17/10** · desde las 00:00 · 18 h · Zona Sur y Zona Central |
 
-- **Notas de portales apartadas:** 1 en la vuelta de las 19:48 (El Patagónico, «Numerosos barrios de Comodoro se hallan sin agua») y 2 en las de n8n, cuando entró Crónica. **No apartada: 1**, El Chubut, `/puerto-madryn/…`, «Mañana habrá corte programado de energía en zona norte». Se queda en la zona como cualquier nota (`cortes.sinLugar: 1`).
-- Las capturas `buzon/capturas/pagina-real-2026-10-16-d-{390,390-oscuro,1200}.png` son de la lista de las 20:05.
+- La del 2902 no cambió: «Agua · avería · Viernes 16/10 · desde las 00:00 · 24 h · 23 barrios».
+- El texto real del 2903 tiene **dos** «desde las». El primero es «desde las 00:00hs. del sábado 17 de octubre, comenzará a normalizarse…» y el segundo «desde las 00:00hs. del sábado 17, y por un lapso de 18 horas». La regla usa el primero, y como ese pedazo ya trae «17 de octubre», el resultado es el mismo. E1 usa el texto de la carta, que tiene uno solo.
 
-## Los últimos 20 comunicados de la SCPL con `vale` (19:50)
+## Dónde la regla nueva da otro día
 
-| id | Fecha | `vale` | Título |
-|---|---|---|---|
-| 2902 | 16-10 | true | CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR AVERÍA EN EL ACUEDUCTO DEL ‘99 |
-| 2901 | 13-10 | true | HECHO VANDÁLICO PROVOCÓ UN CORTE DE ENERGÍA EN UN SECTOR DE ZONA SUR DE COMODORO Y EN RADA TILLY |
-| 2900 | 09-10 | false | REDUCCIÓN DE CALZADA POR TAREAS DE SANEAMIENTO EN Bº LA FLORESTA |
-| 2899 | 08-10 | false | REDUCCIÓN DE CALZADA POR TAREAS DE SANEAMIENTO EN Bº LA FLORESTA |
-| 2898 | 07-10 | true | CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR TAREAS PROGRAMADAS DE MANTENIMIENTO EN EL SISTEMA ACUEDUCTOS |
-| 2897 | 30-09 | true | CRONOGRAMA MENSUAL DE MANIOBRAS OPERATIVAS DEL SERVICIO DE AGUA EN KM.18 |
-| 2896 | 25-09 | false | DÍA NO LABORABLE PARA EL PERSONAL DE COMERCIO |
-| 2895 | 25-09 | true | CORTE IMPREVISTO DE ENERGÍA EN UN SECTOR DE COMODORO |
-| 2893 | 22-09 | true | CORTE PROGRAMADO DE AGUA EN CUATRO BARRIOS DE ZONA NORTE |
-| 2892 | 21-09 | true | CORTE DE AGUA EN OCHO BARRIOS DE ZONA SUR POR AVERÍA EN EL SUB-ACUEDUCTO EL TRÉBOL |
-| 2891 | 21-09 | true | CORTE DE AGUA EN 18 BARRIOS DE COMODORO POR FALLA ELÉCTRICA EN EL SISTEMA ACUEDUCTOS |
-| 2890 | 18-09 | true | SE EXTIENDE CORTE PROGRAMADO DE AGUA EN CUATRO BARRIOS DE ZONA SUR |
-| 2888 | 17-09 | true | SE SUSPENDE Y SE REPROGRAMA EL CORTE PROGRAMADO DE AGUA EN CUATRO BARRIOS DE ZONA SUR |
-| 2887 | 16-09 | true | CORTE PROGRAMADO DE AGUA EN CUATRO BARRIOS DE ZONA SUR |
-| 2885 | 11-09 | false | REDUCCIÓN DE CALZADA POR TAREAS DE SANEAMIENTO EN Bº LA FLORESTA |
-| **2884** | 09-09 | **true** | **SE NORMALIZA EL SERVICIO DE AGUA EN COMODORO TRAS LAS TAREAS DE MANTENIMIENTO EN EL SISTEMA ACUEDUCTOS** (`normalizado: true`) |
-| 2882 | 07-09 | true | CORTE DE AGUA EN UN SECTOR DE ZONA NORTE Y EN UN SECTOR DE ZONA SUR DE COMODORO POR TAREAS PROGRAMADAS… |
-| 2880 | 02-09 | true | CORTE DE AGUA EN UN SECTOR DE COMODORO POR MANTENIMIENTO DE RESERVA |
-| 2879 | 02-09 | false | CORTE DE CALZADA POR TAREAS DE SANEAMIENTO EN EL CENTRO |
-| 2878 | 31-08 | true | CRONOGRAMA MENSUAL DE MANIOBRAS OPERATIVAS DEL SERVICIO DE AGUA EN KM.18 |
+Corrí el `datosDeAviso` viejo (el commit `77bedb3`) y el nuevo sobre todo lo guardado en `datos/`: los 3 comunicados de la SCPL, las 336 notas de la zona y las 1.540 nacionales (título y bajada), 1.879 textos en total.
 
-(A las 20:03 apareció el 2903: `vale` true. Ver abajo.)
+| Texto | Antes | Ahora |
+|---|---|---|
+| SCPL 2903 «SE NORMALIZA EL SERVICIO EN 23 BARRIOS Y SE CORTA EL AGUA EN EL RESTO DE LA ZONA SUR Y CENTRAL…» | 2026-10-16 | 2026-10-17 |
 
-## El cronograma, con el reloj fijo (E14 a E18)
-
-| Vuelta | Zona | Antes | Después |
-|---|---|---|---|
-| mar 23-12 | Sur y Central | mié 24 18:00 | **nada** |
-| mié 24-12 | Sur y Central | mié 24 18:00 | **jue 25 08:00** |
-| jue 25-12 | Sur y Central | mié 24 18:00 y jue 25 08:00 | **solo jue 25 08:00** |
-| mar 30-12 | Norte | mar 30 12:00 | mar 30 12:00 |
-| mié 31-12 | Sur y Central | mié 31 18:00 | **jue 1-1 08:00** |
-
-## Las vueltas de n8n (E19 a E21)
-
-n8n 2.43.6 con npm y Node 24.22, la IA falsa y una copia de la vuelta: Rutas apunta a mi repo y a una carpeta temporal, `configZona` en `config/zona` y el reloj en 1 minuto.
-
-| | Vuelta 1 (20:03) | Vuelta 2 (20:04) | Vuelta 3 (20:06, `configZona` vacío) |
-|---|---|---|---|
-| Feeds | 19 OK | 19 OK | 19 OK |
-| Zona | 8 OK · 3 Comodoro + 3 Chubut | igual | sin zona |
-| Avisos | 2 vigentes · 2182 en el listado · **3 bajados** (2901, 2902, 2903) | 2 vigentes · **0 bajados** | sin `cortes` en la línea |
-| `apartadas` / `sinLugar` | 1 / 1 | 2 / 1 | — |
-| IA (preguntadas, contestadas) | 3, 3 | 0, 0 | — |
-| `lista.json` `orden` | avisos, local, chubut, nacional, internacional | igual | **nacional, internacional** |
-| tardoMs | 1.647 | 1.640 | — |
-
-- En la vuelta 2 se probó el camino «nada»: `Avisos` devolvió el ítem «nada», `Bajar notas` siguió con un error que Preparar no mira, y la vuelta terminó en verde. En la vuelta 3, `Bajar listado` corrió con la dirección vacía y tampoco cortó nada.
-- E22 (la SCPL da 500) **no** lo probé dentro de n8n: para eso había que tocar la dirección en `config/zona/avisos.json`. Está cubierto en `test/capa4.test.js`, que comprueba `cortes.fuentes.caidas` y la línea «Fuente de avisos sin leer: SCPL (HTTP 500)», con lo guardado.
+No cambió ningún otro texto. `armarAvisos` da los mismos dos avisos, en el mismo orden, y las notas que se apartan como avisos son las mismas 3.
 
 ## Qué decidí por mi cuenta
 
-1. **`src/entrega.js` se tocó una línea**, aunque la carta decía que no. Sin ese cambio, `normalizado` y `publicado` no llegan a la página. Van solo cuando el aviso es un «se normalizó», así las demás tarjetas no cambian.
-2. **E13 da `false`.** «Normalice» se escribe con c y la carta pide `normaliz\w*`. Lo dejé así porque es lo más conservador; si Cowork quiere que entre, es `normali[zc]\w*`. Está en `pendientes.md`.
-3. **Un «se normalizó» de la SCPL cuenta sus 6 h desde que se bajó** (`bajadaEn`), no desde las 12:00 del listado: uno publicado a la tarde nacería vencido. La hora que muestra la página es esa misma.
-4. **«corta» suma a las palabras de corte** de `normalizadoDe`. El 2903 («SE NORMALIZA … Y SE CORTA EL AGUA EN EL RESTO DE LA ZONA SUR Y CENTRAL») salía como «se normalizó» en verde, y es un corte nuevo para media ciudad. Ahora sale como corte. No es un caso E13 (no es un reclamo); es una palabra que faltaba en la lista.
-5. **Los «se normalizó» se agrupan aparte de los cortes**, antes de `agrupar`. «SE NORMALIZA EL SERVICIO DE AGUA EN COMODORO TRAS LAS TAREAS…» y el corte 2898 se parecen tanto que el agrupador los juntaba.
-6. **La pastilla llena lleva letra `var(--tarjeta)`**, como «Recién confirmada»: blanca en claro y oscura en modo oscuro.
-7. **Lo que se copia de un «se normalizó» lleva «Fuente: …»**, igual que los otros avisos.
-8. **La línea suma `sinLugar`** (además de `apartadas`), para poder contar los que no se apartaron.
-9. **`notasQueFaltan` vive en `src/avisos.js`.** `capa4.notasQueFaltan` la llama con `guardado.avisos.notas`. `vuelta.js` usa la misma función, así no hay dos.
+1. **Sin hora de inicio (el punto b), el lector de antes, tal cual.** La forma «sábado 17» sin mes solo se lee en el pedazo que sigue a la hora, porque la carta dice «exactamente lo de hoy» y que nada cambie de resultado.
+2. **«Punto final» es un punto seguido de un espacio o del fin del texto.** Así el punto de «hs.» se toma como parte de la hora y «15.30» no corta el pedazo.
+3. **Un «<día> N» seguido de «:», «hs» u «horas» no se toma como fecha.** Así «el lunes 20 horas» o «lunes 20:00» no pasan por el día 20. Ninguno de los 1.879 textos lo tiene; es solo una protección.
+4. **Un número que no existe en ese mes** (un «lunes 31» en noviembre) pasa al mes siguiente, y si ahí tampoco existe da `null`. Sin esto, JavaScript convertía el 31-11 en el 1-12 sin avisar.
+5. **Los `lugares` se normalizan como el título**, en minúsculas y sin tildes. Por eso «Rada Tilly» escrito con mayúsculas también funciona.
+6. **Lo que no toqué:** en `scripts/vuelta.js`, además del pase de `cfg`, se cambió solo el comentario que decía «Comodoro ni Rada Tilly». El `README.md` (línea 44) sigue diciendo «Comodoro o Rada Tilly», que es lo que vale para esta configuración; no estaba en la lista de archivos de la carta.
 
-## Para Cowork
+## Para Cowork (lo vi, no lo toqué)
 
-- **La fecha del 2903 está mal leída.** El cuerpo dice «Hoy, viernes 16 de octubre … finalizaron» y más abajo «desde las 00:00hs. del sábado 17, y por un lapso de 18 horas». `diaDe` toma la primera fecha con número (el 16) y la tarjeta dice «Viernes 16/10 · desde las 00:00 · 18 h», cuando el corte es el sábado. Una idea: que gane la fecha pegada a «desde las HH del <día> N». No lo toqué porque es una regla nueva. Hoy no le llega a nadie, porque la vuelta todavía no corre para las familias.
-- **E5 sí pasa `esAviso`** («zona sur» está en el molde). Lo frena `esAvisoDeAca`, no el molde.
-- **«Comodoro o Rada Tilly» está escrito en `src/avisos.js`.** Para otra ciudad iría a `config/zona/`, como la idea de los apodos.
-- **Ningún «se normalizó» de la vuelta real resultó ser otra cosa** (E13), salvo el 2903, ya arreglado (punto 4).
+- **El 2902 junta dos notas que hablan del corte nuevo.** Crónica («vuelve el agua a 23 barrios pero habrá un nuevo corte de 18 horas en las zonas sur y central») y El Comodorense («comienza a normalizarse … pero habrá un nuevo corte») entran como respaldo de la tarjeta del 2902 (la avería, viernes) y no del 2903 (el corte de 18 h, sábado). Con el código viejo pasaba lo mismo: lo decide el agrupador por el título, no la fecha. Si Cowork quiere que vayan con el 2903, hace falta otra carta.
 
-## Qué queda pendiente
+## Qué quedó pendiente y para quién
 
-- Cowork: la fecha del 2903, y si E13 debe entrar.
-- Alejo y Don Julio: instalar la capa 4 en el servidor (no cambió nada de lo que tienen que hacer).
-- Alejo: el cronograma 2026-2027 en `config/zona/cronograma-agua.json` cuando la SCPL lo publique.
+- Nada nuevo para Alejo. Sigue la página C.
 
 ============================================================
 FIN DEL PAQUETE

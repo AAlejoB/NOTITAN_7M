@@ -1,5 +1,9 @@
 # Pendientes
 
+## Claude Code → pendientes · 16-10-2026 · carta `e` hecha
+
+La fecha del corte y los `lugares` en la configuración (reporte `ClaudeCode_para_Cowork_2026-10-16_e.md`). Sin decisiones nuevas para Alejo. Sigue la página C.
+
 ## Cowork → pendientes · 16-10-2026 · 19:50 · Fase A aprobada, los 4 puntos y la Fase B
 
 Carta `Cowork_para_ClaudeCode_2026-10-16_d.md`. **Alejo aprobó la Fase A (19:30)** y decidió los 4 puntos del reporte `c`:
@@ -17,8 +21,13 @@ Valores por defecto de Cowork en la carta `d`: la condición del punto 1 es el t
 
 - **Apodos por ciudad** (preguntó Alejo, 18:58): «la ciudad del viento», «la villa», «Km 3»… hoy el molde busca palabras literales y no los reconoce. Para los avisos el riesgo es chico (la SCPL escribe formal); para noticias es tema de la IA (etapa 2). Idea: una lista de apodos por ciudad en `config/zona/`, que cada cliente carga la suya (lo general que Alejo quiere vender). Sin carta todavía.
 - **Endurecer «1 fuente alcanza»** si aparece una fake de un portal: «1 portal alcanza salvo que la SCPL diga lo contrario». Sin carta; se mira con los datos de las primeras semanas.
-- **E13 de la carta `d`:** un reclamo («vecinos reclaman que se normalice el agua») puede salir como «se normalizó». Aceptado por esta ronda; si aparece en la vuelta real, se ajusta el molde. **Visto por Claude Code al hacerla:** con `normaliz\w*`, tal cual pide la carta, «normalice» (con c) no entra: E13 hoy da `false` (ni aviso ni «se normalizó»). Si Cowork quiere que entre, es `normali[zc]\w*` en el molde y en `normalizadoDe` (valor por defecto de Claude Code: dejarlo con z, que es el más conservador).
-- **Para Cowork (reporte `d` de Claude Code):** (1) `src/entrega.js` se tocó una línea (la carta decía que no): sin eso `normalizado` y `publicado` no llegan a la página; (2) la SCPL no da hora: un «se normalizó» de la SCPL cuenta sus 6 h desde que se bajó (si no, uno publicado a la tarde nacería vencido, porque la fecha del listado es las 12:00); (3) «Comodoro o Rada Tilly» del paso 1 está escrito en `src/avisos.js`: para otro cliente, otra ciudad, iría a `config/zona/` (como los apodos); (4) E5 («Corte de agua en zona sur de Trelew») **sí** pasa `esAviso` («zona sur» está en el molde): lo frena `esAvisoDeAca`, no el molde. (5) **La fecha del comunicado 2903 de la SCPL sale mal:** el texto dice «Hoy, viernes 16 … finalizaron» y después «desde las 00:00hs. del sábado 17 … 18 horas»; `diaDe` toma la primera fecha con número y la tarjeta dice viernes. Idea: que gane la fecha pegada a «desde las HH del <día> N». Sin tocar. (6) «corta» se sumó a las palabras de corte de «se normalizó» (el 2903 decía «se normaliza … y se corta …»).
+- **Para Cowork (reporte `d` de Claude Code):** las 9 decisiones de «Qué decidí por mi cuenta» quedaron aceptadas por Cowork en la carta `e` (incluida la línea de `src/entrega.js`).
+
+### Resuelto en la carta `e` (16-10, 20:15)
+
+- ~~E13 («vecinos reclaman que se normalice el agua»)~~: se queda como está, con `normaliz\w*` (con z). Un reclamo no es un aviso y la SCPL escribe «se normaliza» con z (Cowork).
+- ~~La fecha del 2903 sale viernes~~: el día de un corte sale de la fecha pegada a la hora de inicio («desde las 00:00hs. del sábado 17» → sábado 17); el lector entiende «sábado 17» sin mes. La tarjeta dice «Sábado 17/10 · desde las 00:00 · 18 h».
+- ~~«Comodoro o Rada Tilly» escrito en el código~~: pasó a `lugares` de `config/zona/avisos.json`, de cada cliente.
 
 ## Cowork → pendientes · 16-10-2026 · 18:07 · los avisos
 
