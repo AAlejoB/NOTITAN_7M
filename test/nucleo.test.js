@@ -145,11 +145,14 @@ test('criterio 1: el molde «pronóstico del tiempo» saca el pronóstico y deja
     'Comodoro tendrá un viernes con sol pleno y una máxima de 18 °C',
     'Viernes agradable y con algunas nubes en Comodoro y Rada Tilly',
     'Tucumán: cómo estará el tiempo este miércoles 14 de octubre',
+    'Pronóstico para el Día de la Madre: ¿lloverá el fin de semana?',
+    'El tiempo en Rosario: viernes, otra vez con probabilidades de lluvia',
   ];
   const pasan = [
     'Alerta amarilla por tormentas muy fuertes en gran parte de Chubut',
     'Pronostico en Chubut: rige una alerta amarilla por tormentas para este jueves',
     'El SMN emitió una alerta amarilla por tormentas en la Ciudad de Buenos Aires',
+    'Qué ver en Netflix: las mejores películas y series para disfrutar este fin de semana nublado y fresco',
   ];
   for (const titulo of sacan) assert.deepEqual(N.esInformativa({ titulo, url: 'https://x.com/sociedad/a' }, r), { ok: false, motivo: 'nota_de_servicio (pronóstico del tiempo)' }, titulo);
   for (const titulo of pasan) assert.equal(N.esInformativa({ titulo, url: 'https://x.com/sociedad/a' }, r).ok, true, titulo);

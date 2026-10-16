@@ -37,7 +37,7 @@
       { "nombre": "horario de partido", "molde": "a que hora (juega|juegan|jugara|jugaran)\\b" },
       { "nombre": "efemérides", "molde": "^efemerides\\b" },
       { "nombre": "resultados de lotería", "molde": "^resultados? (de )?(la )?loteria\\b|^loteria\\b.*\\b(resultados?|numeros? ganador(es)?)\\b" },
-      { "nombre": "pronóstico del tiempo", "molde": "^(?!.*\\balerta\\b)(?=.*\\b(lunes|martes|miercoles|jueves|viernes|sabado|domingo|fin de semana)\\b)(?=.*\\b(pronostico|nublado|nubes|nubosidad|lluvias?|sol pleno|soleado|maxima de|minima de|rafagas|como estara el (tiempo|clima)|estado del tiempo)\\b)" },
+      { "nombre": "pronóstico del tiempo", "molde": "^(?!.*\\balerta\\b)(?!.*\\b(que ver|netflix|series?|peliculas?)\\b)(?=.*\\b(lunes|martes|miercoles|jueves|viernes|sabado|domingo|fin de semana)\\b)(?=.*\\b(pronostico|nublado|nubes|nubosidad|lluvias?|sol pleno|soleado|maxima de|minima de|rafagas|como estara el (tiempo|clima)|estado del tiempo)\\b)" },
       { "nombre": "cotizaciones", "molde": "\\b(dolar|euro)( blue| oficial| tarjeta| mep| cripto)? hoy\\b|\\ba cuanto cotizan?\\b|\\bbanco por banco\\b|\\bcotizacion de cierre\\b" }
     ],
     "etiquetasExcluidas": [
