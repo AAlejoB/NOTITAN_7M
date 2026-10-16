@@ -284,6 +284,7 @@ test('E10 a E13: normalizado en el molde y en datosDeAviso', () => {
     [T_NORMALIZA, true],
     ['Se restableció la luz en Rada Tilly tras el hecho vandálico', true],
     ['CORTE DE AGUA EN ZONA SUR HASTA QUE SE RESTABLEZCA EL SUMINISTRO', false],
+    ['SE NORMALIZA EL SERVICIO EN 23 BARRIOS Y SE CORTA EL AGUA EN EL RESTO DE LA ZONA SUR Y CENTRAL PARA RECUPERAR RESERVAS', false],
   ];
   for (const [titulo, normalizado] of casos) {
     assert.equal(esAviso(titulo, reglas), true, `pasa el molde: ${titulo}`);

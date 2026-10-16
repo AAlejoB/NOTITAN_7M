@@ -176,10 +176,11 @@ function servicioDe(t, servicios) {
   return mejor;
 }
 
-// «Se normaliza el servicio», «se restableció la luz»: sin ninguna palabra de corte («… hasta que se restablezca» es un corte).
+// «Se normaliza el servicio», «se restableció la luz»: sin ninguna palabra de corte («… hasta que se restablezca» es un corte;
+// «se normaliza en 23 barrios y se corta en el resto», también: el 2903 de la SCPL, 16-10).
 function normalizadoDe(t) {
   return /\b(normaliz\w*|restablec\w*)\b/.test(t)
-    && !/\b(corte|cortes|cortan|cortaran|cortaron|cortara|cortado|cortada|interrupcion|interrumpe|sin (agua|luz|energia|gas))\b/.test(t);
+    && !/\b(corte|cortes|corta|cortan|cortaran|cortaron|cortara|cortado|cortada|interrupcion|interrumpe|sin (agua|luz|energia|gas))\b/.test(t);
 }
 
 function programadoDe(t) {
