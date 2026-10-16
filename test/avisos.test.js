@@ -106,19 +106,19 @@ test('E3: la nota de la SCPL → agua, programado, jueves 8, desde las 15:00 por
   const d = datosDeAviso(`${T_2898} ${CUERPO_E2}`, { fechaPublicacion: '2026-10-07T15:00:00.000Z', cfg });
   assert.deepEqual(d, {
     servicio: 'agua', programado: true, dia: '2026-10-08', desde: '15:00', hasta: '15:00', duracionHoras: 24,
-    barrios: ['Laprida', 'Güemes', 'Sarmiento', 'Manantial Rosales'], zona: null,
+    barrios: ['Laprida', 'Güemes', 'Sarmiento', 'Manantial Rosales'], zona: null, normalizado: false,
   });
 });
 
 test('E4: luz programada el martes entre las 8 y las 14 en Zona Norte; sin «barrios:» la lista queda vacía', () => {
   const d = datosDeAviso('Corte de energía programado para siete barrios de Zona Norte La SCPL informó que el martes se interrumpirá el servicio entre las 8 y las 14 en Standard Norte, Castelli y Próspero Palazzo',
     { fechaPublicacion: '2026-10-24T13:00:00.000Z', cfg });
-  assert.deepEqual(d, { servicio: 'luz', programado: true, dia: '2026-10-27', desde: '08:00', hasta: '14:00', duracionHoras: null, barrios: [], zona: ['Zona Norte'] });
+  assert.deepEqual(d, { servicio: 'luz', programado: true, dia: '2026-10-27', desde: '08:00', hasta: '14:00', duracionHoras: null, barrios: [], zona: ['Zona Norte'], normalizado: false });
 });
 
 test('E5: «Varios sectores de Comodoro se quedaron sin luz» → luz y nada más', () => {
   const d = datosDeAviso('Varios sectores de Comodoro se quedaron sin luz', { fechaPublicacion: '2026-09-24T13:00:00.000Z', cfg });
-  assert.deepEqual(d, { servicio: 'luz', programado: null, dia: null, desde: null, hasta: null, duracionHoras: null, barrios: [], zona: null });
+  assert.deepEqual(d, { servicio: 'luz', programado: null, dia: null, desde: null, hasta: null, duracionHoras: null, barrios: [], zona: null, normalizado: false });
 });
 
 test('datosDeAviso: las otras formas de día y de horario', () => {
@@ -168,7 +168,7 @@ test('E6: comunicado de la SCPL + dos notas de portal del mismo corte → 1 avis
   assert.equal(a[0].resumen, CUERPO_E2, 'el cuerpo entra entero en 200 letras');
   assert.equal(a[0].cronograma, false);
   assert.equal(etiquetaDeAviso(a[0]), 'Agua · programado');
-  assert.deepEqual(Object.keys(a[0]), ['id', 'servicio', 'programado', 'dia', 'desde', 'hasta', 'finISO', 'duracionHoras', 'barrios', 'zona', 'titulo', 'resumen', 'fuentes', 'cronograma', 'publicado']);
+  assert.deepEqual(Object.keys(a[0]), ['id', 'servicio', 'programado', 'dia', 'desde', 'hasta', 'finISO', 'duracionHoras', 'barrios', 'zona', 'titulo', 'resumen', 'fuentes', 'cronograma', 'normalizado', 'publicado']);
 });
 
 test('el resumen de un cuerpo largo se corta en una palabra entera, con «…»', () => {
@@ -272,4 +272,53 @@ test('E6 en armarAvisos: un comunicado de la SCPL con «avería» en el título 
   const [a] = armarAvisos({ notasScpl: [nota], ahora: '2026-10-08T12:00:00.000Z', cfg, reglas, portales });
   assert.equal(a.programado, false);
   assert.equal(etiquetaDeAviso(a), 'Agua · avería');
+});
+
+/* ───────────── carta d · paso 3 · «se normalizó», aparte y al final ───────────── */
+
+const T_NORMALIZA = 'SE NORMALIZA EL SERVICIO DE AGUA EN COMODORO TRAS LAS TAREAS DE MANTENIMIENTO EN EL SISTEMA ACUEDUCTOS';
+
+test('E10 a E13: normalizado en el molde y en datosDeAviso', () => {
+  const pub = { fechaPublicacion: '2026-10-16T13:00:00.000Z', cfg };
+  const casos = [
+    [T_NORMALIZA, true],
+    ['Se restableció la luz en Rada Tilly tras el hecho vandálico', true],
+    ['CORTE DE AGUA EN ZONA SUR HASTA QUE SE RESTABLEZCA EL SUMINISTRO', false],
+  ];
+  for (const [titulo, normalizado] of casos) {
+    assert.equal(esAviso(titulo, reglas), true, `pasa el molde: ${titulo}`);
+    assert.equal(datosDeAviso(titulo, { ...pub, titulo }).normalizado, normalizado, titulo);
+  }
+  // E13: «normalice» se escribe con c, así que normaliz\w* no lo agarra: el reclamo no es aviso ni «se normalizó».
+  const E13 = 'Vecinos reclaman que se normalice el agua en Km 8';
+  assert.equal(esAviso(E13, reglas), false);
+  assert.equal(datosDeAviso(E13, { ...pub, titulo: E13 }).normalizado, false);
+  assert.equal(vale(T_NORMALIZA, reglas), true, 'E10 vale para la SCPL');
+});
+
+const NOTA_NORMALIZA = { id: '2905', titulo: T_NORMALIZA, fecha: '2026-10-08T15:00:00.000Z', texto: 'Se informa que se normalizó el servicio en los barrios afectados.', url: 'https://scpl.coop/index.php/site/ver-nota?id=2905', bajadaEn: '2026-10-08T21:10:00.000Z' };
+
+test('E10: «se normaliza» no se junta con el corte, va al final, dice «Agua · se normalizó» y vive 6 h desde que se bajó', () => {
+  const ahora = '2026-10-08T22:00:00.000Z';
+  const a = armarAvisos({ notasScpl: [NOTA_SCPL, NOTA_NORMALIZA], ahora, cfg, reglas, portales });
+  assert.deepEqual(a.map(x => x.id), ['a:scpl.coop:2898', 'a:scpl.coop:2905'], 'el corte (cortando ahora) y después el «se normalizó»');
+  assert.equal(a[1].normalizado, true);
+  assert.equal(a[0].normalizado, false);
+  assert.equal(etiquetaDeAviso(a[1]), 'Agua · se normalizó');
+  assert.equal(a[1].publicado, '2026-10-08T21:10:00.000Z', 'la SCPL no da hora: cuenta desde que se bajó');
+  assert.equal(a[1].finISO, null);
+  const con = t => armarAvisos({ notasScpl: [NOTA_NORMALIZA], ahora: t, cfg, reglas, portales }).length;
+  assert.equal(con('2026-10-09T03:09:00.000Z'), 1);
+  assert.equal(con('2026-10-09T03:11:00.000Z'), 0);
+});
+
+test('E11: dos «se normalizó» del mismo servicio y zona se juntan; entre ellos, el más nuevo primero', () => {
+  const luz1 = portal('adnsur.com.ar', 'luz-rada', 'Se restableció la luz en Rada Tilly tras el hecho vandálico', '', '2026-10-08T18:00:00.000Z');
+  const luz2 = portal('elpatagonico.com', 'luz-rada', 'Se restableció la luz en Rada Tilly tras un hecho vandálico', '', '2026-10-08T18:30:00.000Z');
+  const gas = portal('elcomodorense.net', 'gas', 'Se normalizó el gas en barrio Pueyrredón', '', '2026-10-08T19:00:00.000Z');
+  const a = armarAvisos({ notasPortales: [luz1, luz2, gas], ahora: '2026-10-08T20:00:00.000Z', cfg, reglas, portales });
+  assert.deepEqual(a.map(x => x.id), ['a:elcomodorense.net:gas', 'a:adnsur.com.ar:luz-rada']);
+  assert.equal(a[1].fuentes.length, 2);
+  assert.equal(etiquetaDeAviso(a[1]), 'Luz · se normalizó');
+  assert.deepEqual(a[1].zona, ['Rada Tilly']);
 });

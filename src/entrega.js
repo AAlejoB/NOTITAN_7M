@@ -61,6 +61,8 @@ function tarjetaDeAviso(a) {
     aviso: {
       servicio: a.servicio, programado: a.programado, dia: a.dia, desde: a.desde, hasta: a.hasta,
       duracionHoras: a.duracionHoras, barrios: a.barrios, zona: a.zona, cronograma: Boolean(a.cronograma),
+      // Un «se normalizó» lleva además cuándo se publicó (la página lo muestra en lugar del horario).
+      ...(a.normalizado ? { normalizado: true, publicado: a.publicado } : {}),
     },
   };
 }

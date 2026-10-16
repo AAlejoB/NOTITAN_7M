@@ -13,7 +13,7 @@
  *   Una tarjeta sin ningún link (el aviso del cronograma de verano) se reconoce por su id: 'id:<id>'.
  *
  * Tarjeta de aviso (bloque «Avisos», via: 'aviso'): trae además aviso: { servicio, programado, dia, desde, hasta,
- * duracionHoras, barrios, zona, cronograma }. lineaDeAviso arma lo que se ve debajo del título y lineaParaCopiar lo que se copia.
+ * duracionHoras, barrios, zona, cronograma } (un «se normalizó» suma normalizado: true y publicado). lineaDeAviso arma lo que se ve debajo del título y lineaParaCopiar lo que se copia.
  */
 (function (raiz, fabrica) {
   const L = fabrica();
@@ -79,12 +79,19 @@
   }
 
   const zonaDeAviso = a => (a.zona && a.zona.length ? a.zona.join(' y ') : null);
+  // '2026-10-16T17:30:00.000Z' → '2026-10-16' (el día en Argentina, que es siempre UTC−3)
+  const diaARde = iso => new Date(Date.parse(iso) - 3 * HORA).toISOString().slice(0, 10);
 
   // Lo que se ve debajo del título de un aviso, solo con lo que haya:
   // { partes: ['Jueves 8/10 · desde las 15:00 · 24 h', 'Zona Norte'], barrios: { total, primeros, resto, todos } | null }.
   // Sin día ni horario, la primera parte es «Sin horario en el aviso: abrí el link».
+  // Un «se normalizó»: «Se normalizó el servicio · Jueves 16/10 · 14:30» (cuándo se publicó), sin barrios ni duración.
   function lineaDeAviso(t) {
     const a = t.aviso || {};
+    if (a.normalizado) {
+      const cuando = a.publicado ? ` · ${mayuscula(diaCorto(diaARde(a.publicado)))} · ${horaAR(a.publicado)}` : '';
+      return { partes: ['Se normalizó el servicio' + cuando], barrios: null };
+    }
     const c = cuandoDeAviso(a);
     const cuando = [c.dia, c.horario, c.duracion].filter(Boolean).join(' · ');
     const partes = [c.dia || c.horario ? mayuscula(cuando) : 'Sin horario en el aviso: abrí el link'];
@@ -98,13 +105,19 @@
   }
 
   // «Corte de agua programado · jueves 8/10 desde las 15:00, 24 h · Zona Norte · Barrios: … · Fuente: SCPL <url>», con lo que haya.
+  // Un «se normalizó»: «Se normalizó el servicio de agua en Zona Norte · Fuente: SCPL <url>» (sin zona, «en Comodoro»).
   function lineaParaCopiar(t) {
     const a = t.aviso || {};
+    const fuentesDe = () => (t.links || []).map(l => (l.url ? `${l.medio} ${l.url}` : l.medio));
+    if (a.normalizado) {
+      const f = fuentesDe();
+      return [`Se normalizó el servicio${a.servicio ? ` de ${a.servicio}` : ''} en ${zonaDeAviso(a) || 'Comodoro'}`, f.length ? `Fuente: ${f.join(' · ')}` : null].filter(Boolean).join(' · ');
+    }
     const servicio = a.servicio ? `Corte de ${a.servicio}` : 'Corte';
     const tipo = a.cronograma ? ' · cronograma de verano' : a.programado === true ? ' programado' : a.programado === false ? ' por avería' : '';
     const c = cuandoDeAviso(a);
     const cuando = [[c.dia, c.horario].filter(Boolean).join(' '), c.duracion].filter(Boolean).join(', ');
-    const fuentes = (t.links || []).map(l => (l.url ? `${l.medio} ${l.url}` : l.medio));
+    const fuentes = fuentesDe();
     return [
       servicio + tipo,
       cuando,

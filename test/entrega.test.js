@@ -226,3 +226,12 @@ test('avisos: la etiqueta de cada tipo, y el cronograma sin link', () => {
   assert.deepEqual(crono.links, [{ medio: 'Cronograma de verano de la SCPL', url: null }]);
   assert.equal(crono.aviso.cronograma, true);
 });
+
+test('avisos: un «se normalizó» lleva normalizado y publicado en aviso; los otros no los llevan', () => {
+  const t = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas, avisos: [aviso({ normalizado: true })] }).bloques.avisos.noticias[0];
+  assert.equal(t.etiqueta, 'Agua · se normalizó');
+  assert.equal(t.aviso.normalizado, true);
+  assert.equal(t.aviso.publicado, '2026-10-07T15:00:00.000Z');
+  const otro = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas, avisos: [aviso({ normalizado: false })] }).bloques.avisos.noticias[0];
+  assert.equal('normalizado' in otro.aviso, false);
+});

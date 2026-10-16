@@ -157,7 +157,7 @@ function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, port
       sinLugar: cortes.sinLugar || 0,
       vigentes: cortes.lista.length,
       // urls: con ellas medir reconoce el mismo corte aunque cambie el id (cuando la SCPL se suma a un aviso de un portal).
-      lista: cortes.lista.map(a => ({ id: a.id, servicio: a.servicio, programado: a.programado, dia: a.dia, zona: a.zona, fuentes: a.fuentes.length, cronograma: a.cronograma, urls: a.fuentes.map(f => f.url).filter(Boolean) })),
+      lista: cortes.lista.map(a => ({ id: a.id, servicio: a.servicio, programado: a.programado, dia: a.dia, zona: a.zona, fuentes: a.fuentes.length, cronograma: a.cronograma, normalizado: Boolean(a.normalizado), urls: a.fuentes.map(f => f.url).filter(Boolean) })),
     };
   }
   return linea;
@@ -196,7 +196,7 @@ function resumenZona(z, sinLeer, anillos) {
 function resumenCortes(c, sinLeer) {
   const tipos = new Map();
   for (const a of c.lista) {
-    const t = `${a.servicio || 'corte'}${a.cronograma ? ' cronograma' : a.programado === true ? ' programado' : a.programado === false ? ' avería' : ''}`;
+    const t = `${a.servicio || 'corte'}${a.normalizado ? ' se normalizó' : a.cronograma ? ' cronograma' : a.programado === true ? ' programado' : a.programado === false ? ' avería' : ''}`;
     tipos.set(t, (tipos.get(t) || 0) + 1);
   }
   const detalle = tipos.size ? ` (${[...tipos].map(([t, n]) => `${n} ${t}`).join(', ')})` : '';

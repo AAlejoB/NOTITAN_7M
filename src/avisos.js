@@ -15,9 +15,10 @@
  * - esAvisoDeAca: esAviso, y además el portal es de Comodoro («local») o el título nombra Comodoro o Rada Tilly. Esas notas
  *   van a Avisos y no entran a la verificación; un aviso de un portal provincial que no nombra el lugar sigue como noticia.
  * - notasParaBajar: qué notas del listado faltan bajar (últimos 7 días, que valen, nunca bajadas; las más nuevas primero).
- * - datosDeAviso: servicio, programado o avería, día, horario, barrios y zona, sacados del texto.
+ * - datosDeAviso: servicio, programado o avería, día, horario, barrios, zona y si es un «se normalizó», sacados del texto.
  * - armarAvisos: junta comunicado y notas del mismo corte (con agrupar del núcleo), saca lo vencido, suma el cronograma de
- *   verano y ordena: primero lo que está cortando ahora, después lo que viene, después lo que no tiene día.
+ *   verano y ordena: primero lo que está cortando ahora, después lo que viene, después lo que no tiene día y al final los
+ *   «se normalizó» (aparte de los cortes: no se juntan con el corte al que responden; viven 6 horas).
  */
 const { normalizar, agrupar, dominioDe, buscarPortal, nombreDeMedio } = require('./nucleo.js');
 const { limpiarHtml } = require('./lector.js');
@@ -27,6 +28,7 @@ const DIA = 24 * HORA;
 // Argentina no tiene horario de verano desde 2009: la hora es siempre UTC−3.
 const DESFASE_AR = -3 * HORA;
 const DIAS_PARA_BAJAR = 7;
+const HORAS_NORMALIZADO = 6;
 const LARGO_RESUMEN = 200;
 const MOLDE_NOTA_SCPL = 'https://scpl.coop/index.php/site/ver-nota?id={id}';
 const SEMANA = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
@@ -163,6 +165,12 @@ function servicioDe(t, servicios) {
   return mejor;
 }
 
+// «Se normaliza el servicio», «se restableció la luz»: sin ninguna palabra de corte («… hasta que se restablezca» es un corte).
+function normalizadoDe(t) {
+  return /\b(normaliz\w*|restablec\w*)\b/.test(t)
+    && !/\b(corte|cortes|cortan|cortaran|cortaron|cortara|cortado|cortada|interrupcion|interrumpe|sin (agua|luz|energia|gas))\b/.test(t);
+}
+
 function programadoDe(t) {
   const si = /\b(programad\w*|mantenimiento|cronograma|maniobra\w*|tareas)\b/.test(t);
   const no = /\b(averia\w*|vandal\w*|rotura|falla\w*|emergencia|imprevist\w*)\b/.test(t);
@@ -246,6 +254,7 @@ function zonaDe(t, zonas) {
 
 // texto: título + bajada (portales) o título + cuerpo (SCPL). Cada campo es null si no se encuentra (barrios: []).
 // titulo (opcional): programado o avería lo decide el título; el texto entero desempata solo si el título no dice nada.
+// normalizado se mira en el título (sin título, en el texto).
 function datosDeAviso(texto, { fechaPublicacion, cfg, titulo }) {
   const t = aplanar(texto);
   const programado = titulo === undefined ? programadoDe(t) : programadoDe(aplanar(titulo)) ?? programadoDe(t);
@@ -265,6 +274,7 @@ function datosDeAviso(texto, { fechaPublicacion, cfg, titulo }) {
     duracionHoras,
     barrios: barriosDe(texto),
     zona: zonaDe(t, cfg.zonas),
+    normalizado: normalizadoDe(titulo === undefined ? t : aplanar(titulo)),
   };
 }
 
@@ -304,7 +314,7 @@ function notaDeScpl(n, cfg) {
   return {
     id: `${f.dominio}:${n.id}`, titulo: n.titulo, bajada: resumir(n.texto), url: n.url,
     portal: f.dominio, fecha: n.fecha, seccion: '', etiqueta: '', firma: '', feed: f.nombre,
-    _primaria: true, _medio: f.nombre, _texto: `${n.titulo} ${n.texto || ''}`,
+    _primaria: true, _medio: f.nombre, _texto: `${n.titulo} ${n.texto || ''}`, _bajadaEn: n.bajadaEn || null,
   };
 }
 
@@ -332,8 +342,11 @@ function armarAvisos({ notasScpl = [], notasPortales = [], ahora, cfg, reglas, p
     ...notasScpl.map(n => notaDeScpl(n, cfg)),
     ...notasPortales.map(n => ({ ...n, _primaria: false, _medio: nombreDeMedio(n, portales), _texto: `${n.titulo} ${n.bajada || ''}` })),
   ];
+  // Los «se normalizó» se agrupan aparte: con el corte al que responden se parecen mucho y no son lo mismo.
+  const esNormalizado = n => normalizadoDe(aplanar(n.titulo));
+  const grupos = [...agrupar(notas.filter(n => !esNormalizado(n)), reglas), ...agrupar(notas.filter(esNormalizado), reglas)];
   const avisos = [];
-  for (const g of agrupar(notas, reglas)) {
+  for (const g of grupos) {
     const scpl = g.notas.filter(n => n._primaria);
     const primaria = scpl.length ? scpl[scpl.length - 1] : g.notas[0];
     const resto = [primaria, ...g.notas.filter(n => n !== primaria)];
@@ -343,7 +356,11 @@ function armarAvisos({ notasScpl = [], notasPortales = [], ahora, cfg, reglas, p
       const n = resto.find(x => !falta(porNota.get(x)[c]));
       datos[c] = n ? porNota.get(n)[c] : (c === 'barrios' ? [] : null);
     }
-    const { inicioISO, finISO, hasta } = tramo(datos);
+    const normalizado = esNormalizado(primaria);
+    const { inicioISO, finISO, hasta } = normalizado ? { inicioISO: null, finISO: null, hasta: datos.hasta } : tramo(datos);
+    // La SCPL no da la hora de sus comunicados (12:00 de Argentina): para un «se normalizó», que vive 6 horas, cuenta
+    // desde que se bajó, si fue después.
+    const publicado = normalizado && primaria._bajadaEn && Date.parse(primaria._bajadaEn) > Date.parse(primaria.fecha) ? primaria._bajadaEn : primaria.fecha;
     avisos.push({
       id: 'a:' + primaria.id,
       servicio: datos.servicio,
@@ -359,7 +376,8 @@ function armarAvisos({ notasScpl = [], notasPortales = [], ahora, cfg, reglas, p
       resumen: primaria.bajada || '',
       fuentes: resto.map(n => ({ medio: n._medio, url: n.url })),
       cronograma: false,
-      publicado: new Date(Date.parse(primaria.fecha)).toISOString(),
+      normalizado,
+      publicado: new Date(Date.parse(publicado)).toISOString(),
       inicioISO,
     });
   }
@@ -381,17 +399,20 @@ function armarAvisos({ notasScpl = [], notasPortales = [], ahora, cfg, reglas, p
       resumen: BAJADA_CRONOGRAMA,
       fuentes: [{ medio: cronograma.fuente || 'SCPL', url: null }],
       cronograma: true,
+      normalizado: false,
       publicado: inicioISO,
       inicioISO,
     });
   }
 
-  // Lo vencido no sale: 12 h después del fin si se sabe; si no, 72 h desde que se publicó.
-  const vence = a => (a.finISO ? Date.parse(a.finISO) + (cfg.horasDespuesDelFin ?? 12) * HORA : Date.parse(a.publicado) + (cfg.ventanaSinFinHoras ?? 72) * HORA);
+  // Lo vencido no sale: un «se normalizó», 6 h desde que se publicó; un corte, 12 h después del fin si se sabe; si no,
+  // 72 h desde que se publicó.
+  const vence = a => (a.normalizado ? Date.parse(a.publicado) + HORAS_NORMALIZADO * HORA : a.finISO ? Date.parse(a.finISO) + (cfg.horasDespuesDelFin ?? 12) * HORA : Date.parse(a.publicado) + (cfg.ventanaSinFinHoras ?? 72) * HORA);
   const vigentes = avisos.filter(a => vence(a) > t0);
 
-  // Orden: cortando ahora → los que vienen (por día y hora) → el resto (lo más nuevo primero).
+  // Orden: cortando ahora → los que vienen (por día y hora) → el resto (lo más nuevo primero) → se normalizó (lo más nuevo primero).
   const tipo = a => {
+    if (a.normalizado) return 3;
     if (a.inicioISO && a.finISO && Date.parse(a.inicioISO) <= t0 && t0 < Date.parse(a.finISO)) return 0;
     if (a.dia && (a.finISO ? Date.parse(a.finISO) > t0 : a.dia >= diaAR(ahora))) return 1;
     return 2;
@@ -402,9 +423,10 @@ function armarAvisos({ notasScpl = [], notasPortales = [], ahora, cfg, reglas, p
   return vigentes.map(({ inicioISO, ...a }) => a);
 }
 
-// «Agua · programado», «Luz · avería», «Agua · cronograma de verano», «Luz» (sin saber si es programado).
+// «Agua · programado», «Luz · avería», «Agua · cronograma de verano», «Agua · se normalizó», «Luz» (sin saber si es programado).
 function etiquetaDeAviso(a) {
   const servicio = a.servicio ? a.servicio[0].toUpperCase() + a.servicio.slice(1) : 'Corte';
+  if (a.normalizado) return `${a.servicio ? servicio : 'Servicio'} · se normalizó`;
   if (a.cronograma) return `${servicio} · cronograma de verano`;
   if (a.programado === true) return `${servicio} · programado`;
   if (a.programado === false) return `${servicio} · avería`;

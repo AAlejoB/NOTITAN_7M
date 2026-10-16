@@ -377,7 +377,7 @@ test('--zona con avisos.json: lista.json empieza con avisos, zona/avisos.json gu
   assert.equal(l.cortes.listados, 2);
   assert.equal(l.cortes.bajadas, 1);
   assert.equal(l.cortes.vigentes, 1);
-  assert.deepEqual(l.cortes.lista[0], { id: 'a:scpl.coop:2898', servicio: 'agua', programado: true, dia: '2026-10-04', zona: null, fuentes: 3, cronograma: false,
+  assert.deepEqual(l.cortes.lista[0], { id: 'a:scpl.coop:2898', servicio: 'agua', programado: true, dia: '2026-10-04', zona: null, fuentes: 3, cronograma: false, normalizado: false,
     urls: [URL_NOTA, 'https://www.a.com/locales/corte-agua', 'https://www.b.com/locales/corte-agua'] });
   assert.ok(r.resumen.includes('Avisos: 1 vigente (1 agua programado) · SCPL OK · 2 comunicados en el listado · 1 bajados'), r.resumen.join('\n'));
   assert.equal(llamadas.filter(u => u === URL_NOTA).length, 1);

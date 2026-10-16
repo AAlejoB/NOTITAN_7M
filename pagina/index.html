@@ -76,6 +76,8 @@
   .sello.mano { background: var(--ambar-fondo); color: var(--ambar); }
   /* los avisos: programado en verde (el sello de siempre), avería en naranja, cronograma de verano (o sin saber) en gris */
   .sello.gris { background: var(--gris-fondo); color: var(--suave); }
+  /* «se normalizó»: verde lleno, como «Recién confirmada», para que no se confunda con el verde claro de «programado» */
+  .sello.lleno { background: var(--verde); color: var(--tarjeta); font-weight: 700; }
   .datos-aviso { margin: 6px 0 0; font-size: 15px; font-weight: 600; }
   .datos-aviso button { background: none; border: 0; padding: 0; color: var(--azul); font: inherit; text-decoration: underline; min-height: 0; }
   .nueva { background: var(--azul-fondo); color: var(--azul); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
@@ -229,6 +231,7 @@
   function claseSelloDe(t) {
     if (t.via === 'aviso') {
       var a = t.aviso || {};
+      if (a.normalizado) return 'sello lleno';
       return a.cronograma || a.programado === null || a.programado === undefined ? 'sello gris' : a.programado ? 'sello' : 'sello mano';
     }
     // El sello va en verde (vía A), violeta (vía B: «Respaldada por…») o naranja (una 4/5 que se llevó): no se confunden.

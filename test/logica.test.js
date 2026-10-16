@@ -420,3 +420,12 @@ test('avisos: un bloque «Avisos» vacío no se dibuja y con uno va primero', ()
   const vacio = { ...con, bloques: { ...con.bloques, avisos: { ...con.bloques.avisos, noticias: [] } } };
   assert.deepEqual(L.bloquesADibujar(vacio).map(b => b.clave), ['nacional', 'internacional']);
 });
+
+test('avisos: un «se normalizó» dice cuándo se publicó, sin barrios, y se copia en una línea', () => {
+  const t = { ...avisoCompleto, id: 'a:scpl.coop:2905', etiqueta: 'Agua · se normalizó', links: [avisoCompleto.links[0]],
+    aviso: { ...avisoCompleto.aviso, normalizado: true, publicado: '2026-10-16T17:30:00.000Z' } };
+  assert.deepEqual(L.lineaDeAviso(t), { partes: ['Se normalizó el servicio · Viernes 16/10 · 14:30'], barrios: null });
+  assert.equal(L.lineaParaCopiar(t), 'Se normalizó el servicio de agua en Zona Norte · Fuente: SCPL https://scpl.coop/index.php/site/ver-nota?id=2898');
+  const sinZona = { ...t, aviso: { ...t.aviso, zona: null, servicio: null } };
+  assert.equal(L.lineaParaCopiar(sinZona), 'Se normalizó el servicio en Comodoro · Fuente: SCPL https://scpl.coop/index.php/site/ver-nota?id=2898');
+});

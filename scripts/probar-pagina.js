@@ -511,8 +511,14 @@ async function comprobar(navegador, URL, lista) {
     links: [{ medio: 'El Patagónico', url: 'https://www.elpatagonico.com/sin-luz' }],
     aviso: { servicio: 'luz', programado: false, dia: null, desde: null, hasta: null, duracionHoras: null, barrios: [], zona: null, cronograma: false },
   };
+  const avisoNormalizado = {
+    id: 'a:scpl.coop:2905', titulo: 'SE NORMALIZA EL SERVICIO DE AGUA EN COMODORO TRAS LAS TAREAS DE MANTENIMIENTO', bajada: '', etiqueta: 'Agua · se normalizó', via: 'aviso', grupos: 1, medios: ['SCPL'],
+    links: [{ medio: 'SCPL', url: 'https://scpl.coop/index.php/site/ver-nota?id=2905' }],
+    aviso: { servicio: 'agua', programado: true, dia: null, desde: null, hasta: null, duracionHoras: null, barrios: ['Laprida'], zona: null, cronograma: false,
+      normalizado: true, publicado: '2026-10-16T17:30:00.000Z' },
+  };
   conAvisos.orden = ['avisos', 'nacional', 'internacional'];
-  conAvisos.bloques = { avisos: { nombre: 'Avisos', minimo: 1, tope: null, noticias: [avisoTodo, avisoSinDia], aMano: [], afueraPorTope: 0 }, ...conAvisos.bloques };
+  conAvisos.bloques = { avisos: { nombre: 'Avisos', minimo: 1, tope: null, noticias: [avisoTodo, avisoSinDia, avisoNormalizado], aMano: [], afueraPorTope: 0 }, ...conAvisos.bloques };
   ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
   p = await ctx.newPage();
   vigilar(p);
@@ -520,10 +526,15 @@ async function comprobar(navegador, URL, lista) {
   await p.goto(URL);
   await p.waitForSelector('.noticia');
   const titulosAvisos = await p.locator('.bloque > h2').allTextContents();
-  ok(titulosAvisos[0] === 'Avisos · 2' && /^Nacionales/.test(titulosAvisos[1]), 'avisos: el bloque sale primero y dice «Avisos · 2» (' + titulosAvisos.join(' | ') + ')');
+  ok(titulosAvisos[0] === 'Avisos · 3' && /^Nacionales/.test(titulosAvisos[1]), 'avisos: el bloque sale primero y dice «Avisos · 3» (' + titulosAvisos.join(' | ') + ')');
   const primerBloque = p.locator('.bloque').first();
   const cartaTodo = primerBloque.locator('article.noticia').nth(0);
   const cartaSinDia = primerBloque.locator('article.noticia').nth(1);
+  const cartaNormalizado = primerBloque.locator('article.noticia').nth(2);
+  ok((await cartaNormalizado.locator('.sello.lleno').textContent()) === 'Agua · se normalizó' && (await cartaNormalizado.locator('.sello').evaluate(el => getComputedStyle(el).backgroundColor)) === 'rgb(23, 114, 74)' && (await color(cartaNormalizado.locator('.sello'))) === 'rgb(255, 255, 255)',
+    'avisos: la pastilla «Agua · se normalizó» verde llena, con letra blanca');
+  const lineaNormalizado = await cartaNormalizado.locator('.datos-aviso').textContent();
+  ok(lineaNormalizado === 'Se normalizó el servicio · Viernes 16/10 · 14:30', 'avisos: la línea de un «se normalizó» «' + lineaNormalizado + '» (sin barrios)');
   ok((await cartaTodo.locator('.sello').textContent()) === 'Agua · programado' && (await color(cartaTodo.locator('.sello'))) === 'rgb(23, 114, 74)', 'avisos: la pastilla «Agua · programado» en verde');
   ok((await cartaSinDia.locator('.sello.mano').textContent()) === 'Luz · avería' && (await color(cartaSinDia.locator('.sello'))) === NARANJA.claro, 'avisos: la pastilla «Luz · avería» en naranja');
   const lineaTodo = await cartaTodo.locator('.datos-aviso').textContent();
@@ -542,6 +553,12 @@ async function comprobar(navegador, URL, lista) {
   ok(pegadoAvisos === 'Corte de agua programado · jueves 8/10 desde las 15:00, 24 h · Barrios: Laprida, Güemes, Sarmiento, Manantial Rosales, Bella Vista Norte, Ara San Juan, Padre Corti, Km.8 · Fuente: SCPL https://scpl.coop/index.php/site/ver-nota?id=2898 · ADNSUR https://www.adnsur.com.ar/corte-agua\n\nCorte de luz por avería · Fuente: El Patagónico https://www.elpatagonico.com/sin-luz',
     'avisos: lo que se copia es una línea por aviso: ' + JSON.stringify(pegadoAvisos));
   ok(/Te la llevaste a las \d\d:\d\d/.test(await p.locator('.bloque').first().locator('.hora-llevada').first().textContent()), 'avisos: lo copiado queda como «Te la llevaste», igual que una noticia');
+  await primerBloque.locator('article.noticia', { hasText: 'SE NORMALIZA' }).locator('input[type=checkbox]').check();
+  await p.evaluate(() => { document.getElementById('mensaje').textContent = ''; });
+  await p.click('#copiar');
+  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
+  const pegadoNormalizado = await p.evaluate(() => navigator.clipboard.readText());
+  ok(pegadoNormalizado === 'Se normalizó el servicio de agua en Comodoro · Fuente: SCPL https://scpl.coop/index.php/site/ver-nota?id=2905', 'avisos: lo que se copia de un «se normalizó»: ' + JSON.stringify(pegadoNormalizado));
   await ctx.close();
   const sinAvisos = await conLista({ generadaEn: hace(5) }, async q => ({ datos: await q.locator('.datos-aviso').count(), primero: (await q.locator('.bloque > h2').allTextContents())[0] }));
   ok(sinAvisos.datos === 0 && /^Nacionales/.test(sinAvisos.primero), 'avisos: sin bloque avisos nada cambia (primero Nacionales, ninguna línea de aviso)');
