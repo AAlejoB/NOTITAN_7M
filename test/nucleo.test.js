@@ -138,9 +138,45 @@ test('criterio 1: los moldes de servicio no se llevan noticias de verdad', () =>
   }
 });
 
+test('criterio 1: el molde «pronóstico del tiempo» saca el pronóstico y deja las alertas', () => {
+  const r = reglas.criterio1;
+  const sacan = [
+    'Comodoro y Rada Tilly tendrán un jueves nublado y sin chances de lluvias',
+    'Comodoro tendrá un viernes con sol pleno y una máxima de 18 °C',
+    'Viernes agradable y con algunas nubes en Comodoro y Rada Tilly',
+    'Tucumán: cómo estará el tiempo este miércoles 14 de octubre',
+  ];
+  const pasan = [
+    'Alerta amarilla por tormentas muy fuertes en gran parte de Chubut',
+    'Pronostico en Chubut: rige una alerta amarilla por tormentas para este jueves',
+    'El SMN emitió una alerta amarilla por tormentas en la Ciudad de Buenos Aires',
+  ];
+  for (const titulo of sacan) assert.deepEqual(N.esInformativa({ titulo, url: 'https://x.com/sociedad/a' }, r), { ok: false, motivo: 'nota_de_servicio (pronóstico del tiempo)' }, titulo);
+  for (const titulo of pasan) assert.equal(N.esInformativa({ titulo, url: 'https://x.com/sociedad/a' }, r).ok, true, titulo);
+});
+
+test('criterio 1: el molde «cotizaciones» saca el dólar y el euro de hoy (antes «^dolar (blue )?hoy») y deja las noticias', () => {
+  const r = reglas.criterio1;
+  assert.equal(r.titulosExcluidos.includes('^dolar (blue )?hoy'), false, 'lo cubre el molde nuevo');
+  const sacan = [
+    'Euro hoy en Chile: cotización de cierre del 15 de octubre',
+    'El dólar en Córdoba: a cuánto cotiza este miércoles 14 de octubre',
+    'Euro blue hoy: se mantiene estable en los $1.844,75',
+    'Dólar oficial y dólar tarjeta: banco por banco, a cuánto cotizan este jueves',
+    'Dólar blue hoy: a cuánto abre',
+  ];
+  const pasan = [
+    'El Gobierno repone los límites a la venta de tierras',
+    'Caputo aseguró que Argentina ya no depende del FMI',
+    'El dólar blue tocó un récord tras el anuncio',
+  ];
+  for (const titulo of sacan) assert.deepEqual(N.esInformativa({ titulo, url: 'https://x.com/economia/a' }, r), { ok: false, motivo: 'nota_de_servicio (cotizaciones)' }, titulo);
+  for (const titulo of pasan) assert.equal(N.esInformativa({ titulo, url: 'https://x.com/economia/a' }, r).ok, true, titulo);
+});
+
 test('criterio 1: sin notasDeServicio en la config, todo queda como antes', () => {
   const { notasDeServicio, ...sinMoldes } = reglas.criterio1;
-  assert.equal(notasDeServicio.length, 3);
+  assert.equal(notasDeServicio.length, 5);
   const e = N.esInformativa({ titulo: 'A qué hora juegan Talleres vs. Belgrano', url: 'https://x.com/deportes/a' }, sinMoldes);
   assert.equal(e.ok, true);
 });

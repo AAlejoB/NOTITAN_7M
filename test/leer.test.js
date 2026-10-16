@@ -114,12 +114,12 @@ test('detalleDeHechos: respeta las reglas del agrupador que se le pasan', () => 
 });
 
 test('--sin-notas-de-servicio: para esa corrida los moldes quedan vacíos y la config compartida no se toca', () => {
-  assert.equal(reglas.criterio1.notasDeServicio.length, 3);
+  assert.equal(reglas.criterio1.notasDeServicio.length, 5);
   const o = leerOpciones(['--sin-notas-de-servicio'], reglas);
   assert.deepEqual(o.reglas.criterio1.notasDeServicio, []);
   assert.deepEqual(o.reglas.criterio1.titulosExcluidos, reglas.criterio1.titulosExcluidos, 'el resto del criterio 1 sigue');
-  assert.equal(reglas.criterio1.notasDeServicio.length, 3, 'reglasBase sigue con los 3 moldes');
-  assert.equal(leerOpciones([], reglas).reglas.criterio1.notasDeServicio.length, 3, 'sin la opción, valen los 3');
+  assert.equal(reglas.criterio1.notasDeServicio.length, 5, 'reglasBase sigue con los 5 moldes');
+  assert.equal(leerOpciones([], reglas).reglas.criterio1.notasDeServicio.length, 5, 'sin la opción, valen los 5');
 });
 
 test('motivosCriterio1: cuenta por motivo, de mayor a menor, y solo mira las notas', () => {
