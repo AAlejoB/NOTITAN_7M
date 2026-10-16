@@ -117,7 +117,7 @@ En n8n, para cada archivo: **Create → Workflow**, menú **⋯** arriba a la de
 
 Después de importar, en cada uno:
 
-- **Nodo «Rutas»** (doble clic): `carpetaRepo` = `/home/node/7m` y `carpetaDatos` = `/home/node/7m-datos` (ya vienen así; con npm, `/opt/7m` y `/opt/7m-datos`). En la vuelta y en el error, `correoAvisos` = los mails de Alejo y de Don Julio, separados por coma, y `correoDesde` = la casilla de 7M.
+- **Nodo «Rutas»** (doble clic): `carpetaRepo` = `/home/node/7m` y `carpetaDatos` = `/home/node/7m-datos` (ya vienen así; con npm, `/opt/7m` y `/opt/7m-datos`). En la vuelta y en el error, `correoAvisos` = los mails de Alejo y de Don Julio, separados por coma, y `correoDesde` = la casilla de 7M. En la vuelta, también `configZona` = `config/zona` (ya viene así): con eso la vuelta baja además los 8 feeds de Comodoro y Chubut y la página muestra los cuatro bloques; vacío, corre solo lo nacional e internacional.
 - **Nodos con credencial**: abrir «IA» y elegir `7M Anthropic`; «Avisar» y «Mandar», `7M Correo`; «Webhook», `7M Webhook`. En «Mandar» (correo), «From Email» = la casilla de 7M.
 - En la vuelta: **⋯ → Settings → Error Workflow** = «7M · si la vuelta se rompe». Guardar.
 
@@ -220,7 +220,7 @@ server {
 ## 6. Probar
 
 1. **La prueba de la unión.** Abrir «7M · prueba de la unión (3 veces)» → «Execute workflow». Tarda unos segundos. Clic en el nodo «Resultado»: un renglón por caso (con sus 3 intentos) y el último dice `"resumen": "pasa"` o `"no pasa"`. Se anota en el reporte. **La unión no se prende en esta tanda**, pase o no pase.
-2. **Una vuelta.** En la vuelta, nodo «Cada 30 minutos» → poner 1 minuto, guardar, esperar 2 minutos. En **Executions** (arriba) tienen que aparecer dos vueltas en verde. Abrir la primera, nodo «Decidir»: dice cuántas preguntas hizo la IA (`ia`), cuántas noticias salieron con bloque provisorio (`provisorias`) y cuánto tardó (`tardoMs`). En la segunda vuelta, `ia.preguntadas` tiene que ser 0 o casi 0 (ya juzgó). **Volver a poner 30 minutos y guardar.** Ojo: apretar «Execute workflow» a mano no guarda lo acumulado; solo las vueltas del reloj lo guardan.
+2. **Una vuelta.** En la vuelta, nodo «Cada 30 minutos» → poner 1 minuto, guardar, esperar 2 minutos. En **Executions** (arriba) tienen que aparecer dos vueltas en verde. Abrir la primera, nodo «Decidir»: dice cuántas preguntas hizo la IA (`ia`), cuántas noticias salieron con bloque provisorio (`provisorias`) y cuánto tardó (`tardoMs`). En la segunda vuelta, `ia.preguntadas` tiene que ser 0 o casi 0 (ya juzgó). En `resumen` (también en «Decidir») tienen que estar los dos renglones de la zona: «Zona · feeds: 8 OK…» y «Zona · lista: N Comodoro + N Chubut…». **Volver a poner 30 minutos y guardar.** Ojo: apretar «Execute workflow» a mano no guarda lo acumulado; solo las vueltas del reloj lo guardan. Lo que n8n guarda entre vueltas (en los datos estáticos del workflow) son las notas de 48 h, los juicios de la IA, la hora del último aviso y las notas de 48 h de la zona.
 3. **La página desde el celular.** Entrar a la dirección de la página: pide mail y contraseña. Entrar con la temporal, ver la lista (arriba dice «Canal 2 · 7M»), probar «Olvidé mi clave» (tiene que llegar el mail, y la contraseña nueva entra), y «Salir».
 4. **La medición**, en la terminal:
 

@@ -56,7 +56,7 @@ No es una carta de cambios: es el registro de las dos mediciones que corrió Ale
 
 ### Abierto (sin resolver, con valor por defecto mientras tanto)
 
-- **Viejas que vuelven como nuevas** (23 el 16-10): Claude Code explica en su reporte cómo un hecho cambia de id; se decide después. Mientras tanto: nada; la página no las muestra porque no son frescas.
+- ~~**Viejas que vuelven como nuevas** (23 el 16-10)~~ — **resuelto:** decidió Alejo (16-10, 16:53): opción B, `medir` cuenta por link, y la regla del proyecto: nada por id. Hecho en la carta `b` (`urls` en cada hecho de `vueltas.jsonl`).
 - **Región:** sin portales con feed en Neuquén, Río Negro, Santa Cruz y Tierra del Fuego. Mientras tanto no existe en `config/zona/reglas.json`; se suma como tercer anillo cuando haya 2 portales por provincia.
 - **Más portales de Chubut:** Diario Jornada y La Opinión Austral sin feed ni sitemap; Rawson Digital no conecta (14-10). Mientras tanto, El Chubut es el único provincial.
 - **X / Twitter como segunda confirmación** (idea de Alejo del 16-10): nunca como medio que suma a los 5; como mucho una señal aparte, tipo vía B. Va a «Más adelante» hasta averiguar costo y reglas de la API; si es caro, no.
@@ -67,7 +67,7 @@ No es una carta de cambios: es el registro de las dos mediciones que corrió Ale
 
 1. Claude Code hace la carta `a` y reporta (incluida la prueba de las fuentes de los cortes y la explicación de los ids).
 2. Cuando Don Julio conteste, la Fase B de la carta `b` (instalar la capa 4 en su servidor).
-3. Carta: enganchar la zona en la capa 4 y diseñar el bloque «Avisos» con las fuentes probadas.
+3. Carta `b` hecha: la capa 4 corre la zona; queda la carta `c`: el bloque Avisos (arranca con lo legible: notas locales de corte con 1 medio, horario y barrios del texto, link al comunicado).
 4. Carta de la página C (flujo con Normal/Plus, temas, los chips de motivo con «derivada»), ya con los dos anillos adentro.
 
 # Cowork → pendientes · 14-10-2026 · 23:30 (hora de Argentina) · las 14 respuestas de Don Julio
@@ -305,7 +305,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
-- Enganchar la zona en `src/capa4.js` (carta siguiente, después de probar esto).
+- ~~Enganchar la zona en `src/capa4.js`~~ — hecho el 16-10 (carta `Cowork_para_ClaudeCode_2026-10-16_b.md`).
 - ~~Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`~~: **cancelada el 15-10 (carta `c`)**: la medición local corre en la compu de Alejo y la revisa Cowork con los archivos que él mande. Claude Code no tiene nada que hacer con lo local hasta la carta de los bloques por zona.
 - Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`: instalar la capa 4 en el servidor de Don Julio el día que Alejo vaya, en una tanda.
 
@@ -322,6 +322,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 - [x] 15-10-2026 · **Capa 4 escrita** (carta `b`): `src/capa4.js`, los cuatro workflows en `n8n/`, la página con login (`scripts/servir.js`, `scripts/usuario.js`), la IA falsa y la guía de instalación. Falta instalar (Fase B).
 - [x] 15-10-2026 · **Sitemaps en el lector y `--config` en la vuelta** (decidió Alejo adelantarlo el 15-10): El Patagónico y El Chubut se leen por su sitemap de noticias (sin bajada; la página lo dice); `config/comodoro/` es el bloque local de prueba (5 portales, 2 medios para confirmar); la medición local corre en el entorno de Claude Code.
+- [x] 16-10-2026 · **La zona en la capa 4** (carta `Cowork_para_ClaudeCode_2026-10-16_b.md`): `mitadUno` y `mitadDos` corren Comodoro y Chubut sin IA; el nodo Rutas trae `configZona`; el molde del pronóstico ya no saca las listas de Netflix; cada hecho de `vueltas.jsonl` lleva sus `urls` y `medir` cuenta por link; `docs/PAQUETE_DE_CLIENTE.md`. Reporte `ClaudeCode_para_Cowork_2026-10-16_b.md`.
 - [x] 16-10-2026 · **Los anillos Comodoro y Chubut** (carta `Cowork_para_ClaudeCode_2026-10-16_a.md`): `config/zona/`, `src/zona.js`, la zona en la misma vuelta (`--zona config/zona`), la página en el orden de `lista.orden`, ZONA en `npm run medir`, moldes «pronóstico del tiempo» y «cotizaciones», y las fuentes de los cortes probadas. Reporte `ClaudeCode_para_Cowork_2026-10-16_a.md`.
 - [x] 09-10-2026 · **Links por medio** (Cowork, valor por defecto, variante A): en la página cada medio aparece una sola vez en la fila de links, con su primera nota; lo que se copia sigue con todos. `npm run ver` para ver `datos/pagina/` en la compu. **El día de medición lo corre Alejo en su compu** (decidió Alejo): guía `docs/CORRER_EN_MI_COMPU.md`.
 - [x] 09-10-2026 · **Etapa 1 en el repo** (decidió Alejo): `npm run vuelta` hace una vuelta completa sin IA y deja la lista real en `datos/pagina/`; `npm run medir` resume las vueltas por corte de 4 h; la página avisa «Sin el juicio de la IA». Dónde corre, con Don Julio.
