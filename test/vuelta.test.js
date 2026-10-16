@@ -56,7 +56,10 @@ test('E4: carpeta vacía y todos los feeds andan: notas, página, una línea y s
   assert.deepEqual(Object.keys(l[0].notas), ['leidas', 'nuevas', 'repetidas', 'borradas', 'acumuladas']);
   assert.deepEqual(Object.keys(l[0].hechos), ['total', 'porGrupos']);
   assert.deepEqual(Object.keys(l[0].hechos.porGrupos), ['1', '2', '3', '4', '5+']);
-  assert.deepEqual(Object.keys(l[0].confirmados[0]), ['id', 'bloque', 'grupos', 'via', 'viejo', 'medios', 'titulo']);
+  assert.deepEqual(Object.keys(l[0].confirmados[0]), ['id', 'bloque', 'grupos', 'via', 'viejo', 'medios', 'urls', 'titulo']);
+  // Cada confirmado trae las urls de sus notas, sin repetir (con ellas medir reconoce la misma noticia).
+  for (const c of l[0].confirmados) assert.equal(c.urls.length, new Set(c.urls).size);
+  assert.ok(l[0].confirmados.every(c => c.urls.length >= 5));
   assert.deepEqual(Object.keys(l[0].lista), ['nacional', 'internacional', 'aManoNacional', 'aManoInternacional', 'noFresco']);
   assert.equal(l[0].hora, AHORA);
   assert.equal(typeof l[0].duracionMs, 'number');
@@ -253,6 +256,18 @@ test('--config: con 2 medios alcanza, la confirmada lleva sus medios y no hay 1/
   assert.ok(r.resumen.includes('Confirmados: 1 nacionales + 0 internacionales'));
 });
 
+test('una 4/5 lleva en la línea las urls de sus 4 notas', async () => {
+  const c = carpeta();
+  const mapa = respuestas();
+  mapa[feeds[4].url] = new Error('ECONNRESET');
+  await correr(c, { fetch: fetchPorUrl(mapa) });
+  const [l] = lineas(c);
+  assert.equal(l.cuatroDeCinco.length, 1);
+  assert.deepEqual(Object.keys(l.cuatroDeCinco[0]), ['id', 'bloque', 'grupos', 'conFirma', 'medios', 'urls', 'titulo']);
+  assert.equal(l.cuatroDeCinco[0].urls.length, 4);
+  rmSync(c, { recursive: true });
+});
+
 /* ───────── --zona: lo nacional y la zona en la misma vuelta ───────── */
 
 test('--zona y --config juntas cortan con ErrorDeUso; --zona necesita valor', () => {
@@ -289,7 +304,8 @@ test('--zona: lista.json con orden de cuatro, zona/notas.json guardado y vueltas
   assert.deepEqual(l.zona.lista, { local: 1, chubut: 0 });
   assert.deepEqual(l.zona.feeds, { ok: 2, mal: 0, caidos: [] });
   assert.equal(l.zona.confirmados[0].anillo, 'local');
-  assert.deepEqual(Object.keys(l.zona.confirmados[0]), ['id', 'anillo', 'grupos', 'medios', 'titulo', 'tambienNacional', 'viejo']);
+  assert.deepEqual(Object.keys(l.zona.confirmados[0]), ['id', 'anillo', 'grupos', 'medios', 'urls', 'titulo', 'tambienNacional', 'viejo']);
+  assert.equal(l.zona.confirmados[0].urls.length, 2);
   assert.ok(r.resumen.includes('Zona · feeds: 2 OK · 0 caídos'));
   assert.ok(r.resumen.includes('Zona · lista: 1 Comodoro + 0 Chubut · también nacionales: 0'));
 });

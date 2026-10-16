@@ -35,7 +35,7 @@ test('E1 · local: dos medios de Comodoro → Comodoro, «Confirmada por 2 medio
   assert.equal(z.bloques.local.noticias[0].etiqueta, 'Confirmada por 2 medios locales');
   assert.equal(z.bloques.local.noticias[0].bloque, 'local');
   assert.equal(z.bloques.chubut.noticias.length, 0);
-  assert.deepEqual(z.confirmados[0], { id: h.id, anillo: 'local', grupos: 2, medios: ['El Comodorense', 'El Patagónico'], titulo: h.titulo, tambienNacional: false, viejo: false });
+  assert.deepEqual(z.confirmados[0], { id: h.id, anillo: 'local', grupos: 2, medios: ['El Comodorense', 'El Patagónico'], urls: h.notas.map(n => n.url), titulo: h.titulo, tambienNacional: false, viejo: false });
 });
 
 test('E2 · chubut: uno de Comodoro y uno provincial → Chubut, «Confirmada por 2 medios de Chubut»', () => {

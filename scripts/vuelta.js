@@ -82,6 +82,9 @@ function hechosPorGrupos(p) {
 }
 
 // Los grupos distintos de las notas de un hecho, en el orden de las notas (el dominio, si el portal no está en la lista).
+// Las urls de las notas de un hecho, sin repetir: con ellas medir reconoce la misma noticia aunque cambie el id.
+const urlsDeHecho = hecho => [...new Set(hecho.notas.map(n => n.url))];
+
 function mediosDe(hecho, portales) {
   const grupos = hecho.notas.map(n => { const d = dominioDe(n); return (buscarPortal(d, portales) || {}).grupo || d; });
   return [...new Set(grupos)];
@@ -111,8 +114,8 @@ function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, port
     feeds: cuentaFeeds(lectura),
     notas: cuentaNotas(lectura, acumulado),
     hechos: { total: p.resumen.hechos, porGrupos: hechosPorGrupos(p) },
-    confirmados: p.candidatos.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, via: c.via, viejo: c.viejo, medios: mediosDe(c, portales), titulo: c.titulo })),
-    cuatroDeCinco: p.elegiblesAMano.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, conFirma: (c.firmasReconocidas || []).length > 0, medios: mediosDe(c, portales), titulo: c.titulo })),
+    confirmados: p.candidatos.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, via: c.via, viejo: c.viejo, medios: mediosDe(c, portales), urls: urlsDeHecho(c), titulo: c.titulo })),
+    cuatroDeCinco: p.elegiblesAMano.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, conFirma: (c.firmasReconocidas || []).length > 0, medios: mediosDe(c, portales), urls: urlsDeHecho(c), titulo: c.titulo })),
     lista: {
       nacional: d.nacionales.length,
       internacional: d.internacionales.length,

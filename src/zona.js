@@ -59,6 +59,9 @@ function mediosDe(hecho, portales) {
   return [...new Set(grupos)];
 }
 
+// Las urls de las notas de un hecho, sin repetir: con ellas medir reconoce la misma noticia aunque cambie el id.
+const urlsDe = hecho => [...new Set(hecho.notas.map(n => n.url))];
+
 function decidirZona(preparado, { portales, reglas, hechosNacionales = [] }) {
   const anillos = reglas.anillos || [];
   const descartadas = [];
@@ -69,7 +72,7 @@ function decidirZona(preparado, { portales, reglas, hechosNacionales = [] }) {
   for (const c of preparado.candidatos || []) {
     const anillo = anilloDe(c, { portales, reglas });
     const cruce = tambienNacional(c, hechosNacionales, { reglas });
-    confirmados.push({ id: c.id, anillo, grupos: c.gruposIndependientes, medios: mediosDe(c, portales), titulo: c.titulo, tambienNacional: cruce.si, viejo: Boolean(c.viejo) });
+    confirmados.push({ id: c.id, anillo, grupos: c.gruposIndependientes, medios: mediosDe(c, portales), urls: urlsDe(c), titulo: c.titulo, tambienNacional: cruce.si, viejo: Boolean(c.viejo) });
     if (c.viejo) baja(c, 'no_fresco (criterio 2)');
     else if (cruce.si) baja(c, `tambien_nacional (${cruce.grupos} medios nacionales)`);
     else if (anillo === null) baja(c, 'sin_anillo');

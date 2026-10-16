@@ -11,7 +11,9 @@
  *
  * Pura como el núcleo (salvo escribir): sin leer archivos, sin Date.now() y sin fetch; todo entra por parámetro.
  * Lo que se guarda entre vueltas (`guardado`) lo guarda n8n en los datos estáticos del workflow:
- *   { notas: [...], juicios: [{ urls, juicio, fecha, desmentidosVistos, viejo }], ultimoAviso: <ISO o null> }
+ *   { notas: [...], juicios: [{ urls, juicio, fecha, desmentidosVistos, viejo }], ultimoAviso: <ISO o null>, zona: { notas: [...] } }
+ * La zona (Comodoro y Chubut, config/zona/) es opcional: `zona` es { feeds, portales, reglas } o null. Corre sin IA,
+ * como en scripts/vuelta.js: sus hechos no se le preguntan a la IA y el cruce «también nacional» saca el relleno.
  */
 const { appendFileSync, copyFileSync, mkdirSync, renameSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
@@ -19,6 +21,7 @@ const { parsearFeed, claveUrl, rutaExcluida } = require('./lector.js');
 const { acumular, preparar, decidir, buscarPortal, dominioDe } = require('./nucleo.js');
 const { juiciosProvisorios } = require('./provisorio.js');
 const { armarEntrega } = require('./entrega.js');
+const { decidirZona } = require('./zona.js');
 const { preguntaJuicio, leerJuicio, preguntaUnion, leerUnion, posiblesDesmentidos, buscarGuardado, hayQueVolverAPreguntar } = require('./ia.js');
 
 const HORA = 3600 * 1000;
@@ -69,30 +72,43 @@ function hechosPorGrupos(p) {
   return por;
 }
 
+// Las urls de las notas de un hecho, sin repetir: con ellas medir reconoce la misma noticia aunque cambie el id.
+const urlsDeHecho = hecho => [...new Set(hecho.notas.map(n => n.url))];
+
 function mediosDe(hecho, portales) {
   const grupos = hecho.notas.map(n => { const d = dominioDe(n); return (buscarPortal(d, portales) || {}).grupo || d; });
   return [...new Set(grupos)];
 }
 
-// Igual que en scripts/vuelta.js, salvo `leidas`: acá la lectura no viaja con sus notas (pesan), así que se suman las de cada feed.
-function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, portales = [] }) {
+function cuentaFeeds(lectura) {
   const feeds = lectura ? lectura.feeds : [];
   const mal = feeds.filter(f => f.estado !== 'ok');
-  const leidas = !lectura ? 0 : Array.isArray(lectura.notas) ? lectura.notas.length : feeds.reduce((s, f) => s + (f.notas || 0), 0);
+  return { ok: feeds.length - mal.length, mal: mal.length, caidos: mal.map(f => f.nombre) };
+}
+
+// Acá la lectura no viaja con sus notas (pesan), así que las leídas se suman de cada feed.
+function cuentaNotas(lectura, acumulado) {
+  const feeds = lectura ? lectura.feeds : [];
   return {
+    leidas: !lectura ? 0 : Array.isArray(lectura.notas) ? lectura.notas.length : feeds.reduce((s, f) => s + (f.notas || 0), 0),
+    nuevas: acumulado.agregadas.length,
+    repetidas: acumulado.repetidas.length,
+    borradas: acumulado.borradas.length,
+    acumuladas: acumulado.notas.length,
+  };
+}
+
+// Igual que en scripts/vuelta.js, salvo `leidas` (ver cuentaNotas).
+// zona: { lectura, acumulado, p, z (lo de decidirZona), reglas } o null. Sin zona, la línea es la de siempre.
+function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, portales = [], zona = null }) {
+  const linea = {
     hora: ahora,
     duracionMs,
-    feeds: { ok: feeds.length - mal.length, mal: mal.length, caidos: mal.map(f => f.nombre) },
-    notas: {
-      leidas,
-      nuevas: acumulado.agregadas.length,
-      repetidas: acumulado.repetidas.length,
-      borradas: acumulado.borradas.length,
-      acumuladas: acumulado.notas.length,
-    },
+    feeds: cuentaFeeds(lectura),
+    notas: cuentaNotas(lectura, acumulado),
     hechos: { total: p.resumen.hechos, porGrupos: hechosPorGrupos(p) },
-    confirmados: p.candidatos.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, via: c.via, viejo: c.viejo, medios: mediosDe(c, portales), titulo: c.titulo })),
-    cuatroDeCinco: p.elegiblesAMano.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, conFirma: (c.firmasReconocidas || []).length > 0, medios: mediosDe(c, portales), titulo: c.titulo })),
+    confirmados: p.candidatos.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, via: c.via, viejo: c.viejo, medios: mediosDe(c, portales), urls: urlsDeHecho(c), titulo: c.titulo })),
+    cuatroDeCinco: p.elegiblesAMano.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, conFirma: (c.firmasReconocidas || []).length > 0, medios: mediosDe(c, portales), urls: urlsDeHecho(c), titulo: c.titulo })),
     lista: {
       nacional: d.nacionales.length,
       internacional: d.internacionales.length,
@@ -102,9 +118,20 @@ function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, port
     },
     avisos: [...(lectura ? lectura.avisos : []), ...p.avisos, ...d.avisos],
   };
+  if (zona) {
+    linea.zona = {
+      feeds: cuentaFeeds(zona.lectura),
+      notas: cuentaNotas(zona.lectura, zona.acumulado),
+      hechos: { total: zona.p.resumen.hechos, porGrupos: hechosPorGrupos(zona.p) },
+      confirmados: zona.z.confirmados,
+      lista: Object.fromEntries((zona.reglas.anillos || []).map(a => [a.clave, zona.z.bloques[a.clave].noticias.length])),
+    };
+  }
+  return linea;
 }
 
-function resumenEnPantalla({ linea, carpeta, codigo, sinLeer }) {
+// anillos: reglas.anillos de la zona (para los nombres), si hubo zona.
+function resumenEnPantalla({ linea, carpeta, codigo, sinLeer, anillos = [] }) {
   const g = linea.hechos.porGrupos;
   const cuenta = bloque => linea.confirmados.filter(c => c.bloque === bloque).length;
   const mano = bloque => linea.cuatroDeCinco.filter(c => c.bloque === bloque).length;
@@ -116,8 +143,18 @@ function resumenEnPantalla({ linea, carpeta, codigo, sinLeer }) {
     `Confirmados: ${cuenta('nacional')} nacionales + ${cuenta('internacional')} internacionales`,
     `4/5 (les falta 1 medio): ${mano('nacional')} nacionales + ${mano('internacional')} internacionales`,
     `Lista: ${linea.lista.nacional} nacionales + ${linea.lista.internacional} internacionales`,
+    ...(linea.zona ? resumenZona(linea.zona, sinLeer, anillos) : []),
     `Escribí: ${join(carpeta, 'pagina', 'lista.json')}`,
     `Código de salida: ${codigo}`,
+  ];
+}
+
+function resumenZona(z, sinLeer, anillos) {
+  const nombres = anillos.map(a => `${z.lista[a.clave] || 0} ${a.nombre}`).join(' + ') || 'sin anillos';
+  const tambien = z.confirmados.filter(c => c.tambienNacional && !c.viejo).length;
+  return [
+    sinLeer ? 'Zona · feeds: no se leyeron' : `Zona · feeds: ${z.feeds.ok} OK · ${z.feeds.mal} caídos${z.feeds.caidos.length ? ` (${z.feeds.caidos.join(', ')})` : ''}`,
+    `Zona · lista: ${nombres} · también nacionales: ${tambien}`,
   ];
 }
 
@@ -167,9 +204,11 @@ function hayQuePreguntar(hecho, guardado, desmentidos) {
   return Boolean(hecho.viejo) && guardado.viejo === false;
 }
 
-function mitadUno({ cuerpos, guardado, ahora, feeds, portales, reglas, firmas = [] }) {
+// cuerpos: primero los de los feeds nacionales con url y, si hay zona, después los de la zona con url (el orden del nodo Feeds).
+function mitadUno({ cuerpos, guardado, ahora, feeds, portales, reglas, firmas = [], zona = null }) {
   const antes = guardado || { notas: [], juicios: [], ultimoAviso: null };
-  const lectura = armarLectura(cuerpos, feeds, { ahora });
+  const nNacionales = zona ? feeds.filter(f => f.url).length : Infinity;
+  const lectura = armarLectura((cuerpos || []).slice(0, nNacionales), feeds, { ahora });
   const guardadas = filtrarRutas(antes.notas || [], feeds).notas;
   const acumulado = acumular(guardadas, lectura.notas, { reglas, ahora });
   const limite = Date.parse(ahora) - reglas.ventanaRecoleccionHoras * HORA;
@@ -184,7 +223,7 @@ function mitadUno({ cuerpos, guardado, ahora, feeds, portales, reglas, firmas = 
     if (!hayQuePreguntar(h, g, desmentidos)) { conJuicioGuardado++; continue; }
     preguntas.push({ id: h.id, texto: preguntaJuicio(h, { portales, reglas, desmentidos }), desmentidos: urlsDe(desmentidos), viejo: Boolean(h.viejo) });
   }
-  return {
+  const salida = {
     guardado: { notas: acumulado.notas, juicios, ultimoAviso: antes.ultimoAviso || null },
     lectura: { feeds: lectura.feeds, avisos: lectura.avisos },
     // Ids (y no las notas enteras) para que pese poco en los datos estáticos de n8n: la línea solo cuenta cuántas.
@@ -192,6 +231,16 @@ function mitadUno({ cuerpos, guardado, ahora, feeds, portales, reglas, firmas = 
     preguntas,
     resumen: { hechos: p.resumen.hechos, candidatos: p.candidatos.length, elegiblesAMano: p.elegiblesAMano.length, conJuicioGuardado, aPreguntar: preguntas.length },
   };
+  // La zona: leer y acumular aparte, con sus feeds y sus reglas. No se prepara ni se le pregunta nada a la IA.
+  if (zona) {
+    const lecturaZona = armarLectura((cuerpos || []).slice(feeds.filter(f => f.url).length), zona.feeds.filter(f => f.url), { ahora });
+    const guardadasZona = filtrarRutas((antes.zona && antes.zona.notas) || [], zona.feeds).notas;
+    const acumuladoZona = acumular(guardadasZona, lecturaZona.notas, { reglas: zona.reglas, ahora });
+    salida.guardado.zona = { notas: acumuladoZona.notas };
+    salida.lectura.zona = { feeds: lecturaZona.feeds, avisos: lecturaZona.avisos };
+    salida.acumulado.zona = { agregadas: acumuladoZona.agregadas, repetidas: acumuladoZona.repetidas, borradas: acumuladoZona.borradas.map(n => n.id) };
+  }
+  return salida;
 }
 
 /* ───────────── con las respuestas: decidir y la lista ───────────── */
@@ -218,7 +267,7 @@ function armarAviso({ lectura, ia, ahora, ultimoAviso, reglas }) {
   return { hayQue: true, asunto: `7M · ${motivo} · ${diaHora(ahora)}`, texto, ultimoAviso: ahora };
 }
 
-function mitadDos({ guardado, lectura, acumulado, respuestas = [], ahora, feeds, portales, reglas, firmas = [] }) {
+function mitadDos({ guardado, lectura, acumulado, respuestas = [], ahora, feeds, portales, reglas, firmas = [], zona = null }) {
   const notas = filtrarRutas(guardado.notas || [], feeds).notas;
   const p = preparar(notas, { portales, reglas, firmas, ahora });
   const porId = new Map(aJuzgar(p).map(h => [h.id, h]));
@@ -249,20 +298,32 @@ function mitadDos({ guardado, lectura, acumulado, respuestas = [], ahora, feeds,
   const d = decidir(p.candidatos, juicios, { reglas, elegiblesAMano: p.elegiblesAMano });
   const enLista = [...d.nacionales, ...d.internacionales, ...d.aMano.nacional, ...d.aMano.internacional];
   const provisorias = enLista.filter(x => juicios[x.id] && juicios[x.id].provisorio).length;
+  // La zona, sin IA: preparar con sus reglas y decidir cada anillo, cruzando con los hechos nacionales de esta vuelta.
+  let deZona = null;
+  if (zona) {
+    const notasZona = filtrarRutas((guardado.zona && guardado.zona.notas) || [], zona.feeds).notas;
+    const pZona = preparar(notasZona, { portales: zona.portales, reglas: zona.reglas, firmas: [], ahora });
+    const z = decidirZona(pZona, { portales: zona.portales, reglas: zona.reglas, hechosNacionales: [...p.candidatos, ...p.enObservacion] });
+    const az = (acumulado && acumulado.zona) || { agregadas: [], repetidas: [], borradas: [] };
+    deZona = { notas: notasZona, lectura: (lectura && lectura.zona) || null, acumulado: { ...az, notas: notasZona }, p: pZona, z, reglas: zona.reglas };
+  }
   const lista = armarEntrega(d, {
     ahora, portales, reglas, ejemplo: false,
     sinIA: usados.length > 0 && usados.every(j => j.provisorio),
     provisorias,
     cliente: reglas.cliente || '',
     paginaViejaMinutos: (reglas.avisos && reglas.avisos.paginaViejaMinutos) || 60,
+    zona: deZona && { ...deZona.z, portales: zona.portales },
   });
 
   const linea = {
-    ...armarLinea({ ahora, duracionMs: null, lectura, acumulado: { ...acumulado, notas }, p, juicios, d, portales }),
+    ...armarLinea({ ahora, duracionMs: null, lectura, acumulado: { ...acumulado, notas }, p, juicios, d, portales, zona: deZona }),
     ia, provisorias, tardoMs: null,
   };
   const avisar = armarAviso({ lectura, ia, ahora, ultimoAviso: guardado.ultimoAviso, reglas });
-  return { guardado: { notas, juicios: juiciosGuardados, ultimoAviso: avisar.ultimoAviso }, lista, linea, avisar };
+  const nuevoGuardado = { notas, juicios: juiciosGuardados, ultimoAviso: avisar.ultimoAviso };
+  if (deZona) nuevoGuardado.zona = { notas: deZona.notas };
+  return { guardado: nuevoGuardado, lista, linea, avisar };
 }
 
 /* ───────────── lo que se escribe en disco ───────────── */

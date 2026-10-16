@@ -189,6 +189,74 @@ test('resumenEnPantalla: las líneas de siempre, con la carpeta de datos', () =>
   assert.equal(r[7], 'Escribí: /datos/pagina/lista.json');
 });
 
+/* ───────── la zona (Comodoro y Chubut), sin IA ───────── */
+
+const { cargarConfig } = require('../scripts/vuelta.js');
+const ZONA = cargarConfig(join(__dirname, '..', 'config', 'zona'));
+const feedsNac = require('../config/feeds.json').feeds.filter(f => f.url);
+const notaZona = (dominio, titulo, k) => ({ id: `${dominio}:${k}`, titulo, bajada: '', url: `https://www.${dominio}/nota-${k}`, portal: dominio, fecha: hace(2), seccion: '', etiqueta: '', firma: '' });
+
+test('zona E1: mitadUno con 19 cuerpos nacionales y 8 de zona: la zona se acumula aparte y no se pregunta; lo nacional, igual que sin zona', () => {
+  assert.equal(feedsNac.length, 19);
+  assert.equal(ZONA.feeds.filter(f => f.url).length, 8);
+  const nac = feedsNac.map((f, k) => ({ nombre: f.nombre, status: 200, xml: rss(item(`Nota número ${k} de prueba del feed ${f.nombre}`, `https://www.${f.dominio}/prueba/${k}`)) }));
+  const xmlZona = rss(item('Corte de agua programado en el barrio Pueyrredón', 'https://www.adnsur.com.ar/a/1') + item('Nuevo horario para los colectivos urbanos', 'https://www.adnsur.com.ar/a/2'));
+  const zon = ZONA.feeds.map(f => ({ nombre: f.nombre, status: 200, xml: xmlZona }));
+  const base = { guardado: null, ahora: AHORA, feeds: feedsNac, portales, reglas, firmas: [] };
+  const u = C.mitadUno({ cuerpos: [...nac, ...zon], ...base, zona: ZONA });
+  assert.equal(u.guardado.zona.notas.length, 2);
+  assert.equal(u.lectura.zona.feeds.length, 8);
+  assert.equal(u.acumulado.zona.agregadas.length, 2);
+  assert.ok(u.preguntas.every(q => !q.texto.includes('Pueyrredón') && !q.texto.includes('colectivos urbanos')));
+  const sin = C.mitadUno({ cuerpos: nac, ...base });
+  assert.deepEqual(u.guardado.notas, sin.guardado.notas);
+  assert.deepEqual(u.preguntas, sin.preguntas);
+  assert.deepEqual(u.resumen, sin.resumen);
+  assert.deepEqual(u.lectura.feeds, sin.lectura.feeds);
+  assert.equal('zona' in sin.guardado, false);
+});
+
+test('zona E2: mitadDos con dos notas de la misma noticia de Comodoro: orden de cuatro y una tarjeta en Comodoro', () => {
+  const notasZ = [
+    notaZona('elcomodorense.net', 'Comodoro, la ciudad con la canasta básica más cara de la Patagonia', 1),
+    notaZona('elpatagonico.com', 'Comodoro tiene la canasta básica más cara de la Patagonia', 2),
+  ];
+  const guardado = { notas: [], juicios: [], ultimoAviso: null, zona: { notas: notasZ } };
+  const d = C.mitadDos({ guardado, lectura: { feeds: [], avisos: [] }, acumulado: { agregadas: [], repetidas: [], borradas: [] }, respuestas: [], ...ctx, zona: ZONA });
+  assert.deepEqual(d.lista.orden, ['local', 'chubut', 'nacional', 'internacional']);
+  assert.equal(d.lista.bloques.local.noticias.length, 1);
+  assert.deepEqual(d.lista.bloques.local.noticias[0].medios, ['El Comodorense', 'El Patagónico']);
+  assert.equal(d.linea.zona.lista.local, 1);
+  assert.equal(d.linea.zona.confirmados[0].urls.length, 2);
+  assert.deepEqual(d.guardado.zona.notas, notasZ);
+  const r = C.resumenEnPantalla({ linea: d.linea, carpeta: '/datos', codigo: 0, anillos: ZONA.reglas.anillos });
+  assert.ok(r.includes('Zona · lista: 1 Comodoro + 0 Chubut · también nacionales: 0'));
+  assert.ok(r.some(l => l.startsWith('Zona · feeds: ')));
+});
+
+test('zona E4: el riesgo país en la zona y en 3 medios nacionales: no sale en la zona y queda anotado como también nacional', () => {
+  const t = 'El riesgo país supera los 600 puntos tras una jornada de volatilidad global';
+  const notasZ = [notaZona('diariocronica.com.ar', t, 1), notaZona('elcomodorense.net', t, 2)];
+  const nacionales = ['clarin.com', 'lanacion.com.ar', 'infobae.com'].map(pp => nota(pp, { id: `${pp}:rp`, titulo: t, url: `https://www.${pp}/economia/riesgo-pais` }));
+  const guardado = { notas: nacionales, juicios: [], ultimoAviso: null, zona: { notas: notasZ } };
+  const d = C.mitadDos({ guardado, lectura: { feeds: [], avisos: [] }, acumulado: { agregadas: [], repetidas: [], borradas: [] }, respuestas: [], ...ctx, zona: ZONA });
+  assert.equal(d.lista.bloques.local.noticias.length, 0);
+  assert.equal(d.lista.bloques.chubut.noticias.length, 0);
+  assert.equal(d.linea.zona.confirmados[0].tambienNacional, true);
+});
+
+test('la línea: cada confirmado y cada 4/5 trae las urls de sus notas', () => {
+  const otro = 'Terremoto de magnitud siete sacude la costa de Japón y activa alerta de tsunami';
+  const notas = [...cincoNotas(), ...CINCO.slice(0, 4).map(pp => nota(pp, { id: `${pp}:2`, titulo: otro, url: `https://www.${pp}/mundo/terremoto` }))];
+  const { d } = vuelta({ notas, juicios: [], ultimoAviso: null }, JUICIO);
+  assert.equal(d.linea.confirmados.length, 1);
+  assert.deepEqual(d.linea.confirmados[0].urls.sort(), cincoNotas().map(n => n.url).sort());
+  assert.equal(d.linea.cuatroDeCinco.length, 1);
+  assert.equal(d.linea.cuatroDeCinco[0].urls.length, 4);
+  assert.equal('zona' in d.linea, false);
+  assert.equal('zona' in d.guardado, false);
+});
+
 /* ───────── escribir ───────── */
 
 test('escribir: deja la página y un renglón en vueltas.jsonl; dos veces, dos renglones', () => {
