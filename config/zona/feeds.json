@@ -1,5 +1,5 @@
 {
-  "_aviso": "Bloque local de prueba (Comodoro Rivadavia y Chubut). Feeds y sitemaps probados el 14-10-2026 (buzon/ClaudeCode_para_Cowork_2026-10-14_a.md). Se usa con: node scripts/vuelta.js --config config/comodoro --carpeta datos/comodoro. Nada de acá entra a config/feeds.json ni a la lista blanca: lo decide Alejo.",
+  "_aviso": "Bloque de zona (Comodoro y Chubut). Feeds y sitemaps probados el 14-10-2026 (buzon/ClaudeCode_para_Cowork_2026-10-14_a.md). Se usa con: node scripts/vuelta.js --zona config/zona. Nada de acá entra a config/feeds.json ni a la lista blanca: lo decide Alejo.",
   "verificado": "2026-10-14",
   "feeds": [
     { "nombre": "ADNSUR",               "dominio": "adnsur.com.ar",        "grupo": "ADNSUR",         "ambito": "nacional", "url": "https://www.adnsur.com.ar/rss.xml", "nota": "Comodoro. Sin autor: no sirve para la vía B." },

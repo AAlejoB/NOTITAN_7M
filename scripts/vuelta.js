@@ -1,12 +1,14 @@
 'use strict';
 // Una vuelta completa, sin IA: lee los feeds, acumula las notas, arma la lista con el bloque provisorio,
 // la deja lista para la página y anota lo medido. Lo real vive en la carpeta de datos (datos/), que no se sube al repo.
-// Uso: node scripts/vuelta.js [--carpeta datos] [--cada 30] [--sin-leer] [--config <carpeta>]
+// Uso: node scripts/vuelta.js [--carpeta datos] [--cada 30] [--sin-leer] [--config <carpeta> | --zona <carpeta>]
 //   --carpeta <dir>  dónde vive todo lo real (por defecto datos): notas.json, pagina/, vueltas.jsonl y vuelta.lock.
 //   --cada <min>     repite para siempre: la vuelta siguiente arranca <min> minutos después de que empezó la anterior. Se corta con Ctrl+C.
 //   --sin-leer       no sale a internet ni escribe notas.json ni vueltas.jsonl; rehace pagina/lista.json con lo ya guardado.
 //   --config <dir>   usa los feeds.json y portales.json de esa carpeta; su reglas.json (si hay) pisa claves de config/reglas.json,
-//                    y su firmas.json (si hay) reemplaza la lista de firmas. config/comodoro es el bloque local de prueba.
+//                    y su firmas.json (si hay) reemplaza la lista de firmas. Sirve para medir otra lista de feeds aparte.
+//   --zona <dir>     además de lo nacional, en la misma vuelta, la zona de esa carpeta (config/zona: Comodoro y Chubut):
+//                    sus notas viven en <carpeta>/zona/notas.json y sus anillos van primero en la lista. No va con --config.
 // Códigos: 0 bien · 1 error de uso · 2 ningún feed respondió (la lista igual se rehizo con lo guardado) · 3 hay otra vuelta corriendo.
 // Con proxy: NODE_USE_ENV_PROXY=1 node scripts/vuelta.js
 const { appendFileSync, copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } = require('node:fs');
@@ -15,6 +17,7 @@ const { leerFeeds } = require('../src/lector.js');
 const { acumular, preparar, decidir, buscarPortal, dominioDe } = require('../src/nucleo.js');
 const { juiciosProvisorios } = require('../src/provisorio.js');
 const { armarEntrega } = require('../src/entrega.js');
+const { decidirZona } = require('../src/zona.js');
 const { cargarNotas, guardarNotas, filtrarRutas, fechaCorta, ErrorDeUso } = require('./leer.js');
 const configReglas = require('../config/reglas.json');
 const configPortales = require('../config/portales.json').portales;
@@ -38,16 +41,19 @@ function leerOpciones(args) {
   const cada = valor('--cada');
   if (cada !== null && !/^\d+$/.test(cada)) throw new ErrorDeUso(`--cada tiene que ser un número entero de minutos, 1 o más, no "${cada}".`);
   if (cada !== null && Number(cada) < 1) throw new ErrorDeUso('--cada tiene que ser de 1 minuto o más.');
-  return { carpeta: valor('--carpeta') || 'datos', cada: cada === null ? null : Number(cada), sinLeer: args.includes('--sin-leer'), config: valor('--config') };
+  const config = valor('--config');
+  const zona = valor('--zona');
+  if (config !== null && zona !== null) throw new ErrorDeUso('--zona y --config no van juntas.');
+  return { carpeta: valor('--carpeta') || 'datos', cada: cada === null ? null : Number(cada), sinLeer: args.includes('--sin-leer'), config, zona };
 }
 
 // --config <carpeta>: feeds.json y portales.json obligatorios; reglas.json pisa claves de primer nivel de config/reglas.json
 // (un objeto se reemplaza entero, no se mezcla); firmas.json, si no está, deja la lista vacía.
-function cargarConfig(carpeta) {
+function cargarConfig(carpeta, bandera = '--config') {
   const leerJson = archivo => JSON.parse(readFileSync(join(carpeta, archivo), 'utf8'));
   for (const archivo of ['feeds.json', 'portales.json']) {
     if (!existsSync(join(carpeta, archivo))) {
-      throw new ErrorDeUso(`--config necesita una carpeta con feeds.json y portales.json: ${join(carpeta, archivo)} no está.`);
+      throw new ErrorDeUso(`${bandera} necesita una carpeta con feeds.json y portales.json: ${join(carpeta, archivo)} no está.`);
     }
   }
   const hay = archivo => existsSync(join(carpeta, archivo));
@@ -81,20 +87,29 @@ function mediosDe(hecho, portales) {
   return [...new Set(grupos)];
 }
 
-function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, portales = [] }) {
+function cuentaFeeds(lectura) {
   const feeds = lectura ? lectura.feeds : [];
   const mal = feeds.filter(f => f.estado !== 'ok');
+  return { ok: feeds.length - mal.length, mal: mal.length, caidos: mal.map(f => f.nombre) };
+}
+
+function cuentaNotas(lectura, acumulado) {
   return {
+    leidas: lectura ? lectura.notas.length : 0,
+    nuevas: acumulado.agregadas.length,
+    repetidas: acumulado.repetidas.length,
+    borradas: acumulado.borradas.length,
+    acumuladas: acumulado.notas.length,
+  };
+}
+
+// zona: { lectura, acumulado, p, z (lo de decidirZona), reglas } o null. Sin zona, la línea es la de siempre.
+function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, portales = [], zona = null }) {
+  const linea = {
     hora: ahora,
     duracionMs,
-    feeds: { ok: feeds.length - mal.length, mal: mal.length, caidos: mal.map(f => f.nombre) },
-    notas: {
-      leidas: lectura ? lectura.notas.length : 0,
-      nuevas: acumulado.agregadas.length,
-      repetidas: acumulado.repetidas.length,
-      borradas: acumulado.borradas.length,
-      acumuladas: acumulado.notas.length,
-    },
+    feeds: cuentaFeeds(lectura),
+    notas: cuentaNotas(lectura, acumulado),
     hechos: { total: p.resumen.hechos, porGrupos: hechosPorGrupos(p) },
     confirmados: p.candidatos.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, via: c.via, viejo: c.viejo, medios: mediosDe(c, portales), titulo: c.titulo })),
     cuatroDeCinco: p.elegiblesAMano.map(c => ({ id: c.id, bloque: juicios[c.id].bloque, grupos: c.gruposIndependientes, conFirma: (c.firmasReconocidas || []).length > 0, medios: mediosDe(c, portales), titulo: c.titulo })),
@@ -107,9 +122,20 @@ function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, port
     },
     avisos: [...(lectura ? lectura.avisos : []), ...p.avisos, ...d.avisos],
   };
+  if (zona) {
+    linea.zona = {
+      feeds: cuentaFeeds(zona.lectura),
+      notas: cuentaNotas(zona.lectura, zona.acumulado),
+      hechos: { total: zona.p.resumen.hechos, porGrupos: hechosPorGrupos(zona.p) },
+      confirmados: zona.z.confirmados,
+      lista: Object.fromEntries((zona.reglas.anillos || []).map(a => [a.clave, zona.z.bloques[a.clave].noticias.length])),
+    };
+  }
+  return linea;
 }
 
-function resumenEnPantalla({ linea, carpeta, codigo, sinLeer }) {
+// anillos: reglas.anillos de la zona (para los nombres), si hubo zona.
+function resumenEnPantalla({ linea, carpeta, codigo, sinLeer, anillos = [] }) {
   const g = linea.hechos.porGrupos;
   const cuenta = bloque => linea.confirmados.filter(c => c.bloque === bloque).length;
   const mano = bloque => linea.cuatroDeCinco.filter(c => c.bloque === bloque).length;
@@ -121,8 +147,18 @@ function resumenEnPantalla({ linea, carpeta, codigo, sinLeer }) {
     `Confirmados: ${cuenta('nacional')} nacionales + ${cuenta('internacional')} internacionales`,
     `4/5 (les falta 1 medio): ${mano('nacional')} nacionales + ${mano('internacional')} internacionales`,
     `Lista: ${linea.lista.nacional} nacionales + ${linea.lista.internacional} internacionales`,
+    ...(linea.zona ? resumenZona(linea.zona, sinLeer, anillos) : []),
     `Escribí: ${join(carpeta, 'pagina', 'lista.json')}`,
     `Código de salida: ${codigo}`,
+  ];
+}
+
+function resumenZona(z, sinLeer, anillos) {
+  const nombres = anillos.map(a => `${z.lista[a.clave] || 0} ${a.nombre}`).join(' + ') || 'sin anillos';
+  const tambien = z.confirmados.filter(c => c.tambienNacional && !c.viejo).length;
+  return [
+    sinLeer ? 'Zona · feeds: no se leyeron' : `Zona · feeds: ${z.feeds.ok} OK · ${z.feeds.mal} caídos${z.feeds.caidos.length ? ` (${z.feeds.caidos.join(', ')})` : ''}`,
+    `Zona · lista: ${nombres} · también nacionales: ${tambien}`,
   ];
 }
 
@@ -149,8 +185,9 @@ const horaAR = fecha => fecha.toLocaleTimeString('es-AR', { timeZone: ZONA, hour
 
 // → { codigo, resumen: [líneas], linea } (con el candado fresco no hay `linea`).
 // `feeds`, `portales`, `reglas` y `firmas` salen de config/; se pueden pasar otros (los tests lo hacen).
+// `zona`: lo que devuelve cargarConfig('config/zona') ({ feeds, portales, reglas }), o null para no correr la zona.
 async function vuelta({ carpeta = 'datos', ahora = new Date().toISOString(), fetch = globalThis.fetch, sinLeer = false,
-  feeds = configFeeds, portales = configPortales, reglas = configReglas, firmas = configFirmas } = {}) {
+  feeds = configFeeds, portales = configPortales, reglas = configReglas, firmas = configFirmas, zona = null } = {}) {
   const inicio = Date.now();
   const archivoNotas = join(carpeta, 'notas.json');
   const candado = join(carpeta, 'vuelta.lock');
@@ -168,29 +205,43 @@ async function vuelta({ carpeta = 'datos', ahora = new Date().toISOString(), fet
   writeFileSync(candado, ahora);
   try {
     // 2. Lo guardado (si el archivo está roto, corta acá y no se escribe nada).
+    const archivoZona = join(carpeta, 'zona', 'notas.json');
     const guardadas = filtrarRutas(cargarNotas(archivoNotas), feeds).notas;
-    // 3. Leer.
-    const lectura = sinLeer ? null : await leerFeeds(feeds, { ahora, fetch });
+    const guardadasZona = zona ? filtrarRutas(cargarNotas(archivoZona), zona.feeds).notas : [];
+    // 3. Leer (lo nacional y la zona a la vez).
+    const [lectura, lecturaZona] = sinLeer ? [null, null]
+      : await Promise.all([leerFeeds(feeds, { ahora, fetch }), zona ? leerFeeds(zona.feeds, { ahora, fetch }) : null]);
     // 4. Acumular y guardar (aunque no haya respondido ningún feed: así se sacan las que pasaron las 48 h).
     let acumulado = { notas: guardadas, agregadas: [], repetidas: [], borradas: [] };
+    let acumuladoZona = { notas: guardadasZona, agregadas: [], repetidas: [], borradas: [] };
     if (!sinLeer) {
       acumulado = acumular(guardadas, lectura.notas, { reglas, ahora });
       guardarNotas(archivoNotas, acumulado.notas);
+      if (zona) {
+        acumuladoZona = acumular(guardadasZona, lecturaZona.notas, { reglas: zona.reglas, ahora });
+        guardarNotas(archivoZona, acumuladoZona.notas);
+      }
     }
-    // 5 a 8. Preparar, juicios provisorios, decidir y la entrega.
+    // 5 a 8. Preparar, juicios provisorios, decidir, la zona y la entrega.
     const p = preparar(acumulado.notas, { portales, reglas, firmas, ahora });
     const juicios = juiciosProvisorios(p, { portales, reglas });
     const d = decidir(p.candidatos, juicios, { reglas, elegiblesAMano: p.elegiblesAMano });
-    const lista = armarEntrega(d, { ahora, portales, reglas, ejemplo: false, sinIA: true });
+    let deZona = null;
+    if (zona) {
+      const pZona = preparar(acumuladoZona.notas, { portales: zona.portales, reglas: zona.reglas, firmas: [], ahora });
+      const z = decidirZona(pZona, { portales: zona.portales, reglas: zona.reglas, hechosNacionales: [...p.candidatos, ...p.enObservacion] });
+      deZona = { lectura: lecturaZona, acumulado: acumuladoZona, p: pZona, z, reglas: zona.reglas };
+    }
+    const lista = armarEntrega(d, { ahora, portales, reglas, ejemplo: false, sinIA: true, zona: deZona && { ...deZona.z, portales: zona.portales } });
     // 9. La carpeta de la página.
     escribirPagina(carpeta, lista);
     // 10. La línea de la medición.
-    const linea = armarLinea({ ahora, duracionMs: Date.now() - inicio, lectura, acumulado, p, juicios, d, portales });
+    const linea = armarLinea({ ahora, duracionMs: Date.now() - inicio, lectura, acumulado, p, juicios, d, portales, zona: deZona });
     if (!sinLeer) appendFileSync(join(carpeta, 'vueltas.jsonl'), JSON.stringify(linea) + '\n');
     // 12. Código de salida: 2 si ningún feed respondió.
     const codigo = !sinLeer && linea.feeds.ok === 0 ? 2 : 0;
     // 11. El resumen en pantalla.
-    return { codigo, resumen: resumenEnPantalla({ linea, carpeta, codigo, sinLeer }), linea };
+    return { codigo, resumen: resumenEnPantalla({ linea, carpeta, codigo, sinLeer, anillos: zona ? zona.reglas.anillos || [] : [] }), linea };
   } finally {
     rmSync(candado, { force: true });
   }
@@ -201,8 +252,9 @@ async function vuelta({ carpeta = 'datos', ahora = new Date().toISOString(), fet
 const pausa = ms => new Promise(r => setTimeout(r, ms));
 
 async function main() {
-  const { carpeta, cada, sinLeer, config } = leerOpciones(process.argv.slice(2));
+  const { carpeta, cada, sinLeer, config, zona } = leerOpciones(process.argv.slice(2));
   const otra = config === null ? {} : cargarConfig(config);
+  if (zona !== null) otra.zona = cargarConfig(zona, '--zona');
   if (cada === null) {
     const r = await vuelta({ carpeta, sinLeer, ...otra });
     console.log('\n' + r.resumen.join('\n') + '\n');

@@ -192,9 +192,9 @@ test('una sección «mundo» en medios argentinos también da internacional', as
 });
 
 test('opciones: --cada tiene que ser un entero de 1 o más; --carpeta, --cada y --config necesitan valor', () => {
-  assert.deepEqual(leerOpciones([]), { carpeta: 'datos', cada: null, sinLeer: false, config: null });
-  assert.deepEqual(leerOpciones(['--carpeta', 'x', '--cada', '30', '--sin-leer']), { carpeta: 'x', cada: 30, sinLeer: true, config: null });
-  assert.equal(leerOpciones(['--config', 'config/comodoro']).config, 'config/comodoro');
+  assert.deepEqual(leerOpciones([]), { carpeta: 'datos', cada: null, sinLeer: false, config: null, zona: null });
+  assert.deepEqual(leerOpciones(['--carpeta', 'x', '--cada', '30', '--sin-leer']), { carpeta: 'x', cada: 30, sinLeer: true, config: null, zona: null });
+  assert.equal(leerOpciones(['--config', 'config/zona']).config, 'config/zona');
   for (const malas of [['--cada'], ['--cada', 'abc'], ['--cada', '1.5'], ['--cada', '0'], ['--cada', '--sin-leer'], ['--carpeta'], ['--config'], ['--config', '--sin-leer']]) {
     assert.throws(() => leerOpciones(malas), ErrorDeUso, malas.join(' '));
   }
@@ -251,4 +251,64 @@ test('--config: con 2 medios alcanza, la confirmada lleva sus medios y no hay 1/
   assert.deepEqual(l.confirmados[0].medios, ['A', 'B']);
   assert.deepEqual(l.cuatroDeCinco, []);
   assert.ok(r.resumen.includes('Confirmados: 1 nacionales + 0 internacionales'));
+});
+
+/* ───────── --zona: lo nacional y la zona en la misma vuelta ───────── */
+
+test('--zona y --config juntas cortan con ErrorDeUso; --zona necesita valor', () => {
+  assert.throws(() => leerOpciones(['--zona', 'config/zona', '--config', 'config/zona']), e => e instanceof ErrorDeUso && e.message === '--zona y --config no van juntas.');
+  assert.throws(() => leerOpciones(['--zona']), ErrorDeUso);
+  assert.equal(leerOpciones(['--zona', 'config/zona', '--cada', '30']).zona, 'config/zona');
+});
+
+// La zona de prueba: dos portales de Comodoro (zona local) que traen la misma noticia.
+const configZona = () => carpetaConfig({
+  'feeds.json': { feeds: feedsLocales },
+  'portales.json': { portales: portalesLocales.map(p => ({ ...p, zona: 'local' })) },
+  'reglas.json': require('../config/zona/reglas.json'),
+});
+const mapaZona = () => {
+  const xml = d => rss(`<item><title>${T_LOCAL}</title><link>https://www.${d}/locales/planta-agua</link><pubDate>Sun, 04 Oct 2026 09:00:00 +0000</pubDate></item>`);
+  return { 'https://fa.test/rss': () => ({ status: 200, text: async () => xml('a.com') }), 'https://fb.test/rss': () => ({ status: 200, text: async () => xml('b.com') }) };
+};
+
+test('--zona: lista.json con orden de cuatro, zona/notas.json guardado y vueltas.jsonl con zona.lista', async () => {
+  const c = carpeta();
+  const zona = cargarConfig(configZona(), '--zona');
+  const r = await correr(c, { fetch: fetchPorUrl({ ...respuestas(), ...mapaZona() }), zona });
+  assert.equal(r.codigo, 0);
+  const lista = JSON.parse(readFileSync(join(c, 'pagina', 'lista.json'), 'utf8'));
+  assert.deepEqual(lista.orden, ['local', 'chubut', 'nacional', 'internacional']);
+  assert.equal(lista.bloques.local.nombre, 'Comodoro');
+  assert.equal(lista.bloques.local.noticias.length, 1);
+  assert.equal(lista.bloques.local.noticias[0].etiqueta, 'Confirmada por 2 medios locales');
+  assert.equal(lista.bloques.nacional.noticias.length, 1, 'lo nacional sigue igual');
+  assert.equal(JSON.parse(readFileSync(join(c, 'zona', 'notas.json'), 'utf8')).length, 2);
+  const [l] = lineas(c);
+  assert.deepEqual(Object.keys(l.zona), ['feeds', 'notas', 'hechos', 'confirmados', 'lista']);
+  assert.deepEqual(l.zona.lista, { local: 1, chubut: 0 });
+  assert.deepEqual(l.zona.feeds, { ok: 2, mal: 0, caidos: [] });
+  assert.equal(l.zona.confirmados[0].anillo, 'local');
+  assert.deepEqual(Object.keys(l.zona.confirmados[0]), ['id', 'anillo', 'grupos', 'medios', 'titulo', 'tambienNacional', 'viejo']);
+  assert.ok(r.resumen.includes('Zona · feeds: 2 OK · 0 caídos'));
+  assert.ok(r.resumen.includes('Zona · lista: 1 Comodoro + 0 Chubut · también nacionales: 0'));
+});
+
+test('sin --zona la línea no lleva zona y lista.json trae orden de dos', async () => {
+  const c = carpeta();
+  await correr(c);
+  const [l] = lineas(c);
+  assert.equal('zona' in l, false);
+  assert.deepEqual(JSON.parse(readFileSync(join(c, 'pagina', 'lista.json'), 'utf8')).orden, ['nacional', 'internacional']);
+});
+
+test('--zona con --sin-leer: usa zona/notas.json guardado, no lo reescribe y arma la lista con orden de cuatro', async () => {
+  const c = carpeta();
+  const zona = cargarConfig(configZona(), '--zona');
+  await correr(c, { fetch: fetchPorUrl({ ...respuestas(), ...mapaZona() }), zona });
+  const antes = readFileSync(join(c, 'zona', 'notas.json'), 'utf8');
+  const r = await correr(c, { fetch: async () => { throw new Error('no tenía que leer'); }, zona, sinLeer: true });
+  assert.equal(readFileSync(join(c, 'zona', 'notas.json'), 'utf8'), antes);
+  assert.deepEqual(JSON.parse(readFileSync(join(c, 'pagina', 'lista.json'), 'utf8')).orden, ['local', 'chubut', 'nacional', 'internacional']);
+  assert.ok(r.resumen.includes('Zona · feeds: no se leyeron'));
 });

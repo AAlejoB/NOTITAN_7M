@@ -142,7 +142,7 @@ async function main() {
       }
     }),
   );
-  // Los portales de la misma carpeta que el archivo probado (config/comodoro/…), si hay; si no, los de siempre.
+  // Los portales de la misma carpeta que el archivo probado (config/zona/…), si hay; si no, los de siempre.
   const deLaCarpeta = path.join(path.dirname(archivo), 'portales.json');
   const portales = JSON.parse(readFileSync(existsSync(deLaCarpeta) ? deLaCarpeta : 'config/portales.json', 'utf8')).portales;
   const enLista = (host) => portales.some((p) => host === p.dominio || host.endsWith('.' + p.dominio));

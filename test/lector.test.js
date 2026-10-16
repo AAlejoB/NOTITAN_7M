@@ -324,8 +324,8 @@ test('config/feeds.json: Infobae excluye España, Perú, México y Colombia, y d
   assert.ok(!rutas.includes('/america/'));
 });
 
-test('config/comodoro/feeds.json: los que tienen formato son sitemap, y son El Patagónico y El Chubut', () => {
-  const { feeds } = require('../config/comodoro/feeds.json');
+test('config/zona/feeds.json: los que tienen formato son sitemap, y son El Patagónico y El Chubut', () => {
+  const { feeds } = require('../config/zona/feeds.json');
   const conFormato = feeds.filter(f => f.formato !== undefined);
   for (const f of conFormato) assert.equal(f.formato, 'sitemap', f.nombre);
   assert.deepEqual(conFormato.map(f => f.nombre).sort(), ['El Chubut', 'El Patagónico']);

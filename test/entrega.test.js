@@ -152,3 +152,33 @@ test('capa 4: pasándolas, la lista trae provisorias, cliente y paginaViejaMinut
   assert.equal(e.cliente, 'Canal 2');
   assert.equal(e.paginaViejaMinutos, 90);
 });
+
+test('zona: con zona, los bloques de la zona van primero (con nombre y mínimo 1) y orden es de cuatro', () => {
+  const portalesZona = require('../config/zona/portales.json').portales;
+  const local = salida('g:z1', [{ portal: 'elcomodorense.net', url: 'https://www.elcomodorense.net/a' }, { portal: 'elpatagonico.com', url: 'https://www.elpatagonico.com/b' }],
+    { bloque: 'local', etiqueta: 'Confirmada por 2 medios locales', gruposIndependientes: 2 });
+  const zona = {
+    bloques: {
+      local: { nombre: 'Comodoro', tope: 3, noticias: [local], aMano: [], afueraPorTope: 0, minimo: 1 },
+      chubut: { nombre: 'Chubut', tope: 3, noticias: [], aMano: [], afueraPorTope: 0, minimo: 1 },
+    },
+    confirmados: [], descartadas: [], portales: portalesZona,
+  };
+  const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas, zona });
+  assert.deepEqual(e.orden, ['local', 'chubut', 'nacional', 'internacional']);
+  assert.deepEqual(Object.keys(e.bloques), ['local', 'chubut', 'nacional', 'internacional']);
+  assert.equal(e.bloques.local.nombre, 'Comodoro');
+  assert.equal(e.bloques.local.minimo, 1);
+  assert.equal(e.bloques.local.tope, 3);
+  assert.deepEqual(e.bloques.local.noticias[0].medios, ['El Comodorense', 'El Patagónico']);
+  assert.deepEqual(e.bloques.local.noticias[0].links.map(l => l.medio), ['El Comodorense', 'El Patagónico']);
+  assert.equal(e.bloques.chubut.noticias.length, 0);
+  assert.equal('nombre' in e.bloques.nacional, false, 'los dos de siempre no cambian de forma');
+});
+
+test('zona: sin zona, orden es nacional e internacional y los bloques son los dos de siempre', () => {
+  const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas });
+  assert.deepEqual(e.orden, ['nacional', 'internacional']);
+  assert.deepEqual(Object.keys(e.bloques), ['nacional', 'internacional']);
+  assert.deepEqual(Object.keys(e.bloques.nacional), ['tope', 'noticias', 'aMano', 'afueraPorTope']);
+});

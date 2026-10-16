@@ -1,0 +1,10 @@
+{
+  "_aviso": "Solo lo que cambia respecto de config/reglas.json para la zona (Comodoro y Chubut): 2 medios para confirmar, sin 1/2 a mano, y las reglas de los anillos. Todo lo demás (ventanas, agrupador, criterio 1, provisorio) se toma de config/reglas.json.",
+  "minGrupos": 2,
+  "aMano": { "activa": false },
+  "anillos": [
+    { "clave": "local",  "nombre": "Comodoro", "minMedios": 2, "minProvinciales": 0, "cupo": 3, "etiqueta": "Confirmada por {n} medios locales" },
+    { "clave": "chubut", "nombre": "Chubut",   "minMedios": 2, "minProvinciales": 1, "cupo": 3, "etiqueta": "Confirmada por {n} medios de Chubut" }
+  ],
+  "cruce": { "minGruposNacionales": 3 }
+}
