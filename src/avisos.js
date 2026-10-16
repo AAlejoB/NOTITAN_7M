@@ -245,8 +245,10 @@ function zonaDe(t, zonas) {
 }
 
 // texto: título + bajada (portales) o título + cuerpo (SCPL). Cada campo es null si no se encuentra (barrios: []).
-function datosDeAviso(texto, { fechaPublicacion, cfg }) {
+// titulo (opcional): programado o avería lo decide el título; el texto entero desempata solo si el título no dice nada.
+function datosDeAviso(texto, { fechaPublicacion, cfg, titulo }) {
   const t = aplanar(texto);
+  const programado = titulo === undefined ? programadoDe(t) : programadoDe(aplanar(titulo)) ?? programadoDe(t);
   const { desde, duracionHoras } = horarioDe(t);
   let { hasta } = horarioDe(t);
   // Con hora de inicio y duración, el fin se calcula («desde las 15:00 y por 24 h» → hasta las 15:00 del día siguiente).
@@ -256,7 +258,7 @@ function datosDeAviso(texto, { fechaPublicacion, cfg }) {
   }
   return {
     servicio: servicioDe(t, cfg.servicios),
-    programado: programadoDe(t),
+    programado,
     dia: diaDe(t, fechaPublicacion),
     desde,
     hasta,
@@ -336,7 +338,7 @@ function armarAvisos({ notasScpl = [], notasPortales = [], ahora, cfg, reglas, p
     const primaria = scpl.length ? scpl[scpl.length - 1] : g.notas[0];
     const resto = [primaria, ...g.notas.filter(n => n !== primaria)];
     const datos = {};
-    const porNota = new Map(resto.map(n => [n, datosDeAviso(n._texto, { fechaPublicacion: n.fecha, cfg })]));
+    const porNota = new Map(resto.map(n => [n, datosDeAviso(n._texto, { fechaPublicacion: n.fecha, cfg, titulo: n.titulo })]));
     for (const c of CAMPOS) {
       const n = resto.find(x => !falta(porNota.get(x)[c]));
       datos[c] = n ? porNota.get(n)[c] : (c === 'barrios' ? [] : null);

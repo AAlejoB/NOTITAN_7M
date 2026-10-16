@@ -253,3 +253,23 @@ test('esAvisoDeAca: un portal que no está en la lista cuenta como no local; lo 
   assert.equal(deAca({ ...ajeno, titulo: 'Corte programado de energía en zona norte de Comodoro' }), true);
   assert.equal(deAca(dePatagonico('x', 'Comodoro tendrá un viernes con sol pleno')), false);
 });
+
+/* ───────────── carta d · paso 2 · programado o avería: manda el título ───────────── */
+
+test('E6 a E9: el título decide programado o avería; el cuerpo desempata solo si el título no dice nada', () => {
+  const pub = { fechaPublicacion: '2026-10-16T13:00:00.000Z', cfg };
+  const prog = (titulo, cuerpo) => [datosDeAviso(`${titulo} ${cuerpo}`, pub).programado, datosDeAviso(`${titulo} ${cuerpo}`, { ...pub, titulo }).programado];
+  const T_AVERIA = 'CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR AVERÍA EN EL ACUEDUCTO DEL ‘99';
+  const T_SECTOR = 'CORTE DE AGUA EN UN SECTOR DE ZONA NORTE';
+  assert.deepEqual(prog(T_AVERIA, 'Se realizan tareas de reparación.'), [null, false], 'E6');
+  assert.deepEqual(prog(T_2898, 'Se suspende por una falla en la bomba del sector.'), [null, true], 'E7');
+  assert.deepEqual(prog(T_SECTOR, 'Se interrumpe el servicio por una avería en la cañería.'), [false, false], 'E8');
+  assert.deepEqual(prog(T_SECTOR, 'Se interrumpe por mantenimiento tras la falla de ayer.'), [null, null], 'E9');
+});
+
+test('E6 en armarAvisos: un comunicado de la SCPL con «avería» en el título sale «Agua · avería»', () => {
+  const nota = { ...NOTA_SCPL, id: '2902', titulo: 'CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR AVERÍA EN EL ACUEDUCTO DEL ‘99', texto: `${CUERPO_E2} Se realizan tareas de reparación.`, url: 'https://scpl.coop/index.php/site/ver-nota?id=2902' };
+  const [a] = armarAvisos({ notasScpl: [nota], ahora: '2026-10-08T12:00:00.000Z', cfg, reglas, portales });
+  assert.equal(a.programado, false);
+  assert.equal(etiquetaDeAviso(a), 'Agua · avería');
+});
