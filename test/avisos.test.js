@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { leerListadoScpl, leerNotaScpl, vale, esAviso, notasParaBajar, datosDeAviso, armarAvisos, etiquetaDeAviso } = require('../src/avisos.js');
+const { leerListadoScpl, leerNotaScpl, vale, esAviso, esAvisoDeAca, notasParaBajar, datosDeAviso, armarAvisos, etiquetaDeAviso } = require('../src/avisos.js');
 const reglas = { ...require('../config/reglas.json'), ...require('../config/zona/reglas.json') };
 const cfg = require('../config/zona/avisos.json');
 const cronograma = require('../config/zona/cronograma-agua.json');
@@ -231,4 +231,25 @@ test('el orden: cortando ahora → lo que viene → lo que no tiene día (lo má
 
 test('sin notas y sin cronograma, ningún aviso', () => {
   assert.deepEqual(armarAvisos({ ahora: '2026-10-16T12:00:00.000Z', cfg, reglas, portales }), []);
+});
+
+/* ───────────── carta d · paso 1 · lo provincial entra solo si nombra el lugar ───────────── */
+
+const deChubut = (slug, titulo) => ({ titulo, url: `https://www.elchubut.com.ar/${slug}`, portal: 'elchubut.com.ar' });
+const dePatagonico = (slug, titulo) => ({ titulo, url: `https://www.elpatagonico.com/${slug}`, portal: 'elpatagonico.com' });
+const deAca = n => esAvisoDeAca(n, { reglas, portales });
+
+test('E1 a E5: lo local entra; lo provincial, solo si el título nombra Comodoro o Rada Tilly', () => {
+  assert.equal(deAca(deChubut('puerto-madryn/corte-energia', 'Mañana habrá corte programado de energía en zona norte')), false, 'E1: el caso de Puerto Madryn');
+  assert.equal(deAca(deChubut('regionales/corte-agua', 'Corte de agua en 23 barrios de Comodoro por avería en el acueducto')), true, 'E2');
+  assert.equal(deAca(dePatagonico('locales/corte-energia', 'Mañana habrá corte programado de energía en zona norte')), true, 'E3: local, no hace falta que lo nombre');
+  assert.equal(deAca(deChubut('regionales/rada', 'Corte de luz en Rada Tilly por tareas de mantenimiento')), true, 'E4');
+  assert.equal(deAca(deChubut('trelew/corte', 'Corte de agua en zona sur de Trelew')), false, 'E5');
+});
+
+test('esAvisoDeAca: un portal que no está en la lista cuenta como no local; lo que no pasa esAviso nunca entra', () => {
+  const ajeno = { titulo: 'Mañana habrá corte programado de energía en zona norte', url: 'https://www.otro.com.ar/x' };
+  assert.equal(deAca(ajeno), false);
+  assert.equal(deAca({ ...ajeno, titulo: 'Corte programado de energía en zona norte de Comodoro' }), true);
+  assert.equal(deAca(dePatagonico('x', 'Comodoro tendrá un viernes con sol pleno')), false);
 });

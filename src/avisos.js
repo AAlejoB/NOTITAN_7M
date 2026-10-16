@@ -11,13 +11,15 @@
  *
  * - leerListadoScpl / leerNotaScpl: del HTML de la página de comunicados de la SCPL y de cada nota.
  * - vale: si un título de la SCPL es un aviso (el molde de `cortes`, sin la condición de lugar: la SCPL ya es de Comodoro).
- * - esAviso: si un título de portal es un aviso (el molde entero). Esas notas no entran a la verificación.
+ * - esAviso: si un título de portal es un aviso (el molde entero).
+ * - esAvisoDeAca: esAviso, y además el portal es de Comodoro («local») o el título nombra Comodoro o Rada Tilly. Esas notas
+ *   van a Avisos y no entran a la verificación; un aviso de un portal provincial que no nombra el lugar sigue como noticia.
  * - notasParaBajar: qué notas del listado faltan bajar (últimos 7 días, que valen, nunca bajadas; las más nuevas primero).
  * - datosDeAviso: servicio, programado o avería, día, horario, barrios y zona, sacados del texto.
  * - armarAvisos: junta comunicado y notas del mismo corte (con agrupar del núcleo), saca lo vencido, suma el cronograma de
  *   verano y ordena: primero lo que está cortando ahora, después lo que viene, después lo que no tiene día.
  */
-const { normalizar, agrupar, dominioDe, nombreDeMedio } = require('./nucleo.js');
+const { normalizar, agrupar, dominioDe, buscarPortal, nombreDeMedio } = require('./nucleo.js');
 const { limpiarHtml } = require('./lector.js');
 
 const HORA = 3600 * 1000;
@@ -84,6 +86,15 @@ const moldeDe = reglas => (reglas && reglas.cortes && reglas.cortes.molde) || ''
 function esAviso(titulo, reglas) {
   const molde = moldeDe(reglas);
   return Boolean(molde) && new RegExp(molde).test(normalizar(titulo));
+}
+
+// Si la nota de un portal es un aviso de acá: lo local manda; lo provincial (o un portal que no está en la lista) suma solo
+// cuando el título nombra Comodoro o Rada Tilly. La SCPL no pasa por acá: sus comunicados son siempre de acá.
+function esAvisoDeAca(nota, { reglas, portales = [] } = {}) {
+  if (!esAviso(nota.titulo, reglas)) return false;
+  const portal = buscarPortal(dominioDe(nota), portales);
+  if (portal && portal.zona === 'local') return true;
+  return /\b(comodoro|rada tilly)\b/.test(normalizar(nota.titulo));
 }
 
 // Si un título de la SCPL es un aviso: el molde sin su última condición, que es la de lugar (la SCPL ya es de Comodoro).
@@ -398,4 +409,4 @@ function etiquetaDeAviso(a) {
   return servicio;
 }
 
-module.exports = { leerListadoScpl, leerNotaScpl, vale, esAviso, notasParaBajar, datosDeAviso, armarAvisos, etiquetaDeAviso, diaAR };
+module.exports = { leerListadoScpl, leerNotaScpl, vale, esAviso, esAvisoDeAca, notasParaBajar, datosDeAviso, armarAvisos, etiquetaDeAviso, diaAR };

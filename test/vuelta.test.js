@@ -390,6 +390,29 @@ test('--zona con avisos.json: lista.json empieza con avisos, zona/avisos.json gu
   rmSync(c, { recursive: true });
 });
 
+test('--zona con avisos.json: un aviso de un portal provincial que no nombra el lugar se queda en la zona', async () => {
+  const c = carpeta();
+  const zona = cargarConfig(carpetaConfig({
+    'feeds.json': { feeds: feedsLocales },
+    'portales.json': { portales: portalesLocales.map((p, i) => ({ ...p, zona: i === 0 ? 'local' : 'provincial' })) },
+    'reglas.json': require('../config/zona/reglas.json'),
+    'avisos.json': require('../config/zona/avisos.json'),
+  }), '--zona');
+  // B (provincial) trae además el corte de Puerto Madryn, que no nombra Comodoro ni Rada Tilly.
+  const xml = (d, extra = '') => rss(`<item><title>${T_LOCAL}</title><link>https://www.${d}/locales/planta-agua</link><pubDate>Sun, 04 Oct 2026 09:00:00 +0000</pubDate></item>`
+    + `<item><title>Cortarán el agua en 23 barrios de Comodoro</title><link>https://www.${d}/locales/corte-agua</link><pubDate>Sat, 03 Oct 2026 20:00:00 +0000</pubDate></item>` + extra);
+  const madryn = '<item><title>Mañana habrá corte programado de energía en zona norte</title><link>https://www.b.com/puerto-madryn/corte-energia</link><pubDate>Sun, 04 Oct 2026 08:00:00 +0000</pubDate></item>';
+  const mapa = { 'https://fa.test/rss': () => ({ status: 200, text: async () => xml('a.com') }), 'https://fb.test/rss': () => ({ status: 200, text: async () => xml('b.com', madryn) }) };
+  await correr(c, { fetch: fetchPorUrl({ ...respuestas(), ...mapa, ...mapaScpl() }), zona });
+  const [l] = lineas(c);
+  assert.equal(l.cortes.apartadas, 2, 'los dos «Cortarán el agua… de Comodoro»: el de B nombra el lugar');
+  assert.equal(l.cortes.sinLugar, 1, 'el de Puerto Madryn');
+  const lista = JSON.parse(readFileSync(join(c, 'pagina', 'lista.json'), 'utf8'));
+  assert.equal(lista.bloques.avisos.noticias.length, 1, 'Madryn no sale en Avisos');
+  assert.equal(lista.bloques.avisos.noticias[0].medios.includes('B'), true);
+  rmSync(c, { recursive: true });
+});
+
 test('--zona con avisos.json: si la SCPL no contesta, la vuelta sigue con lo guardado y lo anota', async () => {
   const c = carpeta();
   const zona = cargarConfig(configZonaConAvisos(), '--zona');

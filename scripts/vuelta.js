@@ -21,7 +21,7 @@ const { acumular, preparar, decidir, buscarPortal, dominioDe } = require('../src
 const { juiciosProvisorios } = require('../src/provisorio.js');
 const { armarEntrega } = require('../src/entrega.js');
 const { decidirZona } = require('../src/zona.js');
-const { leerListadoScpl, leerNotaScpl, notasParaBajar, esAviso, armarAvisos } = require('../src/avisos.js');
+const { leerListadoScpl, leerNotaScpl, notasParaBajar, esAviso, esAvisoDeAca, armarAvisos } = require('../src/avisos.js');
 const { cargarNotas, guardarNotas, filtrarRutas, fechaCorta, ErrorDeUso } = require('./leer.js');
 const configReglas = require('../config/reglas.json');
 const configPortales = require('../config/portales.json').portales;
@@ -151,6 +151,10 @@ function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, port
       fuentes: l ? l.fuentes : { ok: 0, mal: 0, caidas: [] },
       listados: l ? l.listados : 0,
       bajadas: l ? l.bajadas : 0,
+      // apartadas: notas de portales que fueron a Avisos; sinLugar: avisos de un portal provincial que no nombran el lugar
+      // (se quedaron en la zona).
+      apartadas: cortes.apartadas || 0,
+      sinLugar: cortes.sinLugar || 0,
       vigentes: cortes.lista.length,
       // urls: con ellas medir reconoce el mismo corte aunque cambie el id (cuando la SCPL se suma a un aviso de un portal).
       lista: cortes.lista.map(a => ({ id: a.id, servicio: a.servicio, programado: a.programado, dia: a.dia, zona: a.zona, fuentes: a.fuentes.length, cronograma: a.cronograma, urls: a.fuentes.map(f => f.url).filter(Boolean) })),
@@ -339,13 +343,15 @@ async function vuelta({ carpeta = 'datos', ahora = new Date().toISOString(), fet
     let deZona = null;
     let cortes = null;
     if (zona) {
-      // Las notas de la zona que son avisos de cortes van al bloque Avisos y no a la verificación.
-      const deAviso = conAvisos ? acumuladoZona.notas.filter(n => esAviso(n.titulo, zona.reglas)) : [];
+      // Las notas de la zona que son avisos de cortes de acá van al bloque Avisos y no a la verificación. Un aviso de un
+      // portal provincial que no nombra Comodoro ni Rada Tilly se queda en la zona, como cualquier nota.
+      const deAviso = conAvisos ? acumuladoZona.notas.filter(n => esAvisoDeAca(n, { reglas: zona.reglas, portales: zona.portales })) : [];
       const noticias = acumuladoZona.notas.filter(n => !deAviso.includes(n));
       if (conAvisos) {
         const lista = armarAvisos({ notasScpl: lecturaAvisos ? lecturaAvisos.notas : guardadosAvisos, notasPortales: deAviso, ahora,
           cfg: zona.avisos, reglas: zona.reglas, portales: zona.portales, cronograma: zona.avisos.cronograma });
-        cortes = { lectura: lecturaAvisos, lista, apartadas: deAviso.length };
+        const sinLugar = noticias.filter(n => esAviso(n.titulo, zona.reglas)).length;
+        cortes = { lectura: lecturaAvisos, lista, apartadas: deAviso.length, sinLugar };
       }
       const pZona = preparar(noticias, { portales: zona.portales, reglas: zona.reglas, firmas: [], ahora });
       const z = decidirZona(pZona, { portales: zona.portales, reglas: zona.reglas, hechosNacionales: [...p.candidatos, ...p.enObservacion] });
