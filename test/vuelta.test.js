@@ -328,3 +328,103 @@ test('--zona con --sin-leer: usa zona/notas.json guardado, no lo reescribe y arm
   assert.deepEqual(JSON.parse(readFileSync(join(c, 'pagina', 'lista.json'), 'utf8')).orden, ['local', 'chubut', 'nacional', 'internacional']);
   assert.ok(r.resumen.includes('Zona · feeds: no se leyeron'));
 });
+
+/* ───────── --zona con avisos.json: el bloque Avisos ───────── */
+
+const LISTADO_SCPL = `<html><body>
+<article class="listSeccion"><h2><a href="/index.php/site/ver-nota?id=2898">CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR TAREAS PROGRAMADAS DE MANTENIMIENTO</a></h2><div class="metadata">03-10-2026</div></article>
+<article class="listSeccion"><h2><a href="/index.php/site/ver-nota?id=2897">REDUCCIÓN DE CALZADA POR TAREAS DE SANEAMIENTO EN Bº LA FLORESTA</a></h2><div class="metadata">03-10-2026</div></article>
+</body></html>`;
+const NOTA_SCPL = '<div class="container-cms-page"><p>Mañana, domingo 04 de octubre, desde las 15:00hs. y por un lapso de 24hs., se interrumpe el suministro de agua en los siguientes barrios: Laprida, Güemes.</p></div><aside id="sidebar"></aside>';
+const URL_LISTADO = 'https://scpl.coop/index.php/site/ver-seccion?id=2';
+const URL_NOTA = 'https://scpl.coop/index.php/site/ver-nota?id=2898';
+const configZonaConAvisos = () => carpetaConfig({
+  'feeds.json': { feeds: feedsLocales },
+  'portales.json': { portales: portalesLocales.map(p => ({ ...p, zona: 'local' })) },
+  'reglas.json': require('../config/zona/reglas.json'),
+  'avisos.json': require('../config/zona/avisos.json'),
+});
+// Los dos portales traen la noticia de siempre y además «Cortarán el agua…», que es un aviso.
+const mapaZonaConAviso = () => {
+  const xml = d => rss(`<item><title>${T_LOCAL}</title><link>https://www.${d}/locales/planta-agua</link><pubDate>Sun, 04 Oct 2026 09:00:00 +0000</pubDate></item>`
+    + `<item><title>Cortarán el agua en 23 barrios de Comodoro</title><link>https://www.${d}/locales/corte-agua</link><pubDate>Sat, 03 Oct 2026 20:00:00 +0000</pubDate></item>`);
+  return { 'https://fa.test/rss': () => ({ status: 200, text: async () => xml('a.com') }), 'https://fb.test/rss': () => ({ status: 200, text: async () => xml('b.com') }) };
+};
+const mapaScpl = () => ({ [URL_LISTADO]: () => ({ status: 200, text: async () => LISTADO_SCPL }), [URL_NOTA]: () => ({ status: 200, text: async () => NOTA_SCPL }) });
+
+test('--zona con avisos.json: lista.json empieza con avisos, zona/avisos.json guarda 1 nota y la segunda vuelta no la vuelve a bajar', async () => {
+  const c = carpeta();
+  const zona = cargarConfig(configZonaConAvisos(), '--zona');
+  assert.equal(zona.avisos.cronograma, null, 'sin cronograma-agua.json en la carpeta');
+  const llamadas = [];
+  const fetch = fetchPorUrl({ ...respuestas(), ...mapaZonaConAviso(), ...mapaScpl() }, llamadas);
+  const r = await correr(c, { fetch, zona });
+  assert.equal(r.codigo, 0);
+  const lista = JSON.parse(readFileSync(join(c, 'pagina', 'lista.json'), 'utf8'));
+  assert.deepEqual(lista.orden, ['avisos', 'local', 'chubut', 'nacional', 'internacional']);
+  const t = lista.bloques.avisos.noticias;
+  assert.equal(t.length, 1, 'el comunicado y las dos notas de portal son el mismo corte');
+  assert.equal(t[0].etiqueta, 'Agua · programado');
+  assert.deepEqual(t[0].medios, ['SCPL', 'A', 'B']);
+  assert.deepEqual(t[0].aviso.barrios, ['Laprida', 'Güemes']);
+  assert.equal(lista.bloques.local.noticias.length, 1, 'el corte no entra a Comodoro: la noticia de siempre sí');
+  assert.equal(lista.bloques.local.noticias[0].titulo, T_LOCAL);
+  const guardado = JSON.parse(readFileSync(join(c, 'zona', 'avisos.json'), 'utf8'));
+  assert.deepEqual(guardado.notas.map(n => n.id), ['2898']);
+  assert.deepEqual(Object.keys(guardado.notas[0]), ['id', 'titulo', 'fecha', 'texto', 'url', 'bajadaEn']);
+  const [l] = lineas(c);
+  assert.deepEqual(l.cortes.fuentes, { ok: 1, mal: 0, caidas: [] });
+  assert.equal(l.cortes.listados, 2);
+  assert.equal(l.cortes.bajadas, 1);
+  assert.equal(l.cortes.vigentes, 1);
+  assert.deepEqual(l.cortes.lista[0], { id: 'a:scpl.coop:2898', servicio: 'agua', programado: true, dia: '2026-10-04', zona: null, fuentes: 3, cronograma: false,
+    urls: [URL_NOTA, 'https://www.a.com/locales/corte-agua', 'https://www.b.com/locales/corte-agua'] });
+  assert.ok(r.resumen.includes('Avisos: 1 vigente (1 agua programado) · SCPL OK · 2 comunicados en el listado · 1 bajados'), r.resumen.join('\n'));
+  assert.equal(llamadas.filter(u => u === URL_NOTA).length, 1);
+
+  await correr(c, { fetch, zona, ahora: '2026-10-04T11:30:00.000Z' });
+  assert.equal(llamadas.filter(u => u === URL_NOTA).length, 1, 'la nota ya bajada no se vuelve a pedir');
+  assert.equal(llamadas.filter(u => u === URL_LISTADO).length, 2);
+  assert.equal(lineas(c)[1].cortes.bajadas, 0);
+  assert.equal(lineas(c)[1].cortes.vigentes, 1);
+  rmSync(c, { recursive: true });
+});
+
+test('--zona con avisos.json: si la SCPL no contesta, la vuelta sigue con lo guardado y lo anota', async () => {
+  const c = carpeta();
+  const zona = cargarConfig(configZonaConAvisos(), '--zona');
+  await correr(c, { fetch: fetchPorUrl({ ...respuestas(), ...mapaZonaConAviso(), ...mapaScpl() }), zona });
+  const r = await correr(c, { fetch: fetchPorUrl({ ...respuestas(), ...mapaZonaConAviso(), [URL_LISTADO]: () => ({ status: 503, text: async () => '' }) }), zona, ahora: '2026-10-04T11:30:00.000Z' });
+  assert.equal(r.codigo, 0);
+  const l = lineas(c)[1];
+  assert.deepEqual(l.cortes.fuentes, { ok: 0, mal: 1, caidas: ['SCPL (HTTP 503)'] });
+  assert.ok(l.avisos.includes('Fuente de avisos sin leer: SCPL (HTTP 503)'));
+  assert.equal(l.cortes.vigentes, 1, 'con la nota guardada');
+  assert.equal(JSON.parse(readFileSync(join(c, 'zona', 'avisos.json'), 'utf8')).notas.length, 1);
+  rmSync(c, { recursive: true });
+});
+
+test('--zona con avisos.json y --sin-leer: no baja nada y arma los avisos con lo guardado', async () => {
+  const c = carpeta();
+  const zona = cargarConfig(configZonaConAvisos(), '--zona');
+  await correr(c, { fetch: fetchPorUrl({ ...respuestas(), ...mapaZonaConAviso(), ...mapaScpl() }), zona });
+  const r = await correr(c, { fetch: async () => { throw new Error('no tenía que leer'); }, zona, sinLeer: true });
+  assert.equal(r.codigo, 0);
+  const lista = JSON.parse(readFileSync(join(c, 'pagina', 'lista.json'), 'utf8'));
+  assert.equal(lista.orden[0], 'avisos');
+  assert.equal(lista.bloques.avisos.noticias.length, 1);
+  assert.ok(r.resumen.includes('Avisos: 1 vigente (1 agua programado) · fuentes: no se leyeron'), r.resumen.join('\n'));
+  rmSync(c, { recursive: true });
+});
+
+test('--zona sin avisos.json: ni bloque Avisos ni cortes en la línea (la vuelta de siempre)', async () => {
+  const c = carpeta();
+  const zona = cargarConfig(configZona(), '--zona');
+  assert.equal('avisos' in zona, false);
+  await correr(c, { fetch: fetchPorUrl({ ...respuestas(), ...mapaZona() }), zona });
+  const lista = JSON.parse(readFileSync(join(c, 'pagina', 'lista.json'), 'utf8'));
+  assert.equal(lista.orden[0], 'local');
+  assert.equal('cortes' in lineas(c)[0], false);
+  assert.equal(existsSync(join(c, 'zona', 'avisos.json')), false);
+  rmSync(c, { recursive: true });
+});
