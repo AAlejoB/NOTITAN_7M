@@ -182,3 +182,47 @@ test('zona: sin zona, orden es nacional e internacional y los bloques son los do
   assert.deepEqual(Object.keys(e.bloques), ['nacional', 'internacional']);
   assert.deepEqual(Object.keys(e.bloques.nacional), ['tope', 'noticias', 'aMano', 'afueraPorTope']);
 });
+
+/* ───────────── avisos (cortes) ───────────── */
+
+const aviso = (extra = {}) => ({
+  id: 'a:scpl.coop:2898', servicio: 'agua', programado: true, dia: '2026-10-08', desde: '15:00', hasta: '15:00',
+  finISO: '2026-10-09T18:00:00.000Z', duracionHoras: 24, barrios: ['Laprida', 'Güemes'], zona: null,
+  titulo: 'CORTE DE AGUA EN 23 BARRIOS', resumen: 'Mañana, jueves 08 de octubre…',
+  fuentes: [{ medio: 'SCPL', url: 'https://scpl.coop/index.php/site/ver-nota?id=2898' }, { medio: 'ADNSUR', url: 'https://www.adnsur.com.ar/x' }, { medio: 'ADNSUR', url: 'https://www.adnsur.com.ar/y' }],
+  cronograma: false, publicado: '2026-10-07T15:00:00.000Z', ...extra,
+});
+
+test('E9: con un aviso, orden empieza con avisos y la tarjeta dice «Agua · programado»', () => {
+  const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas, avisos: [aviso()] });
+  assert.deepEqual(e.orden, ['avisos', 'nacional', 'internacional']);
+  const b = e.bloques.avisos;
+  assert.deepEqual({ ...b, noticias: b.noticias.length }, { nombre: 'Avisos', tope: null, noticias: 1, aMano: [], afueraPorTope: 0, minimo: 1 });
+  const t = b.noticias[0];
+  assert.equal(t.etiqueta, 'Agua · programado');
+  assert.equal(t.via, 'aviso');
+  assert.equal(t.bajada, 'Mañana, jueves 08 de octubre…');
+  assert.equal(t.grupos, 3);
+  assert.deepEqual(t.medios, ['SCPL', 'ADNSUR']);
+  assert.deepEqual(t.links[0], { medio: 'SCPL', url: 'https://scpl.coop/index.php/site/ver-nota?id=2898' });
+  assert.deepEqual(t.aviso, { servicio: 'agua', programado: true, dia: '2026-10-08', desde: '15:00', hasta: '15:00', duracionHoras: 24, barrios: ['Laprida', 'Güemes'], zona: null, cronograma: false });
+  assert.deepEqual(e.avisos, [], 'el avisos de primer nivel sigue siendo el de decidir');
+});
+
+test('E9: con avisos vacío (o sin pasarlo), orden es el de siempre y no hay bloque avisos', () => {
+  for (const avisos of [[], null, undefined]) {
+    const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas, avisos });
+    assert.deepEqual(e.orden, ['nacional', 'internacional']);
+    assert.equal('avisos' in e.bloques, false);
+  }
+});
+
+test('avisos: la etiqueta de cada tipo, y el cronograma sin link', () => {
+  const etiqueta = extra => armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas, avisos: [aviso(extra)] }).bloques.avisos.noticias[0];
+  assert.equal(etiqueta({ servicio: 'luz', programado: false }).etiqueta, 'Luz · avería');
+  assert.equal(etiqueta({ servicio: 'luz', programado: null }).etiqueta, 'Luz');
+  const crono = etiqueta({ cronograma: true, fuentes: [{ medio: 'SCPL', url: null }] });
+  assert.equal(crono.etiqueta, 'Agua · cronograma de verano');
+  assert.deepEqual(crono.links, [{ medio: 'Cronograma de verano de la SCPL', url: null }]);
+  assert.equal(crono.aviso.cronograma, true);
+});

@@ -1,0 +1,17 @@
+{
+  "_aviso": "Cronograma estival de cortes de agua de la SCPL. Se muestra como aviso programado solo entre desde y hasta. Fuente: cuadro publicado por la SCPL para 2025-2026. Si las reservas alcanzan, la SCPL puede suspender un corte: la tarjeta lo dice.",
+  "fuente": "SCPL",
+  "desde": "2025-11-01",
+  "hasta": "2026-03-31",
+  "duracionHoras": 24,
+  "zonas": [
+    { "zona": "Zona Norte",         "dias": ["martes", "viernes"],   "desde": "18:00" },
+    { "zona": "Zona Sur y Central", "dias": ["miercoles", "sabado"], "desde": "18:00" }
+  ],
+  "excepciones": [
+    { "fecha": "2025-12-23", "zona": "Zona Norte",         "desde": "12:00" },
+    { "fecha": "2025-12-30", "zona": "Zona Norte",         "desde": "12:00" },
+    { "fecha": "2025-12-25", "zona": "Zona Sur y Central", "desde": "08:00" },
+    { "fecha": "2026-01-01", "zona": "Zona Sur y Central", "desde": "08:00" }
+  ]
+}
