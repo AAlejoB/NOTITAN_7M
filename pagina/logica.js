@@ -72,6 +72,27 @@
     return { cuenta: `${n} elegidas`, boton: `Copiar las ${n}`, apagado: false };
   }
 
+  /* ───────────── los bloques: cuáles y en qué orden ───────────── */
+
+  const SIEMPRE = { nacional: 'Nacionales', internacional: 'Internacionales' };
+
+  // El orden sale de lista.orden (una lista vieja no lo trae: nacional e internacional). Cada uno con su nombre
+  // (el de la lista o, para los dos de siempre, «Nacionales» e «Internacionales») y su mínimo (el del bloque o lista.cupoMinimo).
+  // Un bloque de zona sin noticias ni 4/5 no se dibuja; los dos de siempre, sí (para que se vea «0 de 3»).
+  function bloquesADibujar(lista) {
+    const orden = Array.isArray(lista.orden) ? lista.orden : ['nacional', 'internacional'];
+    return orden
+      .filter(clave => lista.bloques && lista.bloques[clave])
+      .filter(clave => {
+        const b = lista.bloques[clave];
+        return tiene(SIEMPRE, clave) || (b.noticias || []).length + (b.aMano || []).length > 0;
+      })
+      .map(clave => {
+        const b = lista.bloques[clave];
+        return { clave, nombre: b.nombre || SIEMPRE[clave] || clave, minimo: typeof b.minimo === 'number' ? b.minimo : lista.cupoMinimo };
+      });
+  }
+
   /* ───────────── los textos de cada bloque ───────────── */
 
   // «Nacionales · 5» o, si hay menos que el mínimo, «Nacionales · 1 de 3».
@@ -217,7 +238,7 @@
 
   return {
     CLAVE, haceCuanto, horaAR, urlsDe, textoParaCopiar, etiquetaMedios, estaTildada, alternarTilde, textoBarra,
-    tituloBloque, avisoBloque, textoAfuera, estadoVacio, normalizarEstado, esNueva, llevadaA, marcarVistas, marcarLlevadas,
+    bloquesADibujar, tituloBloque, avisoBloque, textoAfuera, estadoVacio, normalizarEstado, esNueva, llevadaA, marcarVistas, marcarLlevadas,
     limpiar, nuevasDeLaVisita, esNuevaEnVisita, esRecienConfirmada, recienConfirmadasDeLaVisita, pastillaDe, repartirBloque, cargarEstado, guardarEstado,
   };
 });

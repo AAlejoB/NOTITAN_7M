@@ -323,3 +323,32 @@ test('normalizarEstado: sin vistasConfirmadas (o con algo que no es un objeto) a
   assert.ok(!('nueva' in n.vistas), 'es una copia, no el mismo objeto');
   assert.deepEqual(L.estadoVacio(), { vistas: {}, llevadas: [], vistasConfirmadas: {} });
 });
+
+/* ───────── los bloques que se dibujan (zona) ───────── */
+
+test('bloquesADibujar: una lista vieja sin orden dibuja nacional e internacional, con el mínimo de la lista', () => {
+  const lista = { cupoMinimo: 3, bloques: { nacional: { noticias: [], aMano: [] }, internacional: { noticias: [], aMano: [] } } };
+  assert.deepEqual(L.bloquesADibujar(lista), [
+    { clave: 'nacional', nombre: 'Nacionales', minimo: 3 },
+    { clave: 'internacional', nombre: 'Internacionales', minimo: 3 },
+  ]);
+});
+
+test('bloquesADibujar: con zona sigue lista.orden, usa el nombre y el mínimo del bloque, y saltea un anillo vacío', () => {
+  const t = { id: 'x', links: [{ medio: 'A', url: 'u' }] };
+  const lista = {
+    cupoMinimo: 3,
+    orden: ['local', 'chubut', 'nacional', 'internacional'],
+    bloques: {
+      local: { nombre: 'Comodoro', minimo: 1, noticias: [t], aMano: [] },
+      chubut: { nombre: 'Chubut', minimo: 1, noticias: [], aMano: [] },
+      nacional: { noticias: [], aMano: [] },
+      internacional: { noticias: [], aMano: [] },
+    },
+  };
+  const b = L.bloquesADibujar(lista);
+  assert.deepEqual(b.map(x => x.clave), ['local', 'nacional', 'internacional']);
+  assert.deepEqual(b[0], { clave: 'local', nombre: 'Comodoro', minimo: 1 });
+  assert.equal(L.tituloBloque(b[0].nombre, 1, b[0].minimo), 'Comodoro · 1', 'no «1 de 3»');
+  assert.equal(L.avisoBloque(1, b[0].minimo, 0), '');
+});

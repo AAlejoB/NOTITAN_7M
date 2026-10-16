@@ -148,7 +148,6 @@
 (function () {
   'use strict';
   var L = window.Logica;
-  var BLOQUES = [['nacional', 'Nacionales'], ['internacional', 'Internacionales']];
 
   // En memoria: la lista que se trajo, las marcas de esta persona, lo tildado (urls), las "Nueva" y las "Recién confirmada"
   // de esta visita (urls) y las tarjetas en el orden en que aparecen en la página (para copiar en ese orden).
@@ -181,7 +180,7 @@
 
   function todasLasTarjetas() {
     var out = [];
-    BLOQUES.forEach(function (b) { out = out.concat(lista.bloques[b[0]].noticias, lista.bloques[b[0]].aMano); });
+    L.bloquesADibujar(lista).forEach(function (b) { out = out.concat(lista.bloques[b.clave].noticias, lista.bloques[b.clave].aMano); });
     return out;
   }
 
@@ -243,12 +242,13 @@
     ]);
   }
 
-  function bloque(clave, nombre) {
-    var b = lista.bloques[clave];
+  // cual = { clave, nombre, minimo } (de L.bloquesADibujar): un anillo de la zona trae mínimo 1, los dos de siempre lista.cupoMinimo.
+  function bloque(cual) {
+    var b = lista.bloques[cual.clave];
     var reparto = L.repartirBloque(b, estado);
     var n = b.noticias.length; // lo que se llevó sigue contando para el tope: la página solo lo baja
-    var hijos = [h('h2', { texto: L.tituloBloque(nombre, n, lista.cupoMinimo) })];
-    var aviso = L.avisoBloque(n, lista.cupoMinimo, b.aMano.length);
+    var hijos = [h('h2', { texto: L.tituloBloque(cual.nombre, n, cual.minimo) })];
+    var aviso = L.avisoBloque(n, cual.minimo, b.aMano.length);
     if (aviso) hijos.push(h('p', { clase: 'aviso-bloque', texto: aviso }));
     reparto.principales.forEach(function (t) { hijos.push(noticia(t)); });
     if (b.afueraPorTope > 0) hijos.push(h('p', { clase: 'afuera', texto: L.textoAfuera(b.afueraPorTope, b.tope) }));
@@ -266,7 +266,7 @@
     cont.textContent = '';
     orden = [];
     if (!lista) return;
-    BLOQUES.forEach(function (b) { cont.appendChild(bloque(b[0], b[1])); });
+    L.bloquesADibujar(lista).forEach(function (b) { cont.appendChild(bloque(b)); });
 
     var cuando = L.haceCuanto(lista.generadaEn, ahora());
     $('actualizada').textContent = 'Actualizada ' + cuando.texto;

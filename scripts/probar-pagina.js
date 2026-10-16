@@ -479,6 +479,24 @@ async function comprobar(navegador, URL, lista) {
   const marca = await conLista({ generadaEn: hace(5), cliente: 'Canal 2' }, q => q.textContent('#marca'));
   ok(marca === 'Canal 2 · 7M', 'capa 4: el encabezado dice «' + marca + '»');
 
+  /* ── 8b · la zona: los bloques que vengan, en el orden de lista.orden ── */
+  console.log('\n# 8b · la zona');
+  const conZona = JSON.parse(JSON.stringify(lista));
+  const deComodoro = { ...conZona.bloques.nacional.noticias[0], id: 'g:zona-1', titulo: 'Comodoro tiene la canasta básica más cara de la Patagonia', etiqueta: 'Confirmada por 2 medios locales', grupos: 2, medios: ['El Comodorense', 'El Patagónico'],
+    links: [{ medio: 'El Comodorense', url: 'https://www.elcomodorense.net/canasta' }, { medio: 'El Patagónico', url: 'https://www.elpatagonico.com/canasta' }] };
+  conZona.orden = ['local', 'chubut', 'nacional', 'internacional'];
+  conZona.bloques = {
+    local: { nombre: 'Comodoro', minimo: 1, tope: 3, noticias: [deComodoro], aMano: [], afueraPorTope: 0 },
+    chubut: { nombre: 'Chubut', minimo: 1, tope: 3, noticias: [], aMano: [], afueraPorTope: 0 },
+    ...conZona.bloques,
+  };
+  const titulosZona = await conLista({ generadaEn: hace(5), ...conZona }, q => q.locator('.bloque > h2').allTextContents());
+  ok(titulosZona.length === 3 && titulosZona[0] === 'Comodoro · 1' && /^Nacionales/.test(titulosZona[1]) && /^Internacionales/.test(titulosZona[2]),
+    'zona: se dibujan tres bloques, Comodoro → Nacionales → Internacionales, y el primero dice «Comodoro · 1» (' + titulosZona.join(' | ') + ')');
+  const titulosDeSiempre = await conLista({ generadaEn: hace(5) }, q => q.locator('.bloque > h2').allTextContents());
+  ok(titulosDeSiempre.length === 2 && /^Nacionales/.test(titulosDeSiempre[0]) && /^Internacionales/.test(titulosDeSiempre[1]),
+    'zona: con la lista de ejemplo de siempre se dibujan dos bloques, como antes (' + titulosDeSiempre.join(' | ') + ')');
+
   /* ── 9 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
   console.log('\n# 9 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
   const carpeta = CARPETA_CAPTURAS;
