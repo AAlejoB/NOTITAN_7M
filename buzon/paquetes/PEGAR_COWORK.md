@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 16/10/26, 16:31 (hora de Argentina) con "npm run paquete".
+Armado el 16/10/26, 18:19 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-16_a.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-16_b.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -206,7 +206,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 302 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 311 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--sin-notas-de-servicio`, `--acumular <archivo>`, `--sin-leer` y `--sin-excluir-rutas`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
@@ -223,7 +223,9 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - **Links por medio y la medición en la compu de Alejo (2026-10-09):** en la página cada medio aparece una sola vez en la fila de links, con su primera nota (`links(t)` en `pagina/index.html`; `lista.json` y lo que se copia siguen trayendo todas las notas; valor por defecto de Cowork). `npm run ver` (`scripts/ver.js`) sirve `datos/pagina/` en `http://127.0.0.1:7000/` para verla en esa compu. **El día de medición lo corre Alejo en su compu** (decidió el 09-10): la guía es `docs/CORRER_EN_MI_COMPU.md`; al terminar manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`.
 - **Sitemaps y el bloque local de prueba (2026-10-15):** el lector lee también sitemaps de noticias (`"formato": "sitemap"` en `feeds.json`: título, link, fecha y keywords; sin bajada ni autor); la bajada de un hecho sale de la primera nota que la tenga y la página dice «Sin bajada» cuando ninguna la trae; `npm run vuelta -- --config <carpeta>` corre con otra lista de feeds, portales y reglas (`config/comodoro/`, hoy `config/zona/`: ADNSUR, El Comodorense, Crónica por secciones, El Patagónico y El Chubut; 2 medios para confirmar, sin 1/2 a mano), y cada confirmada de `vueltas.jsonl` lleva sus `medios`. La medición local corrió en la compu de Alejo (15-10 09:45 → 16-10 12:20). Nada entró a la lista blanca.
 - **Capa 4 escrita (2026-10-15):** `src/capa4.js` parte la vuelta en `mitadUno` (leer, acumular, preparar, armar las preguntas de juicio) y `mitadDos` (leer las respuestas, guardar juicios, decidir, lista); n8n la corre cada 30 minutos (`n8n/vuelta.json`, con `n8n/correo.json`, `n8n/error.json` y `n8n/prueba-union.json`), guarda lo acumulado y lo juzgado en los datos estáticos del workflow y escribe `lista.json` en `<datos>/pagina/`; `scripts/servir.js` sirve la página con login (mail y contraseña, «olvidé mi clave» por el webhook de correo; usuarios con `scripts/usuario.js` en `<datos>/usuarios.json`, nunca en el repo); la IA es `ia.modelo` de `config/reglas.json`, temperatura 0, y se vuelve a preguntar solo por lo que no tiene juicio, lo que tiene un desmentido nuevo o lo que pasó a viejo; si no contesta, el hecho lleva el juicio provisorio y la página lo dice; aviso por mail con tope de 1 por hora; la unión sigue apagada hasta que `prueba-union` pase 3 de 3. Falta instalarlo en el servidor de Don Julio (`docs/INSTALAR_EN_EL_SERVIDOR.md`). Probado en el entorno de Claude Code con n8n 2.43.6 (npm, Node 24) y la IA falsa (`scripts/ia-falsa.js`): dos vueltas del reloj, 19 feeds, 5 preguntas y después 0. `ia.modelo` es `claude-haiku-4-5`, que la documentación de Anthropic marca «legacy» (retiro no antes del 15-10-2026; el Haiku actual es `claude-haiku-5-5`): ver el reporte `ClaudeCode_para_Cowork_2026-10-15_b.md`.
-- **Los anillos de zona: Comodoro y Chubut (2026-10-16, carta `Cowork_para_ClaudeCode_2026-10-16_a.md`):** `config/zona/` (antes `config/comodoro/`) dice qué portal es de Comodoro (`"zona": "local"`: ADNSUR, El Comodorense, Crónica, El Patagónico) y cuál provincial (`"provincial"`: El Chubut), y trae `anillos` y `cruce` en su `reglas.json`. **Decidió Alejo:** Comodoro con 2 medios de Comodoro; Chubut con 2 medios, al menos uno provincial; lo que cumple en los dos va al más chico. Valores por defecto de Cowork: cupo 3 por anillo, sin 1/2 a mano, un anillo vacío no se dibuja, y una noticia de zona que el agrupador une con un hecho nacional de 3 o más grupos («también nacional», `cruce.minGruposNacionales`) no sale en la zona. Las reglas son puras, en `src/zona.js` (`anilloDe`, `tambienNacional`, `decidirZona`). `npm run vuelta -- --cada 30 --zona config/zona` corre lo nacional y la zona en la misma vuelta (notas de zona en `datos/zona/notas.json`; `vueltas.jsonl` suma `zona`; no va con `--config`); `lista.json` suma `orden` (`["local", "chubut", "nacional", "internacional"]`; sin zona, los dos de siempre) y la página dibuja los bloques en ese orden («Comodoro · 1», sin «de 3»). `npm run medir` suma el bloque ZONA por anillo. Dos moldes de servicio nuevos para todos: «pronóstico del tiempo» (no toca las alertas) y «cotizaciones» (reemplaza `^dolar (blue )?hoy`). **La capa 4 todavía no tiene la zona:** el servidor de Don Julio mostraría solo Nacionales e Internacionales; enganchar la zona en `src/capa4.js` es la carta siguiente. `npm run probar-pagina` hace 80 comprobaciones. Avisos de cortes (opción B de Alejo): las fuentes se probaron (ver el reporte `ClaudeCode_para_Cowork_2026-10-16_a.md`); el bloque se diseña en otra carta.
+- **Los anillos de zona: Comodoro y Chubut (2026-10-16, carta `Cowork_para_ClaudeCode_2026-10-16_a.md`):** `config/zona/` (antes `config/comodoro/`) dice qué portal es de Comodoro (`"zona": "local"`: ADNSUR, El Comodorense, Crónica, El Patagónico) y cuál provincial (`"provincial"`: El Chubut), y trae `anillos` y `cruce` en su `reglas.json`. **Decidió Alejo:** Comodoro con 2 medios de Comodoro; Chubut con 2 medios, al menos uno provincial; lo que cumple en los dos va al más chico. Valores por defecto de Cowork: cupo 3 por anillo, sin 1/2 a mano, un anillo vacío no se dibuja, y una noticia de zona que el agrupador une con un hecho nacional de 3 o más grupos («también nacional», `cruce.minGruposNacionales`) no sale en la zona. Las reglas son puras, en `src/zona.js` (`anilloDe`, `tambienNacional`, `decidirZona`). `npm run vuelta -- --cada 30 --zona config/zona` corre lo nacional y la zona en la misma vuelta (notas de zona en `datos/zona/notas.json`; `vueltas.jsonl` suma `zona`; no va con `--config`); `lista.json` suma `orden` (`["local", "chubut", "nacional", "internacional"]`; sin zona, los dos de siempre) y la página dibuja los bloques en ese orden («Comodoro · 1», sin «de 3»). `npm run medir` suma el bloque ZONA por anillo. Dos moldes de servicio nuevos para todos: «pronóstico del tiempo» (no toca las alertas) y «cotizaciones» (reemplaza `^dolar (blue )?hoy`). La capa 4 ya tiene la zona (ver el ítem siguiente). `npm run probar-pagina` hace 80 comprobaciones. Avisos de cortes (opción B de Alejo): las fuentes se probaron (ver el reporte `ClaudeCode_para_Cowork_2026-10-16_a.md`); el bloque se diseña en otra carta.
+- **La zona en la capa 4 (2026-10-16, carta `Cowork_para_ClaudeCode_2026-10-16_b.md`):** `mitadUno` y `mitadDos` de `src/capa4.js` reciben `zona` (lo de `cargarConfig('config/zona')`, o `null`) y corren Comodoro y Chubut **sin IA**, como `npm run vuelta -- --zona config/zona`: las notas de la zona viven en los datos estáticos de n8n (`guardado.zona.notas`, 48 h), la lista sale con `orden` de cuatro y la línea con `zona`. En `n8n/vuelta.json` el nodo Rutas trae `configZona` (`config/zona`; vacío = sin zona, como antes); Feeds baja primero los 19 nacionales y después los 8 de la zona. Con eso el servidor de Don Julio muestra los cuatro bloques. El molde «pronóstico del tiempo» no aplica si el título habla de «qué ver», Netflix, series o películas. `docs/PAQUETE_DE_CLIENTE.md` dice qué es de un cliente y dónde vive.
+- **Regla del proyecto (decidió Alejo el 16-10, 16:53): nada se guarda por id de hecho: el id cambia cuando se cae su primera nota. Lo que necesite reconocer la misma noticia usa sus links (la página, `src/ia.js`, `medir`).** Cada confirmado, cada 4/5 y cada confirmado de la zona en `vueltas.jsonl` lleva `urls`; `npm run medir` junta como un mismo hecho las entradas que comparten una url (también en cadena); las líneas viejas, sin `urls`, se cuentan por id.
 - Paquete para pegar en Cowork (2026-10-04): cuando el chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_COWORK.md` (antes había uno por rol; con un solo chat hay un solo paquete). Lo arma `npm run paquete` (`scripts/armar-paquete.js`) con `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code, tal cual del repo. Es una foto: se rearma al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -310,7 +312,7 @@ Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 
 
 ## Siguiente paso
 
-La capa 4 está escrita; falta instalarla en el servidor de Don Julio (Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`). Después: enganchar la zona en la capa 4 y diseñar el bloque «Avisos» de cortes con las fuentes probadas; después, la página C y la pieza 2.
+La capa 4 está escrita, con la zona adentro; falta instalarla en el servidor de Don Julio (Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`). Después: la carta `c`, el bloque «Avisos» de cortes (arranca con lo legible); después, la página C y la pieza 2.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -430,7 +432,7 @@ No es una carta de cambios: es el registro de las dos mediciones que corrió Ale
 
 ### Abierto (sin resolver, con valor por defecto mientras tanto)
 
-- **Viejas que vuelven como nuevas** (23 el 16-10): Claude Code explica en su reporte cómo un hecho cambia de id; se decide después. Mientras tanto: nada; la página no las muestra porque no son frescas.
+- ~~**Viejas que vuelven como nuevas** (23 el 16-10)~~ — **resuelto:** decidió Alejo (16-10, 16:53): opción B, `medir` cuenta por link, y la regla del proyecto: nada por id. Hecho en la carta `b` (`urls` en cada hecho de `vueltas.jsonl`).
 - **Región:** sin portales con feed en Neuquén, Río Negro, Santa Cruz y Tierra del Fuego. Mientras tanto no existe en `config/zona/reglas.json`; se suma como tercer anillo cuando haya 2 portales por provincia.
 - **Más portales de Chubut:** Diario Jornada y La Opinión Austral sin feed ni sitemap; Rawson Digital no conecta (14-10). Mientras tanto, El Chubut es el único provincial.
 - **X / Twitter como segunda confirmación** (idea de Alejo del 16-10): nunca como medio que suma a los 5; como mucho una señal aparte, tipo vía B. Va a «Más adelante» hasta averiguar costo y reglas de la API; si es caro, no.
@@ -441,7 +443,7 @@ No es una carta de cambios: es el registro de las dos mediciones que corrió Ale
 
 1. Claude Code hace la carta `a` y reporta (incluida la prueba de las fuentes de los cortes y la explicación de los ids).
 2. Cuando Don Julio conteste, la Fase B de la carta `b` (instalar la capa 4 en su servidor).
-3. Carta: enganchar la zona en la capa 4 y diseñar el bloque «Avisos» con las fuentes probadas.
+3. Carta `b` hecha: la capa 4 corre la zona; queda la carta `c`: el bloque Avisos (arranca con lo legible: notas locales de corte con 1 medio, horario y barrios del texto, link al comunicado).
 4. Carta de la página C (flujo con Normal/Plus, temas, los chips de motivo con «derivada»), ya con los dos anillos adentro.
 
 # Cowork → pendientes · 14-10-2026 · 23:30 (hora de Argentina) · las 14 respuestas de Don Julio
@@ -679,7 +681,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
-- Enganchar la zona en `src/capa4.js` (carta siguiente, después de probar esto).
+- ~~Enganchar la zona en `src/capa4.js`~~ — hecho el 16-10 (carta `Cowork_para_ClaudeCode_2026-10-16_b.md`).
 - ~~Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`~~: **cancelada el 15-10 (carta `c`)**: la medición local corre en la compu de Alejo y la revisa Cowork con los archivos que él mande. Claude Code no tiene nada que hacer con lo local hasta la carta de los bloques por zona.
 - Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`: instalar la capa 4 en el servidor de Don Julio el día que Alejo vaya, en una tanda.
 
@@ -696,6 +698,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 - [x] 15-10-2026 · **Capa 4 escrita** (carta `b`): `src/capa4.js`, los cuatro workflows en `n8n/`, la página con login (`scripts/servir.js`, `scripts/usuario.js`), la IA falsa y la guía de instalación. Falta instalar (Fase B).
 - [x] 15-10-2026 · **Sitemaps en el lector y `--config` en la vuelta** (decidió Alejo adelantarlo el 15-10): El Patagónico y El Chubut se leen por su sitemap de noticias (sin bajada; la página lo dice); `config/comodoro/` es el bloque local de prueba (5 portales, 2 medios para confirmar); la medición local corre en el entorno de Claude Code.
+- [x] 16-10-2026 · **La zona en la capa 4** (carta `Cowork_para_ClaudeCode_2026-10-16_b.md`): `mitadUno` y `mitadDos` corren Comodoro y Chubut sin IA; el nodo Rutas trae `configZona`; el molde del pronóstico ya no saca las listas de Netflix; cada hecho de `vueltas.jsonl` lleva sus `urls` y `medir` cuenta por link; `docs/PAQUETE_DE_CLIENTE.md`. Reporte `ClaudeCode_para_Cowork_2026-10-16_b.md`.
 - [x] 16-10-2026 · **Los anillos Comodoro y Chubut** (carta `Cowork_para_ClaudeCode_2026-10-16_a.md`): `config/zona/`, `src/zona.js`, la zona en la misma vuelta (`--zona config/zona`), la página en el orden de `lista.orden`, ZONA en `npm run medir`, moldes «pronóstico del tiempo» y «cotizaciones», y las fuentes de los cortes probadas. Reporte `ClaudeCode_para_Cowork_2026-10-16_a.md`.
 - [x] 09-10-2026 · **Links por medio** (Cowork, valor por defecto, variante A): en la página cada medio aparece una sola vez en la fila de links, con su primera nota; lo que se copia sigue con todos. `npm run ver` para ver `datos/pagina/` en la compu. **El día de medición lo corre Alejo en su compu** (decidió Alejo): guía `docs/CORRER_EN_MI_COMPU.md`.
 - [x] 09-10-2026 · **Etapa 1 en el repo** (decidió Alejo): `npm run vuelta` hace una vuelta completa sin IA y deja la lista real en `datos/pagina/`; `npm run medir` resume las vueltas por corte de 4 h; la página avisa «Sin el juicio de la IA». Dónde corre, con Don Julio.
@@ -735,134 +738,87 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-16_a.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-16_b.md
 ============================================================
 
-# Claude Code → Cowork · 16-10-2026 · 16:50 (hora de Argentina) · letra a
+# Claude Code → Cowork · 16-10-2026 · 18:18 (hora de Argentina) · letra b
 
-Responde a `Cowork_para_ClaudeCode_2026-10-16_a.md` (los anillos Comodoro y Chubut, y las fuentes de los cortes). Se hizo todo, en una sola fase. Base: `399c3b2`.
+Responde a `Cowork_para_ClaudeCode_2026-10-16_b.md`. Base: commit `63d3fc4`.
 
-## Cómo quedó
+**Veredicto:** hecha entera. La capa 4 corre la zona sin IA y **corrió de verdad dentro de n8n** (2.43.6, como el 15-10): dos vueltas del reloj con los 19 feeds nacionales y los 8 de la zona, `lista.json` con `orden` de cuatro, y una tercera con `configZona` vacío que volvió a `orden` de dos. Cada hecho de `vueltas.jsonl` lleva sus `urls` y `medir` cuenta por link: en el día de hoy encontró una internacional que antes contaba doble.
 
-| Paso | Qué se hizo | Commit |
+## Qué cambió, por paso
+
+| Paso | Qué | Commit |
 |---|---|---|
-| 1 | `git mv config/comodoro config/zona`; `"zona": "local"` en ADNSUR, El Comodorense, Crónica y El Patagónico, `"provincial"` en El Chubut; `reglas.json` tal cual la carta; avisos cambiados | `1b372bb` |
-| 2 | `src/zona.js` (`anilloDe`, `tambienNacional`, `decidirZona`, y `mediosDe` copiada) y `test/zona.test.js` (E1 a E6 y 5 más) | `1b372bb` |
-| 3 | `armarEntrega` con `zona` opcional: los bloques de zona van primero (con `nombre` y `minimo`) y `orden`; sin zona, `orden` es `["nacional", "internacional"]` y lo demás no cambia | `1b372bb` |
-| 4 | `npm run vuelta -- --zona config/zona`: lee las dos listas de feeds a la vez, guarda `datos/zona/notas.json`, la línea suma `zona` y el resumen dos renglones; `--zona` con `--config` da `ErrorDeUso` | `1b372bb` |
-| 5 | Página: sale la constante `BLOQUES`; los bloques salen de `L.bloquesADibujar(lista)` en `pagina/logica.js` (orden, nombre, mínimo; un anillo vacío no se dibuja); 2 comprobaciones nuevas en `probar-pagina` | `331aa92` |
-| 6 | `npm run medir`: el bloque ZONA por anillo (Comodoro / Chubut), solo si alguna vuelta del día trae zona | `8e323fa` |
-| 7 | Moldes «pronóstico del tiempo» y «cotizaciones» tal cual la carta; sale `^dolar (blue )?hoy` | `65327b3` |
-| 8 | Fuentes de los cortes probadas (tabla abajo) | — |
-| 9 | `README.md`, `docs/CORRER_EN_MI_COMPU.md`, `CLAUDE.md`, `pendientes.md` (la sección de Cowork arriba de todo, tal cual), paquete y este reporte | el último |
+| 1 | `mitadUno` y `mitadDos` reciben `zona` (`{ feeds, portales, reglas }` o `null`). La zona se lee, se acumula (`guardado.zona.notas`, 48 h), se prepara y se decide con `decidirZona`, cruzando con los candidatos y los en observación nacionales de esa mitad. No pasa por la IA. `armarLinea` y `resumenEnPantalla` de `capa4.js` suman la zona como en `scripts/vuelta.js` (copiado, sin importar de `scripts/`) | `a91d63f` |
+| 2 | `n8n/vuelta.json`: Rutas trae `configZona` (`config/zona`); Feeds emite primero los nacionales y después los de zona (con `origen`); Preparar y Decidir arman la zona como `cargarConfig` y se la pasan a las dos mitades; Decidir pasa `anillos` al resumen. Siguen siendo 10 nodos y las mismas flechas. `n8n/LEEME.md` al día | `319ce34` |
+| 3 | El molde «pronóstico del tiempo» suma la exclusión de «qué ver», Netflix, series y películas (el texto de la carta, tal cual) | `ea37606` |
+| 4 | `urls` (sin repetir) en cada `confirmados`, `cuatroDeCinco` y `zona.confirmados` (en `scripts/vuelta.js`, en la copia de `capa4.js` y una línea en `src/zona.js`). `medir` junta como un mismo hecho las entradas que comparten una url o el id, también en cadena; las líneas sin `urls` se reconocen solo por su id | `a91d63f`, `e9406d0` |
+| 5 | `docs/PAQUETE_DE_CLIENTE.md`: la tabla de qué es de un cliente, dónde vive y en qué estado, y los dos párrafos | `3d6ed13` |
+| 6 | `docs/INSTALAR_EN_EL_SERVIDOR.md` (configZona en Rutas, los dos renglones de zona en la prueba, qué guarda n8n), `CLAUDE.md` (estado y la regla «nada por id» con sus palabras), `pendientes.md` | `785af35` |
 
-## Cuándo está listo
+Además, a pedido de Alejo: `buzon/Cowork_resumen_2026-10-16.md` guardado tal cual (va en el commit de este reporte).
 
-| # | Comprobación | Resultado |
+## Tests
+
+| | Antes | Después |
 |---|---|---|
-| 1 | `npm test` | antes **280 bien + 1 pendiente** (281) · después **302 bien + 1 pendiente** (303), 0 mal |
-| 2 | `npm run probar-pagina` | antes **78** · después **80**, 0 mal (la carta y `CLAUDE.md` decían 68: ya eran 78) |
-| 3 | `--sin-leer --zona config/zona` sin `datos/notas.json` | corta con «--sin-leer necesita un archivo que ya exista: …/notas.json no está.» y código 1. Con `datos/notas.json` y `datos/zona/notas.json`: `lista.json` con `orden` `["local", "chubut", "nacional", "internacional"]` |
-| 4 | Una vuelta real (16-10 16:26) | abajo |
-| 5 | `npm run medir` | muestra el bloque ZONA (abajo) |
-| 6 | Paso 8 | abajo |
+| `npm test` | 303 (302 bien + 1 pendiente a propósito) | **312 (311 bien + 1 pendiente)** |
+| `npm run probar-pagina` | 80 | **80 bien, 0 mal** |
 
-### La vuelta real (punto 4)
+Nuevos: E1, E2 y E4 de la zona en `test/capa4.test.js`, más uno de `urls` en confirmados y 4/5 (y que sin zona no hay `zona` ni en la línea ni en lo guardado); E5, E6, E7 y uno de 4/5 y zona por link en `test/medir.test.js`; una 4/5 con sus 4 urls en `test/vuelta.test.js`. Se tocaron, como pide la carta, las comprobaciones de claves de `vuelta.test.js` y `zona.test.js` (suman `urls`) y `n8n.test.js` (configZona en Rutas, Feeds, Preparar y Decidir).
 
-Una sola lectura de lo nacional (las notas viejas de esta compu ya habían pasado las 48 h) y la zona sobre lo guardado de la medición del 14-10 más esta lectura:
+## Cuándo está listo: lo comprobado
 
-```
-VUELTA · 16/10/26 16:26 (hora de Argentina)
-Feeds: 19 OK · 0 caídos
-Notas: 1032 leídas · 1017 nuevas · 924 acumuladas
-Hechos según grupos: 1: 751 · 2: 32 · 3: 6 · 4: 1 · 5+: 6
-Confirmados: 5 nacionales + 1 internacionales
-4/5 (les falta 1 medio): 1 nacionales + 0 internacionales
-Lista: 5 nacionales + 1 internacionales
-Zona · feeds: 8 OK · 0 caídos
-Zona · lista: 3 Comodoro + 3 Chubut · también nacionales: 0
-Escribí: datos/pagina/lista.json
-Código de salida: 0
-```
+**3 · n8n en mi entorno.** n8n 2.43.6 con npm y Node 24, la IA falsa (`scripts/ia-falsa.js`), una copia de la vuelta con Rutas apuntando a mi repo y a una carpeta temporal, `configZona` en `config/zona` y el reloj en 1 minuto. Dos vueltas del reloj, las dos en verde:
 
-| Anillo | En la lista | Afuera por el cupo de 3 | Títulos |
-|---|---|---|---|
-| Comodoro | 3 | 2 | «Dictaron tres meses de prisión preventiva para el imputado por el decimotercer homicidio del año» (3: El Comodorense, Crónica, ADNSUR) · «El Municipio recibió tres unidades para fiscalizar la recolección y escombreras» (2) · «Choque entre dos Toyota Corolla en la Ruta 3» (2) |
-| Chubut | 3 | 2 | «Interés Superior del Niño: fallo ordena la escolarización presencial de una niña de cinco años» (El Chubut, Crónica) · «Estudiantes vs Flamengo: igualaron 0-0 en La Plata…» (El Patagónico, El Chubut) · «El papa León XIV muestra una evolución favorable tras su cirugía en Roma» (Crónica, El Chubut) |
-
-De 24 hechos de zona con 2 o más medios: 14 viejos, 5 de Comodoro, 5 de Chubut, 0 «también nacionales», 0 sin anillo.
-
-**Lo que no anduvo como se esperaba: 0 «también nacionales», y el Papa y Flamengo entraron en Chubut.** Hay un hecho nacional de 3 grupos «León XIV evoluciona favorablemente tras la operación y el Vaticano confirmó que rezará el Ángelus el domingo», pero el agrupador no lo une con «El papa León XIV muestra una evolución favorable tras su cirugía en Roma»: comparten pocas palabras. Flamengo no tiene un hecho nacional de 3 grupos en esta lectura sola. Con una sola lectura nacional hay solo 13 hechos de 3 o más grupos; con lecturas cada 30 minutos van a ser más y el cruce va a agarrar más. La regla hace lo que dice la carta (es la misma pregunta del agrupador), pero en el día real va a dejar pasar a nacionales con títulos distintos. Para mirar en la próxima medición.
-
-**Los dos moldes nuevos** sacaron 14 notas nacionales y 4 de zona:
-
-- Pronóstico, zona (4): «Comodoro y Rada Tilly tendrán un jueves nublado y sin chances de lluvias», «Jueves gris y sin lluvias en Comodoro y Rada Tilly: el viento ganará fuerza…», «Comodoro y Rada Tilly disfrutan de un agradable viernes con nubosidad variable y una máxima de 18°C…», «Viernes con máxima de 18°C y ráfagas de hasta 69 km/h en Comodoro».
-- Pronóstico, nacional (3): «El tiempo en Rosario: viernes, otra vez con probabilidades de lluvia», «Pronóstico para el Día de la Madre: ¿lloverá el fin de semana?» y **un error: «Qué ver en Netflix: las mejores películas y series para disfrutar este fin de semana nublado y fresco»** (La Nación). No es noticia de todos modos, pero no es un pronóstico. No lo toqué.
-- Cotizaciones, nacional (11): «El dólar en Córdoba: a cuánto cotiza este viernes 16 de octubre», «🔴 EN VIVO | Precio del dólar hoy viernes 16 de octubre», «Euro blue hoy: volvió a subir y cerró a 1.849,75…», «Dólar hoy y dólar blue hoy: cuál es la cotización del viernes…» (Cronista), «Dólar hoy y dólar blue, EN VIVO…» (La Nación), «🔴 Dólar oficial hoy y dólar blue: a cuánto cotizan…» (TN), cuatro de Infobae «Precio del dólar/euro hoy en República Dominicana / Bolivia: cotización de cierre…» y **«Plazo fijo: cuál es la tasa de interés banco por banco este viernes 16 de octubre»** (por «banco por banco»; también es servicio).
-
-### `npm run medir` (punto 5)
-
-```
-ZONA · cada celda es Comodoro / Chubut
-Corte                   Vueltas  Confirmados  También nacionales  Sin anillo
-──────────────────────  ───────  ───────────  ──────────────────  ──────────
-16-20                         1       15 / 9               0 / 0           0
-Día entero (distintos)        1       15 / 9               0 / 0           0
-```
-
-«Confirmados» cuenta también los viejos, como lo nacional (15 / 9 = los 10 frescos más los 14 viejos, cada uno en su anillo).
-
-## Paso 8 · Por dónde publican los cortes
-
-| Quién | Sitio | Feed | Página de avisos | Redes | Trae barrio · día · horario | Hoy (16-10) | Los últimos tres, como los titulan |
-|---|---|---|---|---|---|---|---|
-| **SCPL** (Sociedad Cooperativa Popular Limitada, luz y agua de Comodoro) | scpl.coop (`www.scpl.coop` tiene el certificado roto; sin `www` anda) | **No** (`/feed/` da 404; no es WordPress) | **Sí:** «Comunicados» en la portada, cada uno en `/index.php/site/ver-nota?id=N`, con el id que sube de a uno y la fecha (`16-10-2026`) en la página | La página no enlaza redes (solo el píxel de Facebook y un botón de WhatsApp) | Fecha de publicación, sí. En el texto de la 2902 no aparecen horarios ni nombres de barrios: la lista de los 23 barrios parece ir en la imagen | 1 | «CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR AVERÍA EN EL ACUEDUCTO DEL ‘99» (16-10) · «HECHO VANDÁLICO PROVOCÓ UN CORTE DE ENERGÍA EN UN SECTOR DE ZONA SUR DE COMODORO Y EN RADA TILLY» (13-10) · «REDUCCIÓN DE CALZADA POR TAREAS DE SANEAMIENTO EN Bº LA FLORESTA» (09-10) |
-| **Camuzzi Gas del Sur** (gas) | camuzzigas.com | Sí (`/feed/` y `/comunicados/feed/`), pero **solo comunicados de la empresa**: el último es del 09-03-2026 | «Comunicados», sin cortes | Facebook e Instagram (`camuzzigas`); no se pueden leer desde acá | No se vio ningún aviso de corte en el sitio | 0 | «Camuzzi amplía sus canales de atención remota con el lanzamiento de WhatsApp» (09-03) · «Quiero GAS NATURAL – ENERGÍA CONTINUA, CONFIABLE Y SEGURA» (08-01) · «Bases y condiciones concurso – “ENERGÍA ITINERANTE, 7ma EDICIÓN”» (21-07-2025) |
-| **Caleta Olivia**: no hay cooperativa. Luz y agua las da **SPSE** (Servicios Públicos Sociedad del Estado, empresa de la provincia de Santa Cruz) | spse.gob.ar **no conecta** desde acá (502 en el proxy) | **Sí, por Prensa Santa Cruz:** `noticias.santacruz.gob.ar/organismos/entes-publicos/servicios-publicos?format=feed&type=rss` (Joomla; 10 notas, de toda la provincia) | Las notas de esa sección | — | El título dice la ciudad y a veces «Conocé las zonas»; la descripción del feed es corta (unos 165 caracteres, en la de hoy un «sábado» y un «sector»); el detalle está en la nota | 2 en el feed, de Río Gallegos y El Chaltén; de Caleta Olivia, 0 | «Servicios Públicos informó corte parcial de energía eléctrica en Río Gallegos: Conocé las zonas» (16-10) · «SPSE solicita a los vecinos de El Chaltén extremar el cuidado del agua mientras se realizan reparaciones en la red» (16-10) · «Para Las Heras: Cuatro ofertas para construir una planta de efluentes cloacales…» (15-10). La última de Caleta: «Servicios Públicos de Caleta Olivia busca agilizar la distribución de agua y prohíbe su venta no autorizada» (11-10) |
-
-Lo que sale de esto:
-
-- **La SCPL se puede leer** sin feed: la portada lista los comunicados y cada uno trae título y fecha. Hacen falta unas líneas propias para leer esa página (el lector de hoy lee RSS y sitemaps). Publica 1 o 2 por semana, y no solo cortes.
-- **El gas no se puede leer**: Camuzzi no publica cortes en su sitio. Quedan las redes (no se pueden leer de forma confiable) o los portales como respaldo.
-- **Caleta Olivia sí tiene feed**, el de Prensa Santa Cruz, pero es de toda la provincia: habría que quedarse con lo que nombra a Caleta Olivia.
-- Los cortes **programados** por barrio no aparecieron en ninguna de las tres en estos días; lo que hay son averías y hechos (el acueducto, el vandalismo).
-
-Fuentes buscadas además en la web: avisos viejos de la SCPL en cholilaonline.ar (2022 y 2025) y de SPSE Caleta Olivia en La Opinión Austral, El Caletense y La Vanguardia Noticias.
-
-## Por qué un hecho viejo vuelve con un id nuevo
-
-El id de un hecho es `g:` más el id de su **primera nota** (`agrupar` en `src/nucleo.js`: ordena las notas por fecha y la que abre el grupo le da el id). Hay tres caminos por los que esa primera nota cambia entre una vuelta y la siguiente:
-
-1. **La primera nota se va por vieja. Es el caso del 16-10.** `acumular` borra las notas de más de 48 h (`ventanaRecoleccionHoras`) y `preparar` tampoco las mira. Cuando la nota más vieja de un hecho pasa las 48 h, se cae; la que sigue pasa a ser la primera y el hecho cambia de id. Como esa segunda nota también tiene más de 24 h, el hecho sale con `viejo: true`, y para `medir` es un id que aparece por primera vez. Un hecho con muchas notas escalonadas (Roña Castro, el Papa) cambia de id una vez por cada nota que se cae: por eso Roña Castro apareció 4 veces. Pasa de madrugada porque las notas que se caen son las de la madrugada de dos días antes.
-2. **Una nota más vieja entra tarde.** Si un feed trae tarde una nota con fecha anterior a la primera del grupo y el agrupador la une, esa nota pasa a ser la primera y el hecho cambia de id. Es lo que se midió el 04-10 (M1: 1 de 104 con notas que llegan hasta 3 horas tarde).
-3. **El agrupador arma los grupos en orden.** Cada nota entra al grupo que más se le parece entre los que ya existen, y la ventana de 24 h se cuenta desde la primera del grupo. Si se va o entra una nota del principio, las de después pueden repartirse distinto: un grupo se parte en dos o dos se juntan, y cambian los ids.
-
-La página ya no depende del id (reconoce la misma noticia por una url compartida). Lo que se confunde es `vueltas.jsonl` y, con eso, `medir`.
-
-**Dos propuestas (no hice ninguna):**
-
-| | Qué es | Qué costaría |
+| Renglón | Vuelta 1 (18:13) | Vuelta 2 (18:14) |
 |---|---|---|
-| A · Memoria de ids | Un archivo `datos/hechos.json` con `url → id`. En cada vuelta, si un hecho comparte una url con un hecho que ya tenía id, hereda ese id (el más viejo, si hay varios). Arregla los tres caminos para `vueltas.jsonl`, `medir` y la capa 4 | Unas 60 líneas en `scripts/vuelta.js` y en `src/capa4.js` (el núcleo sigue puro: el id se corrige después de `preparar`), un archivo más en `datos/` que se recorta a 48 h, y tests. Medio día |
-| B · Solo `medir` | `medir` cuenta un hecho por sus urls y no por su id: dos ids que comparten una url son el mismo hecho | Unas 30 líneas en `scripts/medir.js` y un test. Una hora. No cambia lo que se guarda |
+| Feeds | 19 OK · 0 caídos | 19 OK · 0 caídos |
+| Notas | 1039 leídas · 1039 nuevas · 931 acumuladas | 1039 leídas · 108 nuevas · 931 acumuladas |
+| Hechos según grupos | 1: 751 · 2: 31 · 3: 5 · 4: 4 · 5+: 5 | igual |
+| Confirmados | 5 nacionales + 0 internacionales | igual |
+| 4/5 | 4 nacionales + 0 internacionales | igual |
+| Lista | 3 nacionales + 0 internacionales | igual |
+| **Zona · feeds** | **8 OK · 0 caídos** | **8 OK · 0 caídos** |
+| **Zona · lista** | **3 Comodoro + 3 Chubut · también nacionales: 0** | igual |
+| IA (preguntadas, contestadas, fallidas) | 9, 9, 0 | 0, 0, 0 |
+| tardoMs | 3.066 | 1.917 |
 
-Mi recomendación: **la B.** La capa 4 ya busca lo juzgado por url y no por id (`buscarGuardado` de `src/ia.js`), y la página también: un id nuevo no gasta otra pregunta a la IA ni sale como «Nueva». Lo único que se confunde es la medición. La A sirve solo si algún día se quiere un id estable para otra cosa (por ejemplo, para los motivos de «No por hoy» de la página C, si se guardan por id).
+- **La zona quedó guardada en los datos estáticos:** en la segunda vuelta, de 2.119 notas de zona leídas, 257 fueron repetidas (las 257 acumuladas de la primera).
+- **Hechos de zona:** 12 confirmados frescos (7 de Comodoro y 5 de Chubut); la lista muestra 3 y 3 por el cupo. **«También nacionales»: 0**, así que no hay títulos para listar. Ojo: entre los de Chubut está «El papa León XIV muestra una evolución favorable tras su cirugía en Roma» y entre los nacionales de esta vuelta no había un hecho del Papa de 3 o más grupos con el que el agrupador lo uniera: el cruce solo lo saca si ese hecho nacional existe en la misma vuelta.
+- `lista.json` del servidor: `orden` = `["local", "chubut", "nacional", "internacional"]`.
+- **Tercera prueba, `configZona` vacío** (el mismo workflow, reimportado, con la zona vieja todavía en sus datos estáticos): dos vueltas (18:16 y 18:17), las dos en verde; `lista.json` con `orden` `["nacional", "internacional"]`, la línea **sin** `zona` y el resumen sin los renglones de zona.
+- Lo de siempre: «notas nuevas» cuenta también las de más de 48 h que el feed sigue trayendo y `acumular` vuelve a sacar (por eso la vuelta 2 dice 108 nuevas y las acumuladas no suben). Ya pasaba el 15-10; no lo toqué.
 
-## Lo que decidí por mi cuenta
+**4 · Una vuelta real** (`npm run vuelta -- --zona config/zona`, 17:57): 19 + 8 feeds OK; 7 confirmados, 4 4/5 y 23 confirmados de zona, **todos con `urls`** (de 5 a 9 por confirmado, 4 o 5 por 4/5, de 2 a 4 en la zona). Después corrí tres vueltas más cada 10 minutos (17:58, 18:08, 18:18) para tener con qué medir.
 
-- `src/zona.js` usa además `emisor` del núcleo para contar los grupos igual que `gruposIndependientes` (un cable copiado suma para la agencia). Ese grupo se cuenta en la zona del portal que lo publicó.
-- En `confirmados` de la zona, `anillo` y `tambienNacional` se calculan para todos los candidatos, viejos incluidos, como pide la carta. Por eso «Confirmados» de ZONA en `medir` incluye viejos, igual que lo nacional.
-- E3 no lo arma el agrupador: los tres títulos de E3 («Comienza el Campeonato Provincial de handball», «Comienza el provincial de juveniles», «Comodoro recibe al Provincial Juvenil de Handball») salen en tres hechos distintos con las reglas de hoy. Los tests de `anilloDe` y `decidirZona` arman el hecho a mano. E1, E2 y E4 sí los une el agrupador.
-- Con `--sin-leer`, el renglón de la zona dice «Zona · feeds: no se leyeron», como lo nacional. Si `datos/zona/notas.json` no existe, la zona arranca vacía (no corta); lo nacional sigue cortando si falta `datos/notas.json`.
-- Los feeds de lo nacional y de la zona se leen a la vez (`Promise.all`): la vuelta no tarda el doble.
-- `cargarConfig` recibe qué opción la llamó, así el mensaje dice «--zona necesita una carpeta con feeds.json…» cuando corresponde. `leerOpciones` devuelve también `zona`, y el test de opciones lo suma.
-- `test/lector.test.js`, `test/leer.test.js`, `scripts/probar-feeds.js` y el comentario de `scripts/vuelta.js` nombraban `config/comodoro` o contaban 3 moldes: los cambié a `config/zona` y a 5. Ninguno estaba en la lista de «no se tocan».
-- En el entorno de Claude Code renombré `datos/comodoro` a `datos/zona` (no se sube).
-- La capa 4 (`src/capa4.js`) no se tocó. Su lista ahora también trae `orden: ["nacional", "internacional"]` porque usa `armarEntrega`; la página la lee igual.
+**5 · `medir` sobre mi `datos/vueltas.jsonl`, día 16-10** (5 vueltas: una vieja sin `urls`, de las 16:26, y cuatro nuevas):
 
-## Para Alejo, cuando vuelva a correr en su compu
+| Día entero (distintos) | Antes (por id) | Después (por link) |
+|---|---|---|
+| Confirmados nacionales / internacionales | 7 / 3 | **7 / 2** |
+| 4/5 sin firma | 3 / 4 | 3 / 4 |
+| Zona: Comodoro / Chubut | 18 / 10 | 18 / 10 |
 
-Una sola ventana: `Rename-Item C:\7M\datos\comodoro zona` (una vez) y después `npm run vuelta -- --cada 30 --zona config/zona`. Está en `docs/CORRER_EN_MI_COMPU.md`, punto 6.
+La internacional que contaba doble: «Confirmado por la Casa Blanca: Katie Zacharia deja de ser la nueva portavoz…» (id de Clarín, en las tres primeras vueltas nuevas) y «Trump echó a su nueva vocera tras cinco días en el cargo…» (id de La Gaceta, en la última): se cayó la primera nota, cambió el id, y comparten links. La inflación mayorista también cambió de id, pero entre la línea vieja (sin `urls`) y la primera nueva: se sigue contando 2, por la regla de las líneas viejas (E6).
+
+**6 · El molde.** Con el molde viejo, «Qué ver en Netflix: las mejores películas y series para disfrutar este fin de semana nublado y fresco» salía `nota_de_servicio (pronóstico del tiempo)`; con el nuevo, `ok: true`. Los dos casos nuevos que se tienen que sacar se sacan. Está en el test del molde (10 casos).
+
+## Qué decidí por mi cuenta
+
+1. **Sin `configZona`, Feeds emite los ítems exactamente como antes** (sin el campo `origen`); `origen` va solo cuando hay zona. La carta pide las dos cosas; así se cumplen ambas.
+2. **Con la zona apagada, lo guardado de la zona se descarta** en la vuelta siguiente (`mitadUno` sin zona devuelve `guardado` sin la clave `zona`, como hoy). Si se vuelve a prender, la zona arranca de cero y se llena en la primera lectura. Es lo que pide «sin zona, todo sale igual que hoy».
+3. **`medir` también une por id** (además de por url): dos entradas con el mismo id son el mismo hecho, como siempre. Así una línea vieja y una nueva del mismo id siguen contando 1.
+4. **El cruce «también nacional» en la capa 4 usa `p.candidatos` y `p.enObservacion` de `mitadDos`**, el mismo `preparar` nacional que decide la lista (como en `scripts/vuelta.js`).
+5. **`lectura.zona` y `acumulado.zona`** viajan entre las dos mitades dentro de `estatico.vuelta`, sin notas (como lo nacional). Si faltan (por ejemplo, un `mitadDos` llamado a mano), la línea de zona cuenta 0 leídas y 0 nuevas.
+
+## Pendiente y para quién
+
+- **Cowork:** la carta `c` (el bloque Avisos, con lo legible).
+- **Alejo y Don Julio:** la Fase B (instalar). La guía ya dice que `configZona` viene puesto y que el resumen tiene que mostrar los dos renglones de zona.
+- **Cowork, para mirar:** el Papa en Chubut (arriba): el cruce depende de que el hecho nacional exista y se una en la misma vuelta. Si molesta, es un caso para la unión de la IA (etapa 4) o para bajar `cruce.minGruposNacionales`.
 
 ============================================================
 FIN DEL PAQUETE
