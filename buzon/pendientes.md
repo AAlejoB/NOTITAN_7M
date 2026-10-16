@@ -1,5 +1,24 @@
 # Pendientes
 
+## Cowork → pendientes · 16-10-2026 · 19:50 · Fase A aprobada, los 4 puntos y la Fase B
+
+Carta `Cowork_para_ClaudeCode_2026-10-16_d.md`. **Alejo aprobó la Fase A (19:30)** y decidió los 4 puntos del reporte `c`:
+
+| Punto | Decidió Alejo | Porqué (en sus palabras o la analogía que aceptó) |
+|---|---|---|
+| 1 · Puerto Madryn salió como Comodoro | Lo local entra siempre; lo provincial (El Chubut) solo si el título dice Comodoro o Rada Tilly (18:58) | Misma lógica de los anillos: lo provincial suma, no manda |
+| 2 · La avería salió «Agua» a secas | Manda el título; el cuerpo desempata solo si el título no dice nada (19:02) | «Lo que dice el cartel pesa más que la letra chica» |
+| 3 · «Se normaliza» no entraba | Opción B: entra como aviso aparte, en verde, con link (19:17). La C (que la tarjeta del corte cambie sola) queda para la etapa 2 | Una familia quiere saber que volvió; es una línea en el molde |
+| 4 · La excepción del cronograma sumaba un día | Reemplaza el corte normal de esa zona en la misma semana (19:32). Cree recordar que el 24-12 no cortaron | «Si te cambian el turno de día, no tenés dos turnos»; se confirma con el cuadro 2026-2027 |
+
+Valores por defecto de Cowork en la carta `d`: la condición del punto 1 es el título (no la bajada); un «se normalizó» vive 6 h y va al final del bloque; `"suma": true` en una excepción del cronograma para cuando la SCPL de verdad agregue un corte.
+
+### Abierto (nuevo)
+
+- **Apodos por ciudad** (preguntó Alejo, 18:58): «la ciudad del viento», «la villa», «Km 3»… hoy el molde busca palabras literales y no los reconoce. Para los avisos el riesgo es chico (la SCPL escribe formal); para noticias es tema de la IA (etapa 2). Idea: una lista de apodos por ciudad en `config/zona/`, que cada cliente carga la suya (lo general que Alejo quiere vender). Sin carta todavía.
+- **Endurecer «1 fuente alcanza»** si aparece una fake de un portal: «1 portal alcanza salvo que la SCPL diga lo contrario». Sin carta; se mira con los datos de las primeras semanas.
+- **E13 de la carta `d`:** un reclamo («vecinos reclaman que se normalice el agua») puede salir como «se normalizó». Aceptado por esta ronda; si aparece en la vuelta real, se ajusta el molde.
+
 ## Cowork → pendientes · 16-10-2026 · 18:07 · los avisos
 
 Lo pide la carta `Cowork_para_ClaudeCode_2026-10-16_c.md`. La Fase A (la vuelta y la página) la hizo Claude Code: reporte `ClaudeCode_para_Cowork_2026-10-16_c.md`. La Fase B (capa 4) espera que Alejo apruebe la A.
