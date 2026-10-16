@@ -37,7 +37,9 @@ test('n8n: la vuelta tiene los 10 nodos de la carta y sus flechas', () => {
   ].sort());
   const nodo = nombre => wf.nodes.find(n => n.name === nombre);
   assert.deepEqual(nodo('Cada 30 minutos').parameters.rule.interval, [{ field: 'minutes', minutesInterval: 30 }]);
-  assert.deepEqual(nodo('Rutas').parameters.assignments.assignments.map(a => a.name), ['carpetaRepo', 'carpetaDatos', 'correoAvisos', 'correoDesde']);
+  assert.deepEqual(nodo('Rutas').parameters.assignments.assignments.map(a => a.name), ['carpetaRepo', 'carpetaDatos', 'correoAvisos', 'correoDesde', 'configZona']);
+  assert.equal(nodo('Rutas').parameters.assignments.assignments.find(a => a.name === 'configZona').value, 'config/zona');
+  for (const n of ['Feeds', 'Preparar', 'Decidir']) assert.match(nodo(n).parameters.jsCode, /configZona/, n);
   assert.equal(nodo('Bajar').onError, 'continueRegularOutput');
   assert.equal(nodo('Bajar').parameters.options.timeout, 20000);
   assert.equal(nodo('IA').onError, 'continueRegularOutput');
