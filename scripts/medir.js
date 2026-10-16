@@ -3,6 +3,7 @@
 // cuántas noticias confirmadas (la regla de 5 medios) y cuántas 4/5 hubo, por bloque.
 // Uso: node scripts/medir.js [--carpeta datos] [--dia AAAA-MM-DD]
 // En un corte, un hecho cuenta una sola vez (por su id), en el bloque de su última vuelta de ese corte.
+// Si las vueltas traen zona (npm run vuelta -- --zona config/zona), cada día suma el bloque ZONA, por anillo.
 const { existsSync, readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { ErrorDeUso } = require('./leer.js');
@@ -10,6 +11,8 @@ const { ErrorDeUso } = require('./leer.js');
 const ZONA = 'America/Argentina/Buenos_Aires';
 const CORTES = ['00-04', '04-08', '08-12', '12-16', '16-20', '20-24'];
 const BLOQUES = ['nacional', 'internacional'];
+// Los anillos de la zona, para los nombres y el orden de las celdas (Comodoro / Chubut).
+const ANILLOS = require('../config/zona/reglas.json').anillos;
 
 const formato = new Intl.DateTimeFormat('en-CA', { timeZone: ZONA, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' });
 
@@ -32,11 +35,26 @@ function porDiaYCorte(vueltas) {
 const vacio = () => ({ nacional: 0, internacional: 0 });
 
 // De cada id de la lista `clave`, lo que dice su última vuelta (la de `hora` más nueva).
-function ultimaVezDeCada(vueltas, clave) {
+// `de` dice de dónde sale la lista en cada vuelta (para la zona, v.zona).
+function ultimaVezDeCada(vueltas, clave, de = v => v) {
   const ordenadas = [...vueltas].sort((a, b) => Date.parse(a.hora) - Date.parse(b.hora));
   const porId = new Map();
-  for (const v of ordenadas) for (const x of v[clave] || []) porId.set(x.id, x);
+  for (const v of ordenadas) for (const x of (de(v) || {})[clave] || []) porId.set(x.id, x);
   return [...porId.values()];
+}
+
+// La zona de un grupo de vueltas (solo las que la traen) → { vueltas, confirmados: { local, chubut }, tambien: { … }, sinAnillo }.
+function resumirZona(vueltas, anillos = ANILLOS) {
+  const conZona = vueltas.filter(v => v.zona);
+  const cero = () => Object.fromEntries(anillos.map(a => [a.clave, 0]));
+  const r = { vueltas: conZona.length, confirmados: cero(), tambien: cero(), sinAnillo: 0 };
+  for (const c of ultimaVezDeCada(conZona, 'confirmados', v => v.zona)) {
+    if (c.anillo === null || c.anillo === undefined) { r.sinAnillo++; continue; }
+    if (!(c.anillo in r.confirmados)) continue;
+    r.confirmados[c.anillo]++;
+    if (c.tambienNacional) r.tambien[c.anillo]++;
+  }
+  return r;
 }
 
 // → { vueltas, confirmados, sinFirma, conFirma, viaB }, cada uno con { nacional, internacional } de ids distintos.
@@ -92,6 +110,19 @@ function tabla(filas) {
   return [linea(FILA), ancho.map(a => '─'.repeat(a)).join('  '), ...filas.map(linea)];
 }
 
+const FILA_ZONA = ['Corte', 'Vueltas', 'Confirmados', 'También nacionales', 'Sin anillo'];
+
+function tablaZona(cortes, anillos = ANILLOS) {
+  const celdas = o => anillos.map(a => o[a.clave]).join(' / ');
+  const filaZona = (nombre, r) => [nombre, String(r.vueltas), celdas(r.confirmados), celdas(r.tambien), String(r.sinAnillo)];
+  const todas = Object.values(cortes).flat();
+  const filas = CORTES.filter(c => (cortes[c] || []).some(v => v.zona)).map(c => filaZona(c, resumirZona(cortes[c], anillos)));
+  filas.push(filaZona('Día entero (distintos)', resumirZona(todas, anillos)));
+  const ancho = FILA_ZONA.map((t, k) => Math.max(t.length, ...filas.map(f => f[k].length)));
+  const linea = f => f.map((c, k) => (k === 0 ? c.padEnd(ancho[k]) : c.padStart(ancho[k]))).join('  ');
+  return [`ZONA · cada celda es ${anillos.map(a => a.nombre).join(' / ')}`, linea(FILA_ZONA), ancho.map(a => '─'.repeat(a)).join('  '), ...filas.map(linea)];
+}
+
 // Las líneas del informe de un día. `cortes` es { '08-12': [vueltas], … }.
 function informeDelDia(dia, cortes) {
   const todas = Object.values(cortes).flat();
@@ -106,6 +137,7 @@ function informeDelDia(dia, cortes) {
     'Feeds caídos',
     ...(caidos.length ? caidos.map(([n, k]) => `  ${n}: en ${k} de ${todas.length} vueltas`) : ['  (ninguno)']),
     `Vueltas sin ningún feed: ${sinNingunFeed}`,
+    ...(todas.some(v => v.zona) ? ['', ...tablaZona(cortes)] : []),
   ];
 }
 
@@ -146,4 +178,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { diaYCorteDe, porDiaYCorte, resumir, feedsCaidos, leerVueltas, informe, leerOpciones, CORTES };
+module.exports = { diaYCorteDe, porDiaYCorte, resumir, resumirZona, feedsCaidos, leerVueltas, informe, leerOpciones, CORTES };

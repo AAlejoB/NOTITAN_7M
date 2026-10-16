@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const { mkdtempSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { tmpdir } = require('node:os');
-const { diaYCorteDe, porDiaYCorte, resumir, feedsCaidos, leerVueltas, informe, leerOpciones } = require('../scripts/medir.js');
+const { diaYCorteDe, porDiaYCorte, resumir, resumirZona, feedsCaidos, leerVueltas, informe, leerOpciones } = require('../scripts/medir.js');
 const { ErrorDeUso } = require('../scripts/leer.js');
 
 // La hora de Argentina es UTC−3: 10:05 de Argentina = 13:05Z.
@@ -102,4 +102,20 @@ test('opciones: --dia tiene que ser una fecha', () => {
   assert.deepEqual(leerOpciones(['--dia', '2026-10-09', '--carpeta', 'x']), { carpeta: 'x', dia: '2026-10-09' });
   assert.throws(() => leerOpciones(['--dia', 'hoy']), ErrorDeUso);
   assert.throws(() => leerOpciones(['--dia']), ErrorDeUso);
+});
+
+test('zona: dos vueltas inventadas; cada id cuenta una vez, en el anillo de su última vuelta; sin zona, el informe no la nombra', () => {
+  const z = (id, anillo, tambienNacional = false) => ({ id, anillo, grupos: 2, medios: [], titulo: id, tambienNacional, viejo: false });
+  const vs = [
+    vuelta('10:05', { zona: { confirmados: [z('a', 'chubut'), z('b', 'local', true)], lista: { local: 0, chubut: 1 } } }),
+    vuelta('10:35', { zona: { confirmados: [z('a', 'local'), z('b', 'local', true), z('c', null)], lista: { local: 1, chubut: 0 } } }),
+  ];
+  const r = resumirZona(vs);
+  assert.deepEqual(r, { vueltas: 2, confirmados: { local: 2, chubut: 0 }, tambien: { local: 1, chubut: 0 }, sinAnillo: 1 });
+  const texto = informe(vs).join('\n');
+  assert.match(texto, /ZONA · cada celda es Comodoro \/ Chubut/);
+  assert.match(texto, /Corte +Vueltas +Confirmados +También nacionales +Sin anillo/);
+  assert.match(texto, /08-12 +2 +2 \/ 0 +1 \/ 0 +1/);
+  assert.match(texto, /Día entero \(distintos\) +2 +2 \/ 0 +1 \/ 0 +1/);
+  assert.doesNotMatch(informe([vuelta('10:05')]).join('\n'), /ZONA/);
 });
