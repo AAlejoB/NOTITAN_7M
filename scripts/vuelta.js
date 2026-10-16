@@ -21,7 +21,7 @@ const { acumular, preparar, decidir, buscarPortal, dominioDe } = require('../src
 const { juiciosProvisorios } = require('../src/provisorio.js');
 const { armarEntrega } = require('../src/entrega.js');
 const { decidirZona } = require('../src/zona.js');
-const { leerListadoScpl, leerNotaScpl, notasParaBajar, esAviso, esAvisoDeAca, armarAvisos } = require('../src/avisos.js');
+const { leerListadoScpl, leerNotaScpl, notasQueFaltan, esAviso, esAvisoDeAca, armarAvisos } = require('../src/avisos.js');
 const { cargarNotas, guardarNotas, filtrarRutas, fechaCorta, ErrorDeUso } = require('./leer.js');
 const configReglas = require('../config/reglas.json');
 const configPortales = require('../config/portales.json').portales;
@@ -236,9 +236,8 @@ async function leerAvisos(cfg, guardadas, { ahora, fetch, reglas }) {
     if (r.error || !listado.length) { caidas.push(`${f.nombre} (${r.error || 'el listado no trae comunicados'})`); continue; }
     ok++;
     listados += listado.length;
-    const deEsta = notas.filter(n => dominioDe(n) === f.dominio);
-    for (const x of notasParaBajar(listado, deEsta, { ahora, reglas, cfg })) {
-      const rn = await bajarHtml(f.nota.replace('{id}', x.id), fetch);
+    for (const x of notasQueFaltan({ listadoHtml: r.html, guardadas: notas, ahora, cfg, reglas, fuente: f })) {
+      const rn = await bajarHtml(x.url, fetch);
       if (rn.error) { avisos.push(`Nota de aviso sin bajar: ${f.nombre} ${x.id} (${rn.error})`); continue; }
       notas.push({ ...leerNotaScpl(rn.html, x, f), bajadaEn: ahora });
       bajadas++;

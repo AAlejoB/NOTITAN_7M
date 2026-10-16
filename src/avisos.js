@@ -15,6 +15,7 @@
  * - esAvisoDeAca: esAviso, y además el portal es de Comodoro («local») o el título nombra Comodoro o Rada Tilly. Esas notas
  *   van a Avisos y no entran a la verificación; un aviso de un portal provincial que no nombra el lugar sigue como noticia.
  * - notasParaBajar: qué notas del listado faltan bajar (últimos 7 días, que valen, nunca bajadas; las más nuevas primero).
+ * - notasQueFaltan: lo mismo, desde el HTML del listado y con la url de cada nota: lo usan scripts/vuelta.js y n8n.
  * - datosDeAviso: servicio, programado o avería, día, horario, barrios, zona y si es un «se normalizó», sacados del texto.
  * - armarAvisos: junta comunicado y notas del mismo corte (con agrupar del núcleo), saca lo vencido, suma el cronograma de
  *   verano y ordena: primero lo que está cortando ahora, después lo que viene, después lo que no tiene día y al final los
@@ -147,6 +148,16 @@ function notasParaBajar(listado, guardadas, { ahora, reglas, cfg }) {
     .filter(x => Date.parse(x.fecha) >= limite && !ya.has(String(x.id)) && vale(x.titulo, reglas))
     .sort((a, b) => Date.parse(b.fecha) - Date.parse(a.fecha) || Number(b.id) - Number(a.id))
     .slice(0, (cfg && cfg.maxNotasPorVuelta) || 5);
+}
+
+// Del HTML del listado de una fuente (la primera de formato «scpl» si no se dice cuál), las notas que faltan bajar:
+// [{ id, titulo, fecha, url }]. guardadas: las notas ya bajadas (de cualquier fuente: se miran las de esta).
+function notasQueFaltan({ listadoHtml, guardadas = [], ahora, cfg, reglas, fuente = null }) {
+  const f = fuente || ((cfg && cfg.fuentes) || []).find(x => x.formato === 'scpl');
+  if (!f) return [];
+  const deEsta = guardadas.filter(n => dominioDe(n) === f.dominio);
+  return notasParaBajar(leerListadoScpl(listadoHtml), deEsta, { ahora, reglas, cfg })
+    .map(x => ({ ...x, url: (f.nota || MOLDE_NOTA_SCPL).replace('{id}', x.id) }));
 }
 
 /* ───────────── los datos de un aviso ───────────── */
@@ -448,4 +459,4 @@ function etiquetaDeAviso(a) {
   return servicio;
 }
 
-module.exports = { leerListadoScpl, leerNotaScpl, vale, esAviso, esAvisoDeAca, notasParaBajar, datosDeAviso, armarAvisos, etiquetaDeAviso, diaAR };
+module.exports = { leerListadoScpl, leerNotaScpl, vale, esAviso, esAvisoDeAca, notasParaBajar, notasQueFaltan, datosDeAviso, armarAvisos, etiquetaDeAviso, diaAR };

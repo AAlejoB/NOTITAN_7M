@@ -71,7 +71,7 @@
     {
       "id": "31ec91fa-227e-431c-a59a-e9f3445f290c",
       "parameters": {
-        "jsCode": "// Un ítem por feed con url: primero los de config/feeds.json y, si Rutas trae configZona, después los de <configZona>/feeds.json.\n// El orden importa: Preparar lo usa para saber qué feed es cada respuesta. configZona vacío: sin zona, como antes.\nconst fs = require('fs');\nconst rutas = $('Rutas').first().json;\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst nacionales = leer('config/feeds.json').feeds.filter(f => f.url);\nif (!rutas.configZona) return nacionales.map(f => ({ json: { nombre: f.nombre, url: f.url } }));\nconst deZona = leer(rutas.configZona + '/feeds.json').feeds.filter(f => f.url).map(f => ({ json: { nombre: f.nombre, url: f.url, origen: 'zona' } }));\nreturn [...nacionales.map(f => ({ json: { nombre: f.nombre, url: f.url, origen: 'nacional' } })), ...deZona];"
+        "jsCode": "// Un ítem por feed con url: primero los de config/feeds.json y, si Rutas trae configZona, después los de <configZona>/feeds.json.\n// El orden importa: Preparar lo usa para saber qué feed es cada respuesta. configZona vacío: sin zona, como antes.\n// Con <configZona>/avisos.json, cada ítem lleva además listadoAvisos (la página de comunicados de la SCPL) para «Bajar listado».\nconst fs = require('fs');\nconst rutas = $('Rutas').first().json;\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst nacionales = leer('config/feeds.json').feeds.filter(f => f.url);\nif (!rutas.configZona) return nacionales.map(f => ({ json: { nombre: f.nombre, url: f.url } }));\nconst conAvisos = fs.existsSync(rutas.carpetaRepo + '/' + rutas.configZona + '/avisos.json');\nconst fuente = conAvisos ? (leer(rutas.configZona + '/avisos.json').fuentes || []).find(f => f.formato === 'scpl') : null;\nconst listadoAvisos = (fuente && fuente.listado) || '';\nconst deZona = leer(rutas.configZona + '/feeds.json').feeds.filter(f => f.url).map(f => ({ json: { nombre: f.nombre, url: f.url, origen: 'zona', listadoAvisos } }));\nreturn [...nacionales.map(f => ({ json: { nombre: f.nombre, url: f.url, origen: 'nacional', listadoAvisos } })), ...deZona];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -120,15 +120,105 @@
       "onError": "continueRegularOutput"
     },
     {
+      "id": "35ada2e1-9721-467f-bff3-8017399ef504",
+      "parameters": {
+        "url": "={{ $('Feeds').first().json.listadoAvisos || '' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (compatible; NOTITAN_7M lector)"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html, */*"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "body"
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "name": "Bajar listado",
+      "position": [
+        880,
+        0
+      ],
+      "onError": "continueRegularOutput",
+      "executeOnce": true
+    },
+    {
+      "id": "9c8f55d4-11ff-46e2-96eb-35475047acee",
+      "parameters": {
+        "jsCode": "// Qué notas de la SCPL faltan bajar (de los últimos 7 días, que valen y que no se bajaron nunca): una por ítem, para «Bajar notas».\n// Sin avisos (configZona vacío o sin avisos.json), con el listado caído o sin nada que bajar: un solo ítem «nada»,\n// para que la vuelta siga (n8n no corre los nodos de después de uno que no devuelve nada).\nconst fs = require('fs');\nconst rutas = $('Rutas').first().json;\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst nada = [{ json: { nada: true, url: '' } }];\nconst dir = rutas.configZona ? rutas.carpetaRepo + '/' + rutas.configZona : null;\nif (!dir || !fs.existsSync(dir + '/avisos.json')) return nada;\nconst l = $('Bajar listado').first().json;\nconst s = Number(l.statusCode) || 0;\nif (l.error || s < 200 || s >= 400) return nada;\nconst reglas = fs.existsSync(dir + '/reglas.json') ? { ...leer('config/reglas.json'), ...leer(rutas.configZona + '/reglas.json') } : leer('config/reglas.json');\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\nconst faltan = capa4.notasQueFaltan({ listadoHtml: String(l.body ?? ''), guardado: $getWorkflowStaticData('global').guardado || null,\n  ahora: new Date().toISOString(), cfg: leer(rutas.configZona + '/avisos.json'), reglas });\nreturn faltan.length ? faltan.map(x => ({ json: { nada: false, ...x } })) : nada;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "name": "Avisos",
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "id": "a761af11-9ccc-4020-a226-c4225d3bebd4",
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (compatible; NOTITAN_7M lector)"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html, */*"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "body"
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "name": "Bajar notas",
+      "position": [
+        1320,
+        0
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
       "id": "afe613f8-2114-4a0b-a355-0a7c1c6797ad",
       "parameters": {
-        "jsCode": "const fs = require('fs');\nconst rutas = $('Rutas').first().json;\n// La configuración se lee del disco en cada vuelta: un git pull de config/ vale desde la vuelta siguiente.\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst feeds = leer('config/feeds.json').feeds.filter(f => f.url);\nconst portales = leer('config/portales.json').portales;\nconst reglas = leer('config/reglas.json');\nconst firmas = leer('config/firmas.json').firmas;\n// La zona (Comodoro y Chubut), si Rutas trae configZona: como cargarConfig de scripts/vuelta.js (sus reglas pisan las de config/reglas.json; sin firmas).\nconst zona = !rutas.configZona ? null : {\n  feeds: leer(rutas.configZona + '/feeds.json').feeds,\n  portales: leer(rutas.configZona + '/portales.json').portales,\n  reglas: fs.existsSync(rutas.carpetaRepo + '/' + rutas.configZona + '/reglas.json') ? { ...reglas, ...leer(rutas.configZona + '/reglas.json') } : reglas,\n};\n// src/capa4.js queda en memoria: un git pull del código vale después de reiniciar n8n.\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\nconst estatico = $getWorkflowStaticData('global');\nestatico.inicio = Date.now();\nconst ahora = new Date().toISOString();\n// Cada ítem de Bajar es un feed, en el mismo orden que Feeds. Un feed caído trae `error` (On Error: Continue).\nconst nombres = $('Feeds').all().map(i => i.json.nombre);\nconst cuerpos = $input.all().map((it, k) => {\n  const j = it.json;\n  if (j.error) return { nombre: nombres[k], status: 0, error: String((j.error && j.error.message) || j.error) };\n  return { nombre: nombres[k], status: Number(j.statusCode) || 0, xml: String(j.body ?? j.data ?? '') };\n});\nconst u = capa4.mitadUno({ cuerpos, guardado: estatico.guardado || null, ahora, feeds, portales, reglas, firmas, zona });\nestatico.guardado = u.guardado;\nestatico.vuelta = { ahora, lectura: u.lectura, acumulado: u.acumulado };\nif (!u.preguntas.length) return [{ json: { sinPreguntas: true, resumen: u.resumen } }];\nreturn u.preguntas.map(q => ({ json: { sinPreguntas: false, id: q.id, cuerpoIA: capa4.cuerpoIA(q.texto, { reglas, tipo: 'juicio' }) } }));"
+        "jsCode": "const fs = require('fs');\nconst rutas = $('Rutas').first().json;\n// La configuración se lee del disco en cada vuelta: un git pull de config/ vale desde la vuelta siguiente.\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst feeds = leer('config/feeds.json').feeds.filter(f => f.url);\nconst portales = leer('config/portales.json').portales;\nconst reglas = leer('config/reglas.json');\nconst firmas = leer('config/firmas.json').firmas;\n// La zona (Comodoro y Chubut), si Rutas trae configZona: como cargarConfig de scripts/vuelta.js (sus reglas pisan las de config/reglas.json; sin firmas).\n// Con avisos.json (y cronograma-agua.json, si está), también el bloque «Avisos».\nconst hay = archivo => fs.existsSync(rutas.carpetaRepo + '/' + rutas.configZona + '/' + archivo);\nconst zona = !rutas.configZona ? null : {\n  feeds: leer(rutas.configZona + '/feeds.json').feeds,\n  portales: leer(rutas.configZona + '/portales.json').portales,\n  reglas: hay('reglas.json') ? { ...reglas, ...leer(rutas.configZona + '/reglas.json') } : reglas,\n  ...(hay('avisos.json') ? { avisos: { ...leer(rutas.configZona + '/avisos.json'), cronograma: hay('cronograma-agua.json') ? leer(rutas.configZona + '/cronograma-agua.json') : null } } : {}),\n};\n// src/capa4.js queda en memoria: un git pull del código vale después de reiniciar n8n.\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\nconst estatico = $getWorkflowStaticData('global');\nestatico.inicio = Date.now();\nconst ahora = new Date().toISOString();\n// Cada ítem de Bajar es un feed, en el mismo orden que Feeds. Un feed caído trae `error` (On Error: Continue).\nconst nombres = $('Feeds').all().map(i => i.json.nombre);\nconst cuerpos = $('Bajar').all().map((it, k) => {\n  const j = it.json;\n  if (j.error) return { nombre: nombres[k], status: 0, error: String((j.error && j.error.message) || j.error) };\n  return { nombre: nombres[k], status: Number(j.statusCode) || 0, xml: String(j.body ?? j.data ?? '') };\n});\n// Los avisos: el listado de «Bajar listado» y una respuesta de «Bajar notas» por cada ítem de «Avisos» (los «nada» no cuentan).\nconst fallo = j => {\n  if (j.error) return String((j.error && j.error.message) || j.error);\n  const s = Number(j.statusCode) || 0;\n  return s >= 200 && s < 400 ? null : 'HTTP ' + s;\n};\nlet avisos = null;\nif (zona && zona.avisos) {\n  const l = $('Bajar listado').first().json;\n  const bajadas = $input.all();\n  const notasHtml = $('Avisos').all().map((it, k) => ({ p: it.json, j: (bajadas[k] || { json: { error: 'sin respuesta' } }).json }))\n    .filter(x => !x.p.nada)\n    .map(({ p, j }) => ({ id: p.id, titulo: p.titulo, fecha: p.fecha, html: fallo(j) ? '' : String(j.body ?? ''), error: fallo(j) }));\n  avisos = { listadoHtml: fallo(l) ? '' : String(l.body ?? ''), listadoError: fallo(l), notasHtml };\n}\nconst u = capa4.mitadUno({ cuerpos, guardado: estatico.guardado || null, ahora, feeds, portales, reglas, firmas, zona, avisos });\nestatico.guardado = u.guardado;\nestatico.vuelta = { ahora, lectura: u.lectura, acumulado: u.acumulado };\nif (!u.preguntas.length) return [{ json: { sinPreguntas: true, resumen: u.resumen } }];\nreturn u.preguntas.map(q => ({ json: { sinPreguntas: false, id: q.id, cuerpoIA: capa4.cuerpoIA(q.texto, { reglas, tipo: 'juicio' }) } }));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "name": "Preparar",
       "position": [
-        880,
+        1540,
         0
       ]
     },
@@ -162,7 +252,7 @@
       "typeVersion": 2.3,
       "name": "¿Hay preguntas?",
       "position": [
-        1100,
+        1760,
         0
       ]
     },
@@ -203,7 +293,7 @@
       "typeVersion": 4.5,
       "name": "IA",
       "position": [
-        1320,
+        1980,
         -100
       ],
       "credentials": {
@@ -217,13 +307,13 @@
     {
       "id": "6d64aac3-a8dd-4894-afea-6808874d9380",
       "parameters": {
-        "jsCode": "const fs = require('fs');\nconst rutas = $('Rutas').first().json;\n// La configuración se lee del disco en cada vuelta: un git pull de config/ vale desde la vuelta siguiente.\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst feeds = leer('config/feeds.json').feeds.filter(f => f.url);\nconst portales = leer('config/portales.json').portales;\nconst reglas = leer('config/reglas.json');\nconst firmas = leer('config/firmas.json').firmas;\n// La zona (Comodoro y Chubut), si Rutas trae configZona: como cargarConfig de scripts/vuelta.js (sus reglas pisan las de config/reglas.json; sin firmas).\nconst zona = !rutas.configZona ? null : {\n  feeds: leer(rutas.configZona + '/feeds.json').feeds,\n  portales: leer(rutas.configZona + '/portales.json').portales,\n  reglas: fs.existsSync(rutas.carpetaRepo + '/' + rutas.configZona + '/reglas.json') ? { ...reglas, ...leer(rutas.configZona + '/reglas.json') } : reglas,\n};\n// src/capa4.js queda en memoria: un git pull del código vale después de reiniciar n8n.\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\nconst estatico = $getWorkflowStaticData('global');\nconst v = estatico.vuelta;\nconst entrada = $input.all();\n// Viene de la rama «false» del IF (un solo ítem con sinPreguntas) o de IA (un ítem por pregunta, en el orden de Preparar).\nconst preguntas = $('Preparar').all();\nconst respuestas = entrada.length && entrada[0].json.sinPreguntas === true ? []\n  : entrada.map((it, k) => ({ id: preguntas[k].json.id, texto: capa4.textoDeRespuesta(it.json) }));\nconst r = capa4.mitadDos({ guardado: estatico.guardado, lectura: v.lectura, acumulado: v.acumulado, respuestas, ahora: v.ahora, feeds, portales, reglas, firmas, zona });\nr.linea.tardoMs = Date.now() - estatico.inicio;\ncapa4.escribir({ carpetaDatos: rutas.carpetaDatos, lista: r.lista, linea: r.linea });\nestatico.guardado = r.guardado;\ndelete estatico.vuelta;\nconst codigo = r.linea.feeds.ok === 0 ? 2 : 0;\nreturn [{ json: {\n  avisar: r.avisar,\n  ia: r.linea.ia, provisorias: r.linea.provisorias, tardoMs: r.linea.tardoMs,\n  resumen: capa4.resumenEnPantalla({ linea: r.linea, carpeta: rutas.carpetaDatos, codigo, anillos: zona ? zona.reglas.anillos || [] : [] }),\n} }];"
+        "jsCode": "const fs = require('fs');\nconst rutas = $('Rutas').first().json;\n// La configuración se lee del disco en cada vuelta: un git pull de config/ vale desde la vuelta siguiente.\nconst leer = archivo => JSON.parse(fs.readFileSync(rutas.carpetaRepo + '/' + archivo, 'utf8'));\nconst feeds = leer('config/feeds.json').feeds.filter(f => f.url);\nconst portales = leer('config/portales.json').portales;\nconst reglas = leer('config/reglas.json');\nconst firmas = leer('config/firmas.json').firmas;\n// La zona (Comodoro y Chubut), si Rutas trae configZona: como cargarConfig de scripts/vuelta.js (sus reglas pisan las de config/reglas.json; sin firmas).\n// Con avisos.json (y cronograma-agua.json, si está), también el bloque «Avisos».\nconst hay = archivo => fs.existsSync(rutas.carpetaRepo + '/' + rutas.configZona + '/' + archivo);\nconst zona = !rutas.configZona ? null : {\n  feeds: leer(rutas.configZona + '/feeds.json').feeds,\n  portales: leer(rutas.configZona + '/portales.json').portales,\n  reglas: hay('reglas.json') ? { ...reglas, ...leer(rutas.configZona + '/reglas.json') } : reglas,\n  ...(hay('avisos.json') ? { avisos: { ...leer(rutas.configZona + '/avisos.json'), cronograma: hay('cronograma-agua.json') ? leer(rutas.configZona + '/cronograma-agua.json') : null } } : {}),\n};\n// src/capa4.js queda en memoria: un git pull del código vale después de reiniciar n8n.\nconst capa4 = require(rutas.carpetaRepo + '/src/capa4.js');\nconst estatico = $getWorkflowStaticData('global');\nconst v = estatico.vuelta;\nconst entrada = $input.all();\n// Viene de la rama «false» del IF (un solo ítem con sinPreguntas) o de IA (un ítem por pregunta, en el orden de Preparar).\nconst preguntas = $('Preparar').all();\nconst respuestas = entrada.length && entrada[0].json.sinPreguntas === true ? []\n  : entrada.map((it, k) => ({ id: preguntas[k].json.id, texto: capa4.textoDeRespuesta(it.json) }));\nconst r = capa4.mitadDos({ guardado: estatico.guardado, lectura: v.lectura, acumulado: v.acumulado, respuestas, ahora: v.ahora, feeds, portales, reglas, firmas, zona });\nr.linea.tardoMs = Date.now() - estatico.inicio;\ncapa4.escribir({ carpetaDatos: rutas.carpetaDatos, lista: r.lista, linea: r.linea });\nestatico.guardado = r.guardado;\ndelete estatico.vuelta;\nconst codigo = r.linea.feeds.ok === 0 ? 2 : 0;\nreturn [{ json: {\n  avisar: r.avisar,\n  ia: r.linea.ia, provisorias: r.linea.provisorias, tardoMs: r.linea.tardoMs,\n  resumen: capa4.resumenEnPantalla({ linea: r.linea, carpeta: rutas.carpetaDatos, codigo, anillos: zona ? zona.reglas.anillos || [] : [] }),\n} }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "name": "Decidir",
       "position": [
-        1540,
+        2200,
         0
       ]
     },
@@ -257,7 +347,7 @@
       "typeVersion": 2.3,
       "name": "¿Avisar?",
       "position": [
-        1760,
+        2420,
         0
       ]
     },
@@ -275,7 +365,7 @@
       "typeVersion": 2.1,
       "name": "Avisar",
       "position": [
-        1980,
+        2640,
         -100
       ],
       "credentials": {
@@ -321,6 +411,39 @@
       ]
     },
     "Bajar": {
+      "main": [
+        [
+          {
+            "node": "Bajar listado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bajar listado": {
+      "main": [
+        [
+          {
+            "node": "Avisos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avisos": {
+      "main": [
+        [
+          {
+            "node": "Bajar notas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bajar notas": {
       "main": [
         [
           {

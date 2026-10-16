@@ -309,3 +309,81 @@ test('prueba de la unión: 3 ítems por caso sin dudoso; pasa solo si acierta la
   assert.deepEqual(mal[1].intentos, [true, false, true]);
   assert.equal(mal[1].pasa, false);
 });
+
+/* ───────── los avisos (carta d, Fase B) ───────── */
+
+// La zona de siempre: cargarConfig ya trae avisos.json (con el cronograma, vencido: no suma nada).
+const ZONA_AVISOS = ZONA;
+const T_2902 = 'CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR AVERÍA EN EL ACUEDUCTO DEL ‘99';
+const T_2901 = 'HECHO VANDÁLICO PROVOCÓ UN CORTE DE ENERGÍA EN UN SECTOR DE ZONA SUR DE COMODORO Y EN RADA TILLY';
+const art = (id, titulo, fecha) => `<article class="listSeccion"><h2><a href="/index.php/site/ver-nota?id=${id}">${titulo}</a></h2><div class="metadata">${fecha}</div></article>`;
+// AHORA es el domingo 4-10-2026: dos comunicados de los últimos 7 días que valen, y uno que no vale.
+const LISTADO = `<html><body>${art(2902, T_2902, '04-10-2026')}${art(2901, T_2901, '02-10-2026')}${art(2900, 'REDUCCIÓN DE CALZADA POR TAREAS DE SANEAMIENTO EN Bº LA FLORESTA', '03-10-2026')}</body></html>`;
+const NOTA_HTML = cuerpo => `<div class="container-cms-page"><p>${cuerpo}</p></div><aside id="sidebar"></aside>`;
+const CUERPOS = { 2902: 'Hoy, domingo 04 de octubre, se realizan tareas de reparación. Se interrumpe el suministro de agua en los siguientes barrios: Laprida, Güemes.',
+  2901: 'Un hecho vandálico provocó un corte de energía en zona sur.' };
+// Lo que haría n8n: Bajar listado → notasQueFaltan → Bajar notas → mitadUno → mitadDos.
+function vueltaConAvisos(guardado, { listadoHtml = LISTADO, listadoError, ahora = AHORA } = {}) {
+  const faltan = listadoError ? [] : C.notasQueFaltan({ listadoHtml, guardado, ahora, cfg: ZONA_AVISOS.avisos, reglas: ZONA_AVISOS.reglas });
+  const avisos = { listadoHtml: listadoError ? '' : listadoHtml, listadoError, notasHtml: faltan.map(x => ({ ...x, html: NOTA_HTML(CUERPOS[x.id] || '') })) };
+  const base = { ahora, feeds: [], portales, reglas, firmas: [], zona: ZONA_AVISOS };
+  const u = C.mitadUno({ cuerpos: [], guardado, ...base, avisos });
+  const d = C.mitadDos({ guardado: u.guardado, lectura: u.lectura, acumulado: u.acumulado, respuestas: [], ...base });
+  return { faltan, u, d };
+}
+
+test('E19 y E20: la primera vuelta baja 2 notas y lista.json empieza con avisos; la segunda no baja nada y da lo mismo', () => {
+  const v1 = vueltaConAvisos(null);
+  assert.deepEqual(v1.faltan.map(x => [x.id, x.url]), [['2902', 'https://scpl.coop/index.php/site/ver-nota?id=2902'], ['2901', 'https://scpl.coop/index.php/site/ver-nota?id=2901']]);
+  assert.deepEqual(Object.keys(v1.u.guardado.avisos.notas[0]), ['id', 'titulo', 'fecha', 'texto', 'url', 'bajadaEn'], 'la forma de datos/zona/avisos.json');
+  assert.equal(v1.d.lista.orden[0], 'avisos');
+  const t = v1.d.lista.bloques.avisos.noticias;
+  assert.deepEqual(t.map(x => x.etiqueta), ['Agua · avería', 'Luz · avería']);
+  assert.deepEqual(t[0].aviso.barrios, ['Laprida', 'Güemes']);
+  const c1 = v1.d.linea.cortes;
+  assert.deepEqual([c1.listados, c1.bajadas, c1.vigentes, c1.apartadas, c1.sinLugar], [3, 2, 2, 0, 0]);
+  assert.deepEqual(c1.fuentes, { ok: 1, mal: 0, caidas: [] });
+  assert.deepEqual(c1.lista[0].urls, ['https://scpl.coop/index.php/site/ver-nota?id=2902']);
+  assert.deepEqual(v1.d.guardado.avisos, v1.u.guardado.avisos, 'mitadDos deja lo bajado como estaba');
+  const r = C.resumenEnPantalla({ linea: v1.d.linea, carpeta: '/datos', codigo: 0, anillos: ZONA_AVISOS.reglas.anillos });
+  assert.ok(r.includes('Avisos: 2 vigentes (1 agua avería, 1 luz avería) · SCPL OK · 3 comunicados en el listado · 2 bajados'), r.join('\n'));
+
+  const v2 = vueltaConAvisos(v1.d.guardado, { ahora: '2026-10-04T11:30:00.000Z' });
+  assert.deepEqual(v2.faltan, []);
+  assert.equal(v2.d.linea.cortes.bajadas, 0);
+  assert.deepEqual(v2.d.lista.bloques.avisos.noticias.map(x => x.id), t.map(x => x.id));
+});
+
+test('E21: sin avisos en la zona (o sin zona), ni bloque Avisos ni cortes en la línea, como antes', () => {
+  const { avisos: _sin, ...zonaSinAvisos } = ZONA_AVISOS;
+  const base = { ahora: AHORA, feeds: [], portales, reglas, firmas: [] };
+  for (const zona of [zonaSinAvisos, null]) {
+    const u = C.mitadUno({ cuerpos: [], guardado: null, ...base, zona, avisos: { listadoHtml: LISTADO, notasHtml: [] } });
+    const d = C.mitadDos({ guardado: u.guardado, lectura: u.lectura, acumulado: u.acumulado, respuestas: [], ...base, zona });
+    assert.equal(d.lista.orden.includes('avisos'), false);
+    assert.equal('cortes' in d.linea, false);
+    assert.equal('avisos' in d.guardado, false);
+  }
+});
+
+test('E22: la SCPL da 500: la vuelta sigue con lo guardado y la línea lo dice', () => {
+  const v1 = vueltaConAvisos(null);
+  const v2 = vueltaConAvisos(v1.d.guardado, { listadoError: 'HTTP 500', ahora: '2026-10-04T11:30:00.000Z' });
+  assert.deepEqual(v2.d.linea.cortes.fuentes, { ok: 0, mal: 1, caidas: ['SCPL (HTTP 500)'] });
+  assert.ok(v2.d.linea.avisos.includes('Fuente de avisos sin leer: SCPL (HTTP 500)'));
+  assert.equal(v2.d.linea.cortes.vigentes, 2, 'con lo guardado');
+  assert.equal(v2.d.guardado.avisos.notas.length, 2);
+  const r = C.resumenEnPantalla({ linea: v2.d.linea, carpeta: '/datos', codigo: 0 });
+  assert.ok(r.some(l => l.endsWith('sin leer: SCPL (HTTP 500)')), r.join('\n'));
+});
+
+test('avisos en la capa 4: un aviso de un portal local se aparta de la zona; el de Puerto Madryn (provincial, sin lugar) se queda', () => {
+  const corte = { ...notaZona('elpatagonico.com', 'Numerosos barrios de Comodoro se hallan sin agua', 1) };
+  const madryn = { ...notaZona('elchubut.com.ar', 'Mañana habrá corte programado de energía en zona norte', 2), url: 'https://www.elchubut.com.ar/puerto-madryn/corte' };
+  const guardado = { notas: [], juicios: [], ultimoAviso: null, zona: { notas: [corte, madryn] }, avisos: { notas: [] } };
+  const d = C.mitadDos({ guardado, lectura: { feeds: [], avisos: [] }, acumulado: { agregadas: [], repetidas: [], borradas: [] }, respuestas: [], ahora: AHORA, feeds: [], portales, reglas, firmas: [], zona: ZONA_AVISOS });
+  assert.equal(d.linea.cortes.apartadas, 1);
+  assert.equal(d.linea.cortes.sinLugar, 1);
+  assert.deepEqual(d.lista.bloques.avisos.noticias.map(t => t.medios), [['El Patagónico']]);
+  assert.deepEqual(d.guardado.zona.notas, [corte, madryn], 'lo guardado de la zona no cambia');
+});

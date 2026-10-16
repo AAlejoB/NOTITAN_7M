@@ -26,20 +26,31 @@ test('n8n: los 4 archivos son JSON válido con name, nodes y connections', () =>
   }
 });
 
-test('n8n: la vuelta tiene los 10 nodos de la carta y sus flechas', () => {
+test('n8n: la vuelta tiene los 13 nodos de las cartas y sus flechas', () => {
   const wf = leer('vuelta.json');
-  assert.deepEqual(wf.nodes.map(n => n.name), ['Cada 30 minutos', 'Rutas', 'Feeds', 'Bajar', 'Preparar', '¿Hay preguntas?', 'IA', 'Decidir', '¿Avisar?', 'Avisar']);
-  assert.deepEqual(wf.nodes.map(n => n.type.replace('n8n-nodes-base.', '')), ['scheduleTrigger', 'set', 'code', 'httpRequest', 'code', 'if', 'httpRequest', 'code', 'if', 'emailSend']);
+  assert.deepEqual(wf.nodes.map(n => n.name), ['Cada 30 minutos', 'Rutas', 'Feeds', 'Bajar', 'Bajar listado', 'Avisos', 'Bajar notas', 'Preparar', '¿Hay preguntas?', 'IA', 'Decidir', '¿Avisar?', 'Avisar']);
+  assert.deepEqual(wf.nodes.map(n => n.type.replace('n8n-nodes-base.', '')), ['scheduleTrigger', 'set', 'code', 'httpRequest', 'httpRequest', 'code', 'httpRequest', 'code', 'if', 'httpRequest', 'code', 'if', 'emailSend']);
   // Salida 0 de un IF = «true», salida 1 = «false».
   assert.deepEqual(flechas(wf), [
-    'Bajar[0]→Preparar', 'Cada 30 minutos[0]→Rutas', 'Decidir[0]→¿Avisar?', 'Feeds[0]→Bajar', 'IA[0]→Decidir',
+    'Bajar[0]→Bajar listado', 'Bajar listado[0]→Avisos', 'Avisos[0]→Bajar notas', 'Bajar notas[0]→Preparar', 'Cada 30 minutos[0]→Rutas', 'Decidir[0]→¿Avisar?', 'Feeds[0]→Bajar', 'IA[0]→Decidir',
     'Preparar[0]→¿Hay preguntas?', 'Rutas[0]→Feeds', '¿Avisar?[0]→Avisar', '¿Hay preguntas?[0]→IA', '¿Hay preguntas?[1]→Decidir',
   ].sort());
   const nodo = nombre => wf.nodes.find(n => n.name === nombre);
   assert.deepEqual(nodo('Cada 30 minutos').parameters.rule.interval, [{ field: 'minutes', minutesInterval: 30 }]);
   assert.deepEqual(nodo('Rutas').parameters.assignments.assignments.map(a => a.name), ['carpetaRepo', 'carpetaDatos', 'correoAvisos', 'correoDesde', 'configZona']);
   assert.equal(nodo('Rutas').parameters.assignments.assignments.find(a => a.name === 'configZona').value, 'config/zona');
-  for (const n of ['Feeds', 'Preparar', 'Decidir']) assert.match(nodo(n).parameters.jsCode, /configZona/, n);
+  for (const n of ['Feeds', 'Avisos', 'Preparar', 'Decidir']) assert.match(nodo(n).parameters.jsCode, /configZona/, n);
+  // Los avisos: el listado se baja una sola vez por vuelta; las notas, una por ítem; los dos siguen si la SCPL no contesta.
+  assert.equal(nodo('Bajar listado').executeOnce, true);
+  assert.match(nodo('Bajar listado').parameters.url, /listadoAvisos/);
+  assert.equal(nodo('Bajar notas').parameters.url, '={{ $json.url }}');
+  for (const n of ['Bajar listado', 'Bajar notas']) {
+    assert.equal(nodo(n).onError, 'continueRegularOutput', n);
+    assert.equal(nodo(n).parameters.options.response.response.neverError, true, n);
+  }
+  assert.match(nodo('Avisos').parameters.jsCode, /capa4\.notasQueFaltan\(/);
+  assert.match(nodo('Preparar').parameters.jsCode, /\$\('Bajar'\)\.all\(\)/, 'los feeds salen de Bajar, no de la entrada');
+  for (const n of ['Preparar', 'Decidir']) assert.match(nodo(n).parameters.jsCode, /avisos\.json/, n);
   assert.equal(nodo('Bajar').onError, 'continueRegularOutput');
   assert.equal(nodo('Bajar').parameters.options.timeout, 20000);
   assert.equal(nodo('IA').onError, 'continueRegularOutput');

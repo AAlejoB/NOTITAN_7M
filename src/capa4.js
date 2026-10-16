@@ -11,9 +11,13 @@
  *
  * Pura como el núcleo (salvo escribir): sin leer archivos, sin Date.now() y sin fetch; todo entra por parámetro.
  * Lo que se guarda entre vueltas (`guardado`) lo guarda n8n en los datos estáticos del workflow:
- *   { notas: [...], juicios: [{ urls, juicio, fecha, desmentidosVistos, viejo }], ultimoAviso: <ISO o null>, zona: { notas: [...] } }
- * La zona (Comodoro y Chubut, config/zona/) es opcional: `zona` es { feeds, portales, reglas } o null. Corre sin IA,
+ *   { notas: [...], juicios: [{ urls, juicio, fecha, desmentidosVistos, viejo }], ultimoAviso: <ISO o null>, zona: { notas: [...] },
+ *     avisos: { notas: [...] } }
+ * La zona (Comodoro y Chubut, config/zona/) es opcional: `zona` es { feeds, portales, reglas, avisos? } o null. Corre sin IA,
  * como en scripts/vuelta.js: sus hechos no se le preguntan a la IA y el cruce «también nacional» saca el relleno.
+ * Con zona.avisos (config/zona/avisos.json, con `cronograma`), también el bloque «Avisos»: n8n baja el listado de la SCPL,
+ * pregunta notasQueFaltan, baja esas notas y se las pasa a mitadUno en `avisos`. Lo bajado vive 30 días en guardado.avisos,
+ * con la misma forma que <datos>/zona/avisos.json de scripts/vuelta.js.
  */
 const { appendFileSync, copyFileSync, mkdirSync, renameSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
@@ -22,9 +26,11 @@ const { acumular, preparar, decidir, buscarPortal, dominioDe } = require('./nucl
 const { juiciosProvisorios } = require('./provisorio.js');
 const { armarEntrega } = require('./entrega.js');
 const { decidirZona } = require('./zona.js');
+const avisosDeZona = require('./avisos.js');
 const { preguntaJuicio, leerJuicio, preguntaUnion, leerUnion, posiblesDesmentidos, buscarGuardado, hayQueVolverAPreguntar } = require('./ia.js');
 
 const HORA = 3600 * 1000;
+const AVISOS_DIAS = 30;
 const ZONA = 'America/Argentina/Buenos_Aires';
 const PAGINA_DEL_REPO = join(__dirname, '..', 'pagina');
 
@@ -100,7 +106,8 @@ function cuentaNotas(lectura, acumulado) {
 
 // Igual que en scripts/vuelta.js, salvo `leidas` (ver cuentaNotas).
 // zona: { lectura, acumulado, p, z (lo de decidirZona), reglas } o null. Sin zona, la línea es la de siempre.
-function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, portales = [], zona = null }) {
+// cortes: { lectura (lo de leerAvisosBajados, o null), lista (lo de armarAvisos), apartadas, sinLugar } o null, como en scripts/vuelta.js.
+function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, portales = [], zona = null, cortes = null }) {
   const linea = {
     hora: ahora,
     duracionMs,
@@ -116,7 +123,7 @@ function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, port
       aManoInternacional: d.aMano.internacional.length,
       noFresco: d.descartadas.filter(x => x.motivo.startsWith('no_fresco')).length,
     },
-    avisos: [...(lectura ? lectura.avisos : []), ...p.avisos, ...d.avisos],
+    avisos: [...(lectura ? lectura.avisos : []), ...p.avisos, ...d.avisos, ...(cortes && cortes.lectura ? cortes.lectura.avisos : [])],
   };
   if (zona) {
     linea.zona = {
@@ -125,6 +132,18 @@ function armarLinea({ ahora, duracionMs, lectura, acumulado, p, juicios, d, port
       hechos: { total: zona.p.resumen.hechos, porGrupos: hechosPorGrupos(zona.p) },
       confirmados: zona.z.confirmados,
       lista: Object.fromEntries((zona.reglas.anillos || []).map(a => [a.clave, zona.z.bloques[a.clave].noticias.length])),
+    };
+  }
+  if (cortes) {
+    const l = cortes.lectura;
+    linea.cortes = {
+      fuentes: l ? l.fuentes : { ok: 0, mal: 0, caidas: [] },
+      listados: l ? l.listados : 0,
+      bajadas: l ? l.bajadas : 0,
+      apartadas: cortes.apartadas || 0,
+      sinLugar: cortes.sinLugar || 0,
+      vigentes: cortes.lista.length,
+      lista: cortes.lista.map(a => ({ id: a.id, servicio: a.servicio, programado: a.programado, dia: a.dia, zona: a.zona, fuentes: a.fuentes.length, cronograma: a.cronograma, normalizado: Boolean(a.normalizado), urls: a.fuentes.map(f => f.url).filter(Boolean) })),
     };
   }
   return linea;
@@ -144,6 +163,7 @@ function resumenEnPantalla({ linea, carpeta, codigo, sinLeer, anillos = [] }) {
     `4/5 (les falta 1 medio): ${mano('nacional')} nacionales + ${mano('internacional')} internacionales`,
     `Lista: ${linea.lista.nacional} nacionales + ${linea.lista.internacional} internacionales`,
     ...(linea.zona ? resumenZona(linea.zona, sinLeer, anillos) : []),
+    ...(linea.cortes ? [resumenCortes(linea.cortes, sinLeer)] : []),
     `Escribí: ${join(carpeta, 'pagina', 'lista.json')}`,
     `Código de salida: ${codigo}`,
   ];
@@ -156,6 +176,59 @@ function resumenZona(z, sinLeer, anillos) {
     sinLeer ? 'Zona · feeds: no se leyeron' : `Zona · feeds: ${z.feeds.ok} OK · ${z.feeds.mal} caídos${z.feeds.caidos.length ? ` (${z.feeds.caidos.join(', ')})` : ''}`,
     `Zona · lista: ${nombres} · también nacionales: ${tambien}`,
   ];
+}
+
+// «Avisos: 2 vigentes (1 agua programado, 1 luz) · SCPL OK · …», como en scripts/vuelta.js.
+function resumenCortes(c, sinLeer) {
+  const tipos = new Map();
+  for (const a of c.lista) {
+    const t = `${a.servicio || 'corte'}${a.normalizado ? ' se normalizó' : a.cronograma ? ' cronograma' : a.programado === true ? ' programado' : a.programado === false ? ' avería' : ''}`;
+    tipos.set(t, (tipos.get(t) || 0) + 1);
+  }
+  const detalle = tipos.size ? ` (${[...tipos].map(([t, n]) => `${n} ${t}`).join(', ')})` : '';
+  const fuentes = sinLeer ? 'fuentes: no se leyeron'
+    : c.fuentes.caidas.length ? `sin leer: ${c.fuentes.caidas.join(', ')}` : `SCPL OK · ${c.listados} comunicados en el listado · ${c.bajadas} bajados`;
+  return `Avisos: ${c.vigentes} ${c.vigentes === 1 ? 'vigente' : 'vigentes'}${detalle} · ${fuentes}`;
+}
+
+/* ───────────── los avisos, desde lo que bajó n8n ───────────── */
+
+// Lo que n8n le pregunta entre bajar el listado y bajar las notas: qué notas de la SCPL faltan bajar.
+// guardado: el de la vuelta anterior (con guardado.avisos.notas). → [{ id, titulo, fecha, url }]
+function notasQueFaltan({ listadoHtml, guardado, ahora, cfg, reglas }) {
+  return avisosDeZona.notasQueFaltan({ listadoHtml, guardadas: (guardado && guardado.avisos && guardado.avisos.notas) || [], ahora, cfg, reglas });
+}
+
+// avisos: { listadoHtml, listadoError?, notasHtml: [{ id, titulo, fecha, html, error? }] }, lo que bajó n8n.
+// → { notas (las guardadas más las nuevas, de los últimos 30 días), listados, bajadas, fuentes: { ok, mal, caidas }, avisos },
+// como leerAvisos de scripts/vuelta.js. Hoy hay una sola fuente (la SCPL).
+function leerAvisosBajados(avisos, guardadas, { ahora, cfg }) {
+  const f = (cfg.fuentes || []).find(x => x.formato === 'scpl') || { nombre: 'SCPL' };
+  const notas = [...guardadas];
+  const caidas = [];
+  const mensajes = [];
+  let listados = 0;
+  let bajadas = 0;
+  const listado = avisos.listadoError ? [] : avisosDeZona.leerListadoScpl(avisos.listadoHtml);
+  if (avisos.listadoError || !listado.length) caidas.push(`${f.nombre} (${avisos.listadoError || 'el listado no trae comunicados'})`);
+  else {
+    listados = listado.length;
+    const ya = new Set(guardadas.map(n => String(n.id)));
+    for (const x of avisos.notasHtml || []) {
+      if (ya.has(String(x.id))) continue;
+      if (x.error) { mensajes.push(`Nota de aviso sin bajar: ${f.nombre} ${x.id} (${x.error})`); continue; }
+      notas.push({ ...avisosDeZona.leerNotaScpl(x.html, x, f), bajadaEn: ahora });
+      bajadas++;
+    }
+  }
+  const limite = Date.parse(ahora) - AVISOS_DIAS * 24 * HORA;
+  return {
+    notas: notas.filter(n => Date.parse(n.fecha) >= limite),
+    listados,
+    bajadas,
+    fuentes: { ok: caidas.length ? 0 : 1, mal: caidas.length, caidas },
+    avisos: [...caidas.map(c => `Fuente de avisos sin leer: ${c}`), ...mensajes],
+  };
 }
 
 /* ───────────── la lectura, desde lo que bajó n8n ───────────── */
@@ -205,7 +278,8 @@ function hayQuePreguntar(hecho, guardado, desmentidos) {
 }
 
 // cuerpos: primero los de los feeds nacionales con url y, si hay zona, después los de la zona con url (el orden del nodo Feeds).
-function mitadUno({ cuerpos, guardado, ahora, feeds, portales, reglas, firmas = [], zona = null }) {
+// avisos: lo que bajó n8n de la SCPL (ver leerAvisosBajados), o null. Solo se usa si zona trae avisos.
+function mitadUno({ cuerpos, guardado, ahora, feeds, portales, reglas, firmas = [], zona = null, avisos = null }) {
   const antes = guardado || { notas: [], juicios: [], ultimoAviso: null };
   const nNacionales = zona ? feeds.filter(f => f.url).length : Infinity;
   const lectura = armarLectura((cuerpos || []).slice(0, nNacionales), feeds, { ahora });
@@ -239,6 +313,13 @@ function mitadUno({ cuerpos, guardado, ahora, feeds, portales, reglas, firmas = 
     salida.guardado.zona = { notas: acumuladoZona.notas };
     salida.lectura.zona = { feeds: lecturaZona.feeds, avisos: lecturaZona.avisos };
     salida.acumulado.zona = { agregadas: acumuladoZona.agregadas, repetidas: acumuladoZona.repetidas, borradas: acumuladoZona.borradas.map(n => n.id) };
+    // Los avisos: lo bajado de la SCPL se suma a lo guardado (30 días). Sin `avisos` (no se bajó nada), queda lo guardado.
+    if (zona.avisos) {
+      const guardadasAvisos = (antes.avisos && antes.avisos.notas) || [];
+      const l = avisos ? leerAvisosBajados(avisos, guardadasAvisos, { ahora, cfg: zona.avisos }) : null;
+      salida.guardado.avisos = { notas: l ? l.notas : guardadasAvisos };
+      salida.lectura.cortes = l && { listados: l.listados, bajadas: l.bajadas, fuentes: l.fuentes, avisos: l.avisos };
+    }
   }
   return salida;
 }
@@ -300,9 +381,19 @@ function mitadDos({ guardado, lectura, acumulado, respuestas = [], ahora, feeds,
   const provisorias = enLista.filter(x => juicios[x.id] && juicios[x.id].provisorio).length;
   // La zona, sin IA: preparar con sus reglas y decidir cada anillo, cruzando con los hechos nacionales de esta vuelta.
   let deZona = null;
+  let cortes = null;
   if (zona) {
     const notasZona = filtrarRutas((guardado.zona && guardado.zona.notas) || [], zona.feeds).notas;
-    const pZona = preparar(notasZona, { portales: zona.portales, reglas: zona.reglas, firmas: [], ahora });
+    // Las notas de la zona que son avisos de cortes de acá van al bloque Avisos y no a la verificación (como en scripts/vuelta.js).
+    const deAviso = zona.avisos ? notasZona.filter(n => avisosDeZona.esAvisoDeAca(n, { reglas: zona.reglas, portales: zona.portales })) : [];
+    const noticias = notasZona.filter(n => !deAviso.includes(n));
+    if (zona.avisos) {
+      const lista = avisosDeZona.armarAvisos({ notasScpl: (guardado.avisos && guardado.avisos.notas) || [], notasPortales: deAviso, ahora,
+        cfg: zona.avisos, reglas: zona.reglas, portales: zona.portales, cronograma: zona.avisos.cronograma || null });
+      const sinLugar = noticias.filter(n => avisosDeZona.esAviso(n.titulo, zona.reglas)).length;
+      cortes = { lectura: (lectura && lectura.cortes) || null, lista, apartadas: deAviso.length, sinLugar };
+    }
+    const pZona = preparar(noticias, { portales: zona.portales, reglas: zona.reglas, firmas: [], ahora });
     const z = decidirZona(pZona, { portales: zona.portales, reglas: zona.reglas, hechosNacionales: [...p.candidatos, ...p.enObservacion] });
     const az = (acumulado && acumulado.zona) || { agregadas: [], repetidas: [], borradas: [] };
     deZona = { notas: notasZona, lectura: (lectura && lectura.zona) || null, acumulado: { ...az, notas: notasZona }, p: pZona, z, reglas: zona.reglas };
@@ -314,15 +405,17 @@ function mitadDos({ guardado, lectura, acumulado, respuestas = [], ahora, feeds,
     cliente: reglas.cliente || '',
     paginaViejaMinutos: (reglas.avisos && reglas.avisos.paginaViejaMinutos) || 60,
     zona: deZona && { ...deZona.z, portales: zona.portales },
+    avisos: cortes && cortes.lista,
   });
 
   const linea = {
-    ...armarLinea({ ahora, duracionMs: null, lectura, acumulado: { ...acumulado, notas }, p, juicios, d, portales, zona: deZona }),
+    ...armarLinea({ ahora, duracionMs: null, lectura, acumulado: { ...acumulado, notas }, p, juicios, d, portales, zona: deZona, cortes }),
     ia, provisorias, tardoMs: null,
   };
   const avisar = armarAviso({ lectura, ia, ahora, ultimoAviso: guardado.ultimoAviso, reglas });
   const nuevoGuardado = { notas, juicios: juiciosGuardados, ultimoAviso: avisar.ultimoAviso };
   if (deZona) nuevoGuardado.zona = { notas: deZona.notas };
+  if (zona && zona.avisos) nuevoGuardado.avisos = { notas: (guardado.avisos && guardado.avisos.notas) || [] };
   return { guardado: nuevoGuardado, lista, linea, avisar };
 }
 
@@ -400,7 +493,7 @@ function resultadoPrueba(casos, items, respuestas) {
 }
 
 module.exports = {
-  filtrarRutas, armarLectura, hayQuePreguntar, mitadUno, mitadDos, escribir,
+  filtrarRutas, armarLectura, hayQuePreguntar, mitadUno, mitadDos, escribir, notasQueFaltan, leerAvisosBajados,
   armarLinea, hechosPorGrupos, mediosDe, resumenEnPantalla,
   cuerpoIA, textoDeRespuesta, preguntaUnionDePrueba, itemsDePrueba, resultadoPrueba,
 };

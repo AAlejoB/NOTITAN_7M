@@ -4,7 +4,7 @@ Cuatro archivos para importar en el n8n del servidor (en n8n: menú **⋯** del 
 
 | Archivo | Nombre en n8n | Qué hace | Se activa |
 |---|---|---|---|
-| `vuelta.json` | 7M · vuelta cada 30 minutos | Baja los 19 feeds (y los 8 de la zona, si `configZona` no está vacío), junta las notas de 48 h, le pregunta a la IA por los hechos sin juicio, decide, escribe `lista.json` y anota la vuelta. Si ningún portal contesta o la IA no contesta, manda un mail (como mucho uno por hora). | Sí |
+| `vuelta.json` | 7M · vuelta cada 30 minutos | Baja los 19 feeds (y los 8 de la zona y los avisos de cortes de la SCPL, si `configZona` no está vacío), junta las notas de 48 h, le pregunta a la IA por los hechos sin juicio, decide, escribe `lista.json` y anota la vuelta. Si ningún portal contesta o la IA no contesta, manda un mail (como mucho uno por hora). | Sí |
 | `correo.json` | 7M · correo | Recibe del login (`scripts/servir.js`) el pedido de «olvidé mi clave» y manda el mail. | Sí |
 | `error.json` | 7M · si la vuelta se rompe | Si la vuelta explota (un nodo falla del todo), manda un mail con el error. Sin tope. | No hace falta: se elige como «Error Workflow» de la vuelta |
 | `prueba-union.json` | 7M · prueba de la unión (3 veces) | Le hace a la IA cada caso de unión de `test/casos-ia.json` que no es «dudoso», 3 veces. Al final dice «pasa» o «no pasa». | No: se ejecuta a mano |
@@ -25,6 +25,7 @@ Cuatro archivos para importar en el n8n del servidor (en n8n: menú **⋯** del 
 - Los nodos «Code» necesitan `NODE_FUNCTION_ALLOW_EXTERNAL=*` y `NODE_FUNCTION_ALLOW_BUILTIN=*` en el contenedor (o el proceso) de n8n. Sin eso, Feeds falla con un error de `require`.
 - Nodo **Bajar**: «Never Error» prendido (un 404 llega como `statusCode` y se cuenta como feed caído) y «On Error: Continue» (un feed que no contesta no corta la vuelta).
 - Nodo **IA**: de a 5 preguntas por segundo («Batching»), para no pasar el límite de pedidos por minuto de la cuenta. Si una falla, sigue: ese hecho sale con el bloque provisorio y la página lo dice.
+- **Los avisos de cortes** (bloque «Avisos», si `configZona` trae `avisos.json`): «Bajar listado» baja una sola vez por vuelta la página de comunicados de la SCPL («Execute Once»); «Avisos» pregunta qué notas faltan (`notasQueFaltan`: de los últimos 7 días, que valen y nunca bajadas; como mucho 5); «Bajar notas» baja esas, una por ítem. Lo bajado vive 30 días en los datos estáticos (`guardado.avisos.notas`). Sin `configZona`, sin `avisos.json`, con la SCPL caída o sin nada nuevo, «Avisos» devuelve un solo ítem «nada» (si no devolviera nada, n8n no correría los nodos de después) y «Bajar notas» lo deja pasar con un error que Preparar no mira. Si la SCPL no contesta, la vuelta sigue con lo guardado y la línea dice «Fuente de avisos sin leer: SCPL (…)».
 - La zona (Comodoro y Chubut) corre sin IA: sus hechos no se le preguntan, y el cruce «también nacional» saca lo que ya es noticia nacional. Sus notas viven en los mismos datos estáticos (`guardado.zona.notas`), con la misma ventana de 48 h.
 - Probado el 15-10-2026 con n8n 2.43.6 instalado con npm (Node 24) y la IA falsa (`scripts/ia-falsa.js`): dos vueltas seguidas disparadas por el reloj, 19 feeds bien, 5 preguntas en la primera y 0 en la segunda.
 
@@ -34,8 +35,8 @@ Cuatro archivos para importar en el n8n del servidor (en n8n: menú **⋯** del 
 |---|---|---|
 | Cada 30 minutos | Schedule Trigger | 1.4 |
 | Rutas | Edit Fields (Set) | 3.5 |
-| Feeds, Preparar, Decidir, Casos, Resultado | Code | 2 |
-| Bajar, IA | HTTP Request | 4.5 |
+| Feeds, Avisos, Preparar, Decidir, Casos, Resultado | Code | 2 |
+| Bajar, Bajar listado, Bajar notas, IA | HTTP Request | 4.5 |
 | ¿Hay preguntas?, ¿Avisar? | If | 2.3 |
 | Avisar, Mandar | Send Email | 2.1 |
 | Webhook | Webhook | 2.2 |
