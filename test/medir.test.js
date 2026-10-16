@@ -119,3 +119,36 @@ test('zona: dos vueltas inventadas; cada id cuenta una vez, en el anillo de su �
   assert.match(texto, /Día entero \(distintos\) +2 +2 \/ 0 +1 \/ 0 +1/);
   assert.doesNotMatch(informe([vuelta('10:05')]).join('\n'), /ZONA/);
 });
+
+/* ───────── por link (las líneas nuevas traen urls) ───────── */
+
+const conUrls = (id, urls) => ({ ...conf(id, 'nacional'), urls });
+
+test('E5: g:a [u1 u2 u3] y después g:b [u2 u3 u4] el mismo día: son 1 confirmado', () => {
+  const vs = [vuelta('10:05', { confirmados: [conUrls('g:a', ['u1', 'u2', 'u3'])] }), vuelta('14:05', { confirmados: [conUrls('g:b', ['u2', 'u3', 'u4'])] })];
+  assert.deepEqual(resumir(vs).confirmados, { nacional: 1, internacional: 0 });
+  assert.match(informe(vs).join('\n'), /Día entero \(distintos\) +2 +1 \/ 0/);
+});
+
+test('E6: si la segunda línea no trae urls (línea vieja), se cuenta por id: son 2', () => {
+  const vs = [vuelta('10:05', { confirmados: [conUrls('g:a', ['u1', 'u2', 'u3'])] }), vuelta('14:05', { confirmados: [conf('g:b', 'nacional')] })];
+  assert.deepEqual(resumir(vs).confirmados, { nacional: 2, internacional: 0 });
+});
+
+test('E7: g:a [u1], g:b [u2] y g:c [u1 u2] en tres vueltas: son 1, en el bloque de la última', () => {
+  const vs = [
+    vuelta('10:05', { confirmados: [conUrls('g:a', ['u1'])] }),
+    vuelta('10:35', { confirmados: [{ ...conUrls('g:b', ['u2']), bloque: 'internacional' }] }),
+    vuelta('11:05', { confirmados: [{ ...conUrls('g:c', ['u1', 'u2']), bloque: 'internacional' }] }),
+  ];
+  assert.deepEqual(resumir(vs).confirmados, { nacional: 0, internacional: 1 });
+});
+
+test('por link también en las 4/5 y en la zona', () => {
+  const vs = [
+    vuelta('10:05', { cuatroDeCinco: [{ ...cuatro('x', 'nacional', false), urls: ['u1'] }], zona: { confirmados: [{ id: 'z1', anillo: 'local', urls: ['k1'], tambienNacional: false }] } }),
+    vuelta('10:35', { cuatroDeCinco: [{ ...cuatro('y', 'nacional', false), urls: ['u1', 'u9'] }], zona: { confirmados: [{ id: 'z2', anillo: 'local', urls: ['k1', 'k2'], tambienNacional: false }] } }),
+  ];
+  assert.deepEqual(resumir(vs).sinFirma, { nacional: 1, internacional: 0 });
+  assert.deepEqual(resumirZona(vs).confirmados, { local: 1, chubut: 0 });
+});

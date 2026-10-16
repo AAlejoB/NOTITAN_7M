@@ -2,7 +2,8 @@
 // Resume las vueltas de <carpeta>/vueltas.jsonl por día y por corte de 4 horas (hora de Argentina):
 // cuántas noticias confirmadas (la regla de 5 medios) y cuántas 4/5 hubo, por bloque.
 // Uso: node scripts/medir.js [--carpeta datos] [--dia AAAA-MM-DD]
-// En un corte, un hecho cuenta una sola vez (por su id), en el bloque de su última vuelta de ese corte.
+// En un corte, un hecho cuenta una sola vez (por sus links: dos entradas que comparten una url son el mismo hecho;
+// las líneas viejas, sin urls, por su id), en el bloque de su última vuelta de ese corte.
 // Si las vueltas traen zona (npm run vuelta -- --zona config/zona), cada día suma el bloque ZONA, por anillo.
 const { existsSync, readFileSync } = require('node:fs');
 const { join } = require('node:path');
@@ -34,13 +35,29 @@ function porDiaYCorte(vueltas) {
 
 const vacio = () => ({ nacional: 0, internacional: 0 });
 
-// De cada id de la lista `clave`, lo que dice su última vuelta (la de `hora` más nueva).
+// De cada hecho distinto de la lista `clave`, lo que dice su última vuelta (la de `hora` más nueva).
 // `de` dice de dónde sale la lista en cada vuelta (para la zona, v.zona).
+// Dos entradas son el mismo hecho si tienen el mismo id o comparten al menos una url (y en cadena: A con B y B con C).
+// El id cambia cuando se cae la primera nota del hecho; los links no. Una entrada sin `urls` (línea vieja) se reconoce solo por su id.
 function ultimaVezDeCada(vueltas, clave, de = v => v) {
   const ordenadas = [...vueltas].sort((a, b) => Date.parse(a.hora) - Date.parse(b.hora));
-  const porId = new Map();
-  for (const v of ordenadas) for (const x of (de(v) || {})[clave] || []) porId.set(x.id, x);
-  return [...porId.values()];
+  const padre = new Map();
+  const raiz = k => {
+    if (!padre.has(k)) padre.set(k, k);
+    while (padre.get(k) !== k) { padre.set(k, padre.get(padre.get(k))); k = padre.get(k); }
+    return k;
+  };
+  const unir = (a, b) => { const ra = raiz(a); const rb = raiz(b); if (ra !== rb) padre.set(rb, ra); };
+  const entradas = [];
+  for (const v of ordenadas) {
+    for (const x of (de(v) || {})[clave] || []) {
+      entradas.push(x);
+      for (const u of x.urls || []) unir(`id:${x.id}`, `url:${u}`);
+    }
+  }
+  const porHecho = new Map();
+  for (const x of entradas) porHecho.set(raiz(`id:${x.id}`), x);
+  return [...porHecho.values()];
 }
 
 // La zona de un grupo de vueltas (solo las que la traen) → { vueltas, confirmados: { local, chubut }, tambien: { … }, sinAnillo }.
@@ -57,7 +74,7 @@ function resumirZona(vueltas, anillos = ANILLOS) {
   return r;
 }
 
-// → { vueltas, confirmados, sinFirma, conFirma, viaB }, cada uno con { nacional, internacional } de ids distintos.
+// → { vueltas, confirmados, sinFirma, conFirma, viaB }, cada uno con { nacional, internacional } de hechos distintos.
 function resumir(vueltas) {
   const r = { vueltas: vueltas.length, confirmados: vacio(), sinFirma: vacio(), conFirma: vacio(), viaB: vacio() };
   for (const c of ultimaVezDeCada(vueltas, 'confirmados')) {
