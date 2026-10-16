@@ -319,20 +319,35 @@ function notaDeScpl(n, cfg) {
 }
 
 // Los días de la semana de una zona del cronograma, con sus excepciones: las fechas en que hay corte y a qué hora empieza.
+// Una excepción reemplaza el corte normal de su zona más cercano en la misma semana (lunes a domingo; si hay dos a la
+// misma distancia, el anterior); con "suma": true se agrega en vez de reemplazar. Primero se arma cada semana entera y
+// después se mira la ventana (ayer, hoy y mañana): así un corte corrido al día siguiente no se dibuja dos veces.
 function cortesDelCronograma(cronograma, ahora) {
   if (!cronograma) return [];
   const hoy = diaAR(ahora);
   if (hoy < cronograma.desde || hoy > cronograma.hasta) return [];
+  const ventana = [-1, 0, 1].map(k => sumarDias(hoy, k));
+  const lunesDe = d => sumarDias(d, -((diaDeLaSemana(d) + 6) % 7));
+  const semanas = [...new Set(ventana.map(lunesDe))];
+  const distancia = (a, b) => Math.abs(Date.parse(a) - Date.parse(b));
   const out = [];
-  // Ayer (si todavía está cortando), hoy y mañana.
-  for (const d of [-1, 0, 1].map(k => sumarDias(hoy, k))) {
-    for (const z of cronograma.zonas || []) {
-      const exc = (cronograma.excepciones || []).find(e => e.fecha === d && e.zona === z.zona);
-      if (!exc && !(z.dias || []).includes(SEMANA[diaDeLaSemana(d)])) continue;
-      out.push({ dia: d, zona: z.zona, desde: exc ? exc.desde : z.desde });
+  for (const z of cronograma.zonas || []) {
+    for (const lunes of semanas) {
+      const dias = [0, 1, 2, 3, 4, 5, 6].map(k => sumarDias(lunes, k));
+      let cortes = dias.filter(d => (z.dias || []).includes(SEMANA[diaDeLaSemana(d)])).map(d => ({ dia: d, desde: z.desde }));
+      const excepciones = (cronograma.excepciones || []).filter(e => e.zona === z.zona && dias.includes(e.fecha));
+      for (const e of excepciones) {
+        if (!e.suma) {
+          const normales = cortes.filter(c => !c.excepcion);
+          const reemplaza = normales.sort((a, b) => distancia(a.dia, e.fecha) - distancia(b.dia, e.fecha) || a.dia.localeCompare(b.dia))[0];
+          if (reemplaza) cortes = cortes.filter(c => c !== reemplaza);
+        }
+        cortes.push({ dia: e.fecha, desde: e.desde, excepcion: true });
+      }
+      for (const c of cortes) if (ventana.includes(c.dia)) out.push({ dia: c.dia, zona: z.zona, desde: c.desde });
     }
   }
-  return out;
+  return out.sort((a, b) => a.dia.localeCompare(b.dia));
 }
 
 // → [aviso…], en el orden en que se muestran.

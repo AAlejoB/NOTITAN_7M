@@ -1,5 +1,5 @@
 {
-  "_aviso": "Cronograma estival de cortes de agua de la SCPL. Se muestra como aviso programado solo entre desde y hasta. Fuente: cuadro publicado por la SCPL para 2025-2026. Si las reservas alcanzan, la SCPL puede suspender un corte: la tarjeta lo dice.",
+  "_aviso": "Cronograma estival de cortes de agua de la SCPL. Se muestra como aviso programado solo entre desde y hasta. Fuente: cuadro publicado por la SCPL para 2025-2026. Si las reservas alcanzan, la SCPL puede suspender un corte: la tarjeta lo dice. Una excepción reemplaza el corte normal de su zona más cercano en la misma semana; con \"suma\": true se agrega en vez de reemplazar.",
   "fuente": "SCPL",
   "desde": "2025-11-01",
   "hasta": "2026-03-31",

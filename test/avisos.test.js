@@ -322,3 +322,25 @@ test('E11: dos «se normalizó» del mismo servicio y zona se juntan; entre ello
   assert.equal(etiquetaDeAviso(a[1]), 'Luz · se normalizó');
   assert.deepEqual(a[1].zona, ['Rada Tilly']);
 });
+
+/* ───────────── carta d · paso 4 · una excepción del cronograma reemplaza, no suma ───────────── */
+
+// Lo que dibuja el cronograma a las 10:00 de Argentina de ese día, para una zona: «2025-12-25 08:00».
+const delCronograma = (dia, zona, crono = cronograma) => armarAvisos({ ahora: `${dia}T13:00:00.000Z`, cfg, reglas, portales, cronograma: crono })
+  .filter(a => a.id.endsWith(`:${zona}`)).map(a => `${a.dia} ${a.desde}`);
+
+test('E14 a E18: la excepción corre el corte de la semana (Nochebuena y Año Nuevo)', () => {
+  assert.deepEqual(delCronograma('2025-12-23', 'Zona Sur y Central'), [], 'E14: el 24 se corrió al 25, que todavía no está en la ventana');
+  assert.deepEqual(delCronograma('2025-12-24', 'Zona Sur y Central'), ['2025-12-25 08:00'], 'E15');
+  assert.deepEqual(delCronograma('2025-12-25', 'Zona Sur y Central'), ['2025-12-25 08:00'], 'E16: el del 24 ya no está');
+  assert.deepEqual(delCronograma('2025-12-30', 'Zona Norte'), ['2025-12-30 12:00'], 'E17: cae en un día normal, cambia la hora');
+  assert.deepEqual(delCronograma('2025-12-31', 'Zona Sur y Central'), ['2026-01-01 08:00'], 'E18');
+  assert.deepEqual(delCronograma('2025-12-23', 'Zona Norte'), ['2025-12-23 12:00'], 'el 23 de Zona Norte, sobre sí mismo');
+});
+
+test('cronograma: con "suma": true la excepción se agrega; sin corte normal en la semana, también', () => {
+  const suma = { ...cronograma, excepciones: [{ fecha: '2025-12-25', zona: 'Zona Sur y Central', desde: '08:00', suma: true }] };
+  assert.deepEqual(delCronograma('2025-12-25', 'Zona Sur y Central', suma), ['2025-12-24 18:00', '2025-12-25 08:00']);
+  const sinNormal = { ...cronograma, zonas: [{ zona: 'Zona Sur y Central', dias: [], desde: '18:00' }] };
+  assert.deepEqual(delCronograma('2025-12-25', 'Zona Sur y Central', sinNormal), ['2025-12-25 08:00']);
+});
