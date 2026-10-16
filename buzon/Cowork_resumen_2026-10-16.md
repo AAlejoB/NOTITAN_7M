@@ -31,10 +31,10 @@ Para el próximo chat de Cowork. La memoria es el repo (`buzon/pendientes.md`, `
 ## Lo que sigue abierto
 
 - Don Julio: versión de n8n, Docker o npm, cómo se entra; cuántas personas de Canal 2 y desde qué aparato. La carta `b` del 15-10 asume Docker, 3 personas, celular. El día que conteste: Fase B de esa carta (instalar), con la carta `b` de hoy ya hecha.
-- Alejo no contestó todavía por dónde se entera de los cortes avisados con antelación (Facebook de la SCPL, WhatsApp, radio, portal): lo pide la carta `c`.
+- Alejo contestó (18:04) por dónde se entera de los cortes: la página de comunicados de la SCPL (`scpl.coop/index.php/site/ver-seccion?id=2`), `comodorohoy.ar/agua` (página de estado derivada de la SCPL: 110 cortes en 15 meses), ADNSUR, la etiqueta «corte de luz» de El Patagónico, y Facebook e Instagram de la SCPL. Cowork verificó que en los cortes programados el texto de la nota de la SCPL trae barrios, día y horario. Y el cronograma estival de cortes de agua de la SCPL (zona × día de la semana × hora, nov–mar) va a `config/zona/cronograma-agua.json`. Con eso quedó escrita la **carta `c`** (18:07): bloque Avisos, Fase A en la vuelta y la página, Fase B en la capa 4.
 - La medición de Alejo sigue corriendo con `--zona`: ver si el cruce «también nacional» agarra al Papa y a River con lecturas cada 30 minutos (en la vuelta única de Claude Code agarró 0 de 2).
 - Netflix: arreglado en la carta `b` (pendiente de que Claude Code la haga).
 
 ## Qué le llega al próximo chat de Cowork
 
-El reporte `ClaudeCode_para_Cowork_2026-10-16_b.md` (zona en la capa 4, `medir` por link, n8n probado con la IA falsa), la respuesta de Alejo sobre los cortes, y —si llegó— la de Don Julio. Con eso: carta `c` (Avisos) y, el día de la instalación, la Fase B.
+Los reportes `ClaudeCode_para_Cowork_2026-10-16_b.md` (zona en la capa 4, `medir` por link) y `_c.md` (Avisos, Fase A), y —si llegó— la respuesta de Don Julio. Con eso: aprobar la A de los avisos, pedir la Fase B de la carta `c`, y el día de la instalación, la Fase B de la carta del 15-10.
