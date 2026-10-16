@@ -385,7 +385,7 @@ function mitadDos({ guardado, lectura, acumulado, respuestas = [], ahora, feeds,
   if (zona) {
     const notasZona = filtrarRutas((guardado.zona && guardado.zona.notas) || [], zona.feeds).notas;
     // Las notas de la zona que son avisos de cortes de acá van al bloque Avisos y no a la verificación (como en scripts/vuelta.js).
-    const deAviso = zona.avisos ? notasZona.filter(n => avisosDeZona.esAvisoDeAca(n, { reglas: zona.reglas, portales: zona.portales })) : [];
+    const deAviso = zona.avisos ? notasZona.filter(n => avisosDeZona.esAvisoDeAca(n, { reglas: zona.reglas, portales: zona.portales, cfg: zona.avisos })) : [];
     const noticias = notasZona.filter(n => !deAviso.includes(n));
     if (zona.avisos) {
       const lista = avisosDeZona.armarAvisos({ notasScpl: (guardado.avisos && guardado.avisos.notas) || [], notasPortales: deAviso, ahora,

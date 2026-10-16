@@ -378,3 +378,27 @@ test('fecha pegada a la hora de inicio · E6', () => {
 test('fecha pegada a la hora de inicio · E7', () => {
   assert.equal(diaCon('Corte de agua desde las 10 hs del miércoles 14 por tareas de mantenimiento').dia, '2026-10-14');
 });
+
+/* ───────────── carta e · paso 2 · los lugares desde la configuración ───────────── */
+
+const deAcaCon = (n, cfgLugares) => esAvisoDeAca(n, { reglas, portales, cfg: cfgLugares });
+
+test('lugares desde config · E8', () => {
+  assert.deepEqual(cfg.lugares, ['comodoro', 'rada tilly']);
+  assert.equal(deAcaCon(deChubut('puerto-madryn/corte-energia', 'Mañana habrá corte programado de energía en zona norte'), cfg), false);
+});
+
+test('lugares desde config · E9', () => {
+  assert.equal(deAcaCon(deChubut('regionales/rada', 'Corte de agua en Rada Tilly por una avería'), cfg), true);
+});
+
+test('lugares desde config · E10', () => {
+  const madryn = { ...cfg, lugares: ['puerto madryn', 'madryn'] };
+  assert.equal(deAcaCon(deChubut('puerto-madryn/corte-energia', 'Mañana habrá corte programado de energía en zona norte de Puerto Madryn'), madryn), true);
+});
+
+test('lugares desde config · E11', () => {
+  const { lugares, ...sinLugares } = cfg;
+  assert.equal(deAcaCon(deChubut('regionales/corte-agua', 'Corte de agua en Comodoro'), sinLugares), true);
+  assert.equal(deAcaCon(deChubut('regionales/corte-agua', 'Corte de agua en Comodoro'), { ...cfg, lugares: [] }), true, 'con la lista vacía, también');
+});

@@ -343,8 +343,8 @@ async function vuelta({ carpeta = 'datos', ahora = new Date().toISOString(), fet
     let cortes = null;
     if (zona) {
       // Las notas de la zona que son avisos de cortes de acá van al bloque Avisos y no a la verificación. Un aviso de un
-      // portal provincial que no nombra Comodoro ni Rada Tilly se queda en la zona, como cualquier nota.
-      const deAviso = conAvisos ? acumuladoZona.notas.filter(n => esAvisoDeAca(n, { reglas: zona.reglas, portales: zona.portales })) : [];
+      // portal provincial que no nombra ninguno de los `lugares` (config/zona/avisos.json) se queda en la zona, como cualquier nota.
+      const deAviso = conAvisos ? acumuladoZona.notas.filter(n => esAvisoDeAca(n, { reglas: zona.reglas, portales: zona.portales, cfg: zona.avisos })) : [];
       const noticias = acumuladoZona.notas.filter(n => !deAviso.includes(n));
       if (conAvisos) {
         const lista = armarAvisos({ notasScpl: lecturaAvisos ? lecturaAvisos.notas : guardadosAvisos, notasPortales: deAviso, ahora,

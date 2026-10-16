@@ -1,5 +1,5 @@
 {
-  "_aviso": "Fuentes del bloque Avisos (cortes de agua, luz y gas) de la zona. La SCPL es la fuente primaria; los portales de config/zona/feeds.json son respaldo. Facebook e Instagram no se leen.",
+  "_aviso": "Fuentes del bloque Avisos (cortes de agua, luz y gas) de la zona. La SCPL es la fuente primaria; los portales de config/zona/feeds.json son respaldo. Facebook e Instagram no se leen. `lugares` es de cada cliente: una nota de un portal provincial (no «local») va a Avisos solo si su título nombra uno de esos lugares (en minúsculas y sin tildes, palabra entera).",
   "ventanaSinFinHoras": 72,
   "horasDespuesDelFin": 12,
   "maxNotasPorVuelta": 5,
@@ -15,5 +15,6 @@
     "luz":   ["luz", "energia", "electric", "red electrica", "tension"],
     "gas":   ["gas"]
   },
-  "zonas": ["zona norte", "zona sur", "zona central", "rada tilly"]
+  "zonas": ["zona norte", "zona sur", "zona central", "rada tilly"],
+  "lugares": ["comodoro", "rada tilly"]
 }

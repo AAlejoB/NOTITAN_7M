@@ -12,7 +12,8 @@
  * - leerListadoScpl / leerNotaScpl: del HTML de la página de comunicados de la SCPL y de cada nota.
  * - vale: si un título de la SCPL es un aviso (el molde de `cortes`, sin la condición de lugar: la SCPL ya es de Comodoro).
  * - esAviso: si un título de portal es un aviso (el molde entero).
- * - esAvisoDeAca: esAviso, y además el portal es de Comodoro («local») o el título nombra Comodoro o Rada Tilly. Esas notas
+ * - esAvisoDeAca: esAviso, y además el portal es de Comodoro («local») o el título nombra uno de los `lugares` de
+ *   config/zona/avisos.json (hoy Comodoro y Rada Tilly). Esas notas
  *   van a Avisos y no entran a la verificación; un aviso de un portal provincial que no nombra el lugar sigue como noticia.
  * - notasParaBajar: qué notas del listado faltan bajar (últimos 7 días, que valen, nunca bajadas; las más nuevas primero).
  * - notasQueFaltan: lo mismo, desde el HTML del listado y con la url de cada nota: lo usan scripts/vuelta.js y n8n.
@@ -91,13 +92,20 @@ function esAviso(titulo, reglas) {
   return Boolean(molde) && new RegExp(molde).test(normalizar(titulo));
 }
 
+// Los lugares que dicen «es de acá» en el título de un portal provincial: `lugares` de config/zona/avisos.json. Sin la clave,
+// o con la lista vacía, los de Comodoro (una configuración vieja anda igual).
+const LUGARES_DE_SIEMPRE = ['comodoro', 'rada tilly'];
+const escaparRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // Si la nota de un portal es un aviso de acá: lo local manda; lo provincial (o un portal que no está en la lista) suma solo
-// cuando el título nombra Comodoro o Rada Tilly. La SCPL no pasa por acá: sus comunicados son siempre de acá.
-function esAvisoDeAca(nota, { reglas, portales = [] } = {}) {
+// cuando el título nombra uno de los `lugares` (palabra entera). La SCPL no pasa por acá: sus comunicados son siempre de acá.
+function esAvisoDeAca(nota, { reglas, portales = [], cfg = null } = {}) {
   if (!esAviso(nota.titulo, reglas)) return false;
   const portal = buscarPortal(dominioDe(nota), portales);
   if (portal && portal.zona === 'local') return true;
-  return /\b(comodoro|rada tilly)\b/.test(normalizar(nota.titulo));
+  const lugares = (cfg && Array.isArray(cfg.lugares) && cfg.lugares.length ? cfg.lugares : LUGARES_DE_SIEMPRE)
+    .map(l => normalizar(l)).filter(Boolean);
+  return new RegExp(`\\b(${lugares.map(escaparRe).join('|')})\\b`).test(normalizar(nota.titulo));
 }
 
 // Si un título de la SCPL es un aviso: el molde sin su última condición, que es la de lugar (la SCPL ya es de Comodoro).
