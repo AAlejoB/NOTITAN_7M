@@ -1,5 +1,75 @@
 # Pendientes
 
+## Cowork → pendientes · 16-10-2026 · 13:02 (hora de Argentina) · la medición y los anillos
+
+No es una carta de cambios: es el registro de las dos mediciones que corrió Alejo en su compu y de lo que decidió con eso. Los cambios están en `Cowork_para_ClaudeCode_2026-10-16_a.md`. La página de Cowork con los números y gráficos: https://claude.ai/artifact/8NAbjuLTQznf7xFe85ccAd (privada de Alejo).
+
+### Lo que dejó la medición nacional (91 vueltas, 14-10 13:18 → 16-10 12:14, hueco del 15-10 07:43 a 09:44)
+
+| Qué | Número |
+|---|---|
+| Hechos que llegaron a 5 medios en la corrida | 110 (81 nacionales, 29 internacionales) |
+| Nuevas y frescas en 24 h (15-10 09:44 → 16-10 09:44) | 45 de 69 nuevas (las otras 24, con notas de más de 24 h) |
+| Nuevas frescas por vuelta | 0,9 en promedio, máximo 5; 44 de 91 vueltas sin ninguna |
+| 4/5 distintas · llegaron a 5 · nunca | 104 · 58 · 46; espera mediana 2 h (de 0,5 a 13) |
+| Lista de Nacionales llena (7) | desde el 14-10 18:43; bajó a 5–6 solo el 16-10 de 04:14 a 07:14 |
+| Internacionales en la lista | 1 hasta el 14-10 19:13; después entre 3 y 7 |
+| Internacionales que salieron en Nacionales (provisorio) | 17 de 81 (Champions ×3, Lisandro Martínez ×3, Messi en la MLS, inflación de EE.UU., Hilary Swank, Julio Iglesias, Lula y Meta, el Papa ×2, FIFA, Tesla, euro en Chile); al revés 1 |
+| La misma noticia partida | el Papa en 18 hechos, Roña Castro 7, la Marcha Universitaria 8, Martín Fierro 4, Lisandro Martínez 3; los 110 hechos son unas 60 noticias |
+| Notas de servicio que llegaron a 5 sin molde | Anses «quiénes cobran» ×3 y «cuándo cobro», dólar/euro ×5, el clima de Tucumán, «a qué hora es la Marcha», «ver … en Roja Directa», tres «EN VIVO minuto a minuto», horario del Martín Fierro |
+| Viejas que vuelven como nuevas | 16-10 de madrugada: 23 hechos con `viejo: true` aparecen por primera vez (Roña Castro ×4). Pregunta para Claude Code en la carta `a` |
+| Feeds caídos | Al Jazeera, 1 vuelta de 91; vuelta más larga 23 s |
+
+### Lo que dejó la medición local (54 vueltas, 15-10 09:45 → 16-10 12:15; 5 portales, 2 medios)
+
+| Qué | Número |
+|---|---|
+| Hechos que llegaron a 2 medios | 69 (22 ya estaban en la primera vuelta); unas 43 nuevas por día |
+| De qué se arma cada par | 42 con 2 o más de Comodoro; 19 con 1 de Comodoro + El Chubut (sin El Chubut no llegan); 8 con 2 de Comodoro + El Chubut |
+| Quién aparece en los 69 | Crónica 46 · El Patagónico 32 · El Comodorense 28 · El Chubut 27 · ADNSUR 24 |
+| «Misma noticia» a ojo, sobre los 52 pares de `preparar` | 46 sí · 4 dudosas · 2 no; ninguna unión falsa grave |
+| No son locales (nacional repetido por portales de Comodoro) | ≈ 17 de 69: el Papa ×5, River ×2, Roña Castro ×2, riesgo país, la multa universitaria, el DNU, «19 de cada 100», Entre Ríos, Flamengo |
+| Mismo hecho en dos pares | el crimen de Km 8, los apuñalados del Isidro Quiroga, el pronóstico del viernes, la refinanciación de jubilados |
+| Servicio local sin molde | el pronóstico de Comodoro y Rada Tilly llegó a 2 medios las 3 veces |
+| Notas del día | 542: El Chubut 166, Crónica 114, ADNSUR 112, El Patagónico 78, El Comodorense 72; 245 sin bajada (los dos sitemaps). El Patagónico trae hora (77 de 78) |
+| Cortes | «Cortarán el agua en 23 barrios de Comodoro» llegó a 3 medios (una avería grande); los cortes programados por barrio no aparecieron |
+
+### Las 19 pasadas de Alejo mirando la página (14-10 14:15 → 16-10 11:45)
+
+- Vio 99 noticias nuevas y eligió 48 (45 de las nuevas y 3 viejas aprobadas tarde): **el 45 %** (nacionales 41 %, internacionales 61 %); 2,5 por pasada, mediana 2, máximo 9 (la pasada de las 11:46 del 15, después del hueco).
+- **Las 4/5 valen igual que las confirmadas:** aprobó 21 de 47 que estaban en revisión (45 %) y 24 de 52 confirmadas (46 %). Para la página C: mostrarlas está bien; lo que molesta es el desorden.
+- Por qué dejó pasar (en cuántas pasadas lo nombra): repetida o derivada de otra («quien dijo qué») 11 · vieja o llegó tarde 5 · poco relevante u otro país 4 · servicio o cotización 3 · fútbol 2. Encaja con los seis chips de «No por hoy»; falta uno: **«derivada / opinión sobre otra noticia»** (se suma a los chips cuando se escriba la página C).
+- Aprobó tarde 3 veces una que ya había dejado pasar; a las 17:45 del 15 vio «6 confirmadas quedaron afuera por tope de 7».
+- Lo que vio afuera: Caputo llegó 6 h 30 después; PSG 4-2 City llegó 42 h después; Fluminense-Palmeiras y el tráiler de GTA 6, nunca.
+
+### Decidió Alejo (16-10-2026)
+
+1. **Chubut con 2 medios, uno provincial (opción B, 12:51).** Local sigue con 2 de Comodoro; lo que cumple en dos anillos va al más chico. Motivo: con 3, de los 27 hechos del día que tenían a El Chubut entraban 8 y se perdían 19, justo las provinciales; la provincia tiene hoy un solo portal legible. Se vuelve a medir cuando haya más portales de la provincia.
+2. **Avisos de cortes: opción B (04:57)**, bloque aparte leído de quien corta, por barrio o zona. Primer paso en la carta `a`: probar las fuentes.
+3. Primero lo simple, después lo complejo: la carta `a` no toca la capa 4; la zona se engancha en `src/capa4.js` en la carta siguiente.
+
+### Valores por defecto de Cowork (no son decisiones de Alejo; se cambian)
+
+- «También nacional»: una noticia de zona que el agrupador une con un hecho nacional de 3 o más grupos no se muestra en Comodoro ni en Chubut. Número en `config/zona/reglas.json` (`cruce.minGruposNacionales`). Con 5 se escaparían «Entre Ríos: gas pimienta en el cine» y «Flamengo eliminado»; con 3 cae alguna noticia de Comodoro que levantaron 3 nacionales (no pasó en el día medido). Es la primera respuesta medible al ítem «noticias que tocan dos anillos».
+- Cupo 3 por anillo; sin 1/2 a mano; un anillo vacío no se dibuja; Crónica no es obligatoria.
+- Moldes nuevos de servicio para todos los anillos: pronóstico del tiempo (no toca las alertas) y cotizaciones (reemplaza `^dolar (blue )?hoy`). Los otros de la tabla (Anses, «a qué hora es», «ver … en Roja Directa», «EN VIVO») esperan a ver si la IA de la etapa 2 los saca sola.
+
+### Abierto (sin resolver, con valor por defecto mientras tanto)
+
+- **Viejas que vuelven como nuevas** (23 el 16-10): Claude Code explica en su reporte cómo un hecho cambia de id; se decide después. Mientras tanto: nada; la página no las muestra porque no son frescas.
+- **Región:** sin portales con feed en Neuquén, Río Negro, Santa Cruz y Tierra del Fuego. Mientras tanto no existe en `config/zona/reglas.json`; se suma como tercer anillo cuando haya 2 portales por provincia.
+- **Más portales de Chubut:** Diario Jornada y La Opinión Austral sin feed ni sitemap; Rawson Digital no conecta (14-10). Mientras tanto, El Chubut es el único provincial.
+- **X / Twitter como segunda confirmación** (idea de Alejo del 16-10): nunca como medio que suma a los 5; como mucho una señal aparte, tipo vía B. Va a «Más adelante» hasta averiguar costo y reglas de la API; si es caro, no.
+- **Avisos de cortes:** fuentes sin probar (paso 8 de la carta `a`); el bloque se diseña con lo que vuelva.
+- **Canal 2 y el servidor de Don Julio:** sin respuesta (pedido el 15-10 por WhatsApp). La carta `b` asume Docker, 3 personas, celular.
+
+### Qué viene después
+
+1. Claude Code hace la carta `a` y reporta (incluida la prueba de las fuentes de los cortes y la explicación de los ids).
+2. Cuando Don Julio conteste, la Fase B de la carta `b` (instalar la capa 4 en su servidor).
+3. Carta: enganchar la zona en la capa 4 y diseñar el bloque «Avisos» con las fuentes probadas.
+4. Carta de la página C (flujo con Normal/Plus, temas, los chips de motivo con «derivada»), ya con los dos anillos adentro.
+
 # Cowork → pendientes · 14-10-2026 · 23:30 (hora de Argentina) · las 14 respuestas de Don Julio
 
 No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 por WhatsApp (la colección «respuestas» de la página quedó vacía). Alejo las cruzó con Cowork una por una. Regla que puso Alejo para leerlas: lo que sienta bases (dónde corre, dónde se guarda, dónde vive la página, cómo se entra, quién paga, el orden) va como lo dijo Don Julio; lo interno lo acomoda Cowork. Esta sección es la base de la carta de la capa 4, que se escribe después de la medición y ANTES que la carta de la página C.
@@ -191,7 +261,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
 - [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
-- [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4. **Herramienta lista (09-10):** `npm run vuelta -- --cada 30` un día entero y después `npm run medir`. **Decidió Alejo (09-10): el día de medición lo corre él en su compu**, con la guía `docs/CORRER_EN_MI_COMPU.md`; al terminar le manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`, y Cowork revisa a ojo los bloques por los títulos (ver el ítem del bloque provisorio).
+- [x] **Cuántas noticias da la regla de 5 en un día real** — **hecho (16-10):** la midió Alejo en su compu (14-10 14:15 → 16-10 12:20); los números están arriba de todo, en «Cowork → pendientes · 16-10-2026 · la medición y los anillos». Lo que sigue es la historia del ítem. (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4. **Herramienta lista (09-10):** `npm run vuelta -- --cada 30` un día entero y después `npm run medir`. **Decidió Alejo (09-10): el día de medición lo corre él en su compu**, con la guía `docs/CORRER_EN_MI_COMPU.md`; al terminar le manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`, y Cowork revisa a ojo los bloques por los títulos (ver el ítem del bloque provisorio).
 - [ ] **Hechos partidos: decidido por Alejo (opción A): la IA los une y se cuentan juntos; espera la IA.** «La misma noticia» es **el mismo hecho: la misma gente, lo mismo que pasó, el mismo día**; no alcanza con el mismo tema. Es la sexta pregunta de la IA. Hecho en el repo, sin llamar a ningún modelo: `paresParaUnir`, `unirHechos`, `preguntaUnion` y `leerUnion` de `src/ia.js`. **Corrección:** el par «EN VIVO | Elecciones en Brasil: comienza el escrutinio…» + «…Milei sigue con optimismo la elección en Brasil…» es **no** (uno es el conteo de votos, el otro lo que hace Milei); antes figuraba como «sí». Medido el 04-10 con la regla nueva (lo guardado hasta el 5/10 00:01, con el filtro de Infobae): entran 11 hechos (5 de 3 grupos, 4 de 4 y 2 candidatos de vía A) y salen **5 pares**: 2 entre hechos de 3 o 4 grupos (Colapinto, unión de 5 grupos, sí; escrutinio + Milei, unión de 7, no) y 3 con un candidato (escrutinio + «voto a voto», unión de 8, sí; Milei + «voto a voto», unión de 9, dudoso; Milei + García Cuerva, unión de 9, no). Los 5 llegan a 5 grupos: por eso la pregunta tiene que ser estricta. Detalle en `ClaudeCode_para_Cowork_2026-10-04_a.md`.
 - [ ] **Capa 4 (Alejo con Don Julio): reemplaza «Guardar lo leído entre corridas».** Cada cosa lleva un valor por defecto que se puede cambiar:
   - Dónde corre n8n. Por defecto: n8n Cloud Starter, €20 por mes con 2.500 ejecuciones; leer cada 30 minutos son 1.440 por mes. Ojo: n8n 3.0 sale en octubre de 2026 y en servidor propio exige Docker. (Datos de n8n y de la IA consultados por Cowork el 04-10 en sus páginas oficiales.)
@@ -221,7 +291,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **Cowork (diseño y decisiones; antes DISEÑADOR)**
-- [ ] **La medición local en la nube se cortó (15-10):** la compu de Claude Code se apaga cuando la sesión queda quieta; hizo solo 3 vueltas (desde las 00:38). Un día entero no se puede correr desde ahí. Alejo la arranca en su compu el 15-10, en paralelo con la nacional (`--config config/comodoro --carpeta datos/comodoro`); al terminar manda también `npm run medir -- --carpeta datos/comodoro` y `datos/comodoro/vueltas.jsonl`. **Cowork (carta `c`): la Fase B de la carta `a` queda cancelada; la revisión la hace Cowork con esos archivos.**
+- [x] **La medición local en la nube se cortó (15-10):** — **hecho (16-10):** la local corrió en la compu de Alejo (15-10 09:45 → 16-10 12:20) y Cowork la revisó; ver «Cowork → pendientes · 16-10-2026 · la medición y los anillos», arriba de todo. la compu de Claude Code se apaga cuando la sesión queda quieta; hizo solo 3 vueltas (desde las 00:38). Un día entero no se puede correr desde ahí. Alejo la arranca en su compu el 15-10, en paralelo con la nacional (`--config config/comodoro --carpeta datos/comodoro`); al terminar manda también `npm run medir -- --carpeta datos/comodoro` y `datos/comodoro/vueltas.jsonl`. **Cowork (carta `c`): la Fase B de la carta `a` queda cancelada; la revisión la hace Cowork con esos archivos.**
   - **Hueco en la medición nacional:** la ventana de la vuelta se cerró en la compu de Alejo cerca de las 07:43 del 15-10 y se rearrancó a las 09:45 (unas 2 horas sin vueltas). La local arrancó a la misma hora, en su compu, con `Feeds: 8 OK`. Las dos iban a cortar el 16-10 después de las 00:30; **Alejo las estiró hasta el 16-10 a las 12:05** (decidió a las 06:46 del 16-10): así la mañana, que el 15 quedó con hueco, se mide entera. Donde las secciones de Cowork dicen «después de las 00:30», hoy es 12:05. **Se cortaron las dos el 16-10 a las 12:20** y Alejo le mandó a un chat nuevo de Cowork las 5 cosas del punto 2 de «Qué viene después», numeradas (las dos `vueltas.jsonl` renombradas a `.txt`).
 - [x] **Feeds de portales locales, probados el 14-10** (`buzon/ClaudeCode_para_Cowork_2026-10-14_a.md`): Comodoro tiene 3 con feed al día (ADNSUR, El Comodorense, Crónica por secciones); lo provincial no tiene feeds, solo sitemaps de noticias (El Chubut, El Patagónico). Decidir si el lector suma sitemaps. Nada sumado a `config/`. **Hecho el 15-10:** el lector lee sitemaps y el bloque local de prueba está en `config/comodoro/` (carta 2026-10-15_a).
 - [ ] **Las notas de Alejo usando la página durante la medición** (14-10-2026, 5 miradas): están en `buzon/Alejo_para_Cowork_2026-10-14_a.md`, tal cual y con un resumen. Pide para la página: menos scroll, más legible, **quitar** una noticia «por hoy» con el motivo (para aprender qué busca quien publica) y **archivar** una para combinarla después. De las noticias: sobran locales y de poco interés, un molde de servicio no agarra «horarios del Martín Fierro», hechos repetidos (obispos y el Papa), faltaron Caputo y PSG-Manchester City. Va con la salida de `npm run medir` cuando termine la medición; la modificación de la página, **después** de la prueba (decidió Alejo).
@@ -235,6 +305,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
+- Enganchar la zona en `src/capa4.js` (carta siguiente, después de probar esto).
 - ~~Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`~~: **cancelada el 15-10 (carta `c`)**: la medición local corre en la compu de Alejo y la revisa Cowork con los archivos que él mande. Claude Code no tiene nada que hacer con lo local hasta la carta de los bloques por zona.
 - Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`: instalar la capa 4 en el servidor de Don Julio el día que Alejo vaya, en una tanda.
 
@@ -251,6 +322,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 - [x] 15-10-2026 · **Capa 4 escrita** (carta `b`): `src/capa4.js`, los cuatro workflows en `n8n/`, la página con login (`scripts/servir.js`, `scripts/usuario.js`), la IA falsa y la guía de instalación. Falta instalar (Fase B).
 - [x] 15-10-2026 · **Sitemaps en el lector y `--config` en la vuelta** (decidió Alejo adelantarlo el 15-10): El Patagónico y El Chubut se leen por su sitemap de noticias (sin bajada; la página lo dice); `config/comodoro/` es el bloque local de prueba (5 portales, 2 medios para confirmar); la medición local corre en el entorno de Claude Code.
+- [x] 16-10-2026 · **Los anillos Comodoro y Chubut** (carta `Cowork_para_ClaudeCode_2026-10-16_a.md`): `config/zona/`, `src/zona.js`, la zona en la misma vuelta (`--zona config/zona`), la página en el orden de `lista.orden`, ZONA en `npm run medir`, moldes «pronóstico del tiempo» y «cotizaciones», y las fuentes de los cortes probadas. Reporte `ClaudeCode_para_Cowork_2026-10-16_a.md`.
 - [x] 09-10-2026 · **Links por medio** (Cowork, valor por defecto, variante A): en la página cada medio aparece una sola vez en la fila de links, con su primera nota; lo que se copia sigue con todos. `npm run ver` para ver `datos/pagina/` en la compu. **El día de medición lo corre Alejo en su compu** (decidió Alejo): guía `docs/CORRER_EN_MI_COMPU.md`.
 - [x] 09-10-2026 · **Etapa 1 en el repo** (decidió Alejo): `npm run vuelta` hace una vuelta completa sin IA y deja la lista real en `datos/pagina/`; `npm run medir` resume las vueltas por corte de 4 h; la página avisa «Sin el juicio de la IA». Dónde corre, con Don Julio.
 - [x] 05-10-2026 · **Cerrado por Cowork al aprobar el reporte `c`:** `scripts/armar-paquete.js` sigue trayendo solo el reporte más nuevo (valor por defecto de Cowork). Si un día hay dos reportes sin carta de Cowork en el medio y el chat de Cowork no puede clonar el repo, Alejo le pega también el reporte anterior. No se toca hasta que pase.

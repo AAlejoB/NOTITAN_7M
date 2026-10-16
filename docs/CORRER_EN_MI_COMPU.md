@@ -77,14 +77,23 @@ La pantalla sí se puede apagar.
 
 ## 6. Dejarlo corriendo
 
+Si en la compu existe la carpeta `C:\7M\datos\comodoro` (la medición local del 15 y 16 de octubre), antes de arrancar cambiale el nombre a `zona`, así sigue con lo ya guardado:
+
 ```
-npm run vuelta -- --cada 30
+Rename-Item C:\7M\datos\comodoro zona
+```
+
+Después, una sola ventana para todo (lo nacional y la zona, Comodoro y Chubut):
+
+```
+npm run vuelta -- --cada 30 --zona config/zona
 ```
 
 - No cierres esa ventana de PowerShell.
+- La zona ya no se corre aparte: va en la misma vuelta y escribe dos renglones más («Zona · feeds…» y «Zona · lista…»).
 - Cada 30 minutos escribe un resumen.
 - Lo ideal: arrancar antes de la medianoche y cortar después de la medianoche siguiente, así queda un día calendario entero. Como mínimo, 24 horas.
-- Si la compu se apagó o la ventana se cerró, volvé a correr el mismo comando: sigue con lo que ya había guardado.
+- Si la compu se apagó o la ventana se cerró, volvé a correr el mismo comando (con `--zona config/zona`): sigue con lo que ya había guardado.
 - Si dice «Hay otra vuelta corriendo … (vuelta.lock)», esperá 25 minutos o borrá el archivo `C:\7M\datos\vuelta.lock`.
 
 ## 7. Mientras corre, ver la lista

@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 15/10/26, 11:15 (hora de Argentina) con "npm run paquete".
+Armado el 16/10/26, 16:31 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-15_b.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-16_a.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -206,7 +206,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 280 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 302 bien y 1 pendiente a propósito. `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--sin-notas-de-servicio`, `--acumular <archivo>`, `--sin-leer` y `--sin-excluir-rutas`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
@@ -221,8 +221,9 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - Los 6 portales sin feed (Reuters, AP, AFP, EFE, La Voz y LN+) quedan `activo: false` en `portales.json`: no suman a la verificación y no avisan "feed roto". El día de ejemplo usa medios argentinos para lo internacional.
 - **Etapa 1 (2026-10-09, decidió Alejo; hecha en el repo):** `npm run vuelta` (`scripts/vuelta.js`) hace una vuelta completa sin IA: lee los feeds, acumula en `datos/notas.json` (48 h), arma la lista y deja en `datos/pagina/` lo que algún día se sube al hosting (`lista.json` y copias frescas de `index.html` y `logica.js`), y anota una línea por vuelta en `datos/vueltas.jsonl`. `--cada <min>` repite (la siguiente arranca a esos minutos de que empezó la anterior; Ctrl+C corta), `--sin-leer` rehace la lista con lo guardado sin salir a internet, `--carpeta` cambia dónde vive todo. El candado `datos/vuelta.lock` evita dos vueltas a la vez (25 minutos; se borra al terminar). Códigos: 0 bien, 1 error de uso, 2 ningún feed respondió, 3 candado. La lista real sale `sinIA: true` (la página lo dice en una franja azul): el bloque de cada noticia es provisorio (`src/provisorio.js`: nacional o internacional según el portal y la sección de sus notas, internacional si la mitad o más lo parecen; las secciones están en `provisorio` de `config/reglas.json`) y `datoNuevo` va en `false`, así que lo de más de 24 h se cae por el criterio 2. La IA es la etapa 2. `npm run medir` resume `vueltas.jsonl` por día y por corte de 4 horas (hora de Argentina; un hecho cuenta una vez por corte, en el bloque de su última vuelta). `npm run probar-pagina -- --solo-capturas datos/pagina --capturas <nombre>` saca las 3 capturas con la lista real (68 comprobaciones en la prueba normal). Lo real vive en `datos/` y no se sube al repo. Todavía no corre solo: dónde corre cada 30 minutos lo habla Alejo con Don Julio.
 - **Links por medio y la medición en la compu de Alejo (2026-10-09):** en la página cada medio aparece una sola vez en la fila de links, con su primera nota (`links(t)` en `pagina/index.html`; `lista.json` y lo que se copia siguen trayendo todas las notas; valor por defecto de Cowork). `npm run ver` (`scripts/ver.js`) sirve `datos/pagina/` en `http://127.0.0.1:7000/` para verla en esa compu. **El día de medición lo corre Alejo en su compu** (decidió el 09-10): la guía es `docs/CORRER_EN_MI_COMPU.md`; al terminar manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`.
-- **Sitemaps y el bloque local de prueba (2026-10-15):** el lector lee también sitemaps de noticias (`"formato": "sitemap"` en `feeds.json`: título, link, fecha y keywords; sin bajada ni autor); la bajada de un hecho sale de la primera nota que la tenga y la página dice «Sin bajada» cuando ninguna la trae; `npm run vuelta -- --config <carpeta>` corre con otra lista de feeds, portales y reglas (`config/comodoro/`: ADNSUR, El Comodorense, Crónica por secciones, El Patagónico y El Chubut; 2 medios para confirmar, sin 1/2 a mano), y cada confirmada de `vueltas.jsonl` lleva sus `medios`. La medición local de un día corre en el entorno de Claude Code en `datos/comodoro/` (no se sube). Nada entró a la lista blanca.
+- **Sitemaps y el bloque local de prueba (2026-10-15):** el lector lee también sitemaps de noticias (`"formato": "sitemap"` en `feeds.json`: título, link, fecha y keywords; sin bajada ni autor); la bajada de un hecho sale de la primera nota que la tenga y la página dice «Sin bajada» cuando ninguna la trae; `npm run vuelta -- --config <carpeta>` corre con otra lista de feeds, portales y reglas (`config/comodoro/`, hoy `config/zona/`: ADNSUR, El Comodorense, Crónica por secciones, El Patagónico y El Chubut; 2 medios para confirmar, sin 1/2 a mano), y cada confirmada de `vueltas.jsonl` lleva sus `medios`. La medición local corrió en la compu de Alejo (15-10 09:45 → 16-10 12:20). Nada entró a la lista blanca.
 - **Capa 4 escrita (2026-10-15):** `src/capa4.js` parte la vuelta en `mitadUno` (leer, acumular, preparar, armar las preguntas de juicio) y `mitadDos` (leer las respuestas, guardar juicios, decidir, lista); n8n la corre cada 30 minutos (`n8n/vuelta.json`, con `n8n/correo.json`, `n8n/error.json` y `n8n/prueba-union.json`), guarda lo acumulado y lo juzgado en los datos estáticos del workflow y escribe `lista.json` en `<datos>/pagina/`; `scripts/servir.js` sirve la página con login (mail y contraseña, «olvidé mi clave» por el webhook de correo; usuarios con `scripts/usuario.js` en `<datos>/usuarios.json`, nunca en el repo); la IA es `ia.modelo` de `config/reglas.json`, temperatura 0, y se vuelve a preguntar solo por lo que no tiene juicio, lo que tiene un desmentido nuevo o lo que pasó a viejo; si no contesta, el hecho lleva el juicio provisorio y la página lo dice; aviso por mail con tope de 1 por hora; la unión sigue apagada hasta que `prueba-union` pase 3 de 3. Falta instalarlo en el servidor de Don Julio (`docs/INSTALAR_EN_EL_SERVIDOR.md`). Probado en el entorno de Claude Code con n8n 2.43.6 (npm, Node 24) y la IA falsa (`scripts/ia-falsa.js`): dos vueltas del reloj, 19 feeds, 5 preguntas y después 0. `ia.modelo` es `claude-haiku-4-5`, que la documentación de Anthropic marca «legacy» (retiro no antes del 15-10-2026; el Haiku actual es `claude-haiku-5-5`): ver el reporte `ClaudeCode_para_Cowork_2026-10-15_b.md`.
+- **Los anillos de zona: Comodoro y Chubut (2026-10-16, carta `Cowork_para_ClaudeCode_2026-10-16_a.md`):** `config/zona/` (antes `config/comodoro/`) dice qué portal es de Comodoro (`"zona": "local"`: ADNSUR, El Comodorense, Crónica, El Patagónico) y cuál provincial (`"provincial"`: El Chubut), y trae `anillos` y `cruce` en su `reglas.json`. **Decidió Alejo:** Comodoro con 2 medios de Comodoro; Chubut con 2 medios, al menos uno provincial; lo que cumple en los dos va al más chico. Valores por defecto de Cowork: cupo 3 por anillo, sin 1/2 a mano, un anillo vacío no se dibuja, y una noticia de zona que el agrupador une con un hecho nacional de 3 o más grupos («también nacional», `cruce.minGruposNacionales`) no sale en la zona. Las reglas son puras, en `src/zona.js` (`anilloDe`, `tambienNacional`, `decidirZona`). `npm run vuelta -- --cada 30 --zona config/zona` corre lo nacional y la zona en la misma vuelta (notas de zona en `datos/zona/notas.json`; `vueltas.jsonl` suma `zona`; no va con `--config`); `lista.json` suma `orden` (`["local", "chubut", "nacional", "internacional"]`; sin zona, los dos de siempre) y la página dibuja los bloques en ese orden («Comodoro · 1», sin «de 3»). `npm run medir` suma el bloque ZONA por anillo. Dos moldes de servicio nuevos para todos: «pronóstico del tiempo» (no toca las alertas) y «cotizaciones» (reemplaza `^dolar (blue )?hoy`). **La capa 4 todavía no tiene la zona:** el servidor de Don Julio mostraría solo Nacionales e Internacionales; enganchar la zona en `src/capa4.js` es la carta siguiente. `npm run probar-pagina` hace 80 comprobaciones. Avisos de cortes (opción B de Alejo): las fuentes se probaron (ver el reporte `ClaudeCode_para_Cowork_2026-10-16_a.md`); el bloque se diseña en otra carta.
 - Paquete para pegar en Cowork (2026-10-04): cuando el chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_COWORK.md` (antes había uno por rol; con un solo chat hay un solo paquete). Lo arma `npm run paquete` (`scripts/armar-paquete.js`) con `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code, tal cual del repo. Es una foto: se rearma al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -309,7 +310,7 @@ Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 
 
 ## Siguiente paso
 
-La capa 4 está escrita; falta instalarla en el servidor de Don Julio (Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`). Después, la página C y la pieza 2.
+La capa 4 está escrita; falta instalarla en el servidor de Don Julio (Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`). Después: enganchar la zona en la capa 4 y diseñar el bloque «Avisos» de cortes con las fuentes probadas; después, la página C y la pieza 2.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -373,6 +374,76 @@ ARCHIVO 4 de 5 · buzon/pendientes.md
 
 # Pendientes
 
+## Cowork → pendientes · 16-10-2026 · 13:02 (hora de Argentina) · la medición y los anillos
+
+No es una carta de cambios: es el registro de las dos mediciones que corrió Alejo en su compu y de lo que decidió con eso. Los cambios están en `Cowork_para_ClaudeCode_2026-10-16_a.md`. La página de Cowork con los números y gráficos: https://claude.ai/artifact/8NAbjuLTQznf7xFe85ccAd (privada de Alejo).
+
+### Lo que dejó la medición nacional (91 vueltas, 14-10 13:18 → 16-10 12:14, hueco del 15-10 07:43 a 09:44)
+
+| Qué | Número |
+|---|---|
+| Hechos que llegaron a 5 medios en la corrida | 110 (81 nacionales, 29 internacionales) |
+| Nuevas y frescas en 24 h (15-10 09:44 → 16-10 09:44) | 45 de 69 nuevas (las otras 24, con notas de más de 24 h) |
+| Nuevas frescas por vuelta | 0,9 en promedio, máximo 5; 44 de 91 vueltas sin ninguna |
+| 4/5 distintas · llegaron a 5 · nunca | 104 · 58 · 46; espera mediana 2 h (de 0,5 a 13) |
+| Lista de Nacionales llena (7) | desde el 14-10 18:43; bajó a 5–6 solo el 16-10 de 04:14 a 07:14 |
+| Internacionales en la lista | 1 hasta el 14-10 19:13; después entre 3 y 7 |
+| Internacionales que salieron en Nacionales (provisorio) | 17 de 81 (Champions ×3, Lisandro Martínez ×3, Messi en la MLS, inflación de EE.UU., Hilary Swank, Julio Iglesias, Lula y Meta, el Papa ×2, FIFA, Tesla, euro en Chile); al revés 1 |
+| La misma noticia partida | el Papa en 18 hechos, Roña Castro 7, la Marcha Universitaria 8, Martín Fierro 4, Lisandro Martínez 3; los 110 hechos son unas 60 noticias |
+| Notas de servicio que llegaron a 5 sin molde | Anses «quiénes cobran» ×3 y «cuándo cobro», dólar/euro ×5, el clima de Tucumán, «a qué hora es la Marcha», «ver … en Roja Directa», tres «EN VIVO minuto a minuto», horario del Martín Fierro |
+| Viejas que vuelven como nuevas | 16-10 de madrugada: 23 hechos con `viejo: true` aparecen por primera vez (Roña Castro ×4). Pregunta para Claude Code en la carta `a` |
+| Feeds caídos | Al Jazeera, 1 vuelta de 91; vuelta más larga 23 s |
+
+### Lo que dejó la medición local (54 vueltas, 15-10 09:45 → 16-10 12:15; 5 portales, 2 medios)
+
+| Qué | Número |
+|---|---|
+| Hechos que llegaron a 2 medios | 69 (22 ya estaban en la primera vuelta); unas 43 nuevas por día |
+| De qué se arma cada par | 42 con 2 o más de Comodoro; 19 con 1 de Comodoro + El Chubut (sin El Chubut no llegan); 8 con 2 de Comodoro + El Chubut |
+| Quién aparece en los 69 | Crónica 46 · El Patagónico 32 · El Comodorense 28 · El Chubut 27 · ADNSUR 24 |
+| «Misma noticia» a ojo, sobre los 52 pares de `preparar` | 46 sí · 4 dudosas · 2 no; ninguna unión falsa grave |
+| No son locales (nacional repetido por portales de Comodoro) | ≈ 17 de 69: el Papa ×5, River ×2, Roña Castro ×2, riesgo país, la multa universitaria, el DNU, «19 de cada 100», Entre Ríos, Flamengo |
+| Mismo hecho en dos pares | el crimen de Km 8, los apuñalados del Isidro Quiroga, el pronóstico del viernes, la refinanciación de jubilados |
+| Servicio local sin molde | el pronóstico de Comodoro y Rada Tilly llegó a 2 medios las 3 veces |
+| Notas del día | 542: El Chubut 166, Crónica 114, ADNSUR 112, El Patagónico 78, El Comodorense 72; 245 sin bajada (los dos sitemaps). El Patagónico trae hora (77 de 78) |
+| Cortes | «Cortarán el agua en 23 barrios de Comodoro» llegó a 3 medios (una avería grande); los cortes programados por barrio no aparecieron |
+
+### Las 19 pasadas de Alejo mirando la página (14-10 14:15 → 16-10 11:45)
+
+- Vio 99 noticias nuevas y eligió 48 (45 de las nuevas y 3 viejas aprobadas tarde): **el 45 %** (nacionales 41 %, internacionales 61 %); 2,5 por pasada, mediana 2, máximo 9 (la pasada de las 11:46 del 15, después del hueco).
+- **Las 4/5 valen igual que las confirmadas:** aprobó 21 de 47 que estaban en revisión (45 %) y 24 de 52 confirmadas (46 %). Para la página C: mostrarlas está bien; lo que molesta es el desorden.
+- Por qué dejó pasar (en cuántas pasadas lo nombra): repetida o derivada de otra («quien dijo qué») 11 · vieja o llegó tarde 5 · poco relevante u otro país 4 · servicio o cotización 3 · fútbol 2. Encaja con los seis chips de «No por hoy»; falta uno: **«derivada / opinión sobre otra noticia»** (se suma a los chips cuando se escriba la página C).
+- Aprobó tarde 3 veces una que ya había dejado pasar; a las 17:45 del 15 vio «6 confirmadas quedaron afuera por tope de 7».
+- Lo que vio afuera: Caputo llegó 6 h 30 después; PSG 4-2 City llegó 42 h después; Fluminense-Palmeiras y el tráiler de GTA 6, nunca.
+
+### Decidió Alejo (16-10-2026)
+
+1. **Chubut con 2 medios, uno provincial (opción B, 12:51).** Local sigue con 2 de Comodoro; lo que cumple en dos anillos va al más chico. Motivo: con 3, de los 27 hechos del día que tenían a El Chubut entraban 8 y se perdían 19, justo las provinciales; la provincia tiene hoy un solo portal legible. Se vuelve a medir cuando haya más portales de la provincia.
+2. **Avisos de cortes: opción B (04:57)**, bloque aparte leído de quien corta, por barrio o zona. Primer paso en la carta `a`: probar las fuentes.
+3. Primero lo simple, después lo complejo: la carta `a` no toca la capa 4; la zona se engancha en `src/capa4.js` en la carta siguiente.
+
+### Valores por defecto de Cowork (no son decisiones de Alejo; se cambian)
+
+- «También nacional»: una noticia de zona que el agrupador une con un hecho nacional de 3 o más grupos no se muestra en Comodoro ni en Chubut. Número en `config/zona/reglas.json` (`cruce.minGruposNacionales`). Con 5 se escaparían «Entre Ríos: gas pimienta en el cine» y «Flamengo eliminado»; con 3 cae alguna noticia de Comodoro que levantaron 3 nacionales (no pasó en el día medido). Es la primera respuesta medible al ítem «noticias que tocan dos anillos».
+- Cupo 3 por anillo; sin 1/2 a mano; un anillo vacío no se dibuja; Crónica no es obligatoria.
+- Moldes nuevos de servicio para todos los anillos: pronóstico del tiempo (no toca las alertas) y cotizaciones (reemplaza `^dolar (blue )?hoy`). Los otros de la tabla (Anses, «a qué hora es», «ver … en Roja Directa», «EN VIVO») esperan a ver si la IA de la etapa 2 los saca sola.
+
+### Abierto (sin resolver, con valor por defecto mientras tanto)
+
+- **Viejas que vuelven como nuevas** (23 el 16-10): Claude Code explica en su reporte cómo un hecho cambia de id; se decide después. Mientras tanto: nada; la página no las muestra porque no son frescas.
+- **Región:** sin portales con feed en Neuquén, Río Negro, Santa Cruz y Tierra del Fuego. Mientras tanto no existe en `config/zona/reglas.json`; se suma como tercer anillo cuando haya 2 portales por provincia.
+- **Más portales de Chubut:** Diario Jornada y La Opinión Austral sin feed ni sitemap; Rawson Digital no conecta (14-10). Mientras tanto, El Chubut es el único provincial.
+- **X / Twitter como segunda confirmación** (idea de Alejo del 16-10): nunca como medio que suma a los 5; como mucho una señal aparte, tipo vía B. Va a «Más adelante» hasta averiguar costo y reglas de la API; si es caro, no.
+- **Avisos de cortes:** fuentes sin probar (paso 8 de la carta `a`); el bloque se diseña con lo que vuelva.
+- **Canal 2 y el servidor de Don Julio:** sin respuesta (pedido el 15-10 por WhatsApp). La carta `b` asume Docker, 3 personas, celular.
+
+### Qué viene después
+
+1. Claude Code hace la carta `a` y reporta (incluida la prueba de las fuentes de los cortes y la explicación de los ids).
+2. Cuando Don Julio conteste, la Fase B de la carta `b` (instalar la capa 4 en su servidor).
+3. Carta: enganchar la zona en la capa 4 y diseñar el bloque «Avisos» con las fuentes probadas.
+4. Carta de la página C (flujo con Normal/Plus, temas, los chips de motivo con «derivada»), ya con los dos anillos adentro.
+
 # Cowork → pendientes · 14-10-2026 · 23:30 (hora de Argentina) · las 14 respuestas de Don Julio
 
 No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 por WhatsApp (la colección «respuestas» de la página quedó vacía). Alejo las cruzó con Cowork una por una. Regla que puso Alejo para leerlas: lo que sienta bases (dónde corre, dónde se guarda, dónde vive la página, cómo se entra, quién paga, el orden) va como lo dijo Don Julio; lo interno lo acomoda Cowork. Esta sección es la base de la carta de la capa 4, que se escribe después de la medición y ANTES que la carta de la página C.
@@ -418,6 +489,7 @@ No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 po
 
 1. Alejo manda el WhatsApp a Don Julio (o lo charla en persona) y pega acá las respuestas a lo abierto.
 2. Al terminar la medición (16/10 después de las 00:30), Alejo manda a Cowork, de su compu, cinco cosas: la salida de `npm run medir` (nacional), `datos/vueltas.jsonl`, la salida de `npm run medir -- --carpeta datos/comodoro`, `datos/comodoro/vueltas.jsonl` y `datos/comodoro/notas.json` (este último para ver de qué notas se arma cada hecho local; es una foto, no se sube al repo). Cowork revisa a ojo las dos.
+   **Leer también `buzon/Cowork_resumen_2026-10-15.md`** (guardado el 16-10 a las 12:40): trae la charla del 16-10 a las 04:55 que todavía no estaba en el repo, con una decisión de Alejo (bloque «Avisos» de cortes de agua, luz y gas, opción B) y qué hace el chat de Cowork con la medición.
 3. Cowork escribe la carta de la capa 4 (etapas 1 y 2 en el servidor de Don Julio: vuelta cada 30 minutos, IA que juzga, página de hoy con login, aviso por mail). Después, la carta de la página C.
 4. Lo local (reporte ClaudeCode_para_Cowork_2026-10-14_a.md), decidió Alejo el 14-10 a las 23:51: cuando termine la medición (16/10), Cowork escribe una carta chica aparte para Claude Code: sumar al lector la lectura de sitemaps de noticias (título, link y fecha, sin bajada; la página lo dice cuando falta la bajada) y correr desde el entorno de Claude Code un día de medición local con los 3 feeds de Comodoro (ADNSUR, El Comodorense, Crónica sin «energía») más los sitemaps de El Patagónico y El Chubut, para saber cuántas locales llegan a 2 medios por día. Va en paralelo con la carta de la capa 4 y antes de la carta de los anillos, que así se escribe con datos. Correcciones a la lista de candidatos: El Patagónico es de Comodoro (local, no provincial) y La Opinión Austral es de Santa Cruz (cuenta para la Región). ADNSUR y Crónica no traen autor (no sirven para la vía B); El Comodorense sí. **Adelantado el 15-10 (decidió Alejo a las 00:15):** carta `Cowork_para_ClaudeCode_2026-10-15_a.md`, Fase A hecha; la Fase B se pide 24 h después del arranque.
 
@@ -563,7 +635,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 **Capa 4 y calidad del agrupador** (medido con datos reales el 04-10, ver `CLAUDE.md`)
 - [x] ~~Umbral del agrupador.~~ Hecho: `umbralSimilitud` 0.3 con `umbralSeguro` 0.5 y `minPalabrasComunes` 3. Sobre lo acumulado (1.150 notas) con 0.5 hay 0 verificados y con 0.3 hay 2, sin uniones falsas entre los hechos de 5 o más grupos.
-- [ ] **Cuántas noticias da la regla de 5 en un día real** (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4. **Herramienta lista (09-10):** `npm run vuelta -- --cada 30` un día entero y después `npm run medir`. **Decidió Alejo (09-10): el día de medición lo corre él en su compu**, con la guía `docs/CORRER_EN_MI_COMPU.md`; al terminar le manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`, y Cowork revisa a ojo los bloques por los títulos (ver el ítem del bloque provisorio).
+- [x] **Cuántas noticias da la regla de 5 en un día real** — **hecho (16-10):** la midió Alejo en su compu (14-10 14:15 → 16-10 12:20); los números están arriba de todo, en «Cowork → pendientes · 16-10-2026 · la medición y los anillos». Lo que sigue es la historia del ítem. (pide el DISEÑADOR): con lecturas cada 30 minutos de un día entero, por bloque y por corte de 4 h, cuántos hechos llegan a 5 o más grupos, cuántos quedan en 4/5 sin firma y cuántos tienen firma. Las 4/5 que se ofrecerían salen de `resumen.elegiblesAMano` (con lo guardado el 04-10 a las 18:02 son 4, todas frescas). Sin apuro: depende de la capa 4. **Herramienta lista (09-10):** `npm run vuelta -- --cada 30` un día entero y después `npm run medir`. **Decidió Alejo (09-10): el día de medición lo corre él en su compu**, con la guía `docs/CORRER_EN_MI_COMPU.md`; al terminar le manda a Cowork la salida de `npm run medir` y `datos/vueltas.jsonl`, y Cowork revisa a ojo los bloques por los títulos (ver el ítem del bloque provisorio).
 - [ ] **Hechos partidos: decidido por Alejo (opción A): la IA los une y se cuentan juntos; espera la IA.** «La misma noticia» es **el mismo hecho: la misma gente, lo mismo que pasó, el mismo día**; no alcanza con el mismo tema. Es la sexta pregunta de la IA. Hecho en el repo, sin llamar a ningún modelo: `paresParaUnir`, `unirHechos`, `preguntaUnion` y `leerUnion` de `src/ia.js`. **Corrección:** el par «EN VIVO | Elecciones en Brasil: comienza el escrutinio…» + «…Milei sigue con optimismo la elección en Brasil…» es **no** (uno es el conteo de votos, el otro lo que hace Milei); antes figuraba como «sí». Medido el 04-10 con la regla nueva (lo guardado hasta el 5/10 00:01, con el filtro de Infobae): entran 11 hechos (5 de 3 grupos, 4 de 4 y 2 candidatos de vía A) y salen **5 pares**: 2 entre hechos de 3 o 4 grupos (Colapinto, unión de 5 grupos, sí; escrutinio + Milei, unión de 7, no) y 3 con un candidato (escrutinio + «voto a voto», unión de 8, sí; Milei + «voto a voto», unión de 9, dudoso; Milei + García Cuerva, unión de 9, no). Los 5 llegan a 5 grupos: por eso la pregunta tiene que ser estricta. Detalle en `ClaudeCode_para_Cowork_2026-10-04_a.md`.
 - [ ] **Capa 4 (Alejo con Don Julio): reemplaza «Guardar lo leído entre corridas».** Cada cosa lleva un valor por defecto que se puede cambiar:
   - Dónde corre n8n. Por defecto: n8n Cloud Starter, €20 por mes con 2.500 ejecuciones; leer cada 30 minutos son 1.440 por mes. Ojo: n8n 3.0 sale en octubre de 2026 y en servidor propio exige Docker. (Datos de n8n y de la IA consultados por Cowork el 04-10 en sus páginas oficiales.)
@@ -593,8 +665,8 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - **Valor por defecto si Alejo no decide:** C como está hoy, sin extras, y medir con datos reales cuando exista el lector cuántas internacionales llegan a 5 por corrida. Si son menos de 3 (el mínimo que se puede elegir), pasar a A; B queda para más adelante.
 
 **Cowork (diseño y decisiones; antes DISEÑADOR)**
-- [ ] **La medición local en la nube se cortó (15-10):** la compu de Claude Code se apaga cuando la sesión queda quieta; hizo solo 3 vueltas (desde las 00:38). Un día entero no se puede correr desde ahí. Alejo la arranca en su compu el 15-10, en paralelo con la nacional (`--config config/comodoro --carpeta datos/comodoro`); al terminar manda también `npm run medir -- --carpeta datos/comodoro` y `datos/comodoro/vueltas.jsonl`. **Cowork (carta `c`): la Fase B de la carta `a` queda cancelada; la revisión la hace Cowork con esos archivos.**
-  - **Hueco en la medición nacional:** la ventana de la vuelta se cerró en la compu de Alejo cerca de las 07:43 del 15-10 y se rearrancó a las 09:45 (unas 2 horas sin vueltas). La local arrancó a la misma hora, en su compu, con `Feeds: 8 OK`. Las dos cortan el 16-10 después de las 00:30.
+- [x] **La medición local en la nube se cortó (15-10):** — **hecho (16-10):** la local corrió en la compu de Alejo (15-10 09:45 → 16-10 12:20) y Cowork la revisó; ver «Cowork → pendientes · 16-10-2026 · la medición y los anillos», arriba de todo. la compu de Claude Code se apaga cuando la sesión queda quieta; hizo solo 3 vueltas (desde las 00:38). Un día entero no se puede correr desde ahí. Alejo la arranca en su compu el 15-10, en paralelo con la nacional (`--config config/comodoro --carpeta datos/comodoro`); al terminar manda también `npm run medir -- --carpeta datos/comodoro` y `datos/comodoro/vueltas.jsonl`. **Cowork (carta `c`): la Fase B de la carta `a` queda cancelada; la revisión la hace Cowork con esos archivos.**
+  - **Hueco en la medición nacional:** la ventana de la vuelta se cerró en la compu de Alejo cerca de las 07:43 del 15-10 y se rearrancó a las 09:45 (unas 2 horas sin vueltas). La local arrancó a la misma hora, en su compu, con `Feeds: 8 OK`. Las dos iban a cortar el 16-10 después de las 00:30; **Alejo las estiró hasta el 16-10 a las 12:05** (decidió a las 06:46 del 16-10): así la mañana, que el 15 quedó con hueco, se mide entera. Donde las secciones de Cowork dicen «después de las 00:30», hoy es 12:05. **Se cortaron las dos el 16-10 a las 12:20** y Alejo le mandó a un chat nuevo de Cowork las 5 cosas del punto 2 de «Qué viene después», numeradas (las dos `vueltas.jsonl` renombradas a `.txt`).
 - [x] **Feeds de portales locales, probados el 14-10** (`buzon/ClaudeCode_para_Cowork_2026-10-14_a.md`): Comodoro tiene 3 con feed al día (ADNSUR, El Comodorense, Crónica por secciones); lo provincial no tiene feeds, solo sitemaps de noticias (El Chubut, El Patagónico). Decidir si el lector suma sitemaps. Nada sumado a `config/`. **Hecho el 15-10:** el lector lee sitemaps y el bloque local de prueba está en `config/comodoro/` (carta 2026-10-15_a).
 - [ ] **Las notas de Alejo usando la página durante la medición** (14-10-2026, 5 miradas): están en `buzon/Alejo_para_Cowork_2026-10-14_a.md`, tal cual y con un resumen. Pide para la página: menos scroll, más legible, **quitar** una noticia «por hoy» con el motivo (para aprender qué busca quien publica) y **archivar** una para combinarla después. De las noticias: sobran locales y de poco interés, un molde de servicio no agarra «horarios del Martín Fierro», hechos repetidos (obispos y el Papa), faltaron Caputo y PSG-Manchester City. Va con la salida de `npm run medir` cuando termine la medición; la modificación de la página, **después** de la prueba (decidió Alejo).
 - [ ] **El flujo que quiere Alejo con cada noticia** (14-10-2026, `buzon/Alejo_para_Cowork_2026-10-14_b.md`): primero discriminar (me interesa / no por hoy con motivo / archivar) y después copiar solo lo elegido. Ideas para pensar: gustos por persona (chimento sí o no), más noticias al descartar (la regla de 5 queda fija: «por ahora dejalo así»), portales locales de Chubut. Se diseña después de la prueba.
@@ -607,6 +679,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
   - C: fuentes externas (premios, bases de datos de autores). Sin investigar ni probar.
 
 **Cowork → Claude Code (antes PREPARADOR → Claude Code)**
+- Enganchar la zona en `src/capa4.js` (carta siguiente, después de probar esto).
 - ~~Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_a.md`~~: **cancelada el 15-10 (carta `c`)**: la medición local corre en la compu de Alejo y la revisa Cowork con los archivos que él mande. Claude Code no tiene nada que hacer con lo local hasta la carta de los bloques por zona.
 - Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`: instalar la capa 4 en el servidor de Don Julio el día que Alejo vaya, en una tanda.
 
@@ -623,6 +696,7 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 
 - [x] 15-10-2026 · **Capa 4 escrita** (carta `b`): `src/capa4.js`, los cuatro workflows en `n8n/`, la página con login (`scripts/servir.js`, `scripts/usuario.js`), la IA falsa y la guía de instalación. Falta instalar (Fase B).
 - [x] 15-10-2026 · **Sitemaps en el lector y `--config` en la vuelta** (decidió Alejo adelantarlo el 15-10): El Patagónico y El Chubut se leen por su sitemap de noticias (sin bajada; la página lo dice); `config/comodoro/` es el bloque local de prueba (5 portales, 2 medios para confirmar); la medición local corre en el entorno de Claude Code.
+- [x] 16-10-2026 · **Los anillos Comodoro y Chubut** (carta `Cowork_para_ClaudeCode_2026-10-16_a.md`): `config/zona/`, `src/zona.js`, la zona en la misma vuelta (`--zona config/zona`), la página en el orden de `lista.orden`, ZONA en `npm run medir`, moldes «pronóstico del tiempo» y «cotizaciones», y las fuentes de los cortes probadas. Reporte `ClaudeCode_para_Cowork_2026-10-16_a.md`.
 - [x] 09-10-2026 · **Links por medio** (Cowork, valor por defecto, variante A): en la página cada medio aparece una sola vez en la fila de links, con su primera nota; lo que se copia sigue con todos. `npm run ver` para ver `datos/pagina/` en la compu. **El día de medición lo corre Alejo en su compu** (decidió Alejo): guía `docs/CORRER_EN_MI_COMPU.md`.
 - [x] 09-10-2026 · **Etapa 1 en el repo** (decidió Alejo): `npm run vuelta` hace una vuelta completa sin IA y deja la lista real en `datos/pagina/`; `npm run medir` resume las vueltas por corte de 4 h; la página avisa «Sin el juicio de la IA». Dónde corre, con Don Julio.
 - [x] 05-10-2026 · **Cerrado por Cowork al aprobar el reporte `c`:** `scripts/armar-paquete.js` sigue trayendo solo el reporte más nuevo (valor por defecto de Cowork). Si un día hay dos reportes sin carta de Cowork en el medio y el chat de Cowork no puede clonar el repo, Alejo le pega también el reporte anterior. No se toca hasta que pase.
@@ -661,149 +735,134 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-15_b.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-16_a.md
 ============================================================
 
-# Claude Code → Cowork · 15-10-2026 · 11:04 (hora de Argentina) · letra b
+# Claude Code → Cowork · 16-10-2026 · 16:50 (hora de Argentina) · letra a
 
-Responde a `Cowork_para_ClaudeCode_2026-10-15_b.md` (la capa 4), **Fase A**.
+Responde a `Cowork_para_ClaudeCode_2026-10-16_a.md` (los anillos Comodoro y Chubut, y las fuentes de los cortes). Se hizo todo, en una sola fase. Base: `399c3b2`.
 
-**Veredicto:** la capa 4 está escrita, con tests, y **corrió de verdad adentro de un n8n** en mi entorno: n8n 2.43.6 instalado con npm, los 4 workflows importados tal cual del repo, 6 vueltas seguidas disparadas por el reloj, todas en verde, con los 19 feeds reales y la IA falsa (5 preguntas en la primera, 0 en las siguientes: lo juzgado quedó guardado en los datos estáticos). Ojo con dos cosas para Alejo y Cowork: **Claude Haiku 4.5 figura como «legacy» en la documentación de Anthropic, con retiro «no antes del 15-10-2026» (hoy)**, y **n8n 2.x corre los nodos Code en un «task runner»**: si Don Julio usa runners externos, las carpetas y las variables van en ese contenedor (está en la guía).
+## Cómo quedó
 
-## Qué cambió
-
-| Archivo | Qué |
-|---|---|
-| `src/capa4.js` (nuevo) | `mitadUno`, `mitadDos`, `escribir`; copias de `filtrarRutas`, `armarLinea`, `hechosPorGrupos`, `mediosDe`, `resumenEnPantalla`; y lo que usan los nodos de n8n: `cuerpoIA`, `textoDeRespuesta`, `preguntaUnionDePrueba`, `itemsDePrueba`, `resultadoPrueba` |
-| `test/capa4.test.js` (nuevo) | 16 tests: E1 a E5 y los extra de la carta, más el aviso por portales, una provisoria de dos, el reemplazo de un juicio y la prueba de la unión |
-| `config/reglas.json` | `ia.modelo` `claude-haiku-4-5`, `ia.temperatura` 0, `ia.maxTokens` {juicio 400, union 200}; `avisos` {topeMinutos 60, paginaViejaMinutos 60}; `cliente` «Canal 2» |
-| `src/entrega.js`, `test/entrega.test.js` | `provisorias`, `cliente` y `paginaViejaMinutos` en la lista (por defecto 0, '' y 60); 2 tests |
-| `n8n/vuelta.json`, `correo.json`, `error.json`, `prueba-union.json`, `LEEME.md` (nuevos) | Los 4 workflows, importables; el LEEME dice qué editar después de importar |
-| `test/n8n.test.js` (nuevo) | 4 tests: JSON válido, los 10 nodos y las flechas de la vuelta, los nodos de los otros 3, sin claves ni mails ni «password» |
-| `scripts/servir.js`, `scripts/usuario.js`, `pagina/entrar.html` (nuevos) | La página con login, los usuarios con scrypt, el formulario (entrar, olvidé mi clave, clave nueva) |
-| `test/servir.test.js`, `test/usuario.test.js` (nuevos) | 7 + 3 tests: E6, E7, E8, Secure, salir, opciones, sal distinta |
-| `package.json` | `npm run servir` |
-| `pagina/index.html` | 401 → `/entrar`; «No se actualiza desde las HH:MM · contactá al administrador» con más de `paginaViejaMinutos`; franja de provisorias; «Canal 2 · 7M»; «Salir» |
-| `scripts/probar-pagina.js` | Sección «8 · capa 4» con 3 comprobaciones; las capturas pasan a la sección 9; la comprobación vieja del aviso ámbar ahora espera el texto nuevo |
-| `scripts/ia-falsa.js` (nuevo) | La IA de mentira, con `--fallar <n>` |
-| `docs/INSTALAR_EN_EL_SERVIDOR.md` (nuevo) | La guía, en las 7 secciones de la carta, más «La IA falsa (solo para probar)» |
-| `README.md`, `CLAUDE.md`, `buzon/pendientes.md` | Como pide el paso 8 (y en `CLAUDE.md`, el número de tests, que decía 231) |
-
-Así queda la vuelta en n8n:
-
-```
-Cada 30 minutos → Rutas → Feeds → Bajar (19 feeds) → Preparar (mitadUno)
-                                                        │
-                                              ¿Hay preguntas?
-                                     sí ↙                    ↘ no
-                          IA (Anthropic, de a 5)                │
-                                     ↘                         ↙
-                                    Decidir (mitadDos + escribir)
-                                                │
-                                            ¿Avisar? ── sí → Avisar (mail)
-```
-
-## Comprobaciones
-
-| # | Comprobación | Dio |
+| Paso | Qué se hizo | Commit |
 |---|---|---|
-| C1 | `npm test` | antes 248 bien y 1 pendiente (249); después **280 bien, 0 mal, 1 pendiente** (281): 32 más |
-| C2 | `npm run probar-pagina` | **78 bien, 0 mal** |
-| C3 | `node scripts/vuelta.js --sin-leer` sobre una copia de `datos/`, con el código de hoy y con el de `da5ef4e` | las dos listas son **idénticas salvo los 3 campos nuevos** (`provisorias` 0, `cliente` '', `paginaViejaMinutos` 60). Lo guardado en `datos/` ya tiene más de 48 h (0 hechos), así que también corrí `npm run demo`: anda igual |
-| C4 | Script descartable: 19 feeds con `fetch` → `mitadUno` → IA falsa → `mitadDos` → `escribir` | código 0. `resumen` `{"hechos":742,"candidatos":2,"elegiblesAMano":3,"conJuicioGuardado":0,"aPreguntar":5}`; `linea.ia` `{"preguntadas":5,"contestadas":5,"fallidas":0}`; `lista.provisorias` 0; `lista.sinIA` false; primeras líneas: «VUELTA · 15/10/26 11:00 (hora de Argentina)» · «Feeds: 19 OK · 0 caídos» · «Notas: 979 leídas · 979 nuevas · 872 acumuladas». **Con `--fallar 2`:** `linea.ia` `{5, 3, 2}`, `provisorias` **2**, `sinIA` **false** |
-| C5 | El mismo script, dos vueltas pasando el `guardado` | segunda vuelta: `aPreguntar` **0** (antes 5) y `conJuicioGuardado` **5** (los 5 que juzgó la primera) |
-| C6 | `node --test test/n8n.test.js` | 4 bien |
-| C7 | `git grep -n "sk-ant\|password\|contraseña:" -- n8n docs scripts src config` | una sola línea: `scripts/usuario.js:61` («Para darle otra contraseña: nueva-clave …»), texto para la persona. Ninguna clave |
-| C8 | `git ls-files datos` | vacío |
-| C9 | `git diff --cached --stat da5ef4e` | solo los archivos de la tabla de pasos, la carta y este reporte (ver el commit) |
-| C10 | `TZ=America/Argentina/Buenos_Aires date` | `Thu Oct 15 11:04:00 -03 2026` |
-| C11 | 3f, n8n en mi entorno | **Corrió.** Ver abajo |
+| 1 | `git mv config/comodoro config/zona`; `"zona": "local"` en ADNSUR, El Comodorense, Crónica y El Patagónico, `"provincial"` en El Chubut; `reglas.json` tal cual la carta; avisos cambiados | `1b372bb` |
+| 2 | `src/zona.js` (`anilloDe`, `tambienNacional`, `decidirZona`, y `mediosDe` copiada) y `test/zona.test.js` (E1 a E6 y 5 más) | `1b372bb` |
+| 3 | `armarEntrega` con `zona` opcional: los bloques de zona van primero (con `nombre` y `minimo`) y `orden`; sin zona, `orden` es `["nacional", "internacional"]` y lo demás no cambia | `1b372bb` |
+| 4 | `npm run vuelta -- --zona config/zona`: lee las dos listas de feeds a la vez, guarda `datos/zona/notas.json`, la línea suma `zona` y el resumen dos renglones; `--zona` con `--config` da `ErrorDeUso` | `1b372bb` |
+| 5 | Página: sale la constante `BLOQUES`; los bloques salen de `L.bloquesADibujar(lista)` en `pagina/logica.js` (orden, nombre, mínimo; un anillo vacío no se dibuja); 2 comprobaciones nuevas en `probar-pagina` | `331aa92` |
+| 6 | `npm run medir`: el bloque ZONA por anillo (Comodoro / Chubut), solo si alguna vuelta del día trae zona | `8e323fa` |
+| 7 | Moldes «pronóstico del tiempo» y «cotizaciones» tal cual la carta; sale `^dolar (blue )?hoy` | `65327b3` |
+| 8 | Fuentes de los cortes probadas (tabla abajo) | — |
+| 9 | `README.md`, `docs/CORRER_EN_MI_COMPU.md`, `CLAUDE.md`, `pendientes.md` (la sección de Cowork arriba de todo, tal cual), paquete y este reporte | el último |
 
-### C11 · la vuelta adentro de n8n
+## Cuándo está listo
 
-Lo que hice: `npm i n8n@2.43.6` en el scratchpad; n8n 2.43 **no arranca con Node 22** (pide Node 24): bajé Node 24 aparte y recompilé `isolated-vm` con él. Importé las credenciales de prueba (con los nombres `7M Anthropic`, `7M Correo`, `7M Webhook`) y los 4 workflows con `n8n import:workflow` (los 4 importaron sin tocarlos). En una copia de la vuelta cambié solo el nodo Rutas (mi repo y una carpeta temporal), la dirección de IA (la IA falsa) y el reloj a 1 minuto; la activé con `n8n publish:workflow` y arranqué `n8n start` con `NODE_FUNCTION_ALLOW_EXTERNAL=*` y `NODE_FUNCTION_ALLOW_BUILTIN=*` (runner interno). `n8n execute` no sirve para la vuelta: pide un disparador manual. Unos 12 minutos de reloj, contando la instalación.
+| # | Comprobación | Resultado |
+|---|---|---|
+| 1 | `npm test` | antes **280 bien + 1 pendiente** (281) · después **302 bien + 1 pendiente** (303), 0 mal |
+| 2 | `npm run probar-pagina` | antes **78** · después **80**, 0 mal (la carta y `CLAUDE.md` decían 68: ya eran 78) |
+| 3 | `--sin-leer --zona config/zona` sin `datos/notas.json` | corta con «--sin-leer necesita un archivo que ya exista: …/notas.json no está.» y código 1. Con `datos/notas.json` y `datos/zona/notas.json`: `lista.json` con `orden` `["local", "chubut", "nacional", "internacional"]` |
+| 4 | Una vuelta real (16-10 16:26) | abajo |
+| 5 | `npm run medir` | muestra el bloque ZONA (abajo) |
+| 6 | Paso 8 | abajo |
 
-| Vuelta (hora UTC) | Feeds OK | Notas acumuladas | IA (preguntadas, contestadas, fallidas) | tardoMs |
-|---|---|---|---|---|
-| 13:58 | 19 | 876 | 5, 5, 0 | 1.821 |
-| 13:59 | 19 | 879 | 0, 0, 0 | 1.574 |
-| 14:00 | 19 | 880 | 0, 0, 0 | 1.743 |
-| 14:01 | 19 | 886 | 0, 0, 0 | 1.498 |
-| 14:02 | 19 | 889 | 0, 0, 0 | 1.536 |
-| 14:03 | 19 | 890 | 0, 0, 0 | 1.482 |
+### La vuelta real (punto 4)
 
-Salida del nodo Decidir en la primera vuelta:
+Una sola lectura de lo nacional (las notas viejas de esta compu ya habían pasado las 48 h) y la zona sobre lo guardado de la medición del 14-10 más esta lectura:
 
 ```
-avisar: { hayQue: false, asunto: "", texto: "", ultimoAviso: null }
-ia: { preguntadas: 5, contestadas: 5, fallidas: 0 } · provisorias: 0 · tardoMs: 1821
-VUELTA · 15/10/26 10:58 (hora de Argentina)
+VUELTA · 16/10/26 16:26 (hora de Argentina)
 Feeds: 19 OK · 0 caídos
-Notas: 982 leídas · 982 nuevas · 876 acumuladas
-Hechos según grupos: 1: 709 · 2: 23 · 3: 8 · 4: 3 · 5+: 2
-Confirmados: 2 nacionales + 0 internacionales
-4/5 (les falta 1 medio): 3 nacionales + 0 internacionales
-Lista: 2 nacionales + 0 internacionales
+Notas: 1032 leídas · 1017 nuevas · 924 acumuladas
+Hechos según grupos: 1: 751 · 2: 32 · 3: 6 · 4: 1 · 5+: 6
+Confirmados: 5 nacionales + 1 internacionales
+4/5 (les falta 1 medio): 1 nacionales + 0 internacionales
+Lista: 5 nacionales + 1 internacionales
+Zona · feeds: 8 OK · 0 caídos
+Zona · lista: 3 Comodoro + 3 Chubut · también nacionales: 0
+Escribí: datos/pagina/lista.json
 Código de salida: 0
 ```
 
-- **Los datos estáticos pesan 547 KB** (890 notas y 5 juicios). Cada vuelta completa tarda 1,5 a 1,8 s (de Preparar al final de Decidir); la ejecución entera, unos 3 s con la bajada de los feeds. Guardar no la enlentece acá; con 48 h de notas reales (unas 1.000 a 1.300) serían unos 0,8 MB. Se mide de nuevo en la Fase B, en la máquina de Don Julio.
-- **La prueba de la unión** (`n8n execute`, sí anda: tiene disparador manual) corrió entera: 5 casos × 3 = 15 llamadas, **9 de 15 y «no pasa»**, que es lo correcto con la IA falsa (siempre dice «no»: fallan los 2 casos `true`).
-- No probé el mail de aviso ni el de «olvidé mi clave» adentro de n8n (no hay SMTP en mi entorno). El login contra un n8n falso sí está probado (E7).
+| Anillo | En la lista | Afuera por el cupo de 3 | Títulos |
+|---|---|---|---|
+| Comodoro | 3 | 2 | «Dictaron tres meses de prisión preventiva para el imputado por el decimotercer homicidio del año» (3: El Comodorense, Crónica, ADNSUR) · «El Municipio recibió tres unidades para fiscalizar la recolección y escombreras» (2) · «Choque entre dos Toyota Corolla en la Ruta 3» (2) |
+| Chubut | 3 | 2 | «Interés Superior del Niño: fallo ordena la escolarización presencial de una niña de cinco años» (El Chubut, Crónica) · «Estudiantes vs Flamengo: igualaron 0-0 en La Plata…» (El Patagónico, El Chubut) · «El papa León XIV muestra una evolución favorable tras su cirugía en Roma» (Crónica, El Chubut) |
 
-## El modelo
+De 24 hechos de zona con 2 o más medios: 14 viejos, 5 de Comodoro, 5 de Chubut, 0 «también nacionales», 0 sin anillo.
 
-- Escribí **`claude-haiku-4-5`** (el alias; apunta a `claude-haiku-4-5-20251001`). Verificado hoy en https://platform.claude.com/docs/en/models/haiku-4-5/overview (docs.claude.com redirige ahí) y en la lista de modelos.
-- **Para decidir (Cowork / Alejo):** la página dice «Legacy… you should consider migrating to Claude Haiku 5.5» y «Retirement: Not sooner than October 15, 2026». Sigue disponible, por eso respeté la decisión, pero lo pueden retirar con aviso. El Haiku actual es **`claude-haiku-5-5`** (desde US$0,10 por millón de tokens de entrada y US$0,50 de salida, contra US$1 y US$5 de Haiku 4.5). Cambiarlo es un valor de `config/reglas.json`, sin tocar código; la prueba de la unión 3 veces se haría con ese modelo. No verifiqué si Haiku 5.5 acepta `temperature` igual que 4.5.
-- La API: `POST https://api.anthropic.com/v1/messages`, cabeceras `x-api-key`, `anthropic-version: 2023-06-01` y `content-type: application/json`; el texto viene en `content[0].text` (`textoDeRespuesta` busca el primer bloque `type: "text"`).
+**Lo que no anduvo como se esperaba: 0 «también nacionales», y el Papa y Flamengo entraron en Chubut.** Hay un hecho nacional de 3 grupos «León XIV evoluciona favorablemente tras la operación y el Vaticano confirmó que rezará el Ángelus el domingo», pero el agrupador no lo une con «El papa León XIV muestra una evolución favorable tras su cirugía en Roma»: comparten pocas palabras. Flamengo no tiene un hecho nacional de 3 grupos en esta lectura sola. Con una sola lectura nacional hay solo 13 hechos de 3 o más grupos; con lecturas cada 30 minutos van a ser más y el cruce va a agarrar más. La regla hace lo que dice la carta (es la misma pregunta del agrupador), pero en el día real va a dejar pasar a nacionales con títulos distintos. Para mirar en la próxima medición.
 
-## Nodos y versiones
+**Los dos moldes nuevos** sacaron 14 notas nacionales y 4 de zona:
 
-Sacadas del código de `n8n-nodes-base` de la 2.43.6 (la versión más nueva de cada nodo), e importadas y corridas en esa versión:
+- Pronóstico, zona (4): «Comodoro y Rada Tilly tendrán un jueves nublado y sin chances de lluvias», «Jueves gris y sin lluvias en Comodoro y Rada Tilly: el viento ganará fuerza…», «Comodoro y Rada Tilly disfrutan de un agradable viernes con nubosidad variable y una máxima de 18°C…», «Viernes con máxima de 18°C y ráfagas de hasta 69 km/h en Comodoro».
+- Pronóstico, nacional (3): «El tiempo en Rosario: viernes, otra vez con probabilidades de lluvia», «Pronóstico para el Día de la Madre: ¿lloverá el fin de semana?» y **un error: «Qué ver en Netflix: las mejores películas y series para disfrutar este fin de semana nublado y fresco»** (La Nación). No es noticia de todos modos, pero no es un pronóstico. No lo toqué.
+- Cotizaciones, nacional (11): «El dólar en Córdoba: a cuánto cotiza este viernes 16 de octubre», «🔴 EN VIVO | Precio del dólar hoy viernes 16 de octubre», «Euro blue hoy: volvió a subir y cerró a 1.849,75…», «Dólar hoy y dólar blue hoy: cuál es la cotización del viernes…» (Cronista), «Dólar hoy y dólar blue, EN VIVO…» (La Nación), «🔴 Dólar oficial hoy y dólar blue: a cuánto cotizan…» (TN), cuatro de Infobae «Precio del dólar/euro hoy en República Dominicana / Bolivia: cotización de cierre…» y **«Plazo fijo: cuál es la tasa de interés banco por banco este viernes 16 de octubre»** (por «banco por banco»; también es servicio).
 
-| Nodo | Tipo | typeVersion |
+### `npm run medir` (punto 5)
+
+```
+ZONA · cada celda es Comodoro / Chubut
+Corte                   Vueltas  Confirmados  También nacionales  Sin anillo
+──────────────────────  ───────  ───────────  ──────────────────  ──────────
+16-20                         1       15 / 9               0 / 0           0
+Día entero (distintos)        1       15 / 9               0 / 0           0
+```
+
+«Confirmados» cuenta también los viejos, como lo nacional (15 / 9 = los 10 frescos más los 14 viejos, cada uno en su anillo).
+
+## Paso 8 · Por dónde publican los cortes
+
+| Quién | Sitio | Feed | Página de avisos | Redes | Trae barrio · día · horario | Hoy (16-10) | Los últimos tres, como los titulan |
+|---|---|---|---|---|---|---|---|
+| **SCPL** (Sociedad Cooperativa Popular Limitada, luz y agua de Comodoro) | scpl.coop (`www.scpl.coop` tiene el certificado roto; sin `www` anda) | **No** (`/feed/` da 404; no es WordPress) | **Sí:** «Comunicados» en la portada, cada uno en `/index.php/site/ver-nota?id=N`, con el id que sube de a uno y la fecha (`16-10-2026`) en la página | La página no enlaza redes (solo el píxel de Facebook y un botón de WhatsApp) | Fecha de publicación, sí. En el texto de la 2902 no aparecen horarios ni nombres de barrios: la lista de los 23 barrios parece ir en la imagen | 1 | «CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR AVERÍA EN EL ACUEDUCTO DEL ‘99» (16-10) · «HECHO VANDÁLICO PROVOCÓ UN CORTE DE ENERGÍA EN UN SECTOR DE ZONA SUR DE COMODORO Y EN RADA TILLY» (13-10) · «REDUCCIÓN DE CALZADA POR TAREAS DE SANEAMIENTO EN Bº LA FLORESTA» (09-10) |
+| **Camuzzi Gas del Sur** (gas) | camuzzigas.com | Sí (`/feed/` y `/comunicados/feed/`), pero **solo comunicados de la empresa**: el último es del 09-03-2026 | «Comunicados», sin cortes | Facebook e Instagram (`camuzzigas`); no se pueden leer desde acá | No se vio ningún aviso de corte en el sitio | 0 | «Camuzzi amplía sus canales de atención remota con el lanzamiento de WhatsApp» (09-03) · «Quiero GAS NATURAL – ENERGÍA CONTINUA, CONFIABLE Y SEGURA» (08-01) · «Bases y condiciones concurso – “ENERGÍA ITINERANTE, 7ma EDICIÓN”» (21-07-2025) |
+| **Caleta Olivia**: no hay cooperativa. Luz y agua las da **SPSE** (Servicios Públicos Sociedad del Estado, empresa de la provincia de Santa Cruz) | spse.gob.ar **no conecta** desde acá (502 en el proxy) | **Sí, por Prensa Santa Cruz:** `noticias.santacruz.gob.ar/organismos/entes-publicos/servicios-publicos?format=feed&type=rss` (Joomla; 10 notas, de toda la provincia) | Las notas de esa sección | — | El título dice la ciudad y a veces «Conocé las zonas»; la descripción del feed es corta (unos 165 caracteres, en la de hoy un «sábado» y un «sector»); el detalle está en la nota | 2 en el feed, de Río Gallegos y El Chaltén; de Caleta Olivia, 0 | «Servicios Públicos informó corte parcial de energía eléctrica en Río Gallegos: Conocé las zonas» (16-10) · «SPSE solicita a los vecinos de El Chaltén extremar el cuidado del agua mientras se realizan reparaciones en la red» (16-10) · «Para Las Heras: Cuatro ofertas para construir una planta de efluentes cloacales…» (15-10). La última de Caleta: «Servicios Públicos de Caleta Olivia busca agilizar la distribución de agua y prohíbe su venta no autorizada» (11-10) |
+
+Lo que sale de esto:
+
+- **La SCPL se puede leer** sin feed: la portada lista los comunicados y cada uno trae título y fecha. Hacen falta unas líneas propias para leer esa página (el lector de hoy lee RSS y sitemaps). Publica 1 o 2 por semana, y no solo cortes.
+- **El gas no se puede leer**: Camuzzi no publica cortes en su sitio. Quedan las redes (no se pueden leer de forma confiable) o los portales como respaldo.
+- **Caleta Olivia sí tiene feed**, el de Prensa Santa Cruz, pero es de toda la provincia: habría que quedarse con lo que nombra a Caleta Olivia.
+- Los cortes **programados** por barrio no aparecieron en ninguna de las tres en estos días; lo que hay son averías y hechos (el acueducto, el vandalismo).
+
+Fuentes buscadas además en la web: avisos viejos de la SCPL en cholilaonline.ar (2022 y 2025) y de SPSE Caleta Olivia en La Opinión Austral, El Caletense y La Vanguardia Noticias.
+
+## Por qué un hecho viejo vuelve con un id nuevo
+
+El id de un hecho es `g:` más el id de su **primera nota** (`agrupar` en `src/nucleo.js`: ordena las notas por fecha y la que abre el grupo le da el id). Hay tres caminos por los que esa primera nota cambia entre una vuelta y la siguiente:
+
+1. **La primera nota se va por vieja. Es el caso del 16-10.** `acumular` borra las notas de más de 48 h (`ventanaRecoleccionHoras`) y `preparar` tampoco las mira. Cuando la nota más vieja de un hecho pasa las 48 h, se cae; la que sigue pasa a ser la primera y el hecho cambia de id. Como esa segunda nota también tiene más de 24 h, el hecho sale con `viejo: true`, y para `medir` es un id que aparece por primera vez. Un hecho con muchas notas escalonadas (Roña Castro, el Papa) cambia de id una vez por cada nota que se cae: por eso Roña Castro apareció 4 veces. Pasa de madrugada porque las notas que se caen son las de la madrugada de dos días antes.
+2. **Una nota más vieja entra tarde.** Si un feed trae tarde una nota con fecha anterior a la primera del grupo y el agrupador la une, esa nota pasa a ser la primera y el hecho cambia de id. Es lo que se midió el 04-10 (M1: 1 de 104 con notas que llegan hasta 3 horas tarde).
+3. **El agrupador arma los grupos en orden.** Cada nota entra al grupo que más se le parece entre los que ya existen, y la ventana de 24 h se cuenta desde la primera del grupo. Si se va o entra una nota del principio, las de después pueden repartirse distinto: un grupo se parte en dos o dos se juntan, y cambian los ids.
+
+La página ya no depende del id (reconoce la misma noticia por una url compartida). Lo que se confunde es `vueltas.jsonl` y, con eso, `medir`.
+
+**Dos propuestas (no hice ninguna):**
+
+| | Qué es | Qué costaría |
 |---|---|---|
-| Cada 30 minutos | Schedule Trigger | 1.4 |
-| Rutas | Edit Fields (Set) | 3.5 |
-| Feeds, Preparar, Decidir, Casos, Resultado | Code | 2 |
-| Bajar, IA | HTTP Request | 4.5 |
-| ¿Hay preguntas?, ¿Avisar? | If | 2.3 |
-| Avisar, Mandar | Send Email | 2.1 |
-| Webhook | Webhook | 2.2 |
-| Contestar | Respond to Webhook | 1.5 |
-| Si se rompe | Error Trigger | 1 |
-| Probar | Manual Trigger | 1 |
+| A · Memoria de ids | Un archivo `datos/hechos.json` con `url → id`. En cada vuelta, si un hecho comparte una url con un hecho que ya tenía id, hereda ese id (el más viejo, si hay varios). Arregla los tres caminos para `vueltas.jsonl`, `medir` y la capa 4 | Unas 60 líneas en `scripts/vuelta.js` y en `src/capa4.js` (el núcleo sigue puro: el id se corrige después de `preparar`), un archivo más en `datos/` que se recorta a 48 h, y tests. Medio día |
+| B · Solo `medir` | `medir` cuenta un hecho por sus urls y no por su id: dos ids que comparten una url son el mismo hecho | Unas 30 líneas en `scripts/medir.js` y un test. Una hora. No cambia lo que se guarda |
 
-## Qué decidí por mi cuenta
+Mi recomendación: **la B.** La capa 4 ya busca lo juzgado por url y no por id (`buscarGuardado` de `src/ia.js`), y la página también: un id nuevo no gasta otra pregunta a la IA ni sale como «Nueva». Lo único que se confunde es la medición. La A sirve solo si algún día se quiere un id estable para otra cosa (por ejemplo, para los motivos de «No por hoy» de la página C, si se guardan por id).
 
-1. **`acumulado.borradas` viaja como ids** (no las notas enteras) y **`lectura` sin sus notas**: pesan en los datos estáticos y la línea solo cuenta cuántas. `leidas` sale de sumar las notas de cada feed.
-2. **`mitadDos` recalcula los desmentidos y el `viejo` de cada hecho** en vez de recibirlos de las preguntas: `preparar` es determinista con las mismas notas, así que dan lo mismo y n8n pasa solo `{ id, texto }`.
-3. **`sinIA` es true solo si hubo juicios y todos son provisorios.** Sin ninguna noticia que juzgar, la lista no dice «sin IA».
-4. **El aviso por portales es «había feeds y ninguno contestó».** La carta, leída al pie de la letra, choca en E3: con el `guardado` de E2 (todos los cuerpos en 0) E3 avisaría por portales, y la carta pide `hayQue: false`. En los tests E2 a E5 usan una lista de feeds vacía; la caída de todos los portales tiene su propio test. Si caen los portales y también la IA, el asunto dice «la IA no contestó y ningún portal contestó».
-5. **Los nodos Code son finos:** casi todo vive en `src/capa4.js` (`cuerpoIA`, `textoDeRespuesta`, `itemsDePrueba`, `resultadoPrueba`), con tests, y los nodos solo pegan.
-6. **`config/` se lee del disco en cada vuelta** (con `fs`, no `require`): un `git pull` de `config/` vale desde la vuelta siguiente. `src/capa4.js` queda en memoria: un cambio de código vale después de reiniciar n8n (está en el LEEME y en la guía).
-7. **Bajar** lleva «Never Error» (un 404 llega como `statusCode` y sale «HTTP 404», como en `npm run vuelta`) y la respuesta en `body`. **IA** va de a 5 pedidos por segundo («Batching»), por el límite de pedidos por minuto de una cuenta nueva; el cuerpo va con `JSON.stringify($json.cuerpoIA)`.
-8. **Preparar pone `sinPreguntas` en todos los ítems** (true o false) y el IF pregunta «es false»: así no compara contra un campo que no existe.
-9. **Las credenciales en los JSON llevan un id fijo de mentira** (`credencial-7m-anthropic`, etc.) y el nombre: con `n8n import:credentials` y esos ids quedan enganchadas solas; desde la pantalla, se eligen a mano. **`errorWorkflow` no está en `settings`** (vacío).
-10. **El login:** al cambiar la contraseña se cierran las sesiones de esa persona; contraseña nueva de 8 letras o más; al sexto intento fallido contesta 429 **aunque la contraseña sea la buena** (si no, el tope no frena nada); `GET /olvide` y `GET /nueva-clave` sirven el mismo `entrar.html`, que muestra el formulario que toca; el pedido a n8n no se espera (la respuesta tarda lo mismo exista o no el mail); `usuarios.json` se escribe con permisos 600.
-11. **La franja «contactá al administrador» sale también en una lista de ejemplo vieja** (antes ya salía «No se actualiza desde…»). Con 1 provisoria dice «1 noticia con bloque provisorio: la IA no contestó por ella».
-12. **La IA falsa** busca «internacional» sin mirar mayúsculas.
+## Lo que decidí por mi cuenta
 
-## Lo que a la guía le puede faltar (para alguien que no sabe de n8n)
+- `src/zona.js` usa además `emisor` del núcleo para contar los grupos igual que `gruposIndependientes` (un cable copiado suma para la agencia). Ese grupo se cuenta en la zona del portal que lo publicó.
+- En `confirmados` de la zona, `anillo` y `tambienNacional` se calculan para todos los candidatos, viejos incluidos, como pide la carta. Por eso «Confirmados» de ZONA en `medir` incluye viejos, igual que lo nacional.
+- E3 no lo arma el agrupador: los tres títulos de E3 («Comienza el Campeonato Provincial de handball», «Comienza el provincial de juveniles», «Comodoro recibe al Provincial Juvenil de Handball») salen en tres hechos distintos con las reglas de hoy. Los tests de `anilloDe` y `decidirZona` arman el hecho a mano. E1, E2 y E4 sí los une el agrupador.
+- Con `--sin-leer`, el renglón de la zona dice «Zona · feeds: no se leyeron», como lo nacional. Si `datos/zona/notas.json` no existe, la zona arranca vacía (no corta); lo nacional sigue cortando si falta `datos/notas.json`.
+- Los feeds de lo nacional y de la zona se leen a la vez (`Promise.all`): la vuelta no tarda el doble.
+- `cargarConfig` recibe qué opción la llamó, así el mensaje dice «--zona necesita una carpeta con feeds.json…» cuando corresponde. `leerOpciones` devuelve también `zona`, y el test de opciones lo suma.
+- `test/lector.test.js`, `test/leer.test.js`, `scripts/probar-feeds.js` y el comentario de `scripts/vuelta.js` nombraban `config/comodoro` o contaban 3 moldes: los cambié a `config/zona` y a 5. Ninguno estaba en la lista de «no se tocan».
+- En el entorno de Claude Code renombré `datos/comodoro` a `datos/zona` (no se sube).
+- La capa 4 (`src/capa4.js`) no se tocó. Su lista ahora también trae `orden: ["nacional", "internacional"]` porque usa `armarEntrega`; la página la lee igual.
 
-- **Node 24:** si Don Julio instaló n8n 2.x con npm, necesita Node 24; con Docker no importa (la imagen trae el suyo). El login necesita Node 20 o más **afuera** de Docker: la guía dice cómo instalarlo.
-- **Runners externos:** si Don Julio los usa, la documentación de n8n dice que `NODE_FUNCTION_ALLOW_*` van en el contenedor de runners; que también haya que montar ahí las carpetas lo deduzco (el código corre en ese proceso), no lo probé. Se ve en la Fase B.
-- **Permisos:** el usuario de n8n en Docker es el 1000; la guía hace `chown` de la carpeta de datos y corre el login como 1000. Si Don Julio tiene otro esquema, se adapta en la tanda.
-- **«Activar» en n8n 2.x** es «Publish»; la guía nombra los dos.
-- **Cuentas nuevas de Anthropic** tienen límites bajos de pedidos por minuto: la primera vuelta pregunta por todos los hechos a juzgar (5 hoy, con la lista real pueden ser 10 a 15). Con el batching de 5 por segundo no debería pasar; si pasa, esos hechos salen provisorios y se vuelven a preguntar en la vuelta siguiente.
-- Visto de paso (no lo toqué; es de antes): las notas de más de 48 h que el feed sigue mostrando se cuentan como «nuevas» en cada vuelta (`acumular` las borra y las vuelve a agregar): por eso la segunda vuelta dice 108 nuevas. No cambia ninguna decisión.
+## Para Alejo, cuando vuelva a correr en su compu
 
-## Qué queda pendiente y para quién
-
-- **Alejo / Cowork:** si se pasa a `claude-haiku-5-5` antes de instalar (un valor en `config/reglas.json`).
-- **Alejo con Don Julio:** las respuestas del cuadro 1 de `docs/INSTALAR_EN_EL_SERVIDOR.md`, la casilla SMTP, la clave de Anthropic y los mails de Canal 2.
-- **Claude Code (Fase B):** acompañar la instalación, la prueba de la unión 3 veces con la IA real, la primera vuelta real, D1 a D6 y su reporte.
-- **Cowork:** la medición completa del 16/10 (la tabla parcial ya está en `pendientes.md`).
+Una sola ventana: `Rename-Item C:\7M\datos\comodoro zona` (una vez) y después `npm run vuelta -- --cada 30 --zona config/zona`. Está en `docs/CORRER_EN_MI_COMPU.md`, punto 6.
 
 ============================================================
 FIN DEL PAQUETE
