@@ -345,3 +345,36 @@ test('cronograma: con "suma": true la excepción se agrega; sin corte normal en 
   const sinNormal = { ...cronograma, zonas: [{ zona: 'Zona Sur y Central', dias: [], desde: '18:00' }] };
   assert.deepEqual(delCronograma('2025-12-25', 'Zona Sur y Central', sinNormal), ['2025-12-25 08:00']);
 });
+
+/* ───────────── carta e · paso 1 · la fecha pegada a la hora de inicio ───────────── */
+
+const diaCon = (texto, fechaPublicacion = '2026-10-16T13:00:00.000Z') => datosDeAviso(texto, { fechaPublicacion, cfg });
+
+test('fecha pegada a la hora de inicio · E1', () => {
+  const d = diaCon('Hoy, viernes 16 de octubre, finalizaron las tareas en el acueducto. Se normaliza el servicio en 23 barrios y se corta en el resto desde las 00:00hs. del sábado 17, y por un lapso de 18 horas.');
+  assert.deepEqual([d.dia, d.desde, d.duracionHoras], ['2026-10-17', '00:00', 18]);
+});
+
+test('fecha pegada a la hora de inicio · E2', () => {
+  assert.equal(diaCon('Corte de agua en 23 barrios desde las 00:00 hs. de hoy viernes 16 de octubre y por 24 horas').dia, '2026-10-16');
+});
+
+test('fecha pegada a la hora de inicio · E3', () => {
+  assert.equal(diaCon('Corte programado de agua el jueves 8 de octubre, desde las 15:00 hs. y por un lapso de 24 horas, en los siguientes barrios: Laprida, Güemes.').dia, '2026-10-08');
+});
+
+test('fecha pegada a la hora de inicio · E4', () => {
+  assert.equal(diaCon('Se extiende el corte hasta mañana. El servicio se reanuda desde las 06:00 del lunes 20').dia, '2026-10-20');
+});
+
+test('fecha pegada a la hora de inicio · E5', () => {
+  assert.equal(diaCon('Corte de energía desde las 09:00 del domingo 1 en zona norte', '2026-10-30T13:00:00.000Z').dia, '2026-11-01');
+});
+
+test('fecha pegada a la hora de inicio · E6', () => {
+  assert.equal(diaCon('Mañana habrá corte programado de energía en zona norte de 9 a 13 horas').dia, '2026-10-17');
+});
+
+test('fecha pegada a la hora de inicio · E7', () => {
+  assert.equal(diaCon('Corte de agua desde las 10 hs del miércoles 14 por tareas de mantenimiento').dia, '2026-10-14');
+});

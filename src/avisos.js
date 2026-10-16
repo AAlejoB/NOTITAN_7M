@@ -190,18 +190,38 @@ function programadoDe(t) {
 }
 
 const SEMANA_RE = SEMANA.join('|');
+const HH = '(\\d{1,2})(?:[:.](\\d{2}))?';
+const hhmm = (h, m) => (Number(h) <= 24 ? `${dosCifras(Number(h) % 24)}:${m || '00'}` : null);
+const LARGO_PEDAZO = 60;
 
-function diaDe(t, fechaPublicacion) {
-  const base = diaAR(fechaPublicacion);
-  // Con número: «jueves 08 de octubre», «8 de octubre». En el año de la publicación; si queda más de 30 días atrás, el siguiente.
-  const conNumero = t.match(new RegExp(`\\b(\\d{1,2}) de (${MESES.join('|')})\\b`));
-  if (conNumero) {
-    const anio = Number(base.slice(0, 4));
-    let dia = `${anio}-${dosCifras(MESES.indexOf(conNumero[2]) + 1)}-${dosCifras(Number(conNumero[1]))}`;
-    if (Date.parse(base) - Date.parse(dia) > 30 * DIA) dia = `${anio + 1}${dia.slice(4)}`;
-    return dia;
-  }
-  // Sin número: el primero que aparece de «hoy», «mañana» y «el/este <día de la semana>».
+// «jueves 08 de octubre», «8 de octubre»: en el año de la publicación; si queda más de 30 días atrás, el siguiente.
+function diaConMes(t, base) {
+  const m = t.match(new RegExp(`\\b(\\d{1,2}) de (${MESES.join('|')})\\b`));
+  if (!m) return null;
+  const anio = Number(base.slice(0, 4));
+  const dia = `${anio}-${dosCifras(MESES.indexOf(m[2]) + 1)}-${dosCifras(Number(m[1]))}`;
+  return Date.parse(base) - Date.parse(dia) > 30 * DIA ? `${anio + 1}${dia.slice(4)}` : dia;
+}
+
+// «sábado 17», «del lunes 20» (sin mes): el mes de la publicación; si queda más de 7 días antes, el siguiente. Manda el
+// número: el día de la semana escrito no se usa para calcular.
+function diaConSemanaYNumero(t, base) {
+  const m = new RegExp(`\\b(?:${SEMANA_RE}) (\\d{1,2})\\b(?!\\s*(?:[:.]\\d|hs?\\b|horas\\b))`).exec(t);
+  if (!m) return null;
+  let anio = Number(base.slice(0, 4));
+  let mes = Number(base.slice(5, 7));
+  const armar = () => `${anio}-${dosCifras(mes)}-${dosCifras(Number(m[1]))}`;
+  // «31» en un mes de 30 días no es una fecha (Date.parse la pasaría al mes siguiente).
+  const existe = d => !Number.isNaN(Date.parse(d)) && new Date(Date.parse(d)).toISOString().slice(0, 10) === d;
+  let dia = armar();
+  if (existe(dia) && Date.parse(base) - Date.parse(dia) <= 7 * DIA) return dia;
+  if (++mes > 12) { mes = 1; anio++; }
+  dia = armar();
+  return existe(dia) ? dia : null;
+}
+
+// Sin número: el primero que aparece de «hoy», «mañana» y «el/este <día de la semana>».
+function diaSinNumero(t, base) {
   const candidatos = [];
   const hoy = t.search(/\bhoy\b/);
   if (hoy >= 0) candidatos.push([hoy, base]);
@@ -216,8 +236,22 @@ function diaDe(t, fechaPublicacion) {
   return candidatos.length ? candidatos[0][1] : null;
 }
 
-const HH = '(\\d{1,2})(?:[:.](\\d{2}))?';
-const hhmm = (h, m) => (Number(h) <= 24 ? `${dosCifras(Number(h) % 24)}:${m || '00'}` : null);
+// El día del corte. Primero, la fecha pegada a la hora de inicio: lo que sigue a «desde las HH» o «a partir de las HH» hasta
+// la primera coma, punto y coma o punto final (60 caracteres como mucho): «… finalizaron … desde las 00:00hs. del sábado 17,»
+// es el sábado 17, aunque el comunicado empiece con «Hoy, viernes 16 de octubre». Si no hay hora de inicio o ese pedazo no
+// trae fecha, lo de antes sobre el texto entero: «N de <mes>» y si no, hoy / mañana / el <día de la semana>.
+function diaDe(t, fechaPublicacion) {
+  const base = diaAR(fechaPublicacion);
+  const inicio = new RegExp(`\\b(?:desde|a partir de) las ${HH}\\s*(?:hs?\\b\\.?|horas\\b)?`).exec(t);
+  if (inicio) {
+    let pedazo = t.slice(inicio.index + inicio[0].length).slice(0, LARGO_PEDAZO);
+    const fin = pedazo.search(/[,;]|\.(?=\s|$)/);
+    if (fin >= 0) pedazo = pedazo.slice(0, fin);
+    const dia = diaConMes(pedazo, base) || diaConSemanaYNumero(pedazo, base) || diaSinNumero(pedazo, base);
+    if (dia) return dia;
+  }
+  return diaConMes(t, base) || diaSinNumero(t, base);
+}
 
 function horarioDe(t) {
   let desde = null;
