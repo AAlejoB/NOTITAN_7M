@@ -13,6 +13,7 @@
     --azul: #1456c9; --azul-fondo: #e2ecff;
     --violeta: #6a3fb5; --violeta-fondo: #efe8fb;
     --ambar: #8a5200; --ambar-fondo: #fff3dc; --ambar-borde: #d99a2b;
+    --gris-fondo: #e6e9ee;
     --marca: #1456c9; --marca-texto: #ffffff; --apagado: #aeb4bd;
     --barra: #ffffffee;
   }
@@ -23,6 +24,7 @@
       --azul: #8cb5ff; --azul-fondo: #15264a;
       --violeta: #c4a8ff; --violeta-fondo: #2a1d45;
       --ambar: #f2b650; --ambar-fondo: #34270e; --ambar-borde: #a77b1d;
+      --gris-fondo: #262c35;
       --marca: #5b92ff; --marca-texto: #08142e; --apagado: #566070;
       --barra: #1a1f26ee;
     }
@@ -72,6 +74,10 @@
   .sello { background: var(--verde-fondo); color: var(--verde); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600; }
   .sello.viab { background: var(--violeta-fondo); color: var(--violeta); }
   .sello.mano { background: var(--ambar-fondo); color: var(--ambar); }
+  /* los avisos: programado en verde (el sello de siempre), avería en naranja, cronograma de verano (o sin saber) en gris */
+  .sello.gris { background: var(--gris-fondo); color: var(--suave); }
+  .datos-aviso { margin: 6px 0 0; font-size: 15px; font-weight: 600; }
+  .datos-aviso button { background: none; border: 0; padding: 0; color: var(--azul); font: inherit; text-decoration: underline; min-height: 0; }
   .nueva { background: var(--azul-fondo); color: var(--azul); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
   .recien { background: var(--verde); color: var(--tarjeta); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
   .noticia h3 { margin: 0; font-size: 17px; line-height: 1.3; }
@@ -186,12 +192,47 @@
 
   /* ───────────── dibujar ───────────── */
 
+  // Un link por medio. Sin url (el cronograma de verano) va como texto.
   function links(t) {
     var vistos = {};
     var unaPorMedio = t.links.filter(function (l) { if (vistos[l.medio]) return false; vistos[l.medio] = true; return true; });
     return h('p', { clase: 'links' }, unaPorMedio.map(function (l) {
-      return h('a', { href: l.url, target: '_blank', rel: 'noopener noreferrer', texto: l.medio });
+      return l.url ? h('a', { href: l.url, target: '_blank', rel: 'noopener noreferrer', texto: l.medio }) : h('span', { texto: l.medio });
     }));
+  }
+
+  // Los avisos con la lista de barrios abierta (ids), mientras dure la visita.
+  var barriosAbiertos = [];
+
+  // La línea de un aviso: «Jueves 8/10 · desde las 15:00 · 24 h · Zona Norte · 23 barrios: …» (con más de 6, «y N más» los abre).
+  function datosDeAviso(t) {
+    var linea = L.lineaDeAviso(t);
+    var hijos = [linea.partes.join(' · ')];
+    var b = linea.barrios;
+    if (b) {
+      var abierto = barriosAbiertos.indexOf(t.id) >= 0;
+      var nombres = abierto || !b.resto ? b.todos : b.primeros;
+      hijos.push(' · ' + b.total + (b.total === 1 ? ' barrio: ' : ' barrios: ') + nombres.join(', '));
+      if (b.resto && !abierto) {
+        hijos.push(' y ');
+        hijos.push(h('button', { type: 'button', clase: 'mas-barrios', texto: b.resto + ' más', alApretar: function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          barriosAbiertos.push(t.id);
+          dibujar();
+        } }));
+      }
+    }
+    return h('p', { clase: 'datos-aviso' }, hijos);
+  }
+
+  function claseSelloDe(t) {
+    if (t.via === 'aviso') {
+      var a = t.aviso || {};
+      return a.cronograma || a.programado === null || a.programado === undefined ? 'sello gris' : a.programado ? 'sello' : 'sello mano';
+    }
+    // El sello va en verde (vía A), violeta (vía B: «Respaldada por…») o naranja (una 4/5 que se llevó): no se confunden.
+    return t.via === 'B' ? 'sello viab' : t.via === 'mano' ? 'sello mano' : 'sello';
   }
 
   function alternar(t, foco) {
@@ -201,16 +242,16 @@
 
   // Una confirmada (o una que se llevó): casilla, sello, una pastilla ("Nueva" o "Recién confirmada"; lo llevado, ninguna),
   // título, bajada y links.
+  // Un aviso es igual, con su pastilla de servicio en lugar del sello y la línea de datos debajo del título.
   function noticia(t, opciones) {
     var tildada = L.estaTildada(t, tildadas);
-    var clave = 'k:' + t.links[0].url;
-    // El sello va en verde (vía A), violeta (vía B: «Respaldada por…») o naranja (una 4/5 que se llevó): no se confunden.
-    var claseSello = t.via === 'B' ? 'sello viab' : t.via === 'mano' ? 'sello mano' : 'sello';
-    var meta = [h('span', { clase: claseSello, texto: t.etiqueta })];
+    var clave = 'k:' + L.urlsDe(t)[0];
+    var meta = [h('span', { clase: claseSelloDe(t), texto: t.etiqueta })];
     var pastilla = L.pastillaDe(t, { nuevas: nuevas, recien: recien, llevada: Boolean(opciones && opciones.hora) });
     if (pastilla === 'recien') meta.push(h('span', { clase: 'recien', texto: 'Recién confirmada' }));
     else if (pastilla === 'nueva') meta.push(h('span', { clase: 'nueva', texto: 'Nueva' }));
     var cuerpo = [h('div', { clase: 'meta' }, meta), h('h3', { texto: t.titulo })];
+    if (t.via === 'aviso') cuerpo.push(datosDeAviso(t));
     cuerpo.push(bajada(t));
     var casilla = h('input', { type: 'checkbox', 'data-k': clave, checked: tildada, alCambiar: function () { alternar(t, clave); } });
     var hijos = [h('label', { clase: 'fila' }, [casilla, h('div', { clase: 'cuerpo' }, cuerpo)]), links(t)];
@@ -229,7 +270,7 @@
   // Una 4/5: título, "4 de 5 medios" y el botón «Llevármela igual» (tildada, dice «Sacar»).
   function cuatroDeCinco(t) {
     var tildada = L.estaTildada(t, tildadas);
-    var clave = 'k:' + t.links[0].url;
+    var clave = 'k:' + L.urlsDe(t)[0];
     orden.push(t);
     return h('article', { clase: 'noticia' + (tildada ? ' tildada' : '') }, [
       h('h4', { texto: t.titulo }),

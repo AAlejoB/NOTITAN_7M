@@ -497,6 +497,55 @@ async function comprobar(navegador, URL, lista) {
   ok(titulosDeSiempre.length === 2 && /^Nacionales/.test(titulosDeSiempre[0]) && /^Internacionales/.test(titulosDeSiempre[1]),
     'zona: con la lista de ejemplo de siempre se dibujan dos bloques, como antes (' + titulosDeSiempre.join(' | ') + ')');
 
+  /* ── 8c · los avisos de cortes: el bloque va primero, con la pastilla y la línea de datos ── */
+  console.log('\n# 8c · los avisos');
+  const conAvisos = JSON.parse(JSON.stringify(lista));
+  const avisoTodo = {
+    id: 'a:scpl.coop:2898', titulo: 'CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR TAREAS PROGRAMADAS', bajada: 'Mañana, jueves 08 de octubre, desde las 15:00hs…', etiqueta: 'Agua · programado', via: 'aviso', grupos: 2, medios: ['SCPL', 'ADNSUR'],
+    links: [{ medio: 'SCPL', url: 'https://scpl.coop/index.php/site/ver-nota?id=2898' }, { medio: 'ADNSUR', url: 'https://www.adnsur.com.ar/corte-agua' }],
+    aviso: { servicio: 'agua', programado: true, dia: '2026-10-08', desde: '15:00', hasta: '15:00', duracionHoras: 24, zona: null, cronograma: false,
+      barrios: ['Laprida', 'Güemes', 'Sarmiento', 'Manantial Rosales', 'Bella Vista Norte', 'Ara San Juan', 'Padre Corti', 'Km.8'] },
+  };
+  const avisoSinDia = {
+    id: 'a:elpatagonico.com:sin-luz', titulo: 'Varios sectores de Comodoro se quedaron sin luz', bajada: '', etiqueta: 'Luz · avería', via: 'aviso', grupos: 1, medios: ['El Patagónico'],
+    links: [{ medio: 'El Patagónico', url: 'https://www.elpatagonico.com/sin-luz' }],
+    aviso: { servicio: 'luz', programado: false, dia: null, desde: null, hasta: null, duracionHoras: null, barrios: [], zona: null, cronograma: false },
+  };
+  conAvisos.orden = ['avisos', 'nacional', 'internacional'];
+  conAvisos.bloques = { avisos: { nombre: 'Avisos', minimo: 1, tope: null, noticias: [avisoTodo, avisoSinDia], aMano: [], afueraPorTope: 0 }, ...conAvisos.bloques };
+  ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
+  p = await ctx.newPage();
+  vigilar(p);
+  await p.route('**/lista.json', r => r.fulfill({ json: { ...conAvisos, ejemplo: false, generadaEn: hace(5) } }));
+  await p.goto(URL);
+  await p.waitForSelector('.noticia');
+  const titulosAvisos = await p.locator('.bloque > h2').allTextContents();
+  ok(titulosAvisos[0] === 'Avisos · 2' && /^Nacionales/.test(titulosAvisos[1]), 'avisos: el bloque sale primero y dice «Avisos · 2» (' + titulosAvisos.join(' | ') + ')');
+  const primerBloque = p.locator('.bloque').first();
+  const cartaTodo = primerBloque.locator('article.noticia').nth(0);
+  const cartaSinDia = primerBloque.locator('article.noticia').nth(1);
+  ok((await cartaTodo.locator('.sello').textContent()) === 'Agua · programado' && (await color(cartaTodo.locator('.sello'))) === 'rgb(23, 114, 74)', 'avisos: la pastilla «Agua · programado» en verde');
+  ok((await cartaSinDia.locator('.sello.mano').textContent()) === 'Luz · avería' && (await color(cartaSinDia.locator('.sello'))) === NARANJA.claro, 'avisos: la pastilla «Luz · avería» en naranja');
+  const lineaTodo = await cartaTodo.locator('.datos-aviso').textContent();
+  ok(lineaTodo === 'Jueves 8/10 · desde las 15:00 · 24 h · 8 barrios: Laprida, Güemes, Sarmiento, Manantial Rosales, Bella Vista Norte, Ara San Juan y 2 más', 'avisos: la línea de datos «' + lineaTodo + '»');
+  await cartaTodo.locator('.datos-aviso button').click();
+  const lineaAbierta = await primerBloque.locator('article.noticia').nth(0).locator('.datos-aviso').textContent();
+  const tildadaTrasAbrir = await primerBloque.locator('article.noticia').nth(0).locator('input[type=checkbox]').isChecked();
+  ok(lineaAbierta.endsWith('Padre Corti, Km.8') && !tildadaTrasAbrir, 'avisos: «2 más» muestra el resto de los barrios sin tildar la tarjeta');
+  ok((await cartaSinDia.locator('.datos-aviso').textContent()) === 'Sin horario en el aviso: abrí el link', 'avisos: sin día ni horario la línea dice «Sin horario en el aviso: abrí el link»');
+  ok((await cartaTodo.locator('.links a').allTextContents()).join(',') === 'SCPL,ADNSUR', 'avisos: los links, la SCPL primero');
+  await primerBloque.locator('article.noticia').nth(0).locator('input[type=checkbox]').check();
+  await primerBloque.locator('article.noticia').nth(1).locator('input[type=checkbox]').check();
+  await p.click('#copiar');
+  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
+  const pegadoAvisos = await p.evaluate(() => navigator.clipboard.readText());
+  ok(pegadoAvisos === 'Corte de agua programado · jueves 8/10 desde las 15:00, 24 h · Barrios: Laprida, Güemes, Sarmiento, Manantial Rosales, Bella Vista Norte, Ara San Juan, Padre Corti, Km.8 · Fuente: SCPL https://scpl.coop/index.php/site/ver-nota?id=2898 · ADNSUR https://www.adnsur.com.ar/corte-agua\n\nCorte de luz por avería · Fuente: El Patagónico https://www.elpatagonico.com/sin-luz',
+    'avisos: lo que se copia es una línea por aviso: ' + JSON.stringify(pegadoAvisos));
+  ok(/Te la llevaste a las \d\d:\d\d/.test(await p.locator('.bloque').first().locator('.hora-llevada').first().textContent()), 'avisos: lo copiado queda como «Te la llevaste», igual que una noticia');
+  await ctx.close();
+  const sinAvisos = await conLista({ generadaEn: hace(5) }, async q => ({ datos: await q.locator('.datos-aviso').count(), primero: (await q.locator('.bloque > h2').allTextContents())[0] }));
+  ok(sinAvisos.datos === 0 && /^Nacionales/.test(sinAvisos.primero), 'avisos: sin bloque avisos nada cambia (primero Nacionales, ninguna línea de aviso)');
+
   /* ── 9 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
   console.log('\n# 9 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
   const carpeta = CARPETA_CAPTURAS;

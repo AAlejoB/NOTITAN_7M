@@ -10,6 +10,10 @@
  *   si el programa le cambia el id o le suma notas, comparte al menos una url y sigue siendo la misma.
  *   `vistas` son las urls de cualquier tarjeta que se mostró; `vistasConfirmadas`, solo las de las tarjetas de la vía A
  *   («Confirmada por N medios»): sirve para saber si una que ya se vio sin esa etiqueta (como 4/5 o vía B) recién la lleva.
+ *   Una tarjeta sin ningún link (el aviso del cronograma de verano) se reconoce por su id: 'id:<id>'.
+ *
+ * Tarjeta de aviso (bloque «Avisos», via: 'aviso'): trae además aviso: { servicio, programado, dia, desde, hasta,
+ * duracionHoras, barrios, zona, cronograma }. lineaDeAviso arma lo que se ve debajo del título y lineaParaCopiar lo que se copia.
  */
 (function (raiz, fabrica) {
   const L = fabrica();
@@ -40,13 +44,74 @@
 
   /* ───────────── las tarjetas ───────────── */
 
-  const urlsDe = t => (t.links || []).map(l => l.url);
+  function urlsDe(t) {
+    const urls = (t.links || []).map(l => l.url).filter(Boolean);
+    return urls.length ? urls : ['id:' + t.id];
+  }
 
   // Lo que se copia: título, bajada (si hay) y un renglón por link; una línea en blanco entre noticias. Sin sello.
+  // Un aviso se copia en una sola línea (lineaParaCopiar).
   function textoParaCopiar(tarjetas) {
     return tarjetas
-      .map(t => [t.titulo, ...(t.bajada ? [t.bajada] : []), ...(t.links || []).map(l => `${l.medio}: ${l.url}`)].join('\n'))
+      .map(t => (t.aviso ? lineaParaCopiar(t) : [t.titulo, ...(t.bajada ? [t.bajada] : []), ...(t.links || []).map(l => `${l.medio}: ${l.url}`)].join('\n')))
       .join('\n\n');
+  }
+
+  /* ───────────── los avisos (cortes) ───────────── */
+
+  const SEMANA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const MAX_BARRIOS = 6;
+  const mayuscula = t => (t ? t[0].toUpperCase() + t.slice(1) : t);
+
+  // '2026-10-08' → 'jueves 8/10'
+  function diaCorto(dia) {
+    const [a, m, d] = dia.split('-').map(Number);
+    return `${SEMANA[new Date(Date.UTC(a, m - 1, d)).getUTCDay()]} ${d}/${m}`;
+  }
+
+  // El día, el horario y la duración que haya: { dia: 'jueves 8/10', horario: 'desde las 15:00' | 'de 08:00 a 14:00' | 'hasta las 14:00', duracion: '24 h' }.
+  function cuandoDeAviso(a) {
+    let horario = null;
+    if (a.desde && a.hasta && !a.duracionHoras) horario = `de ${a.desde} a ${a.hasta}`;
+    else if (a.desde) horario = `desde las ${a.desde}`;
+    else if (a.hasta) horario = `hasta las ${a.hasta}`;
+    return { dia: a.dia ? diaCorto(a.dia) : null, horario, duracion: a.duracionHoras ? `${a.duracionHoras} h` : null };
+  }
+
+  const zonaDeAviso = a => (a.zona && a.zona.length ? a.zona.join(' y ') : null);
+
+  // Lo que se ve debajo del título de un aviso, solo con lo que haya:
+  // { partes: ['Jueves 8/10 · desde las 15:00 · 24 h', 'Zona Norte'], barrios: { total, primeros, resto, todos } | null }.
+  // Sin día ni horario, la primera parte es «Sin horario en el aviso: abrí el link».
+  function lineaDeAviso(t) {
+    const a = t.aviso || {};
+    const c = cuandoDeAviso(a);
+    const cuando = [c.dia, c.horario, c.duracion].filter(Boolean).join(' · ');
+    const partes = [c.dia || c.horario ? mayuscula(cuando) : 'Sin horario en el aviso: abrí el link'];
+    const zona = zonaDeAviso(a);
+    if (zona) partes.push(zona);
+    const todos = a.barrios || [];
+    const barrios = todos.length
+      ? { total: todos.length, primeros: todos.slice(0, MAX_BARRIOS), resto: Math.max(0, todos.length - MAX_BARRIOS), todos: [...todos] }
+      : null;
+    return { partes, barrios };
+  }
+
+  // «Corte de agua programado · jueves 8/10 desde las 15:00, 24 h · Zona Norte · Barrios: … · Fuente: SCPL <url>», con lo que haya.
+  function lineaParaCopiar(t) {
+    const a = t.aviso || {};
+    const servicio = a.servicio ? `Corte de ${a.servicio}` : 'Corte';
+    const tipo = a.cronograma ? ' · cronograma de verano' : a.programado === true ? ' programado' : a.programado === false ? ' por avería' : '';
+    const c = cuandoDeAviso(a);
+    const cuando = [[c.dia, c.horario].filter(Boolean).join(' '), c.duracion].filter(Boolean).join(', ');
+    const fuentes = (t.links || []).map(l => (l.url ? `${l.medio} ${l.url}` : l.medio));
+    return [
+      servicio + tipo,
+      cuando,
+      zonaDeAviso(a),
+      (a.barrios || []).length ? `Barrios: ${a.barrios.join(', ')}` : null,
+      fuentes.length ? `Fuente: ${fuentes.join(' · ')}` : null,
+    ].filter(Boolean).join(' · ');
   }
 
   // «4 de 5 medios» (los nombres ya están en los links de abajo)
@@ -237,7 +302,7 @@
   }
 
   return {
-    CLAVE, haceCuanto, horaAR, urlsDe, textoParaCopiar, etiquetaMedios, estaTildada, alternarTilde, textoBarra,
+    CLAVE, haceCuanto, horaAR, urlsDe, textoParaCopiar, diaCorto, cuandoDeAviso, lineaDeAviso, lineaParaCopiar, etiquetaMedios, estaTildada, alternarTilde, textoBarra,
     bloquesADibujar, tituloBloque, avisoBloque, textoAfuera, estadoVacio, normalizarEstado, esNueva, llevadaA, marcarVistas, marcarLlevadas,
     limpiar, nuevasDeLaVisita, esNuevaEnVisita, esRecienConfirmada, recienConfirmadasDeLaVisita, pastillaDe, repartirBloque, cargarEstado, guardarEstado,
   };

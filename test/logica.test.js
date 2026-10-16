@@ -352,3 +352,71 @@ test('bloquesADibujar: con zona sigue lista.orden, usa el nombre y el mínimo de
   assert.equal(L.tituloBloque(b[0].nombre, 1, b[0].minimo), 'Comodoro · 1', 'no «1 de 3»');
   assert.equal(L.avisoBloque(1, b[0].minimo, 0), '');
 });
+
+/* ───────────── los avisos (cortes) ───────────── */
+
+const avisoCompleto = {
+  id: 'a:scpl.coop:2898', titulo: 'CORTE DE AGUA EN 23 BARRIOS', bajada: '', etiqueta: 'Agua · programado', via: 'aviso',
+  links: [{ medio: 'SCPL', url: 'https://scpl.coop/index.php/site/ver-nota?id=2898' }, { medio: 'ADNSUR', url: 'https://www.adnsur.com.ar/x' }],
+  aviso: { servicio: 'agua', programado: true, dia: '2026-10-08', desde: '15:00', hasta: '15:00', duracionHoras: 24,
+    barrios: ['Laprida', 'Güemes', 'Sarmiento', 'Manantial Rosales', 'Bella Vista Norte', 'Ara San Juan', 'Padre Corti', 'Km.8'], zona: ['Zona Norte'], cronograma: false },
+};
+const avisoSinDia = {
+  id: 'a:elpatagonico.com:sin-luz', titulo: 'Varios sectores de Comodoro se quedaron sin luz', bajada: '', etiqueta: 'Luz', via: 'aviso',
+  links: [{ medio: 'El Patagónico', url: 'https://www.elpatagonico.com/sin-luz' }],
+  aviso: { servicio: 'luz', programado: null, dia: null, desde: null, hasta: null, duracionHoras: null, barrios: [], zona: null, cronograma: false },
+};
+const avisoCronograma = {
+  id: 'a:cronograma:2025-11-04:Zona Norte', titulo: 'Corte de agua en Zona Norte · cronograma de verano', bajada: 'Según el cronograma…', etiqueta: 'Agua · cronograma de verano', via: 'aviso',
+  links: [{ medio: 'Cronograma de verano de la SCPL', url: null }],
+  aviso: { servicio: 'agua', programado: true, dia: '2025-11-04', desde: '18:00', hasta: '18:00', duracionHoras: 24, barrios: [], zona: ['Zona Norte'], cronograma: true },
+};
+
+test('avisos: diaCorto y la línea con todo (más de 6 barrios: los 6 primeros y el resto)', () => {
+  assert.equal(L.diaCorto('2026-10-08'), 'jueves 8/10');
+  assert.equal(L.diaCorto('2026-10-27'), 'martes 27/10');
+  const l = L.lineaDeAviso(avisoCompleto);
+  assert.deepEqual(l.partes, ['Jueves 8/10 · desde las 15:00 · 24 h', 'Zona Norte']);
+  assert.equal(l.barrios.total, 8);
+  assert.deepEqual(l.barrios.primeros, ['Laprida', 'Güemes', 'Sarmiento', 'Manantial Rosales', 'Bella Vista Norte', 'Ara San Juan']);
+  assert.equal(l.barrios.resto, 2);
+  assert.equal(l.barrios.todos.length, 8);
+});
+
+test('avisos: sin día ni horario la línea dice «Sin horario en el aviso: abrí el link»; «de 08:00 a 14:00» cuando hay las dos horas', () => {
+  assert.deepEqual(L.lineaDeAviso(avisoSinDia), { partes: ['Sin horario en el aviso: abrí el link'], barrios: null });
+  const conHoras = { ...avisoSinDia, aviso: { ...avisoSinDia.aviso, dia: '2026-10-27', desde: '08:00', hasta: '14:00', zona: ['Zona Sur', 'Zona Central'] } };
+  assert.deepEqual(L.lineaDeAviso(conHoras).partes, ['Martes 27/10 · de 08:00 a 14:00', 'Zona Sur y Zona Central']);
+});
+
+test('avisos: lo que se copia es una línea, con los campos que haya', () => {
+  assert.equal(L.lineaParaCopiar(avisoCompleto),
+    'Corte de agua programado · jueves 8/10 desde las 15:00, 24 h · Zona Norte · Barrios: Laprida, Güemes, Sarmiento, Manantial Rosales, Bella Vista Norte, Ara San Juan, Padre Corti, Km.8 · Fuente: SCPL https://scpl.coop/index.php/site/ver-nota?id=2898 · ADNSUR https://www.adnsur.com.ar/x');
+  assert.equal(L.lineaParaCopiar(avisoSinDia), 'Corte de luz · Fuente: El Patagónico https://www.elpatagonico.com/sin-luz');
+  assert.equal(L.lineaParaCopiar(avisoCronograma), 'Corte de agua · cronograma de verano · martes 4/11 desde las 18:00, 24 h · Zona Norte · Fuente: Cronograma de verano de la SCPL');
+  assert.equal(L.lineaParaCopiar({ ...avisoSinDia, aviso: { ...avisoSinDia.aviso, programado: false } }).startsWith('Corte de luz por avería'), true);
+});
+
+test('avisos: textoParaCopiar mezcla avisos (una línea) y noticias (como siempre)', () => {
+  const noticia = { titulo: 'Título', bajada: 'Bajada', links: [{ medio: 'Clarín', url: 'https://clarin.com/a' }] };
+  assert.equal(L.textoParaCopiar([avisoSinDia, noticia]), `${L.lineaParaCopiar(avisoSinDia)}\n\nTítulo\nBajada\nClarín: https://clarin.com/a`);
+});
+
+test('avisos: el del cronograma no tiene url y se reconoce por su id (tildar, llevar, ver)', () => {
+  assert.deepEqual(L.urlsDe(avisoCronograma), ['id:a:cronograma:2025-11-04:Zona Norte']);
+  const tildadas = L.alternarTilde(avisoCronograma, []);
+  assert.equal(L.estaTildada(avisoCronograma, tildadas), true);
+  assert.equal(L.estaTildada({ ...avisoCronograma, id: 'a:cronograma:2025-11-05:Zona Sur y Central' }, tildadas), false, 'dos del cronograma no se confunden');
+  const est = L.marcarLlevadas([avisoCronograma], L.estadoVacio(), '2025-11-04T13:00:00.000Z');
+  assert.equal(L.llevadaA(avisoCronograma, est), '2025-11-04T13:00:00.000Z');
+  assert.equal(L.esNueva(avisoCronograma, L.marcarVistas([avisoCronograma], L.estadoVacio(), '2025-11-04T13:00:00.000Z')), false);
+  assert.equal(L.pastillaDe(avisoCompleto, { nuevas: L.urlsDe(avisoCompleto) }), 'nueva', 'un aviso nuevo lleva «Nueva», como una noticia');
+});
+
+test('avisos: un bloque «Avisos» vacío no se dibuja y con uno va primero', () => {
+  const base = { cupoMinimo: 3, bloques: { nacional: { noticias: [], aMano: [] }, internacional: { noticias: [], aMano: [] } } };
+  const con = { ...base, orden: ['avisos', 'nacional', 'internacional'], bloques: { ...base.bloques, avisos: { nombre: 'Avisos', minimo: 1, noticias: [avisoSinDia], aMano: [] } } };
+  assert.deepEqual(L.bloquesADibujar(con).map(b => `${b.clave}:${b.nombre}:${b.minimo}`), ['avisos:Avisos:1', 'nacional:Nacionales:3', 'internacional:Internacionales:3']);
+  const vacio = { ...con, bloques: { ...con.bloques, avisos: { ...con.bloques.avisos, noticias: [] } } };
+  assert.deepEqual(L.bloquesADibujar(vacio).map(b => b.clave), ['nacional', 'internacional']);
+});
