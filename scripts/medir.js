@@ -5,6 +5,8 @@
 // En un corte, un hecho cuenta una sola vez (por sus links: dos entradas que comparten una url son el mismo hecho;
 // las líneas viejas, sin urls, por su id), en el bloque de su última vuelta de ese corte.
 // Si las vueltas traen zona (npm run vuelta -- --zona config/zona), cada día suma el bloque ZONA, por anillo.
+// Si traen cortes (con config/zona/avisos.json), suma el bloque AVISOS: por corte, los avisos vigentes distintos de agua / luz / gas
+// (por sus links, como los hechos; los del cronograma de verano no tienen link y se reconocen por su id) y cuántos son del cronograma.
 const { existsSync, readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { ErrorDeUso } = require('./leer.js');
@@ -70,6 +72,17 @@ function resumirZona(vueltas, anillos = ANILLOS) {
     if (!(c.anillo in r.confirmados)) continue;
     r.confirmados[c.anillo]++;
     if (c.tambienNacional) r.tambien[c.anillo]++;
+  }
+  return r;
+}
+
+// Los avisos de un grupo de vueltas (solo las que traen cortes) → { vueltas, agua, luz, gas, cronograma }.
+function resumirAvisos(vueltas) {
+  const conCortes = vueltas.filter(v => v.cortes);
+  const r = { vueltas: conCortes.length, agua: 0, luz: 0, gas: 0, cronograma: 0 };
+  for (const a of ultimaVezDeCada(conCortes, 'lista', v => v.cortes)) {
+    if (['agua', 'luz', 'gas'].includes(a.servicio)) r[a.servicio]++;
+    if (a.cronograma) r.cronograma++;
   }
   return r;
 }
@@ -140,6 +153,18 @@ function tablaZona(cortes, anillos = ANILLOS) {
   return [`ZONA · cada celda es ${anillos.map(a => a.nombre).join(' / ')}`, linea(FILA_ZONA), ancho.map(a => '─'.repeat(a)).join('  '), ...filas.map(linea)];
 }
 
+const FILA_AVISOS = ['Corte', 'Vueltas', 'Vigentes', 'Cronograma'];
+
+function tablaAvisos(cortes) {
+  const fila = (nombre, r) => [nombre, String(r.vueltas), `${r.agua} / ${r.luz} / ${r.gas}`, String(r.cronograma)];
+  const todas = Object.values(cortes).flat();
+  const filas = CORTES.filter(c => (cortes[c] || []).some(v => v.cortes)).map(c => fila(c, resumirAvisos(cortes[c])));
+  filas.push(fila('Día entero (distintos)', resumirAvisos(todas)));
+  const ancho = FILA_AVISOS.map((t, k) => Math.max(t.length, ...filas.map(f => f[k].length)));
+  const linea = f => f.map((c, k) => (k === 0 ? c.padEnd(ancho[k]) : c.padStart(ancho[k]))).join('  ');
+  return ['AVISOS · los vigentes son agua / luz / gas', linea(FILA_AVISOS), ancho.map(a => '─'.repeat(a)).join('  '), ...filas.map(linea)];
+}
+
 // Las líneas del informe de un día. `cortes` es { '08-12': [vueltas], … }.
 function informeDelDia(dia, cortes) {
   const todas = Object.values(cortes).flat();
@@ -155,6 +180,7 @@ function informeDelDia(dia, cortes) {
     ...(caidos.length ? caidos.map(([n, k]) => `  ${n}: en ${k} de ${todas.length} vueltas`) : ['  (ninguno)']),
     `Vueltas sin ningún feed: ${sinNingunFeed}`,
     ...(todas.some(v => v.zona) ? ['', ...tablaZona(cortes)] : []),
+    ...(todas.some(v => v.cortes) ? ['', ...tablaAvisos(cortes)] : []),
   ];
 }
 
@@ -195,4 +221,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { diaYCorteDe, porDiaYCorte, resumir, resumirZona, feedsCaidos, leerVueltas, informe, leerOpciones, CORTES };
+module.exports = { diaYCorteDe, porDiaYCorte, resumir, resumirZona, resumirAvisos, feedsCaidos, leerVueltas, informe, leerOpciones, CORTES };

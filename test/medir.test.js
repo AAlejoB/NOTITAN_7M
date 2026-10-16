@@ -152,3 +152,19 @@ test('por link también en las 4/5 y en la zona', () => {
   assert.deepEqual(resumir(vs).sinFirma, { nacional: 1, internacional: 0 });
   assert.deepEqual(resumirZona(vs).confirmados, { local: 1, chubut: 0 });
 });
+
+test('AVISOS: vigentes distintos por link (el id puede cambiar cuando se suma la SCPL), por servicio, y cuántos del cronograma', () => {
+  const { resumirAvisos } = require('../scripts/medir.js');
+  const corte = (id, servicio, urls, extra = {}) => ({ id, servicio, programado: true, dia: '2026-10-09', zona: null, fuentes: urls.length || 1, cronograma: false, urls, ...extra });
+  const vs = [
+    vuelta('10:05', { cortes: { lista: [corte('a:adnsur.com.ar:x', 'agua', ['https://adnsur/x']), corte('a:elpatagonico.com:l', 'luz', ['https://elpatagonico/l'])] } }),
+    // la SCPL se sumó al corte de agua: cambia el id, comparte el link de ADNSUR
+    vuelta('10:35', { cortes: { lista: [corte('a:scpl.coop:2898', 'agua', ['https://scpl/2898', 'https://adnsur/x']), corte('a:cronograma:2026-10-09:Zona Norte', 'agua', [], { cronograma: true })] } }),
+    vuelta('11:05'),
+  ];
+  assert.deepEqual(resumirAvisos(vs), { vueltas: 2, agua: 2, luz: 1, gas: 0, cronograma: 1 });
+  const texto = informe(vs).join('\n');
+  assert.match(texto, /AVISOS · los vigentes son agua \/ luz \/ gas/);
+  assert.match(texto, /08-12\s+2\s+2 \/ 1 \/ 0\s+1/);
+  assert.doesNotMatch(informe([vuelta('10:05')]).join('\n'), /AVISOS/, 'sin cortes en las vueltas, no hay bloque AVISOS');
+});
