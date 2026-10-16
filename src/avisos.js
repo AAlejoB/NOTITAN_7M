@@ -277,11 +277,19 @@ const CAMPOS = ['servicio', 'programado', 'dia', 'desde', 'hasta', 'duracionHora
 const falta = v => v === null || v === undefined || (Array.isArray(v) && v.length === 0);
 const fuenteDe = (url, cfg) => (cfg.fuentes || []).find(f => dominioDe({ url }) === f.dominio || dominioDe({ url }).endsWith('.' + f.dominio)) || null;
 
+// Las primeras 200 letras del cuerpo, cortadas en una palabra entera.
+function resumir(texto) {
+  const t = String(texto || '');
+  if (t.length <= LARGO_RESUMEN) return t;
+  const corte = t.slice(0, LARGO_RESUMEN);
+  return corte.slice(0, Math.max(corte.lastIndexOf(' '), LARGO_RESUMEN * 0.6)).replace(/[\s,;.]+$/, '') + '…';
+}
+
 // Una nota de la SCPL con la forma de una nota del lector, para que agrupar la entienda.
 function notaDeScpl(n, cfg) {
   const f = fuenteDe(n.url, cfg) || { nombre: 'SCPL', dominio: 'scpl.coop' };
   return {
-    id: `${f.dominio}:${n.id}`, titulo: n.titulo, bajada: String(n.texto || '').slice(0, LARGO_RESUMEN), url: n.url,
+    id: `${f.dominio}:${n.id}`, titulo: n.titulo, bajada: resumir(n.texto), url: n.url,
     portal: f.dominio, fecha: n.fecha, seccion: '', etiqueta: '', firma: '', feed: f.nombre,
     _primaria: true, _medio: f.nombre, _texto: `${n.titulo} ${n.texto || ''}`,
   };

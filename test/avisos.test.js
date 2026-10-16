@@ -165,10 +165,16 @@ test('E6: comunicado de la SCPL + dos notas de portal del mismo corte → 1 avis
   assert.equal(a[0].dia, '2026-10-08');
   assert.equal(a[0].finISO, '2026-10-09T18:00:00.000Z', 'jueves 15:00 + 24 h = viernes 15:00 de Argentina');
   assert.equal(a[0].titulo, T_2898);
-  assert.equal(a[0].resumen, CUERPO_E2.slice(0, 200));
+  assert.equal(a[0].resumen, CUERPO_E2, 'el cuerpo entra entero en 200 letras');
   assert.equal(a[0].cronograma, false);
   assert.equal(etiquetaDeAviso(a[0]), 'Agua · programado');
   assert.deepEqual(Object.keys(a[0]), ['id', 'servicio', 'programado', 'dia', 'desde', 'hasta', 'finISO', 'duracionHoras', 'barrios', 'zona', 'titulo', 'resumen', 'fuentes', 'cronograma', 'publicado']);
+});
+
+test('el resumen de un cuerpo largo se corta en una palabra entera, con «…»', () => {
+  const largo = { ...NOTA_SCPL, texto: `${CUERPO_E2} Se solicita a los vecinos hacer uso racional del servicio durante todo el corte.` };
+  const [a] = armarAvisos({ notasScpl: [largo], ahora: '2026-10-08T12:00:00.000Z', cfg, reglas, portales });
+  assert.equal(a.resumen, `${CUERPO_E2} Se solicita a…`);
 });
 
 test('E6: el aviso vive hasta 12 h después del fin', () => {
