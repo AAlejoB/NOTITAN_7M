@@ -23,12 +23,13 @@ function carpetaDatos() {
 }
 
 // Pide sin seguir redirecciones. → { status, headers, cuerpo }
-function pedir(url, ruta, { metodo = 'GET', form, cookie, cabeceras = {} } = {}) {
+function pedir(url, ruta, { metodo = 'GET', form, crudo, cookie, cabeceras = {} } = {}) {
   return new Promise((resolver, rechazar) => {
     const u = new URL(url);
-    const cuerpo = form ? new URLSearchParams(form).toString() : '';
+    const cuerpo = form ? new URLSearchParams(form).toString() : crudo !== undefined ? crudo : '';
     const req = http.request({ host: u.hostname, port: u.port, path: ruta, method: metodo, headers: {
       ...(form ? { 'content-type': 'application/x-www-form-urlencoded', 'content-length': Buffer.byteLength(cuerpo) } : {}),
+      ...(crudo !== undefined ? { 'content-type': 'application/json', 'content-length': Buffer.byteLength(cuerpo) } : {}),
       ...(cookie ? { cookie } : {}), ...cabeceras,
     } }, res => {
       let c = '';
@@ -176,3 +177,66 @@ test('servir: opciones por defecto y errores de uso', () => {
   assert.throws(() => leerOpciones(['--puerto', 'x']), /--puerto/);
   assert.throws(() => leerOpciones(['--carpeta']), /necesita un valor/);
 });
+
+// ── Carta del 17-10 (la página C), Fase B: las decisiones de cada persona ──
+const { archivoDePersona } = require('../scripts/servir.js');
+const VACIO = { version: 2, decisiones: [], llevadas: [], subidas: [], temasApagados: [] };
+const entrar = async (url, mail, clave) => sesionDe(await pedir(url, '/entrar', { metodo: 'POST', form: { mail, clave } }));
+const ESTADO = {
+  version: 2,
+  decisiones: [
+    { urls: ['https://a/1', 'https://b/1'], que: 'nopor', motivo: 'opinion', hora: '2026-10-16T18:40:00.000Z', sello: 'A', grupos: 5, minimo: 5 },
+    { urls: ['https://a/2'], que: 'nopor', motivo: 'otro', texto: 'hay cosas más importantes', hora: '2026-10-16T18:41:00.000Z', sello: 'A', grupos: 7, minimo: 5 },
+    { urls: ['https://a/3'], que: 'interesa', hora: '2026-10-16T18:42:00.000Z', sello: 'mano', grupos: 4, minimo: 5, subio: true },
+    { urls: ['https://a/4'], que: 'archivo', hora: '2026-10-16T18:43:00.000Z', sello: 'A', grupos: 6, minimo: 5 },
+    { urls: ['id:scpl-2903'], que: 'interesa', hora: '2026-10-16T18:44:00.000Z', sello: 'aviso', grupos: 1, minimo: 1 },
+  ],
+  llevadas: [{ urls: ['https://a/5'], hora: '2026-10-16T14:20:00.000Z' }],
+  subidas: [{ urls: ['https://a/6'], de: 'archivo', hora: '2026-10-16T14:20:00.000Z' }],
+  temasApagados: ['Espectáculos'],
+};
+
+test('E14 · GET /decisiones: sin sesión 401; con sesión y sin archivo, el estado vacío', () => con(async ({ url, clave }) => {
+  const sin = await pedir(url, '/decisiones');
+  assert.equal(sin.status, 401);
+  assert.deepEqual(JSON.parse(sin.cuerpo), { error: 'sin sesión' });
+  assert.equal((await pedir(url, '/decisiones', { metodo: 'PUT', crudo: '{}' })).status, 401);
+  const cookie = await entrar(url, 'ana@ejemplo.com', clave);
+  const r = await pedir(url, '/decisiones', { cookie });
+  assert.equal(r.status, 200);
+  assert.match(r.headers['content-type'], /^application\/json/);
+  assert.deepEqual(JSON.parse(r.cuerpo), VACIO);
+}));
+
+test('E14 · PUT /decisiones: 204, se guarda normalizado en personas/<mail>.json y GET lo devuelve', () => con(async ({ url, dir, clave }) => {
+  const cookie = await entrar(url, 'ana@ejemplo.com', clave);
+  const r = await pedir(url, '/decisiones', { metodo: 'PUT', crudo: JSON.stringify(ESTADO), cookie });
+  assert.equal(r.status, 204);
+  const archivo = path.join(dir, 'personas', 'ana@ejemplo.com.json');
+  assert.deepEqual(JSON.parse(fs.readFileSync(archivo, 'utf8')), ESTADO);
+  assert.deepEqual(fs.readdirSync(path.join(dir, 'personas')), ['ana@ejemplo.com.json'], 'sin temporales sueltos');
+  assert.deepEqual(JSON.parse((await pedir(url, '/decisiones', { cookie })).cuerpo), ESTADO);
+  // Lo que no tiene la forma se acomoda en el servidor.
+  assert.equal((await pedir(url, '/decisiones', { metodo: 'PUT', crudo: JSON.stringify({ ...ESTADO, decisiones: 'x' }), cookie })).status, 204);
+  assert.deepEqual(JSON.parse(fs.readFileSync(archivo, 'utf8')).decisiones, []);
+  assert.deepEqual(JSON.parse(fs.readFileSync(archivo, 'utf8')).temasApagados, ['Espectáculos']);
+  assert.equal((await pedir(url, '/decisiones', { metodo: 'PUT', crudo: 'esto no es json', cookie })).status, 400);
+}));
+
+test('E14 · PUT /decisiones de 300 KB → 413 y no se escribe nada', () => con(async ({ url, dir, clave }) => {
+  const cookie = await entrar(url, 'ana@ejemplo.com', clave);
+  const grande = JSON.stringify({ ...VACIO, relleno: 'x'.repeat(300 * 1024) });
+  const r = await pedir(url, '/decisiones', { metodo: 'PUT', crudo: grande, cookie });
+  assert.equal(r.status, 413);
+  assert.equal(fs.existsSync(path.join(dir, 'personas', 'ana@ejemplo.com.json')), false);
+}));
+
+test('E14 · cada persona ve solo lo suyo; el nombre del archivo sale del mail normalizado', () => con(async ({ url, dir, clave }) => {
+  const claveBea = U.agregar(dir, 'bea@ejemplo.com');
+  const ana = await entrar(url, 'ana@ejemplo.com', clave);
+  const bea = await entrar(url, 'bea@ejemplo.com', claveBea);
+  await pedir(url, '/decisiones', { metodo: 'PUT', crudo: JSON.stringify(ESTADO), cookie: ana });
+  assert.deepEqual(JSON.parse((await pedir(url, '/decisiones', { cookie: bea })).cuerpo), VACIO);
+  assert.equal(archivoDePersona('Ana.Pérez+7m@canal2.com'), 'ana.p_rez_7m@canal2.com.json');
+  assert.equal(archivoDePersona('../../etc/passwd'), '.._.._etc_passwd.json', 'sin barras: nunca sale de personas/');
+}));

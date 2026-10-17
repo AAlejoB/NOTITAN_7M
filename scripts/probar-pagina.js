@@ -201,7 +201,9 @@ async function comprobar(navegador, URL, base, actual) {
     permissions: ['clipboard-read', 'clipboard-write'], ...extra,
   });
   const errores = [];
-  const vigilar = p => { p.on('pageerror', e => errores.push(e.message)); p.on('console', m => { if (m.type() === 'error') errores.push(m.text()); }); };
+  // El 404 de /decisiones no es un error: es como la página sabe que no hay login y guarda en el navegador.
+  const esperado = m => /^Failed to load resource/.test(m.text()) && /\/decisiones$/.test((m.location() || {}).url || '');
+  const vigilar = p => { p.on('pageerror', e => errores.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !esperado(m)) errores.push(m.text()); }); };
   const abrir = async (ctx, { estado = null, clave = CLAVE } = {}) => {
     const p = await ctx.newPage();
     vigilar(p);

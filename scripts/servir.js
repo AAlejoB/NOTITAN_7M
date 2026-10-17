@@ -7,12 +7,14 @@
 //   --escucha <ip>   por defecto 127.0.0.1: delante va el servidor web con HTTPS (proxy inverso), nunca directo a internet.
 //   --n8n <url>      dónde está n8n, para mandar el mail de «olvidé mi clave» por el webhook 7m-correo.
 // Las sesiones y los tokens de «olvidé mi clave» viven en memoria: al reiniciar, todos vuelven a entrar.
+// Las decisiones de cada persona en la página (GET y PUT /decisiones, solo con sesión) viven en <datos>/personas/<mail>.json.
 // Sin dependencias. Códigos: 0 bien (se corta con Ctrl+C) · 1 error de uso o puerto ocupado.
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const U = require('./usuario.js');
+const { normalizarEstado, estadoVacio } = require('../pagina/logica.js');
 
 const ENTRAR_HTML = path.join(__dirname, '..', 'pagina', 'entrar.html');
 const SESION_DIAS = 30;
@@ -21,6 +23,7 @@ const INTENTOS = 5;
 const INTENTOS_MINUTOS = 15;
 const CLAVE_MINIMA = 8;
 const PERMITIDOS = { '/index.html': 'text/html; charset=utf-8', '/logica.js': 'text/javascript; charset=utf-8', '/lista.json': 'application/json; charset=utf-8' };
+const DECISIONES_MAX = 256 * 1024;
 const MSJ_OLVIDE = 'Si el mail está registrado, te llega un correo con un link para elegir una contraseña nueva. Vence en 60 minutos.';
 
 class ErrorDeUso extends Error {}
@@ -65,6 +68,28 @@ function leerCuerpo(req, max = 10000) {
     req.on('end', () => resolver(Object.fromEntries(new URLSearchParams(cuerpo))));
     req.on('error', rechazar);
   });
+}
+
+// El cuerpo tal cual, hasta `max` bytes; si pasa, se sigue leyendo (sin guardarlo) y da { grande: true } para contestar 413.
+function leerTexto(req, max) {
+  return new Promise((resolver, rechazar) => {
+    const partes = [];
+    let largo = 0;
+    req.on('data', c => { largo += c.length; if (largo <= max) partes.push(c); });
+    req.on('end', () => resolver(largo > max ? { grande: true } : { texto: Buffer.concat(partes).toString('utf8') }));
+    req.on('error', rechazar);
+  });
+}
+
+// El archivo de una persona: el mail normalizado, con todo lo que no sea a-z, 0-9, @, ., _ o - cambiado por _.
+const archivoDePersona = mail => U.normalizarMail(mail).replace(/[^a-z0-9@._-]/g, '_') + '.json';
+
+// Se escribe primero en un temporal y después se renombra: si se corta la luz no queda un JSON a medias.
+function escribirSeguro(archivo, contenido) {
+  fs.mkdirSync(path.dirname(archivo), { recursive: true });
+  const temporal = `${archivo}.${process.pid}.${crypto.randomBytes(4).toString('hex')}.tmp`;
+  fs.writeFileSync(temporal, contenido);
+  fs.renameSync(temporal, archivo);
 }
 
 const cookies = req => Object.fromEntries(String(req.headers.cookie || '').split(';').map(c => c.trim().split('=')).filter(p => p[0]).map(([k, ...v]) => [k, v.join('=')]));
@@ -174,6 +199,20 @@ function crearServidor({ carpeta, n8n = 'http://127.0.0.1:5678', cliente = '', a
       return ir(res, '/entrar?nueva=1');
     }
 
+    if (ruta === '/decisiones' && (metodo === 'GET' || metodo === 'PUT')) {
+      const mail = mailDeSesion(req);
+      const json = { 'content-type': 'application/json; charset=utf-8' };
+      if (!mail) return responder(res, 401, JSON.stringify({ error: 'sin sesión' }), json);
+      const archivo = path.join(carpeta, 'personas', archivoDePersona(mail));
+      if (metodo === 'GET') return responder(res, 200, JSON.stringify(normalizarEstado(leerJson(archivo, estadoVacio()))), json);
+      const cuerpo = await leerTexto(req, DECISIONES_MAX);
+      if (cuerpo.grande) return responder(res, 413, JSON.stringify({ error: 'demasiado grande' }), json);
+      let datos;
+      try { datos = JSON.parse(cuerpo.texto); } catch { return responder(res, 400, JSON.stringify({ error: 'no es JSON' }), json); }
+      escribirSeguro(archivo, JSON.stringify(normalizarEstado(datos)));
+      return responder(res, 204, '');
+    }
+
     if (metodo === 'GET' || metodo === 'HEAD') {
       const archivo = ruta === '/' ? '/index.html' : ruta;
       const tipo = PERMITIDOS[archivo];
@@ -230,4 +269,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { crearServidor, servir, leerOpciones, paginaMensaje };
+module.exports = { crearServidor, servir, leerOpciones, paginaMensaje, archivoDePersona };
