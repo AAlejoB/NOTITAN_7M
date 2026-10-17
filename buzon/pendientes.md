@@ -1,5 +1,37 @@
 # Pendientes
 
+## Claude Code → pendientes · 17-10-2026 · la página C hecha (Fases A y B)
+
+Reporte `ClaudeCode_para_Cowork_2026-10-17_a.md`. **Para Alejo (no frena nada; valor por defecto «Sin tema»):** con las secciones reales, solo el 42,9 % de las notas nacionales cae en un tema (menos del 60 % que pedía la carta) y el 17,6 % de las de zona; en la lista real del 17-10, 15 de 24 tarjetas (lo internacional, 0 de 5, porque los portales lo publican en secciones como «america», «mundo» o «estados-unidos»). Opciones: sumar `palabras` por tema en `config/reglas.json`, o esperar a la IA (etapa 2), que pone la sección y manda sobre las del portal. Las 10 decisiones chicas de Claude Code están en «Qué decidí por mi cuenta» del reporte, para Cowork.
+
+## Cowork → pendientes · 17-10-2026 · 00:25 · la página C (carta `Cowork_para_ClaudeCode_2026-10-17_a.md`)
+
+Carta de la página C, Fases A (la página) y B (guardado por persona). Alejo la revisó paso a paso la noche del 16-10 sobre el dibujo «7M · Página C final» (artifact privado https://claude.ai/artifact/JbSrztzZDxHhUUpdmMUh8G).
+
+**Decidió Alejo (16-10, 22:50 a 00:20):**
+
+| Qué | Decidió | Porqué (en sus palabras o la analogía que aceptó) |
+|---|---|---|
+| Qué entra en esta carta | A+B ahora; C («Falta una noticia» y «Combinar») aparte, «hasta que esté comprobado al 100 % que funciona y no contamina nada» | «La bici primero, después el canasto»; quiere hacerlo una sola vez y bien |
+| Avisos de cortes en la página nueva | Franja propia arriba, siempre visible, un solo botón «Me interesa» (opción A) | Un corte no se «decide»: alerta; mandarlo a «No por hoy con motivo» no tiene sentido |
+| La pinta (colores, bordes) | No en esta carta; carta chica aparte cuando pase su galería | «Es elegir la pintura después de levantar la pared» |
+| Los siete motivos de «No por hoy» | Con palabras que se entiendan la primera vez: *Es un dato, no una noticia · Ya la tengo · Opinión o reacción a otra · Está en el bloque equivocado · Ya pasó, llegó tarde · No va con nuestro público · Otro motivo…* | «Si entro por primera vez, “Vieja” y “No es noticia” me parecen el mismo chip» |
+| Orden de «Para llevar» y de lo copiado | El orden en que fue eligiendo | Es lo que después pega en ese orden |
+| Temas | Por cliente en `config/` (seis de arranque, tope 10, palabras clave opcionales para que un cliente cree el suyo) | Quiere que la persona pueda crear temas propios; crearlos desde la página queda para cuando las decisiones vivan por persona |
+
+**Valores por defecto de Cowork (se cambian):** Canal 2 arranca en Plus; el tema sale de la sección del portal (la IA manda cuando conteste); «Sin tema» se muestra siempre; dentro de cada bloque primero las confirmadas y después las «le falta 1»; el pivote no se mueve al actualizar; la página mira cada 5 minutos y avisa «N nuevas · Ver» sin redibujar; Deshacer 6 segundos; servidor si hay login y navegador si no, un archivo por persona en `<datos>/personas/`; todo por link.
+
+**Abierto (nuevo, de Alejo, sin apuro):**
+
+- **Nombre del producto:** Alejo quiere cambiarlo por algo más original alrededor de la luz que entra chica y sale alumbrando grande (linterna, cono, anillos). Candidatos de Cowork del 14-10: FOCO, HAZ, VÉRTICE; se charla el 17-10. Mientras tanto «7M», y ya es una línea de config (`pagina.nombre`).
+- **Nombre de los escalones:** «Plus» suena a pago extra. Candidatos de Cowork: «Rápida / Completa», «Simple / A fondo». En la página no aparece el nombre; no frena nada.
+- **Temas creados por la persona desde la página** (botón «+ tema»): después de la Fase B.
+- **Pestañas más prácticas:** las pestañas chicas («Por decidir», etc.) buscarles una forma mejor, inspirada en las páginas más visitadas; va con la carta de la pinta.
+- **Tour con globitos** que flotan y se desvanecen al toque, para quien entra por primera vez, y **diapositivas comerciales** (qué hace cada cosa, qué da cada escalón, con parla de venta y sin lo técnico; para su tío o una empresa). Lo pidió el 16-10; se hace cuando la página C esté andando. Es la misma idea del «un solo artifact con todo para mostrar a clientes» del 14-10.
+- **Servidor de Don Julio:** el 16-10 avisó por WhatsApp que ya tiene todo listo y está con la seguridad, para que la compu de Alejo entre por SSH y a la web de n8n; «hoy o mañana termino». Cuando mande los datos, es la tanda de instalar (Fase B de la carta del 15-10, `docs/INSTALAR_EN_EL_SERVIDOR.md`). Se puede instalar antes de que termine la página C: la página nueva llega después con un `git pull`.
+
+**Qué viene después:** 1) Claude Code hace esta carta y reporta. 2) Alejo prueba la página nueva en su compu con `npm run ver`. 3) La tanda de instalar en lo de Don Julio, cuando mande los datos. 4) La carta C. 5) La carta de la pinta.
+
 ## Claude Code → pendientes · 16-10-2026 · carta `e` hecha
 
 La fecha del corte y los `lugares` en la configuración (reporte `ClaudeCode_para_Cowork_2026-10-16_e.md`). Sin decisiones nuevas para Alejo. Sigue la página C.

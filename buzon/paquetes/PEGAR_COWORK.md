@@ -1,5 +1,5 @@
 PAQUETE PARA PEGAR · COWORK de NOTITAN_7M
-Armado el 16/10/26, 20:20 (hora de Argentina) con "npm run paquete".
+Armado el 17/10/26, 01:25 (hora de Argentina) con "npm run paquete".
 
 Para el chat de Cowork: este paquete reemplaza abrir el repo. Son 5 archivos, uno atrás del otro, tal cual están en el repo. Leelos en orden y arrancá como dice el primero (LEEME_COWORK.md).
 Lo que escribas (las cartas, con el nombre que indica buzon/LEEME.md) entregalo como texto: Alejo lo pega en el chat de Claude Code, que lo guarda en el repo.
@@ -9,7 +9,7 @@ Archivos de este paquete:
 2. buzon/LEEME.md
 3. CLAUDE.md
 4. buzon/pendientes.md
-5. buzon/ClaudeCode_para_Cowork_2026-10-16_e.md
+5. buzon/ClaudeCode_para_Cowork_2026-10-17_a.md
 
 ============================================================
 ARCHIVO 1 de 5 · buzon/LEEME_COWORK.md
@@ -206,13 +206,14 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 
 ## Estado
 
-- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 371 bien y 1 pendiente a propósito (16-10, carta `e`). `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
+- Capas 1 y 2 hechas: `src/nucleo.js` (funciones puras, sin dependencias), `config/reglas.json`, `config/portales.json`. `npm test` da 378 bien y 1 pendiente a propósito (17-10, página C). `npm run demo` dibuja el embudo de un día inventado, con la vía B incluida.
 - Vía B (firma reconocida) hecha en el núcleo el 2026-10-04: `config/firmas.json` (vacía, la arma Alejo) y `viaB` en `config/reglas.json`.
 - Capa 3 hecha el 2026-10-04: `config/feeds.json` (19 feeds probados), `scripts/probar-feeds.js` (`npm run feeds`), el lector `src/lector.js` y `scripts/leer.js` (`npm run leer`: lee los feeds reales y dibuja el embudo; opciones `--json`, `--umbral`, `--min-comunes`, `--detalle`, `--sin-notas-de-servicio`, `--acumular <archivo>`, `--sin-leer` y `--sin-excluir-rutas`). Con proxy: `NODE_USE_ENV_PROXY=1`.
 - Acumular lo leído (2026-10-04): `acumular` en el núcleo y `npm run leer -- --acumular datos/notas.json` (con `--sin-leer` se verifica sobre lo ya guardado, sin pedirle nada a los portales). Guarda 48 h (`ventanaRecoleccionHoras`); la verificación mira 24 h. `datos/` está en `.gitignore`: el repo es público y no se suben las notas.
 - Perilla del agrupador (2026-10-04): `umbralSimilitud` 0.3, `umbralSeguro` 0.5 y `minPalabrasComunes` 3 en `config/reglas.json`. Una nota entra a un grupo si se parece al menos 0.5, o si se parece entre 0.3 y 0.5 y comparten 3 palabras. El día de ejemplo da lo mismo con 0.3 que con 0.5 (se comparó la salida de `npm run demo`); el test #22 (misma noticia) no se tocó.
 - Notas de servicio con plantilla (2026-10-04): salen en el criterio 1, antes de agrupar y sin contar para verificar. Son 3 moldes en `criterio1.notasDeServicio` de `config/reglas.json` (horario de partido, efemérides, resultados de lotería); en lo descartado llevan el motivo `nota_de_servicio (<nombre>)`. Los moldes son precisos a propósito: no se llevan "a qué hora votan en Brasil" ni "Detienen a funcionarios de la Lotería". `npm run leer` muestra qué sacó el criterio 1 por motivo y tiene `--sin-notas-de-servicio` para comparar antes y después.
 - Orden por cantidad de medios (2026-10-04, decidió Alejo): dentro de cada bloque va primero el hecho con más grupos; si empatan, el más nuevo; la vía B va después de toda la vía A. La IA ya no da `impacto`: no se usa y no sale en ninguna lista. Cada noticia de `decidir` trae la `bajada` del medio.
+- *(Historia: la página de casillas del 04-10 y «Recién confirmada» del 05-10, en los dos ítems que siguen, las reemplazó la página C del 17-10; ver el ítem «La página C».)*
 - La página (2026-10-04, capa 5, sobre el día de ejemplo): `pagina/index.html` (un solo archivo, sin librerías, pensada primero para celular) con `pagina/logica.js` (funciones puras: se prueban con `node --test` y andan también en el navegador), `src/entrega.js` (arma lo que muestra la página a partir de lo que devuelve `decidir`) y `npm run pagina`, que arma `pagina/lista.json` con el día de ejemplo (inventado, marcado `ejemplo: true`, se commitea). Las marcas («Nueva», «Recién confirmada», «Te la llevaste») viven en el navegador de cada persona (`localStorage`, clave `7m-marcas-v1`, 24 h). Lo llevado va apagado salvo el sello y la hora (2026-10-05, Cowork: el sello naranja subió de contraste 2,6 a 5,8). `npm run probar-pagina` (`scripts/probar-pagina.js`) prueba la página en Chromium sobre una copia de `pagina/` (66 comprobaciones; necesita `npm i --no-save playwright`; no entra en `npm test` ni en el workflow de GitHub; con `-- --capturas <nombre>` saca las 3 capturas de `buzon/capturas/`; sin Playwright termina con código 2). Capturas en `buzon/capturas/`. Para verla: servir la carpeta `pagina/` con cualquier servidor estático.
 - «Recién confirmada» (2026-10-05, decidió Alejo, opción C): una pastilla verde llena para una tarjeta de la vía A que la persona ya había visto sin la etiqueta «Confirmada por N medios» (como 4/5 o como vía B) y todavía no se llevó. Dura la visita, igual que «Nueva» (desde que abre o recarga la página hasta que la cierra; «Traer noticias» no empieza una visita nueva). Se apoya en `vistasConfirmadas: { url: hora }` del estado (las urls de las tarjetas de la vía A que se mostraron; la vía B y las 4/5 no entran); un estado guardado por la versión anterior, sin esa clave, arranca como copia de `vistas`, así nada ya visto sale como «recién». Las reglas viven en `pagina/logica.js` (`esRecienConfirmada`, `recienConfirmadasDeLaVisita`, `pastillaDe`; esta última es la única que decide qué pastilla se dibuja: nunca dos, «Recién confirmada» gana sobre «Nueva», y lo llevado va sin pastillas); lo que se copia no lleva ninguna. Los sellos: vía A verde, vía B («Respaldada por…») violeta y una 4/5 que se llevó («elegida a mano») naranja, para que no se confundan con «Confirmada». En las 4/5 que quedan abiertas la línea dice «4 de 5 medios» (los nombres ya están en los links).
 - Las piezas de la IA (2026-10-04, **todavía no se llama a ningún modelo**): `src/ia.js` con `palabrasPropias`, `paresParaUnir`, `unirHechos`, `preguntaUnion` y `leerUnion`, `preguntaJuicio` y `leerJuicio`, `posiblesDesmentidos`, `buscarGuardado` y `hayQueVolverAPreguntar`; la sección `ia` de `config/reglas.json` (`deportes` sí, `farandula` no, `palabrasDesmentido`, `maxDesmentidos`); y `test/casos-ia.json`, para medir al modelo cuando exista. `preparar` ahora arma cada hecho con `clasificarHecho` (la misma función que usa `unirHechos`, así un hecho unido por la IA se clasifica igual que uno armado por el agrupador) y la ficha lleva `fecha` y `firma` de cada nota. La llamada al modelo la arma Don Julio en n8n (capa 4).
@@ -229,6 +230,7 @@ Alejo es el dueño. No programa. Su tío, Don Julio, sabe de sistemas y sugirió
 - **Los avisos, carta `d` (2026-10-16; Alejo aprobó la Fase A a las 19:30 y decidió los 4 puntos):** (1) **lo local manda, lo provincial suma solo si nombra el lugar**: una nota de portal va a Avisos si pasa el molde y su portal es `"zona": "local"`, o si el título dice Comodoro o Rada Tilly (`esAvisoDeAca` en `src/avisos.js`); lo que no, sigue como noticia de la zona (el corte de Puerto Madryn de El Chubut se queda en Chubut). (2) **Programado o avería: manda el título**; el cuerpo desempata solo si el título no dice nada (la 2902 sale «Agua · avería»). (3) **«Se normalizó»** (`normaliz\w*` en el molde; `normalizado` si el título dice normaliz o restablec sin palabra de corte): aviso aparte, no se junta con su corte, pastilla verde llena («Agua · se normalizó»), línea «Se normalizó el servicio · Viernes 16/10 · 14:30», vive 6 h (de la SCPL, desde que se bajó) y va al final del bloque. (4) **Una excepción del cronograma reemplaza** el corte normal de su zona más cercano en la misma semana (empate: el anterior); `"suma": true` la agrega. La línea de `vueltas.jsonl` suma `cortes.apartadas` y `cortes.sinLugar`. **Fase B hecha:** `mitadUno` recibe `avisos` (lo que bajó n8n), `notasQueFaltan` (en `src/avisos.js`, la usan `vuelta.js` y n8n) dice qué notas bajar, `guardado.avisos.notas` guarda 30 días; `n8n/vuelta.json` tiene 13 nodos (`Bajar listado`, `Avisos` y `Bajar notas` entre `Bajar` y `Preparar`). `npm run probar-pagina` hace 93 comprobaciones.
 - **Los avisos, carta `e` (16-10, 20:15):** el día de un corte sale primero de la fecha pegada a la hora de inicio (lo que sigue a «desde las HH» o «a partir de las HH» hasta la primera coma, punto y coma o punto, 60 caracteres como mucho; el lector entiende también «sábado 17» sin mes: el mes de la publicación, o el siguiente si queda más de 7 días antes); si no hay, lo de antes sobre el texto entero. El 2903 de la SCPL sale «Sábado 17/10». Los lugares que hacen «de acá» un aviso de un portal provincial son `lugares` de `config/zona/avisos.json` (de cada cliente; sin la clave, Comodoro y Rada Tilly).
 - **Regla del proyecto (decidió Alejo el 16-10, 16:53): nada se guarda por id de hecho: el id cambia cuando se cae su primera nota. Lo que necesite reconocer la misma noticia usa sus links (la página, `src/ia.js`, `medir`).** Cada confirmado, cada 4/5 y cada confirmado de la zona en `vueltas.jsonl` lleva `urls`; `npm run medir` junta como un mismo hecho las entradas que comparten una url (también en cadena); las líneas viejas, sin `urls`, se cuentan por id.
+- **La página C (17-10, carta `Cowork_para_ClaudeCode_2026-10-17_a.md`, Fases A y B; el flujo lo decidió Alejo el 14-10 y el 16-10):** una tarjeta abierta arriba (el pivote) con «Me interesa» · «No por hoy…» (siete motivos en chips; «Otro motivo…» abre un renglón de 120 letras) · «Archivar» en el escalón **Plus**, o «Me interesa» · «Siguiente» en **Normal**; el resto en renglones por bloque (pastilla con los medios, «4/5» en las que les falta 1); pestañas con número (Plus: Por decidir · Me interesa · Archivo · No por hoy; Normal: Por decidir · Me interesa · Pasadas); Deshacer 6 s; «Volver»/«Sacar» en cualquier momento; los avisos en una franja propia arriba con un solo «Me interesa»; «Copiar» se lleva solo «Para llevar», en el orden en que se eligió; la página mira `lista.json` cada 5 minutos y avisa «N nuevas · Ver» sin mover el pivote. La mezcla (una «le falta 1» decidida que sube a confirmada): de Archivo vuelve primera bajo «Subieron a confirmada»; en Me interesa o No por hoy queda con `subio: true` y su línea o pastilla. **Desaparecen** las casillas, «Nueva», «Recién confirmada», el menú «En observación…» con «Llevármela igual» y «Actualizada hace…». La config es `pagina` de `config/reglas.json` (`nombre` «7M», `escalon` «plus», 6 `temas` con `secciones` medidas sobre los datos reales y `palabras`, 7 `motivos`); la zona usa la misma. Cada tarjeta trae `tema` (`temaDe` en `src/entrega.js`: la sección de la IA, si no la de las notas que más se repite, si no una palabra del título, si no «Sin tema») y `hora`; `decidir` y `decidirZona` suman `primera` y `secciones`. Las reglas son puras en `pagina/logica.js` (`repartir`, `pivoteSiguiente`, `aplicarMezcla`, `hayNuevas`, `decidirTarjeta`…); el estado es `7m-decisiones-v2` (`decisiones`, `llevadas`, `subidas`, `temasApagados`; un v1 conserva sus llevadas y se borra). **Fase B:** `GET`/`PUT /decisiones` en `scripts/servir.js` (solo con sesión, tope 256 KB, se normaliza en el servidor, un archivo por persona en `<datos>/personas/`); la página usa el servidor si contesta 200 y el navegador si no (`npm run ver` da 404), y lo dice al pie. Con los datos del 15-16-10, solo el 42,9 % de las notas nacionales y el 17,6 % de las de zona caen en un tema (las secciones de muchos portales son «america», «nota», «noticias»…); en la lista real del 17-10, 15 de 24 tarjetas (internacional, 0 de 5): decide Alejo si suma palabras o espera a la IA. `npm run probar-pagina` hace 82 comprobaciones; capturas `buzon/capturas/pagina-c-2026-10-17-*`.
 - Paquete para pegar en Cowork (2026-10-04): cuando el chat de Cowork dice "no hay nada conectado", Alejo le pega `buzon/paquetes/PEGAR_COWORK.md` (antes había uno por rol; con un solo chat hay un solo paquete). Lo arma `npm run paquete` (`scripts/armar-paquete.js`) con `LEEME_COWORK.md`, `LEEME.md`, `CLAUDE.md`, `pendientes.md` y el reporte más nuevo de Claude Code, tal cual del repo. Es una foto: se rearma al cerrar cada tanda.
 - Los valores son la propuesta por defecto. **No son decisiones de Alejo.** Se cambian en `config/`.
 - La lista de portales es provisoria: dominios y feeds sin verificar.
@@ -315,7 +317,7 @@ Sobre las mismas notas y con el filtro de Infobae: entran 10 hechos (los de 3 o 
 
 ## Siguiente paso
 
-La capa 4 está escrita, con la zona y los avisos adentro (carta `d`); falta instalarla en el servidor de Don Julio (Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`). Después, la página C y la pieza 2.
+La página C está hecha (Fases A y B). Sigue: Alejo la prueba en su compu con `npm run ver`; la tanda de instalar en el servidor de Don Julio cuando mande los datos (Fase B de la carta `Cowork_para_ClaudeCode_2026-10-15_b.md`); después la carta C («Falta una noticia» y «Combinar») y la carta de la pinta.
 
 ## Lo que Alejo pidió el 2026-10-04
 
@@ -378,6 +380,38 @@ ARCHIVO 4 de 5 · buzon/pendientes.md
 ============================================================
 
 # Pendientes
+
+## Claude Code → pendientes · 17-10-2026 · la página C hecha (Fases A y B)
+
+Reporte `ClaudeCode_para_Cowork_2026-10-17_a.md`. **Para Alejo (no frena nada; valor por defecto «Sin tema»):** con las secciones reales, solo el 42,9 % de las notas nacionales cae en un tema (menos del 60 % que pedía la carta) y el 17,6 % de las de zona; en la lista real del 17-10, 15 de 24 tarjetas (lo internacional, 0 de 5, porque los portales lo publican en secciones como «america», «mundo» o «estados-unidos»). Opciones: sumar `palabras` por tema en `config/reglas.json`, o esperar a la IA (etapa 2), que pone la sección y manda sobre las del portal. Las 10 decisiones chicas de Claude Code están en «Qué decidí por mi cuenta» del reporte, para Cowork.
+
+## Cowork → pendientes · 17-10-2026 · 00:25 · la página C (carta `Cowork_para_ClaudeCode_2026-10-17_a.md`)
+
+Carta de la página C, Fases A (la página) y B (guardado por persona). Alejo la revisó paso a paso la noche del 16-10 sobre el dibujo «7M · Página C final» (artifact privado https://claude.ai/artifact/JbSrztzZDxHhUUpdmMUh8G).
+
+**Decidió Alejo (16-10, 22:50 a 00:20):**
+
+| Qué | Decidió | Porqué (en sus palabras o la analogía que aceptó) |
+|---|---|---|
+| Qué entra en esta carta | A+B ahora; C («Falta una noticia» y «Combinar») aparte, «hasta que esté comprobado al 100 % que funciona y no contamina nada» | «La bici primero, después el canasto»; quiere hacerlo una sola vez y bien |
+| Avisos de cortes en la página nueva | Franja propia arriba, siempre visible, un solo botón «Me interesa» (opción A) | Un corte no se «decide»: alerta; mandarlo a «No por hoy con motivo» no tiene sentido |
+| La pinta (colores, bordes) | No en esta carta; carta chica aparte cuando pase su galería | «Es elegir la pintura después de levantar la pared» |
+| Los siete motivos de «No por hoy» | Con palabras que se entiendan la primera vez: *Es un dato, no una noticia · Ya la tengo · Opinión o reacción a otra · Está en el bloque equivocado · Ya pasó, llegó tarde · No va con nuestro público · Otro motivo…* | «Si entro por primera vez, “Vieja” y “No es noticia” me parecen el mismo chip» |
+| Orden de «Para llevar» y de lo copiado | El orden en que fue eligiendo | Es lo que después pega en ese orden |
+| Temas | Por cliente en `config/` (seis de arranque, tope 10, palabras clave opcionales para que un cliente cree el suyo) | Quiere que la persona pueda crear temas propios; crearlos desde la página queda para cuando las decisiones vivan por persona |
+
+**Valores por defecto de Cowork (se cambian):** Canal 2 arranca en Plus; el tema sale de la sección del portal (la IA manda cuando conteste); «Sin tema» se muestra siempre; dentro de cada bloque primero las confirmadas y después las «le falta 1»; el pivote no se mueve al actualizar; la página mira cada 5 minutos y avisa «N nuevas · Ver» sin redibujar; Deshacer 6 segundos; servidor si hay login y navegador si no, un archivo por persona en `<datos>/personas/`; todo por link.
+
+**Abierto (nuevo, de Alejo, sin apuro):**
+
+- **Nombre del producto:** Alejo quiere cambiarlo por algo más original alrededor de la luz que entra chica y sale alumbrando grande (linterna, cono, anillos). Candidatos de Cowork del 14-10: FOCO, HAZ, VÉRTICE; se charla el 17-10. Mientras tanto «7M», y ya es una línea de config (`pagina.nombre`).
+- **Nombre de los escalones:** «Plus» suena a pago extra. Candidatos de Cowork: «Rápida / Completa», «Simple / A fondo». En la página no aparece el nombre; no frena nada.
+- **Temas creados por la persona desde la página** (botón «+ tema»): después de la Fase B.
+- **Pestañas más prácticas:** las pestañas chicas («Por decidir», etc.) buscarles una forma mejor, inspirada en las páginas más visitadas; va con la carta de la pinta.
+- **Tour con globitos** que flotan y se desvanecen al toque, para quien entra por primera vez, y **diapositivas comerciales** (qué hace cada cosa, qué da cada escalón, con parla de venta y sin lo técnico; para su tío o una empresa). Lo pidió el 16-10; se hace cuando la página C esté andando. Es la misma idea del «un solo artifact con todo para mostrar a clientes» del 14-10.
+- **Servidor de Don Julio:** el 16-10 avisó por WhatsApp que ya tiene todo listo y está con la seguridad, para que la compu de Alejo entre por SSH y a la web de n8n; «hoy o mañana termino». Cuando mande los datos, es la tanda de instalar (Fase B de la carta del 15-10, `docs/INSTALAR_EN_EL_SERVIDOR.md`). Se puede instalar antes de que termine la página C: la página nueva llega después con un `git pull`.
+
+**Qué viene después:** 1) Claude Code hace esta carta y reporta. 2) Alejo prueba la página nueva en su compu con `npm run ver`. 3) La tanda de instalar en lo de Don Julio, cuando mande los datos. 4) La carta C. 5) La carta de la pinta.
 
 ## Claude Code → pendientes · 16-10-2026 · carta `e` hecha
 
@@ -795,87 +829,190 @@ Cada cosa lleva a quién le toca. Se tacha cuando sale en un paquete.
 - [x] 04-10-2026 · Buzón armado en el repo: `LEEME.md` (reglas, ciclo de cada tanda) y un `LEEME_` por bloque. Todo pasa por el PREPARADOR.
 
 ============================================================
-ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-16_e.md
+ARCHIVO 5 de 5 · buzon/ClaudeCode_para_Cowork_2026-10-17_a.md
 ============================================================
 
-# Claude Code → Cowork · 16-10-2026 · 20:19 (hora de Argentina) · letra e
+# Claude Code → Cowork · 17-10-2026 · 01:23 (hora de Argentina) · letra a
 
-Responde a `Cowork_para_ClaudeCode_2026-10-16_e.md` (la fecha del corte y los lugares en la configuración).
+Responde a la carta `Cowork_para_ClaudeCode_2026-10-17_a.md` (la página C).
 
-**Veredicto:** hice los dos pasos y pasan los 11 ejemplos. En la vuelta real el 2903 ya sale «Sábado 17/10 · desde las 00:00 · 18 h». Comparé el código viejo con el nuevo sobre los 1.879 textos guardados y solo uno cambia de día: el 2903. No toqué la página, la zona, `n8n/` ni `config/reglas.json`.
+## Veredicto
+
+La página C está hecha y probada, con sus dos fases: la página nueva (pivote, tres o dos botones, motivos, pestañas, temas, avisos, Deshacer, «N nuevas», la mezcla) y el guardado por persona en el servidor. `npm test` da 378 bien y 1 pendiente; `npm run probar-pagina` da 82 bien y 0 mal. **Ojo, arriba de todo, como pide la carta:** con las secciones reales, **solo el 42,9 % de las notas nacionales queda con tema** (menos del 60 %). Seguí igual con «Sin tema» por defecto; la decisión es de Alejo (sumar palabras clave o esperar a la IA).
+
+### Dos lecturas posibles (elegí la que menos cambia)
+
+1. **El nombre de las capturas.** La carta dice `pagina-c-<nombre>-<sufijo>.png` y «con nombre `pagina-c-2026-10-17`». Lo leí como `<nombre>` = `2026-10-17`: quedaron `pagina-c-2026-10-17-390.png`, etc. (y no `pagina-c-pagina-c-2026-10-17-…`).
+2. **`pivoteSiguiente(porDecidir, pivoteActual, decidida)`.** Para saber «la que estaba justo después de la decidida», `porDecidir` es el de **antes** de decidir (la decidida todavía está). Sin `decidida`, devuelve la misma abierta si sigue ahí o la primera. Así lo usa la página y así está el test E4.
+
+## Paso 1 · las secciones reales → tema
+
+Sobre `datos/notas.json` (1.540 notas nacionales) y `datos/zona/notas.json` (336), las que había en el entorno (15-10 y 16-10). Sección comparada ya normalizada (minúsculas, sin tildes, guiones como espacios).
+
+**Nacional, las 30 más frecuentes:**
+
+| # | Sección | Notas | Tema |
+|---|---|---|---|
+| 1 | `america` | 111 | Sin tema |
+| 2 | `nota` | 109 | Sin tema |
+| 3 | `noticias` | 108 | Sin tema |
+| 4 | `deportes` | 77 | Deportes |
+| 5 | `politica` | 74 | Política |
+| 6 | `economia` | 66 | Economía |
+| 7 | (vacía) | 63 | Sin tema |
+| 8 | `sociedad` | 61 | Sociedad |
+| 9 | `es` | 52 | Sin tema |
+| 10 | `estados-unidos` | 51 | Sin tema |
+| 11 | `mundo` | 39 | Sin tema |
+| 12 | `espana` | 30 | Sin tema |
+| 13 | `informacion-gral` | 27 | Sociedad |
+| 14 | `espectaculos` | 27 | Espectáculos |
+| 15 | `ovacion` | 25 | Deportes |
+| 16 | `policiales` | 24 | Policiales |
+| 17 | `show` | 23 | Espectáculos |
+| 18 | `cultura` | 20 | Espectáculos |
+| 19 | `news` | 20 | Sin tema |
+| 20 | `en` | 20 | Sin tema |
+| 21 | `zoom` | 19 | Sin tema |
+| 22 | `la-ciudad` | 19 | Sociedad |
+| 23 | `internacional` | 18 | Sin tema |
+| 24 | `tecno` | 16 | Sociedad |
+| 25 | `economia-politica` | 15 | Economía |
+| 26 | `finanzas-mercados` | 15 | Economía |
+| 27 | `lifestyle` | 15 | Sin tema |
+| 28 | `salud` | 14 | Sociedad |
+| 29 | `video` | 14 | Sin tema |
+| 30 | `us-news` | 13 | Sin tema |
+
+**Zona, las 17 que no son el título de la nota** (El Comodorense pone el título como sección: 1 nota cada una, Sin tema):
+
+| # | Sección | Notas | Tema |
+|---|---|---|---|
+| 1 | `noticias` (Crónica) | 103 | Sin tema |
+| 2 | (vacía, El Patagónico) | 70 | Sin tema |
+| 3 | `regionales` | 45 | Sin tema |
+| 4 | `sociedad` | 15 | Sociedad |
+| 5 | `policiales---judiciales` | 13 | Policiales |
+| 6 | `superdepor` | 11 | Deportes |
+| 7 | `espectaculos` | 7 | Espectáculos |
+| 8 | `trelew` | 6 | Sin tema |
+| 9 | `puerto madryn` | 6 | Sin tema |
+| 10 | `policiales` | 4 | Policiales |
+| 11 | `nacionales` | 4 | Sin tema |
+| 12 | `rawson` | 3 | Sin tema |
+| 13 | `deportes` | 2 | Deportes |
+| 14 | `cultura---espectaculos` | 2 | Espectáculos |
+| 15 | `politica` | 2 | Política |
+| 16 | `pulso-energetico` | 2 | Economía |
+| 17 | `esquel` | 2 | Sin tema |
+
+**Cuántas notas quedan con tema:**
+
+| Tema | Nacional | % | Zona | % |
+|---|---|---|---|---|
+| Sociedad | 170 | 11,0 % | 15 | 4,5 % |
+| Economía | 140 | 9,1 % | 3 | 0,9 % |
+| Deportes | 136 | 8,8 % | 13 | 3,9 % |
+| Espectáculos | 107 | 6,9 % | 9 | 2,7 % |
+| Política | 77 | 5,0 % | 2 | 0,6 % |
+| Policiales | 30 | 1,9 % | 17 | 5,1 % |
+| **Con tema** | **660** | **42,9 %** | **59** | **17,6 %** |
+| Sin tema | 880 | 57,1 % | 277 | 82,4 % |
+
+Lo que más pesa en «Sin tema» no es tema sino lugar o formato: `america`, `nota` (La Gaceta), `noticias` (Perfil, Infobae, Crónica), `es`/`en` (DW, France 24, El Cronista), `estados-unidos`, `mundo`, `espana`, la vacía (Página/12, El Patagónico) y `regionales`. Por eso lo internacional casi nunca tiene tema.
+
+**En la lista real del 17-10 (01:13)**, por tarjeta (el tema de una tarjeta sale de todas sus notas): 15 de 24 con tema. Nacional 12 de 13; Comodoro 2 de 3; Chubut 1 de 3; internacional 0 de 5.
+
+Las `secciones` de los seis temas son las de la carta más estas, todas vistas en los datos: Política `politics`, `poli`; Economía `economia-politica`, `finanzas-mercados`, `campo`, `agro`, `rural`, `revista-chacra`, `propiedades`, `real-estate`, `companias`, `business`, `economy`, `pulso-energetico`; Sociedad `informacion-gral`, `interes-general`, `la-ciudad`, `comunidad`, `tecno`, `salud-y-bienestar`, `clima-y-medio-ambiente`, `environment`, `clima`, `el-tiempo`; Policiales `policiales-judiciales`; Deportes `ovacion`, `superdepor`, `sports`, `agenda-deportiva`, `futbol-primera`, `futbol-internacional`, `futbol-ascenso`, `seleccion`, `river-plate`, `boca-juniors`, `racing`, `independiente`, `belgrano`, `gimnasia-de-mendoza`, `messi`, `basquet`; Espectáculos `show`, `teleshow`, `television`, `gente`, `fama`, `entretenimiento`, `cultura-espectaculos`, `music`, `film`, `babelia`, `que-sale`. Dejé las de arranque de la carta aunque no aparezcan en estos datos (`el-pais`, `dolar`, `inseguridad`, `cine`…): no molestan. `lifestyle`, `estilo`, `cocina`, `autos`, `zoom` y `video` quedaron Sin tema a propósito (no son ninguno de los seis).
 
 ## Qué cambió
 
-| Paso | Qué | Commit |
+| Paso | Commit | Qué |
 |---|---|---|
-| 1 | `diaDe` en `src/avisos.js` se partió en tres lectores (`diaConMes`, `diaConSemanaYNumero`, `diaSinNumero`). Primero mira el pedazo que sigue a «desde las HH» o «a partir de las HH»; si ahí no hay fecha, hace lo de antes sobre el texto entero. `HH` y `hhmm` subieron arriba de `diaDe` (son los mismos de siempre) | `24a8fce` |
-| 2 | `esAvisoDeAca(nota, { reglas, portales, cfg })` lee `cfg.lugares`; sin la clave o con la lista vacía usa `["comodoro", "rada tilly"]`. `lugares` está en `config/zona/avisos.json` (también en su `_aviso`); `scripts/vuelta.js` y `src/capa4.js` le pasan `cfg: zona.avisos` y no cambian en nada más. Se agregó una línea en `docs/PAQUETE_DE_CLIENTE.md` | `1b85a29` |
-| cierre | `CLAUDE.md`, `buzon/pendientes.md` (E13, la fecha del 2903 y «Comodoro o Rada Tilly en el código» quedan resueltos), este reporte y el paquete | (este) |
+| 2 | `599f136` | `pagina` en `config/reglas.json`; `primera` y `secciones` en las salidas de `decidir` y `decidirZona` (nada más cambia: comparé la salida entera de `decidir` del día de ejemplo antes y después, sin los dos campos, y es idéntica); `temaDe`, `tema`, `hora` y `lista.pagina` en `src/entrega.js`; `pagina/lista.json` regenerada |
+| 3 | `f3a7a8b` | `pagina/logica.js` nuevo (estado v2, decisiones, temas, `repartir`, pivote, mezcla, nuevas) y `test/logica.test.js` reescrito |
+| 4 | `15c4c82` | `pagina/index.html` nuevo, modo navegador |
+| 5 | `0f6fd75` | `scripts/probar-pagina.js` reescrito y las capturas |
+| 6 | `aaf5ba3` | Fase B: `GET`/`PUT /decisiones` en `scripts/servir.js`, la página elige modo, tests E14 |
+| 7 | (este) | `docs/PAQUETE_DE_CLIENTE.md`, `docs/CORRER_EN_MI_COMPU.md`, `README.md`, `CLAUDE.md`, `pendientes.md`, este reporte y el paquete |
 
-## Los 11 ejemplos
-
-| Ejemplo | Esperado | Obtenido |
-|---|---|---|
-| E1 · 2903 («hoy, viernes 16 … desde las 00:00hs. del sábado 17, y por un lapso de 18 horas») | `2026-10-17`, 00:00, 18 h | `2026-10-17`, 00:00, 18 h |
-| E2 · 2902 («desde las 00:00 hs. de hoy viernes 16 de octubre y por 24 horas») | `2026-10-16` | `2026-10-16` |
-| E3 · «el jueves 8 de octubre, desde las 15:00 hs. y por un lapso de 24 horas, …» | `2026-10-08` | `2026-10-08` |
-| E4 · «… hasta mañana. … desde las 06:00 del lunes 20» | `2026-10-20` | `2026-10-20` |
-| E5 · publicación 30-10: «desde las 09:00 del domingo 1» | `2026-11-01` | `2026-11-01` |
-| E6 · «mañana habrá corte … de 9 a 13 horas» | `2026-10-17` | `2026-10-17` |
-| E7 · «desde las 10 hs del miércoles 14 …» | `2026-10-14` | `2026-10-14` |
-| E8 · Comodoro y Rada Tilly; El Chubut, «… en zona norte» (Puerto Madryn) | no es de acá | no es de acá |
-| E9 · Comodoro y Rada Tilly; El Chubut, «Corte de agua en Rada Tilly por una avería» | es de acá | es de acá |
-| E10 · Puerto Madryn y Madryn; El Chubut, «… zona norte de Puerto Madryn» | es de acá | es de acá |
-| E11 · sin `lugares`; El Chubut, «Corte de agua en Comodoro» | es de acá | es de acá (también con la lista vacía) |
-
-## Las cuentas
+## Tests
 
 | | Antes | Después |
 |---|---|---|
-| `npm test` | 360 bien + 1 pendiente | **371 bien + 1 pendiente** (11 nuevos, 0 mal) |
-| `npm run probar-pagina` | 93 | **93** bien, 0 mal |
+| `npm test` | 371 bien + 1 pendiente | **378 bien + 1 pendiente** |
+| `test/logica.test.js` | 37 | 31 (se borraron 24 de lo que desaparece: casillas, «Nueva», «Recién confirmada», `repartirBloque`…; quedaron 13; 18 nuevos: E3 a E13, E15 y otros) |
+| `test/entrega.test.js` | 17 | 23 (+6: E1, E2) |
+| `test/nucleo.test.js` | 86 | 88 (+2: `primera`, `secciones`; lo de antes sigue igual) |
+| `test/zona.test.js` | 11 | 12 (+1, y uno ajustado: la lista de campos de la noticia suma los dos nuevos al final) |
+| `test/servir.test.js` | 7 | 11 (+4, E14) |
+| `npm run probar-pagina` | 93 | **82** |
 
-## La vuelta real (paso 3)
+## `npm run probar-pagina`: las 16 de §12
 
-`npm run vuelta -- --zona config/zona`, una sola vez, a las 20:17. Salió con código 0.
-
-- Línea de Avisos: `Avisos: 2 vigentes (1 agua avería, 1 agua) · SCPL OK · 2182 comunicados en el listado · 0 bajados`
-- La tarjeta del 2903, cómo se veía y cómo se ve ahora:
-
-| | Etiqueta | Línea de la tarjeta |
+| # | Comprobación | |
 |---|---|---|
-| Antes | Agua | Viernes 16/10 · desde las 00:00 · 18 h · Zona Sur y Zona Central |
-| Ahora | Agua | **Sábado 17/10** · desde las 00:00 · 18 h · Zona Sur y Zona Central |
+| 1 | «última vuelta HH:MM» y «↻ Actualizar» | pasa |
+| 2 | Hay pivote, es la primera de Por decidir; el avance dice «1 de 8 · Nacionales» | pasa |
+| 3 | Pestañas y números (Plus: 4; Normal: Por decidir · Me interesa · Pasadas, con dos botones) | pasa |
+| 4 | «Me interesa»: Por decidir −1, Me interesa +1, sube la siguiente, franja «Mandada a “Me interesa” · Deshacer» | pasa |
+| 5 | «Deshacer» antes de 6 s deshace; a los 6 s la franja se va sola | pasa |
+| 6 | Los siete chips exactos; «Opinión o reacción a otra» → No por hoy con la pastilla; «Otro motivo…» con texto → «Otro: …»; vacío no hace nada; «‹ Volver» cierra sin decidir | pasa |
+| 7 | «Archivar» → Archivo con «archivada HH:MM»; desde ahí «Me interesa» y «Volver» | pasa |
+| 8 | Tocar un renglón lo sube al pivote (y no se repite como renglón; la 4/5 dice «4/5») | pasa |
+| 9 | Apagar «Espectáculos» oculta, «1 oculta por tema (Espectáculos) · ver», «ver» la muestra, «Sin tema» siempre | pasa |
+| 10 | «Para llevar · 3» en orden de elección; copiar empieza por la primera elegida; pasan a «Llevadas hoy»; botón apagado | pasa |
+| 11 | El aviso: «Me interesa» en su franja, «En Me interesa», nunca en Por decidir, «Te lo llevaste · HH:MM» | pasa |
+| 12 | La mezcla E9 (de Archivo, primera bajo «Subieron a confirmada», con su línea) y E10 (No por hoy con «Subió a confirmada» y la línea del pie; Me interesa con «↳ Era 4 de 5…») | pasa |
+| 13 | Un v1 en `7m-marcas-v1` queda v2 con sus llevadas y la clave v1 se borra | pasa |
+| 14 | «Tus decisiones se guardan en este navegador» | pasa |
+| 15 | Al recargar, mismas decisiones y el pivote vuelve a la primera | pasa |
+| 16 | 1200 sin scroll horizontal; en 390 ningún botón de la abierta mide menos de 44 px (48, 48, 48), y las cuatro pestañas entran sin correrlas | pasa |
 
-- La del 2902 no cambió: «Agua · avería · Viernes 16/10 · desde las 00:00 · 24 h · 23 barrios».
-- El texto real del 2903 tiene **dos** «desde las». El primero es «desde las 00:00hs. del sábado 17 de octubre, comenzará a normalizarse…» y el segundo «desde las 00:00hs. del sábado 17, y por un lapso de 18 horas». La regla usa el primero, y como ese pedazo ya trae «17 de octubre», el resultado es el mismo. E1 usa el texto de la carta, que tiene uno solo.
+Además: sin errores en la consola en ningún escenario. Una prueba de control (cambié a propósito «Mandada a “No por hoy”») hizo fallar la comprobación 6: el script mira de verdad.
 
-## Dónde la regla nueva da otro día
+**Fase B, a mano** con `servir` y dos usuarios de prueba (en una carpeta temporal, con la lista real): Ana decide tres → queda `personas/ana@ejemplo.com.json` con `interesa`, `archivo`, `nopor:tengo` y nada en el navegador; recarga → las tres siguen; un `PUT` cortado → franja «No pude guardar en tu usuario. Lo reintento solo.» y respaldo en el navegador; el siguiente anda → la franja se va y el respaldo se borra; sale y entra Bea → no ve ninguna.
 
-Corrí el `datosDeAviso` viejo (el commit `77bedb3`) y el nuevo sobre todo lo guardado en `datos/`: los 3 comunicados de la SCPL, las 336 notas de la zona y las 1.540 nacionales (título y bajada), 1.879 textos en total.
+## Capturas (`buzon/capturas/`)
 
-| Texto | Antes | Ahora |
-|---|---|---|
-| SCPL 2903 «SE NORMALIZA EL SERVICIO EN 23 BARRIOS Y SE CORTA EL AGUA EN EL RESTO DE LA ZONA SUR Y CENTRAL…» | 2026-10-16 | 2026-10-17 |
+- `pagina-c-2026-10-17-390.png`, `-1200.png`, `-390-oscuro.png` y `-normal-390.png`: la lista de ejemplo con un aviso sumado y una elegida.
+- `pagina-c-2026-10-17-real-390.png`, `-real-1200.png`, `-real-390-oscuro.png`: la lista real del 17-10 a la 01:13 (Comodoro, Chubut, 2 avisos), con `--solo-capturas`.
 
-No cambió ningún otro texto. `armarAvisos` da los mismos dos avisos, en el mismo orden, y las notas que se apartan como avisos son las mismas 3.
+## Tiempos y pesos
+
+| Qué | Medido |
+|---|---|
+| `repartir` con 60 tarjetas y 200 decisiones (Node) | **2,3 ms** (pedía menos de 50) |
+| El estado con 200 decisiones (3 urls cada una, todas con texto «Otro») | **55,8 KB** (el tope del `PUT` es 256) |
 
 ## Qué decidí por mi cuenta
 
-1. **Sin hora de inicio (el punto b), el lector de antes, tal cual.** La forma «sábado 17» sin mes solo se lee en el pedazo que sigue a la hora, porque la carta dice «exactamente lo de hoy» y que nada cambie de resultado.
-2. **«Punto final» es un punto seguido de un espacio o del fin del texto.** Así el punto de «hs.» se toma como parte de la hora y «15.30» no corta el pedazo.
-3. **Un «<día> N» seguido de «:», «hs» u «horas» no se toma como fecha.** Así «el lunes 20 horas» o «lunes 20:00» no pasan por el día 20. Ninguno de los 1.879 textos lo tiene; es solo una protección.
-4. **Un número que no existe en ese mes** (un «lunes 31» en noviembre) pasa al mes siguiente, y si ahí tampoco existe da `null`. Sin esto, JavaScript convertía el 31-11 en el 1-12 sin avisar.
-5. **Los `lugares` se normalizan como el título**, en minúsculas y sin tildes. Por eso «Rada Tilly» escrito con mayúsculas también funciona.
-6. **Lo que no toqué:** en `scripts/vuelta.js`, además del pase de `cfg`, se cambió solo el comentario que decía «Comodoro ni Rada Tilly». El `README.md` (línea 44) sigue diciendo «Comodoro o Rada Tilly», que es lo que vale para esta configuración; no estaba en la lista de archivos de la carta.
+1. **`temasApagados` con «!»**: `"Espectáculos"` = la persona lo apagó; `"!Espectáculos"` = lo prendió aunque la config lo trae apagado. Lo que no figura sigue la config. Documentado arriba de `pagina/logica.js`. `alternarTema` recibe la lista como tercer dato (opcional) para saber cómo viene de la config.
+2. **`decidirTarjeta` recibe `minimo`** (`lista.minGrupos`) dentro del segundo dato, junto a `que`, `motivo` y `texto`: la carta pide guardarlo y la función no recibía la lista. **`borrarDecision`** acepta una `subida` opcional: Deshacer de una que había vuelto de Archivo la devuelve a «Subieron a confirmada».
+3. **`repartir` devuelve además `numeros`** (los de las pestañas; el de Por decidir nunca cuenta las ocultas). Exporté también `mismaTarjeta`, `subidaDe`, `decididasEnVisita`, `paginaDe`, `tituloPagina`, `temaPrendido`, `MOTIVOS` y `CLAVE_V1`.
+4. **«ver» las ocultas**: van a sus lugares en los renglones con su pastilla de tema, pero el pivote nunca cae solo en una oculta. Después de «ver», la línea queda sin el «ver» (no hay texto para «ocultar» en la carta).
+5. **El título de un bloque en los renglones** cuenta también la abierta («Nacionales · 7 por decidir», igual que el avance) y no se dibuja si en ese bloque solo queda la abierta.
+6. **«Volver» cuando no había pivote** (todo decidido): la que vuelve pasa a ser el pivote, porque la regla dice que sin pivote es solo cuando no queda ninguna.
+7. **Singulares**: «1 oculta por tema…», «1 nueva desde las…», «1 que mandaste a No por hoy subió a confirmada · ver». Los plurales son los de la carta.
+8. **La franja de avisos** muestra también el título y los links del aviso (como hoy), además de la pastilla, la línea y el botón.
+9. **`PUT /decisiones` con algo que no es JSON** → 400 (la carta no lo decía). El tope de 256 KB se cuenta en bytes; para contestar 413 se termina de leer el cuerpo sin guardarlo.
+10. **Las pestañas en 390 px** pueden partir en dos renglones si no entran (con la letra del entorno no entraban); desde 420 px van en uno.
+11. En `probar-pagina`, la copia de la lista de ejemplo suma un aviso y le pone «Espectáculos» a una noticia (la de ejemplo no trae ninguna de ese tema); para la mezcla, las dos «le falta 1» pasan a confirmadas. El 404 de `/decisiones` que anota la consola del navegador no cuenta como error: es como la página sabe que no hay login.
 
-## Para Cowork (lo vi, no lo toqué)
+## Qué vi y no toqué (para Cowork)
 
-- **El 2902 junta dos notas que hablan del corte nuevo.** Crónica («vuelve el agua a 23 barrios pero habrá un nuevo corte de 18 horas en las zonas sur y central») y El Comodorense («comienza a normalizarse … pero habrá un nuevo corte») entran como respaldo de la tarjeta del 2902 (la avería, viernes) y no del 2903 (el corte de 18 h, sábado). Con el código viejo pasaba lo mismo: lo decide el agrupador por el título, no la fecha. Si Cowork quiere que vayan con el 2903, hace falta otra carta.
+- **Desaparecieron dos textos que la carta no nombra**: «N confirmadas más quedaron afuera por el tope de 7» (`afueraPorTope`) y «1 de 3. No se completa con menos medios.» (cuando un bloque no llega al mínimo). La lista los sigue trayendo y `logica.js` sigue exportando `textoAfuera`, `avisoBloque` y `tituloBloque`; la página nueva no los dibuja porque §1 no los lista. Si van, ¿dónde?
+- En **Normal**, la línea del pie dice «… que mandaste a No por hoy …» aunque la pestaña se llame «Pasadas» (texto exacto de la carta).
+- `hayNuevas` cuenta también las que estarían ocultas por tema (la carta no las excluye): podría avisar «1 nueva» y al tocar «Ver» no aparecer nada visible.
+- Con `npm run vuelta` la lista sale con `cliente` vacío, así que en la compu de Alejo el encabezado dice «7M» y no «Canal 2 · 7M» (en n8n sí sale el cliente). Ya era así.
+- Con 0 en «Para llevar» el botón dice «Copiar» (apagado), como `textoBarra` hoy, y no «Copiar las 0».
+- Quedan en `buzon/capturas/` las capturas viejas (`pagina-*`), como historia.
 
 ## Qué quedó pendiente y para quién
 
-- Nada nuevo para Alejo. Sigue la página C.
+- **Alejo**: el 42,9 % de tema (sumar `palabras` por tema o esperar a la IA). No frena nada.
+- **Alejo**: probar la página nueva en su compu con `npm run ver`.
+- **Cowork**: los dos textos que desaparecieron (arriba) y las once decisiones chicas.
 
 ============================================================
 FIN DEL PAQUETE

@@ -112,7 +112,7 @@ npm run ver
 
 3. En el navegador entrá a http://127.0.0.1:7000/
 
-«Traer noticias» trae lo último que armó la vuelta. Se ve solo en esa compu.
+«↻ Actualizar» trae lo último que armó la vuelta (la página también mira sola cada 5 minutos y avisa «N nuevas · Ver»). Se ve solo en esa compu, y lo que decidas (Me interesa, No por hoy, Archivar) se guarda en ese navegador.
 
 ## 8. Al terminar
 
