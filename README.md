@@ -46,7 +46,7 @@ npm run vuelta # una vuelta completa sin IA: lee los feeds, acumula, arma la lis
                #                        (una excepción reemplaza el corte normal de esa semana). Sin avisos.json, la de siempre.
                # En la compu de Alejo se corre así: npm run vuelta -- --cada 30 --zona config/zona (una sola ventana para todo)
 npm run medir  # resume datos/vueltas.jsonl por día y por corte de 4 horas: confirmadas y 4/5, por bloque, la zona por anillo y los avisos (--dia AAAA-MM-DD)
-npm run ver    # sirve datos/pagina/ en http://127.0.0.1:7000/ para ver la lista real en esa compu; --carpeta y --puerto
+npm run ver    # sirve datos/pagina/ en http://127.0.0.1:7000/ para ver la lista real en esa compu; --carpeta, --puerto y --wifi (también desde el celu en el mismo wifi, sin login)
 npm run servir # la página con login para el servidor: --carpeta <datos> [--puerto 7000] [--escucha 127.0.0.1] [--n8n http://127.0.0.1:5678]
 node scripts/usuario.js --carpeta <datos> agregar|sacar|listar|nueva-clave <mail>  # quién entra a la página (usuarios.json, nunca en el repo)
 node scripts/ia-falsa.js [--puerto 7100] [--fallar <n>]  # una IA de mentira para probar la capa 4 sin clave

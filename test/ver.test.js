@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { servir, leerOpciones } = require('../scripts/ver.js');
+const { servir, leerOpciones, direccionesDeWifi } = require('../scripts/ver.js');
 
 const INDEX = '<!doctype html><title>inventado</title>';
 const LISTA = { generadaEn: '2026-10-09T12:00:00Z', ejemplo: true };
@@ -96,9 +96,33 @@ test('un puerto ocupado avisa y sale con código 1', async () => {
 });
 
 test('leerOpciones: valores por defecto y valores inválidos', () => {
-  assert.deepEqual(leerOpciones([]), { carpeta: 'datos', puerto: 7000 });
-  assert.deepEqual(leerOpciones(['--carpeta', 'x', '--puerto', '8080']), { carpeta: 'x', puerto: 8080 });
+  assert.deepEqual(leerOpciones([]), { carpeta: 'datos', puerto: 7000, wifi: false });
+  assert.deepEqual(leerOpciones(['--carpeta', 'x', '--puerto', '8080']), { carpeta: 'x', puerto: 8080, wifi: false });
+  assert.deepEqual(leerOpciones(['--wifi']), { carpeta: 'datos', puerto: 7000, wifi: true });
   for (const malo of [['--puerto'], ['--puerto', 'abc'], ['--puerto', '0'], ['--puerto', '70000'], ['--puerto', '7.5'], ['--carpeta']]) {
     assert.throws(() => leerOpciones(malo), /necesita un valor|tiene que ser/, malo.join(' '));
   }
+});
+
+test('--wifi: escucha en todas las direcciones y la página se pide igual', async () => {
+  const dir = carpetaConPagina();
+  const { servidor, url } = await servir(dir, 0, '0.0.0.0');
+  try {
+    assert.equal(servidor.address().address, '0.0.0.0');
+    assert.ok(url.startsWith('http://127.0.0.1:'));
+    assert.equal((await pedir(url, '/')).cuerpo, INDEX);
+  } finally {
+    servidor.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('direccionesDeWifi: solo IPv4 y sin la de adentro de la compu', () => {
+  const interfaces = {
+    lo: [{ address: '127.0.0.1', family: 'IPv4', internal: true }],
+    'Wi-Fi': [{ address: 'fe80::1', family: 'IPv6', internal: false }, { address: '192.168.0.23', family: 'IPv4', internal: false }],
+    Ethernet: [{ address: '10.0.0.5', family: 4, internal: false }],
+  };
+  assert.deepEqual(direccionesDeWifi(interfaces), ['192.168.0.23', '10.0.0.5']);
+  assert.deepEqual(direccionesDeWifi({}), []);
 });

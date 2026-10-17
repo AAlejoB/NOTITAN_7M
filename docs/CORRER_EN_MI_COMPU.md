@@ -114,6 +114,23 @@ npm run ver
 
 «↻ Actualizar» trae lo último que armó la vuelta (la página también mira sola cada 5 minutos y avisa «N nuevas · Ver»). Se ve solo en esa compu, y lo que decidas (Me interesa, No por hoy, Archivar) se guarda en ese navegador.
 
+### Verla desde el celu (mismo wifi)
+
+1. En vez de `npm run ver`, escribí:
+
+```
+npm run ver -- --wifi
+```
+
+2. Abajo aparece una dirección que empieza con `http://192.168.` (o parecida). Escribila tal cual en el navegador del celu (iPhone o Android), conectado al mismo wifi que la compu.
+3. Si Windows pregunta por el firewall, tocá «Permitir» (redes privadas).
+
+Lo tienen que saber:
+
+- Anda solo en ese wifi y mientras la compu esté prendida con esa ventana abierta. Fuera de casa, no.
+- No pide clave: la puede abrir cualquiera conectado a ese wifi.
+- Lo que decidas en el celu se guarda en el celu: no se junta con lo de la compu.
+
 ## 8. Al terminar
 
 1. En la ventana de la vuelta, Ctrl+C.
