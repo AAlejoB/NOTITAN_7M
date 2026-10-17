@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>7M · Noticias</title>
+<title>7M</title>
 <link rel="icon" href="data:,">
 <style>
   :root {
@@ -34,93 +34,139 @@
   body {
     margin: 0; background: var(--fondo); color: var(--texto);
     font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    padding-bottom: calc(150px + env(safe-area-inset-bottom));
   }
   .ancho { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+  button { font: inherit; cursor: pointer; }
+  [hidden] { display: none !important; }
+  :focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
 
   /* arriba */
   .arriba { position: sticky; top: 0; z-index: 5; background: var(--barra); backdrop-filter: blur(6px); border-bottom: 1px solid var(--borde); }
-  .arriba .ancho { display: flex; align-items: center; gap: 12px; padding-top: 10px; padding-bottom: 10px; }
-  .arriba h1 { margin: 0; font-size: 22px; letter-spacing: .5px; }
-  .actualizada { flex: 1; min-width: 0; color: var(--suave); font-size: 14px; }
-  button { font: inherit; cursor: pointer; }
+  .arriba .ancho { display: flex; align-items: center; gap: 10px; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+  .arriba h1 { margin: 0; font-size: 20px; letter-spacing: .3px; }
+  .vuelta { flex: 1; min-width: 0; color: var(--suave); font-size: 14px; white-space: nowrap; }
   .boton {
     background: var(--marca); color: var(--marca-texto); border: 0; border-radius: 10px;
     padding: 10px 14px; font-weight: 600; min-height: 44px;
   }
   .boton:disabled { background: var(--apagado); cursor: default; opacity: .7; }
   .boton.suave { background: transparent; color: var(--azul); border: 1px solid var(--azul); }
+  .boton.chico { min-height: 36px; padding: 6px 12px; font-size: 14px; }
+  .salir { margin: 0; }
+  .salir button { background: none; border: 0; padding: 4px 0; color: var(--suave); font-size: 13px; text-decoration: underline; min-height: 0; }
+  .enlace { background: none; border: 0; padding: 0; color: var(--azul); text-decoration: underline; font: inherit; min-height: 0; }
 
+  /* franjas */
   .franja { margin: 12px 0 0; padding: 8px 12px; border-radius: 10px; font-size: 14px; }
-  .franja.ejemplo { background: var(--azul-fondo); color: var(--azul); }
-  .franja.sinia { background: var(--azul-fondo); color: var(--azul); }
-  .franja.vieja { background: var(--ambar-fondo); color: var(--ambar); border: 1px solid var(--ambar-borde); }
+  .franja.ejemplo, .franja.sinia, .franja.nuevas { background: var(--azul-fondo); color: var(--azul); }
+  .franja.nuevas { display: flex; gap: 10px; align-items: center; justify-content: space-between; font-weight: 600; }
+  .franja.vieja, .franja.guardado { background: var(--ambar-fondo); color: var(--ambar); border: 1px solid var(--ambar-borde); }
   .franja.error { background: var(--ambar-fondo); color: var(--ambar); border: 1px solid var(--ambar-borde); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-  /* cada bloque */
-  .bloque { margin-top: 22px; }
-  .bloque h2 { margin: 0 0 6px; font-size: 20px; }
-  .aviso-bloque, .afuera { margin: 4px 0 10px; color: var(--suave); font-size: 14px; }
-  .afuera { margin-top: 8px; }
-
-  .noticia {
-    background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 12px; margin: 0 0 10px;
-  }
-  .noticia.tildada { border-color: var(--marca); box-shadow: 0 0 0 2px var(--marca) inset; }
-  .fila { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
-  .fila input[type=checkbox] { width: 24px; height: 24px; margin: 2px 0 0; flex: none; accent-color: var(--marca); }
-  .cuerpo { flex: 1; min-width: 0; }
-  .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 4px; }
+  /* pastillas */
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
   .sello { background: var(--verde-fondo); color: var(--verde); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600; }
   .sello.viab { background: var(--violeta-fondo); color: var(--violeta); }
   .sello.mano { background: var(--ambar-fondo); color: var(--ambar); }
   /* los avisos: programado en verde (el sello de siempre), avería en naranja, cronograma de verano (o sin saber) en gris */
-  .sello.gris { background: var(--gris-fondo); color: var(--suave); }
-  /* «se normalizó»: verde lleno, como «Recién confirmada», para que no se confunda con el verde claro de «programado» */
+  .sello.gris, .pastilla { background: var(--gris-fondo); color: var(--suave); }
+  /* «se normalizó» y «Subió a confirmada»: verde lleno */
   .sello.lleno { background: var(--verde); color: var(--tarjeta); font-weight: 700; }
-  .datos-aviso { margin: 6px 0 0; font-size: 15px; font-weight: 600; }
+  .pastilla { border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600; }
+
+  /* avisos */
+  .avisos { margin-top: 14px; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 10px 12px; }
+  .avisos h2 { margin: 0 0 6px; font-size: 16px; }
+  .aviso { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--borde); }
+  .aviso:first-of-type { border-top: 0; }
+  .aviso .cuerpo { flex: 1; min-width: 0; }
+  .aviso .titulo-aviso { margin: 0; font-size: 15px; font-weight: 600; }
+  .datos-aviso { margin: 2px 0 0; font-size: 14px; }
   .datos-aviso button { background: none; border: 0; padding: 0; color: var(--azul); font: inherit; text-decoration: underline; min-height: 0; }
-  .nueva { background: var(--azul-fondo); color: var(--azul); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
-  .recien { background: var(--verde); color: var(--tarjeta); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 700; }
-  .noticia h3 { margin: 0; font-size: 17px; line-height: 1.3; }
-  .bajada { margin: 6px 0 0; color: var(--suave); font-size: 15px; }
+  .aviso .estado-aviso { color: var(--suave); font-size: 14px; white-space: nowrap; padding-top: 6px; }
+  .aviso .links { margin-top: 2px; }
+
+  /* temas */
+  .temas { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tema { background: var(--tarjeta); color: var(--azul); border: 1px solid var(--azul); border-radius: 999px; padding: 4px 12px; font-size: 14px; min-height: 36px; }
+  .tema[aria-pressed="false"] { color: var(--suave); border-color: var(--borde); text-decoration: line-through; opacity: .5; }
+  .sintema { color: var(--suave); font-size: 14px; padding: 4px 6px; }
+
+  /* pestañas */
+  .pestanas { margin-top: 14px; display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--borde); }
+  .pestana { background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 5px; min-height: 44px; color: var(--suave); white-space: nowrap; font-size: 14px; }
+  @media (min-width: 420px) { .pestana { padding: 8px 10px; font-size: 15px; } }
+  .pestana[aria-selected="true"] { color: var(--texto); border-bottom-color: var(--marca); font-weight: 600; }
+  .numero { display: inline-block; min-width: 22px; margin-left: 4px; padding: 0 6px; border-radius: 999px; background: var(--gris-fondo); color: var(--texto); font-size: 13px; text-align: center; }
+
+  /* avance */
+  .avance { display: flex; align-items: center; gap: 10px; margin: 12px 0 8px; color: var(--suave); font-size: 14px; }
+  .avance span { flex: 1; }
+  .puntos { display: flex; gap: 4px; }
+  .puntos i { width: 8px; height: 8px; border-radius: 50%; background: var(--borde); display: block; }
+  .puntos i.hecho { background: var(--verde); }
+  .puntos i.aca { background: var(--marca); }
+
+  /* el pivote */
+  .pivote { background: var(--tarjeta); border: 2px solid var(--marca); border-radius: 14px; padding: 14px; margin: 0 0 14px; }
+  .pivote h3 { margin: 0; font-size: 19px; line-height: 1.3; }
+  .bajada { margin: 8px 0 0; color: var(--suave); font-size: 15px; }
   .bajada.sin { font-style: italic; }
-  .links { margin: 8px 0 0 36px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .subio { margin: 6px 0 0; color: var(--suave); font-size: 14px; text-align: right; }
+  .links { margin: 10px 0 0; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
   .links a { color: var(--azul); text-decoration: none; border-bottom: 1px solid transparent; }
   .links a:hover, .links a:focus-visible { border-bottom-color: currentColor; }
+  .botones { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .botones .boton { width: 100%; min-height: 48px; font-size: 16px; }
+  .boton.interesa { background: var(--verde); color: var(--tarjeta); }
+  .boton.neutro { background: transparent; color: var(--texto); border: 1px solid var(--borde); }
+  .porque { margin: 14px 0 8px; font-weight: 600; }
+  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .chip { background: var(--tarjeta); color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; padding: 8px 10px; min-height: 44px; text-align: left; font-size: 14px; }
+  .otro { display: flex; gap: 8px; margin-top: 8px; }
+  .otro input { flex: 1; min-width: 0; font: inherit; min-height: 44px; padding: 8px 10px; border: 1px solid var(--borde); border-radius: 10px; background: var(--tarjeta); color: var(--texto); }
+  .volver-chips { margin-top: 10px; align-self: flex-start; min-height: 44px; }
 
-  /* las 4/5: abiertas, debajo de cada bloque */
-  .amano { margin-top: 14px; border: 2px dashed var(--ambar-borde); border-radius: 12px; padding: 12px; background: var(--ambar-fondo); }
-  .amano > h3 { margin: 0 0 10px; font-size: 15px; color: var(--ambar); }
-  .amano .noticia { margin-bottom: 8px; }
-  .amano .noticia.tildada { border-color: var(--ambar-borde); box-shadow: 0 0 0 2px var(--ambar-borde) inset; }
-  .amano h4 { margin: 0; font-size: 16px; line-height: 1.3; }
-  .medios { margin: 6px 0 0; color: var(--ambar); font-size: 14px; font-weight: 600; }
-  .amano .acciones { margin-top: 10px; }
-  .amano .links { margin-left: 0; }
+  /* los renglones */
+  .grupo h4 { margin: 14px 0 6px; font-size: 15px; color: var(--suave); font-weight: 600; }
+  .renglon { display: flex; width: 100%; gap: 10px; align-items: center; text-align: left; background: var(--tarjeta); color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 12px; margin: 0 0 6px; min-height: 48px; }
+  .renglon .tit { flex: 1; min-width: 0; font-size: 15px; }
+  .renglon .flecha { color: var(--suave); font-size: 20px; }
+  .cant { border-radius: 999px; padding: 2px 8px; font-size: 13px; font-weight: 700; background: var(--verde-fondo); color: var(--verde); white-space: nowrap; }
+  .cant.mano { background: var(--ambar-fondo); color: var(--ambar); }
+  .cant.viab { background: var(--violeta-fondo); color: var(--violeta); }
+  .pie-renglones { margin: 10px 0 0; color: var(--suave); font-size: 14px; }
+  .nada { text-align: center; color: var(--suave); margin: 30px 0; }
 
-  /* lo que ya se llevó: apagado (casilla, título, bajada y links), con borde punteado; el sello y la hora quedan sin apagar */
-  .llevadas { margin-top: 14px; }
-  .noticia.llevada { border-style: dashed; background: transparent; }
-  .noticia.llevada .fila input, .noticia.llevada h3, .noticia.llevada .bajada, .noticia.llevada .links { opacity: .6; }
-  .noticia.llevada.tildada .fila input, .noticia.llevada.tildada h3, .noticia.llevada.tildada .bajada, .noticia.llevada.tildada .links { opacity: .9; }
-  .hora-llevada { margin: 8px 0 0 36px; font-size: 14px; color: var(--suave); }
+  /* las otras pestañas */
+  .otra h2 { margin: 16px 0 8px; font-size: 18px; }
+  .otra h3 { margin: 18px 0 8px; font-size: 16px; color: var(--suave); }
+  .corta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px; padding: 10px 12px; margin: 0 0 8px; }
+  .corta .titulo { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.3; }
+  .corta .acciones { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .corta .cuando { color: var(--suave); font-size: 13px; }
+  .corta.llevada { border-style: dashed; background: transparent; }
+  .corta.llevada .titulo { opacity: .6; }
+  .hora-llevada { margin: 6px 0 0; font-size: 14px; color: var(--suave); }
 
   /* abajo */
+  .deshacer { position: fixed; left: 0; right: 0; bottom: calc(66px + env(safe-area-inset-bottom)); z-index: 6; }
+  .deshacer .ancho > div { background: var(--azul); color: var(--marca-texto); border-radius: 10px; padding: 8px 12px; display: flex; gap: 10px; align-items: center; justify-content: space-between; font-weight: 600; }
+  .deshacer button { background: none; border: 0; color: inherit; text-decoration: underline; font-weight: 700; min-height: 36px; }
   .abajo { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--barra); backdrop-filter: blur(6px); border-top: 1px solid var(--borde); padding-bottom: env(safe-area-inset-bottom); }
   .abajo .ancho { display: flex; align-items: center; gap: 12px; padding-top: 10px; padding-bottom: 10px; }
   .cuenta { flex: 1; font-weight: 600; }
   .mensaje { color: var(--verde); font-size: 14px; font-weight: 600; min-height: 1.2em; }
   .manual { margin: 12px 0 0; }
+  .manual p { color: var(--suave); font-size: 14px; }
   .manual textarea { width: 100%; min-height: 160px; font: 14px/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--tarjeta); color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; padding: 10px; }
-  .salir { margin: 0; }
-  .salir button { background: none; border: 0; padding: 4px 0; color: var(--suave); font-size: 13px; text-decoration: underline; min-height: 0; }
-  [hidden] { display: none !important; }
-  :focus-visible { outline: 3px solid var(--marca); outline-offset: 2px; }
+  .guardado-en { margin: 24px 0 0; color: var(--suave); font-size: 12px; text-align: center; }
 
   @media (min-width: 700px) {
-    .noticia h3 { font-size: 18px; }
-    .arriba h1 { font-size: 24px; }
+    .arriba h1 { font-size: 22px; }
+    .pivote h3 { font-size: 21px; }
+    .chips { grid-template-columns: 1fr 1fr 1fr; }
   }
 </style>
 </head>
@@ -128,24 +174,32 @@
 <header class="arriba">
   <div class="ancho">
     <h1 id="marca">7M</h1>
-    <div class="actualizada" id="actualizada" aria-live="polite">Cargando…</div>
-    <button class="boton" id="traer" type="button">Traer noticias</button>
+    <div class="vuelta" id="vuelta" aria-live="polite">Cargando…</div>
+    <button class="boton" id="actualizar" type="button">↻ Actualizar</button>
     <form class="salir" method="post" action="/salir"><button type="submit">Salir</button></form>
   </div>
 </header>
 
 <div class="ancho">
   <div id="franjas"></div>
+  <section class="avisos" id="avisos" hidden></section>
+  <div class="temas" id="temas" hidden></div>
+  <nav class="pestanas" id="pestanas" role="tablist" hidden></nav>
   <main id="contenido"></main>
   <div class="manual" id="manual" hidden>
-    <p class="aviso-bloque" id="manual-texto">No se pudo copiar solo. Copialo desde acá:</p>
+    <p id="manual-texto">No se pudo copiar solo. Copialo desde acá:</p>
     <textarea id="manual-cuadro" readonly></textarea>
   </div>
+  <p class="guardado-en" id="guardado-en"></p>
+</div>
+
+<div class="deshacer" id="deshacer" hidden>
+  <div class="ancho"><div><span id="deshacer-texto"></span><button type="button" id="deshacer-boton">Deshacer</button></div></div>
 </div>
 
 <footer class="abajo">
   <div class="ancho">
-    <div class="cuenta" id="cuenta">0 elegidas</div>
+    <div class="cuenta" id="cuenta">Me interesa: 0</div>
     <div class="mensaje" id="mensaje" role="status" aria-live="polite"></div>
     <button class="boton" id="copiar" type="button" disabled>Copiar</button>
   </div>
@@ -156,20 +210,27 @@
 (function () {
   'use strict';
   var L = window.Logica;
+  var DESHACER_MS = 6000;
+  var MIRAR_MS = 5 * 60 * 1000;
 
-  // En memoria: la lista que se trajo, las marcas de esta persona, lo tildado (urls), las "Nueva" y las "Recién confirmada"
-  // de esta visita (urls) y las tarjetas en el orden en que aparecen en la página (para copiar en ese orden).
-  var lista = null;
+  // En memoria. Las decisiones viven en `estado` (se guardan); lo demás dura la visita.
+  var lista = null;            // la que se ve
+  var pendiente = null;        // una lista nueva que trae «N nuevas» y espera «Ver»
   var estado = L.estadoVacio();
-  var tildadas = [];
-  var nuevas = [];
-  var recien = [];
-  var orden = [];
+  var pivote = null;           // la tarjeta abierta
+  var pestana = 'decidir';     // 'decidir' | 'interesa' | 'archivo' | 'nopor'
+  var verOcultas = false;
+  var motivosAbiertos = false; // «No por hoy…» tocado: los chips en lugar de los botones
+  var otroAbierto = false;     // «Otro motivo…» tocado: el renglón para escribir
+  var deshacer = null;         // { t, que, subida, reloj }
+  var decididasVisita = [];    // urls de lo que se decidió en esta visita
+  var barriosAbiertos = [];
   var almacen = null;
   try { almacen = window.localStorage; } catch (e) { almacen = null; }
 
   function ahora() { return new Date().toISOString(); }
   function $(id) { return document.getElementById(id); }
+  function plus() { return L.paginaDe(lista).escalon === 'plus'; }
 
   // Arma un elemento sin pasar texto de afuera por innerHTML.
   function h(tag, props, hijos) {
@@ -177,8 +238,9 @@
     Object.keys(props || {}).forEach(function (k) {
       if (k === 'texto') e.textContent = props[k];
       else if (k === 'clase') e.className = props[k];
-      else if (k === 'alCambiar') e.addEventListener('change', props[k]);
       else if (k === 'alApretar') e.addEventListener('click', props[k]);
+      else if (k === 'alEscribir') e.addEventListener('input', props[k]);
+      else if (k === 'alTecla') e.addEventListener('keydown', props[k]);
       else if (props[k] === true) e.setAttribute(k, '');
       else if (props[k] !== false && props[k] != null) e.setAttribute(k, props[k]);
     });
@@ -186,25 +248,38 @@
     return e;
   }
 
-  function todasLasTarjetas() {
-    var out = [];
-    L.bloquesADibujar(lista).forEach(function (b) { out = out.concat(lista.bloques[b.clave].noticias, lista.bloques[b.clave].aMano); });
-    return out;
-  }
+  /* ───────────── guardar ───────────── */
 
-  /* ───────────── dibujar ───────────── */
+  function guardar() { L.guardarEstado(almacen, estado); }
+
+  /* ───────────── piezas ───────────── */
 
   // Un link por medio. Sin url (el cronograma de verano) va como texto.
   function links(t) {
     var vistos = {};
-    var unaPorMedio = t.links.filter(function (l) { if (vistos[l.medio]) return false; vistos[l.medio] = true; return true; });
+    var unaPorMedio = (t.links || []).filter(function (l) { if (vistos[l.medio]) return false; vistos[l.medio] = true; return true; });
     return h('p', { clase: 'links' }, unaPorMedio.map(function (l) {
       return l.url ? h('a', { href: l.url, target: '_blank', rel: 'noopener noreferrer', texto: l.medio }) : h('span', { texto: l.medio });
     }));
   }
 
-  // Los avisos con la lista de barrios abierta (ids), mientras dure la visita.
-  var barriosAbiertos = [];
+  function claseSelloDe(t) {
+    if (t.via === 'aviso') {
+      var a = t.aviso || {};
+      if (a.normalizado) return 'sello lleno';
+      return a.cronograma || a.programado === null || a.programado === undefined ? 'sello gris' : a.programado ? 'sello' : 'sello mano';
+    }
+    // El sello va en verde (vía A), violeta (vía B: «Respaldada por…») o naranja (le falta 1: «elegida a mano»).
+    return t.via === 'B' ? 'sello viab' : t.via === 'mano' ? 'sello mano' : 'sello';
+  }
+  function sello(t) { return h('span', { clase: claseSelloDe(t), texto: t.etiqueta }); }
+
+  // La bajada, o el aviso de que el medio no la publica en su listado (los sitemaps no la traen).
+  function bajada(t) {
+    return t.bajada
+      ? h('p', { clase: 'bajada', texto: t.bajada })
+      : h('p', { clase: 'bajada sin', texto: 'Sin bajada: este medio no la publica en su listado.' });
+  }
 
   // La línea de un aviso: «Jueves 8/10 · desde las 15:00 · 24 h · Zona Norte · 23 barrios: …» (con más de 6, «y N más» los abre).
   function datosDeAviso(t) {
@@ -217,107 +292,284 @@
       hijos.push(' · ' + b.total + (b.total === 1 ? ' barrio: ' : ' barrios: ') + nombres.join(', '));
       if (b.resto && !abierto) {
         hijos.push(' y ');
-        hijos.push(h('button', { type: 'button', clase: 'mas-barrios', texto: b.resto + ' más', alApretar: function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          barriosAbiertos.push(t.id);
-          dibujar();
-        } }));
+        hijos.push(h('button', { type: 'button', clase: 'mas-barrios', texto: b.resto + ' más', alApretar: function () { barriosAbiertos.push(t.id); dibujar(); } }));
       }
     }
     return h('p', { clase: 'datos-aviso' }, hijos);
   }
 
-  function claseSelloDe(t) {
-    if (t.via === 'aviso') {
-      var a = t.aviso || {};
-      if (a.normalizado) return 'sello lleno';
-      return a.cronograma || a.programado === null || a.programado === undefined ? 'sello gris' : a.programado ? 'sello' : 'sello mano';
+  /* ───────────── decidir ───────────── */
+
+  function registrarVisita(t) { L.urlsDe(t).forEach(function (u) { if (decididasVisita.indexOf(u) < 0) decididasVisita.push(u); }); }
+
+  function mostrarDeshacer(t, que, subida) {
+    if (deshacer) clearTimeout(deshacer.reloj);
+    deshacer = { t: t, que: que, subida: subida, reloj: setTimeout(function () { deshacer = null; $('deshacer').hidden = true; }, DESHACER_MS) };
+    $('deshacer-texto').textContent = L.textoDeshacer(que);
+    $('deshacer').hidden = false;
+  }
+
+  // Decide la abierta y abre la siguiente (la que estaba justo después en Por decidir).
+  function decidirPivote(que, motivo, texto) {
+    var t = pivote;
+    if (!t) return;
+    var antes = L.repartir(lista, estado, { verOcultas: verOcultas }).porDecidir;
+    var subida = L.subidaDe(t, estado);
+    estado = L.decidirTarjeta(t, { que: que, motivo: motivo, texto: texto, minimo: lista.minGrupos }, estado, ahora());
+    pivote = L.pivoteSiguiente(antes, t, t);
+    motivosAbiertos = false;
+    otroAbierto = false;
+    registrarVisita(t);
+    guardar();
+    mostrarDeshacer(t, que, subida);
+    dibujar();
+  }
+
+  function interesaAviso(t) {
+    estado = L.decidirTarjeta(t, { que: 'interesa' }, estado, ahora());
+    registrarVisita(t);
+    guardar();
+    mostrarDeshacer(t, 'interesa', null);
+    dibujar();
+  }
+
+  function alDeshacer() {
+    if (!deshacer) return;
+    clearTimeout(deshacer.reloj);
+    var t = deshacer.t;
+    estado = L.borrarDecision(t, estado, deshacer.subida);
+    if (t.via !== 'aviso') { pivote = t; motivosAbiertos = false; otroAbierto = false; }
+    deshacer = null;
+    $('deshacer').hidden = true;
+    guardar();
+    dibujar();
+  }
+
+  // «Volver» y «Sacar»: vuelve a Por decidir en su lugar, sin volverse pivote.
+  function volver(t) { estado = L.borrarDecision(t, estado); guardar(); dibujar(); }
+
+  function abrir(t) { pivote = t; motivosAbiertos = false; otroAbierto = false; dibujar(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+  /* ───────────── dibujar ───────────── */
+
+  function dibujarAvisos(r) {
+    var caja = $('avisos');
+    caja.textContent = '';
+    caja.hidden = !r.avisos.length;
+    if (!r.avisos.length) return;
+    caja.appendChild(h('h2', { texto: 'Avisos · ' + r.avisos.length }));
+    r.avisos.forEach(function (a) {
+      var t = a.tarjeta;
+      var derecha;
+      if (a.estado === 'libre') derecha = h('button', { type: 'button', clase: 'boton chico interesa', texto: 'Me interesa', 'aria-label': 'Me interesa: ' + t.titulo, alApretar: function () { interesaAviso(t); } });
+      else if (a.estado === 'interesa') derecha = h('span', { clase: 'estado-aviso', texto: 'En Me interesa' });
+      else derecha = h('span', { clase: 'estado-aviso', texto: 'Te lo llevaste · ' + L.horaAR(a.hora) });
+      caja.appendChild(h('div', { clase: 'aviso', 'data-aviso': t.id }, [
+        h('div', { clase: 'cuerpo' }, [h('div', { clase: 'meta' }, [sello(t)]), h('p', { clase: 'titulo-aviso', texto: t.titulo }), datosDeAviso(t), links(t)]),
+        derecha,
+      ]));
+    });
+  }
+
+  function dibujarTemas() {
+    var fila = $('temas');
+    fila.textContent = '';
+    var temas = L.paginaDe(lista).temas;
+    fila.hidden = !plus() || !temas.length;
+    if (fila.hidden) return;
+    temas.forEach(function (x) {
+      var prendido = L.temaPrendido(x.nombre, lista, estado);
+      fila.appendChild(h('button', { type: 'button', clase: 'tema', 'aria-pressed': prendido ? 'true' : 'false', texto: x.nombre, alApretar: function () {
+        estado = L.alternarTema(x.nombre, estado, lista);
+        guardar();
+        dibujar();
+      } }));
+    });
+    fila.appendChild(h('span', { clase: 'sintema', texto: L.SIN_TEMA }));
+  }
+
+  function dibujarPestanas(r) {
+    var nav = $('pestanas');
+    nav.textContent = '';
+    nav.hidden = false;
+    var cuales = plus()
+      ? [['decidir', 'Por decidir', r.numeros.porDecidir], ['interesa', 'Me interesa', r.numeros.meInteresa], ['archivo', 'Archivo', r.numeros.archivo], ['nopor', 'No por hoy', r.numeros.noPorHoy]]
+      : [['decidir', 'Por decidir', r.numeros.porDecidir], ['interesa', 'Me interesa', r.numeros.meInteresa], ['nopor', 'Pasadas', r.numeros.noPorHoy]];
+    if (!cuales.some(function (c) { return c[0] === pestana; })) pestana = 'decidir';
+    cuales.forEach(function (c) {
+      nav.appendChild(h('button', { type: 'button', role: 'tab', clase: 'pestana', 'data-pestana': c[0], 'aria-selected': pestana === c[0] ? 'true' : 'false', alApretar: function () { pestana = c[0]; dibujar(); } },
+        [c[1], h('span', { clase: 'numero', texto: String(c[2]) })]));
+    });
+  }
+
+  // La pastilla de un renglón: la cantidad de medios (o «4/5» en una a la que le falta 1), en el color de su vía.
+  function cantidad(t) {
+    var mano = t.via === 'mano';
+    return h('span', { clase: 'cant' + (mano ? ' mano' : t.via === 'B' ? ' viab' : ''), texto: mano ? t.grupos + '/' + lista.minGrupos : String(t.grupos) });
+  }
+
+  function botonesPivote(t) {
+    if (!plus()) {
+      return h('div', { clase: 'botones' }, [
+        h('button', { type: 'button', clase: 'boton interesa', 'data-accion': 'interesa', texto: 'Me interesa', alApretar: function () { decidirPivote('interesa'); } }),
+        h('button', { type: 'button', clase: 'boton neutro', 'data-accion': 'siguiente', texto: 'Siguiente', alApretar: function () { decidirPivote('siguiente'); } }),
+      ]);
     }
-    // El sello va en verde (vía A), violeta (vía B: «Respaldada por…») o naranja (una 4/5 que se llevó): no se confunden.
-    return t.via === 'B' ? 'sello viab' : t.via === 'mano' ? 'sello mano' : 'sello';
-  }
-
-  function alternar(t, foco) {
-    tildadas = L.alternarTilde(t, tildadas);
-    dibujar(foco);
-  }
-
-  // Una confirmada (o una que se llevó): casilla, sello, una pastilla ("Nueva" o "Recién confirmada"; lo llevado, ninguna),
-  // título, bajada y links.
-  // Un aviso es igual, con su pastilla de servicio en lugar del sello y la línea de datos debajo del título.
-  function noticia(t, opciones) {
-    var tildada = L.estaTildada(t, tildadas);
-    var clave = 'k:' + L.urlsDe(t)[0];
-    var meta = [h('span', { clase: claseSelloDe(t), texto: t.etiqueta })];
-    var pastilla = L.pastillaDe(t, { nuevas: nuevas, recien: recien, llevada: Boolean(opciones && opciones.hora) });
-    if (pastilla === 'recien') meta.push(h('span', { clase: 'recien', texto: 'Recién confirmada' }));
-    else if (pastilla === 'nueva') meta.push(h('span', { clase: 'nueva', texto: 'Nueva' }));
-    var cuerpo = [h('div', { clase: 'meta' }, meta), h('h3', { texto: t.titulo })];
-    if (t.via === 'aviso') cuerpo.push(datosDeAviso(t));
-    cuerpo.push(bajada(t));
-    var casilla = h('input', { type: 'checkbox', 'data-k': clave, checked: tildada, alCambiar: function () { alternar(t, clave); } });
-    var hijos = [h('label', { clase: 'fila' }, [casilla, h('div', { clase: 'cuerpo' }, cuerpo)]), links(t)];
-    if (opciones && opciones.hora) hijos.push(h('p', { clase: 'hora-llevada', texto: 'Te la llevaste a las ' + L.horaAR(opciones.hora) }));
-    orden.push(t);
-    return h('article', { clase: 'noticia' + (tildada ? ' tildada' : '') + (opciones && opciones.hora ? ' llevada' : '') }, hijos);
-  }
-
-  // La bajada, o el aviso de que el medio no la publica en su listado (los sitemaps no la traen).
-  function bajada(t) {
-    return t.bajada
-      ? h('p', { clase: 'bajada', texto: t.bajada })
-      : h('p', { clase: 'bajada sin', texto: 'Sin bajada: este medio no la publica en su listado.' });
-  }
-
-  // Una 4/5: título, "4 de 5 medios" y el botón «Llevármela igual» (tildada, dice «Sacar»).
-  function cuatroDeCinco(t) {
-    var tildada = L.estaTildada(t, tildadas);
-    var clave = 'k:' + L.urlsDe(t)[0];
-    orden.push(t);
-    return h('article', { clase: 'noticia' + (tildada ? ' tildada' : '') }, [
-      h('h4', { texto: t.titulo }),
-      bajada(t),
-      h('p', { clase: 'medios', texto: L.etiquetaMedios(t, lista.minGrupos) }),
-      links(t),
-      h('div', { clase: 'acciones' }, [
-        h('button', { type: 'button', clase: 'boton suave', 'data-k': clave, 'aria-pressed': tildada ? 'true' : 'false', texto: tildada ? 'Sacar' : 'Llevármela igual', alApretar: function () { alternar(t, clave); } }),
-      ]),
-    ]);
-  }
-
-  // cual = { clave, nombre, minimo } (de L.bloquesADibujar): un anillo de la zona trae mínimo 1, los dos de siempre lista.cupoMinimo.
-  function bloque(cual) {
-    var b = lista.bloques[cual.clave];
-    var reparto = L.repartirBloque(b, estado);
-    var n = b.noticias.length; // lo que se llevó sigue contando para el tope: la página solo lo baja
-    var hijos = [h('h2', { texto: L.tituloBloque(cual.nombre, n, cual.minimo) })];
-    var aviso = L.avisoBloque(n, cual.minimo, b.aMano.length);
-    if (aviso) hijos.push(h('p', { clase: 'aviso-bloque', texto: aviso }));
-    reparto.principales.forEach(function (t) { hijos.push(noticia(t)); });
-    if (b.afueraPorTope > 0) hijos.push(h('p', { clase: 'afuera', texto: L.textoAfuera(b.afueraPorTope, b.tope) }));
-    if (reparto.aMano.length) {
-      hijos.push(h('section', { clase: 'amano' }, [h('h3', { texto: 'En observación · les falta 1 medio' })].concat(reparto.aMano.map(cuatroDeCinco))));
+    if (!motivosAbiertos) {
+      return h('div', { clase: 'botones' }, [
+        h('button', { type: 'button', clase: 'boton interesa', 'data-accion': 'interesa', texto: 'Me interesa', alApretar: function () { decidirPivote('interesa'); } }),
+        h('button', { type: 'button', clase: 'boton neutro', 'data-accion': 'nopor', texto: 'No por hoy…', alApretar: function () { motivosAbiertos = true; dibujar(); } }),
+        h('button', { type: 'button', clase: 'boton neutro', 'data-accion': 'archivo', texto: 'Archivar', alApretar: function () { decidirPivote('archivo'); } }),
+      ]);
     }
-    if (reparto.llevadas.length) {
-      hijos.push(h('div', { clase: 'llevadas' }, reparto.llevadas.map(function (x) { return noticia(x.tarjeta, { hora: x.hora }); })));
+    var chips = L.paginaDe(lista).motivos.map(function (m) {
+      return h('button', { type: 'button', clase: 'chip', 'data-motivo': m.clave, texto: m.texto, alApretar: function () {
+        if (m.clave === 'otro') { otroAbierto = true; dibujar(); var i = document.querySelector('.otro input'); if (i) i.focus(); return; }
+        decidirPivote('nopor', m.clave);
+      } });
+    });
+    var hijos = [h('p', { clase: 'porque', texto: 'No por hoy. ¿Por qué?' }), h('div', { clase: 'chips' }, chips)];
+    if (otroAbierto) {
+      var entrada = h('input', { type: 'text', maxlength: '120', 'aria-label': 'Otro motivo', alTecla: function (e) { if (e.key === 'Enter') listo(); } });
+      var listo = function () { var texto = entrada.value.trim(); if (!texto) return; decidirPivote('nopor', 'otro', texto); };
+      hijos.push(h('div', { clase: 'otro' }, [entrada, h('button', { type: 'button', clase: 'boton', 'data-accion': 'listo', texto: 'Listo', alApretar: listo })]));
     }
-    return h('section', { clase: 'bloque' }, hijos);
+    hijos.push(h('button', { type: 'button', clase: 'boton neutro volver-chips', 'data-accion': 'volver-chips', texto: '‹ Volver', alApretar: function () { motivosAbiertos = false; otroAbierto = false; dibujar(); } }));
+    return h('div', { clase: 'botones' }, hijos);
   }
 
-  function dibujar(foco) {
-    var cont = $('contenido');
-    cont.textContent = '';
-    orden = [];
-    if (!lista) return;
-    L.bloquesADibujar(lista).forEach(function (b) { cont.appendChild(bloque(b)); });
+  function dibujarPivote(t) {
+    var meta = [sello(t)];
+    if (t.tema) meta.push(h('span', { clase: 'pastilla', texto: t.tema }));
+    if (t.hora) meta.push(h('span', { clase: 'pastilla', texto: L.horaAR(t.hora) }));
+    var hijos = [h('div', { clase: 'meta' }, meta), h('h3', { texto: t.titulo }), bajada(t)];
+    var subida = L.subidaDe(t, estado);
+    if (subida) hijos.push(h('p', { clase: 'subio', texto: '↳ Subió a confirmada. A las ' + L.horaAR(subida.hora) + ' la habías archivado' }));
+    hijos.push(links(t));
+    hijos.push(botonesPivote(t));
+    return h('article', { clase: 'pivote', id: 'pivote' }, hijos);
+  }
 
-    var cuando = L.haceCuanto(lista.generadaEn, ahora());
-    $('actualizada').textContent = 'Actualizada ' + cuando.texto;
+  function dibujarAvance(porDecidir) {
+    var a = L.textoAvance(porDecidir, pivote);
+    if (!a) return null;
+    var hijos = [h('span', { texto: a.texto })];
+    if (a.n <= 10) {
+      var puntos = [];
+      for (var i = 1; i <= a.n; i++) puntos.push(h('i', { clase: i < a.k ? 'hecho' : i === a.k ? 'aca' : '' }));
+      hijos.push(h('div', { clase: 'puntos', 'aria-hidden': 'true' }, puntos));
+    }
+    return h('div', { clase: 'avance', id: 'avance' }, hijos);
+  }
+
+  function dibujarPorDecidir(cont, r, visibles) {
+    var hay = r.porDecidir.length > 0;
+    if (!hay) {
+      var n = L.decididasEnVisita(lista, estado, decididasVisita);
+      var cuando = 'Nada nuevo desde las ' + L.horaAR(lista.generadaEn);
+      cont.appendChild(h('p', { clase: 'nada', id: 'nada', texto: n ? 'Decidiste las ' + n + '. ' + cuando : 'Nada por decidir. ' + cuando }));
+    } else {
+      var avance = dibujarAvance(visibles.porDecidir);
+      if (avance) cont.appendChild(avance);
+      if (pivote) cont.appendChild(dibujarPivote(pivote));
+      r.porDecidir.forEach(function (g) {
+        var filas = g.tarjetas.filter(function (t) { return !L.mismaTarjeta(t, pivote); });
+        if (!filas.length) return;
+        var cuantas = g.tarjetas.filter(function (t) { return !L.temaOculto(t, lista, estado); }).length;
+        var grupo = h('section', { clase: 'grupo', 'data-grupo': g.clave }, [h('h4', { texto: g.nombre + ' · ' + cuantas + ' por decidir' })]);
+        filas.forEach(function (t) {
+          var hijos = [cantidad(t), h('span', { clase: 'tit', texto: t.titulo })];
+          if (L.temaOculto(t, lista, estado)) hijos.splice(1, 0, h('span', { clase: 'pastilla', texto: t.tema }));
+          hijos.push(h('span', { clase: 'flecha', 'aria-hidden': 'true', texto: '›' }));
+          grupo.appendChild(h('button', { type: 'button', clase: 'renglon', 'aria-label': t.titulo, alApretar: function () { abrir(t); } }, hijos));
+        });
+        cont.appendChild(grupo);
+      });
+    }
+    if (r.ocultas.total > 0) {
+      var o = r.ocultas;
+      var linea = [(o.total === 1 ? '1 oculta por tema (' : o.total + ' ocultas por tema (') + o.temas.join(', ') + ')'];
+      if (!verOcultas) linea.push(' · ', h('button', { type: 'button', clase: 'enlace', 'data-accion': 'ver-ocultas', texto: 'ver', alApretar: function () { verOcultas = true; dibujar(); } }));
+      cont.appendChild(h('p', { clase: 'pie-renglones', id: 'ocultas' }, linea));
+    }
+    if (r.subieronNoPorHoy > 0) {
+      var k = r.subieronNoPorHoy;
+      cont.appendChild(h('p', { clase: 'pie-renglones', id: 'subieron' }, [
+        k + ' que mandaste a No por hoy ' + (k === 1 ? 'subió' : 'subieron') + ' a confirmada · ',
+        h('button', { type: 'button', clase: 'enlace', 'data-accion': 'ver-subieron', texto: 'ver', alApretar: function () { pestana = 'nopor'; dibujar(); } }),
+      ]));
+    }
+  }
+
+  function corta(t, hijosExtra, clase) {
+    return h('article', { clase: 'corta' + (clase ? ' ' + clase : '') }, [h('div', { clase: 'meta' }, [sello(t)]), h('p', { clase: 'titulo', texto: t.titulo })].concat(hijosExtra));
+  }
+
+  function dibujarMeInteresa(cont, r) {
+    var caja = h('section', { clase: 'otra', id: 'me-interesa' }, [h('h2', { texto: 'Para llevar · ' + r.meInteresa.length })]);
+    r.meInteresa.forEach(function (t) {
+      var d = L.decisionDe(t, estado);
+      var extra = [];
+      if (d && d.subio) extra.push(h('p', { clase: 'subio', texto: '↳ Era ' + d.grupos + ' de ' + d.minimo + ' cuando la elegiste; ahora confirmada' }));
+      extra.push(h('div', { clase: 'acciones' }, [h('button', { type: 'button', clase: 'boton suave chico', texto: 'Sacar', 'aria-label': 'Sacar: ' + t.titulo, alApretar: function () { volver(t); } })]));
+      caja.appendChild(corta(t, extra));
+    });
+    if (r.llevadas.length) {
+      caja.appendChild(h('h3', { texto: 'Llevadas hoy' }));
+      r.llevadas.forEach(function (x) {
+        var texto = (x.tarjeta.via === 'aviso' ? 'Te lo llevaste a las ' : 'Te la llevaste a las ') + L.horaAR(x.hora);
+        caja.appendChild(corta(x.tarjeta, [h('p', { clase: 'hora-llevada', texto: texto })], 'llevada'));
+      });
+    }
+    cont.appendChild(caja);
+  }
+
+  function dibujarArchivo(cont, r) {
+    var caja = h('section', { clase: 'otra', id: 'archivo' });
+    r.archivo.forEach(function (t) {
+      var d = L.decisionDe(t, estado);
+      var art = h('article', { clase: 'corta' }, [
+        h('div', { clase: 'meta' }, [sello(t), h('span', { clase: 'cuando', texto: 'archivada ' + L.horaAR(d.hora) })]),
+        h('p', { clase: 'titulo', texto: t.titulo }),
+        h('div', { clase: 'acciones' }, [
+          h('button', { type: 'button', clase: 'boton chico interesa', texto: 'Me interesa', 'aria-label': 'Me interesa: ' + t.titulo, alApretar: function () {
+            estado = L.decidirTarjeta(t, { que: 'interesa', minimo: lista.minGrupos }, estado, ahora());
+            registrarVisita(t);
+            guardar();
+            dibujar();
+          } }),
+          h('button', { type: 'button', clase: 'boton suave chico', texto: 'Volver', 'aria-label': 'Volver: ' + t.titulo, alApretar: function () { volver(t); } }),
+        ]),
+      ]);
+      caja.appendChild(art);
+    });
+    cont.appendChild(caja);
+  }
+
+  function dibujarNoPorHoy(cont, r) {
+    var caja = h('section', { clase: 'otra', id: 'no-por-hoy' });
+    var motivos = L.paginaDe(lista).motivos;
+    r.noPorHoy.forEach(function (t) {
+      var d = L.decisionDe(t, estado);
+      var meta = [];
+      if (d.subio) meta.push(sello(t), h('span', { clase: 'sello lleno', texto: 'Subió a confirmada' }));
+      if (plus() && d.que === 'nopor') {
+        var m = motivos.filter(function (x) { return x.clave === d.motivo; })[0];
+        meta.push(h('span', { clase: 'pastilla motivo', texto: d.motivo === 'otro' ? 'Otro: ' + (d.texto || '') : (m ? m.texto : d.motivo) }));
+      }
+      caja.appendChild(h('article', { clase: 'corta' }, [
+        meta.length ? h('div', { clase: 'meta' }, meta) : null,
+        h('p', { clase: 'titulo', texto: t.titulo }),
+        h('div', { clase: 'acciones' }, [h('button', { type: 'button', clase: 'boton suave chico', texto: 'Volver', 'aria-label': 'Volver: ' + t.titulo, alApretar: function () { volver(t); } })]),
+      ]));
+    });
+    cont.appendChild(caja);
+  }
+
+  function dibujarFranjas() {
     var franjas = $('franjas');
     franjas.textContent = '';
     if (lista.ejemplo) franjas.appendChild(h('p', { clase: 'franja ejemplo', texto: 'Datos de ejemplo, inventados' }));
-    $('marca').textContent = lista.cliente ? lista.cliente + ' · 7M' : '7M';
     if (lista.sinIA) franjas.appendChild(h('p', { clase: 'franja sinia', texto: 'Sin el juicio de la IA: el bloque de cada noticia es provisorio' }));
     else if (lista.provisorias > 0) {
       var n = lista.provisorias;
@@ -326,67 +578,101 @@
     // Vieja: más minutos que paginaViejaMinutos (lo pone la vuelta en la lista; 60 si no viene).
     var minutos = (Date.parse(ahora()) - Date.parse(lista.generadaEn)) / 60000;
     if (!(minutos <= (lista.paginaViejaMinutos || 60))) franjas.appendChild(h('p', { clase: 'franja vieja', texto: 'No se actualiza desde las ' + L.horaAR(lista.generadaEn) + ' · contactá al administrador' }));
+    if (pendiente) {
+      var k = L.hayNuevas(lista, pendiente, estado);
+      franjas.appendChild(h('div', { clase: 'franja nuevas', id: 'nuevas' }, [
+        h('span', { texto: k + (k === 1 ? ' nueva' : ' nuevas') + ' desde las ' + L.horaAR(lista.generadaEn) }),
+        h('button', { type: 'button', clase: 'boton suave chico', texto: 'Ver', alApretar: function () { aplicar(pendiente); } }),
+      ]));
+    }
+  }
 
-    var elegidas = orden.filter(function (t) { return L.estaTildada(t, tildadas); });
-    var barra = L.textoBarra(elegidas.length);
+  function dibujar() {
+    var cont = $('contenido');
+    cont.textContent = '';
+    if (!lista) return;
+    var r = L.repartir(lista, estado, { verOcultas: verOcultas });
+    var visibles = verOcultas ? L.repartir(lista, estado) : r;
+    // El pivote sigue siendo el mismo mientras esté por decidir; si no, la primera.
+    var mismo = pivote && L.pivoteSiguiente(r.porDecidir, pivote);
+    pivote = mismo && L.mismaTarjeta(mismo, pivote) ? mismo : L.pivoteSiguiente(visibles.porDecidir, null);
+
+    $('marca').textContent = L.tituloPagina(lista);
+    document.title = L.tituloPagina(lista);
+    $('vuelta').textContent = 'última vuelta ' + L.horaAR(lista.generadaEn);
+    dibujarFranjas();
+    dibujarAvisos(r);
+    dibujarTemas();
+    dibujarPestanas(r);
+    if (pestana === 'decidir') dibujarPorDecidir(cont, r, visibles);
+    else if (pestana === 'interesa') dibujarMeInteresa(cont, r);
+    else if (pestana === 'archivo') dibujarArchivo(cont, r);
+    else dibujarNoPorHoy(cont, r);
+
+    var barra = L.textoBarra(r.meInteresa.length);
     $('cuenta').textContent = barra.cuenta;
     $('copiar').textContent = barra.boton;
     $('copiar').disabled = barra.apagado;
-
-    if (foco) { var el = document.querySelector('[data-k="' + foco.replace(/"/g, '\\"') + '"]'); if (el) el.focus({ preventScroll: true }); }
+    $('guardado-en').textContent = 'Tus decisiones se guardan en este navegador';
   }
 
-  /* ───────────── traer la lista ───────────── */
+  /* ───────────── la lista: traer, mirar cada 5 minutos y aplicar ───────────── */
 
   function error() {
     lista = null;
+    pendiente = null;
     dibujar();
-    $('actualizada').textContent = '';
+    $('vuelta').textContent = '';
+    ['avisos', 'temas', 'pestanas'].forEach(function (id) { $(id).hidden = true; });
     var franjas = $('franjas');
     franjas.textContent = '';
     franjas.appendChild(h('div', { clase: 'franja error' }, [
       h('span', { texto: 'No se pudo traer la lista. Probá de nuevo en un rato.' }),
-      h('button', { type: 'button', clase: 'boton suave', texto: 'Reintentar', alApretar: traer }),
+      h('button', { type: 'button', clase: 'boton suave', texto: 'Reintentar', alApretar: actualizar }),
     ]));
   }
 
-  function guardar() { L.guardarEstado(almacen, estado); }
+  function pedirLista() {
+    return fetch('lista.json', { cache: 'no-store' }).then(function (r) {
+      // Sin sesión (la página servida por scripts/servir.js): a entrar.
+      if (r.status === 401) { location.href = '/entrar'; return null; }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
 
-  function traer() {
+  // Aplica una lista: la mezcla (las que subieron a confirmada) y se redibuja; el pivote no se mueve.
+  function aplicar(nueva) {
+    lista = nueva;
+    pendiente = null;
+    estado = L.aplicarMezcla(lista, estado, ahora());
+    guardar();
+    dibujar();
+  }
+
+  function actualizar() {
     $('mensaje').textContent = '';
-    fetch('lista.json', { cache: 'no-store' })
-      .then(function (r) {
-        // Sin sesión (la página servida por scripts/servir.js): a entrar.
-        if (r.status === 401) { location.href = '/entrar'; return null; }
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function (datos) {
-        if (!datos) return;
-        lista = datos;
-        var todas = todasLasTarjetas();
-        // "Nueva" y "Recién confirmada" duran esa visita: las que ya lo eran siguen siéndolo, y se suman las que nunca se vieron
-        // ("Nueva") o las que ya se vieron sin la etiqueta "Confirmada" y ahora la llevan ("Recién confirmada").
-        nuevas = L.nuevasDeLaVisita(todas, estado, nuevas);
-        recien = L.recienConfirmadasDeLaVisita(todas, estado, recien);
-        dibujar();
-        // Recién después de dibujar se guardan como vistas todas las que se mostraron.
-        estado = L.marcarVistas(todas, estado, ahora());
-        guardar();
-      })
-      .catch(error);
+    pedirLista().then(function (datos) { if (datos) aplicar(datos); }).catch(error);
+  }
+
+  // Cada 5 minutos: si la lista cambió y trae noticias que no se ven, «N nuevas · Ver»; si no, se aplica en silencio.
+  function mirar() {
+    if (!lista) return;
+    pedirLista().then(function (datos) {
+      if (!datos || datos.generadaEn === lista.generadaEn) return;
+      if (L.hayNuevas(lista, datos, estado) > 0) { pendiente = datos; dibujar(); } else aplicar(datos);
+    }).catch(function () {});
   }
 
   /* ───────────── copiar ───────────── */
 
   function copiar() {
-    var elegidas = orden.filter(function (t) { return L.estaTildada(t, tildadas); });
+    var elegidas = L.repartir(lista, estado).meInteresa;
     if (!elegidas.length) return;
     var texto = L.textoParaCopiar(elegidas);
     var listo = function (copiado) {
       estado = L.marcarLlevadas(elegidas, estado, ahora());
       guardar();
-      tildadas = [];
       dibujar();
       var manual = $('manual');
       if (copiado) {
@@ -407,13 +693,14 @@
     } catch (e) { porFalla(); }
   }
 
-  $('traer').addEventListener('click', traer);
+  $('actualizar').addEventListener('click', actualizar);
   $('copiar').addEventListener('click', copiar);
-  setInterval(function () { if (lista) { var c = L.haceCuanto(lista.generadaEn, ahora()); $('actualizada').textContent = 'Actualizada ' + c.texto; } }, 30000);
+  $('deshacer-boton').addEventListener('click', alDeshacer);
+  setInterval(mirar, MIRAR_MS);
 
-  // Al abrir: las marcas de antes (sin las de más de 24 h) y la lista.
+  // Al abrir: las decisiones de antes (sin las de más de 24 h) y la lista.
   estado = L.limpiar(L.cargarEstado(almacen), ahora());
-  traer();
+  actualizar();
 })();
 </script>
 </body>

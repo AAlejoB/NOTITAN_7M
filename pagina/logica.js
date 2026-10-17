@@ -416,6 +416,8 @@
 
   const plano = porDecidir => porDecidir.flatMap(g => g.tarjetas);
   const buscar = (lista, t) => (t ? lista.find(x => comparten(urlsDe(x), urlsDe(t))) || null : null);
+  // Si dos tarjetas son la misma noticia (comparten una url).
+  const mismaTarjeta = (a, b) => Boolean(a && b) && comparten(urlsDe(a), urlsDe(b));
 
   // La tarjeta abierta.
   // - Con `decidida` (la que se acaba de decidir, y `porDecidir` es el de antes de decidirla): la que estaba justo
@@ -509,6 +511,6 @@
     etiquetaMedios, textoBarra, bloquesADibujar, tituloBloque, avisoBloque, textoAfuera, paginaDe, tituloPagina,
     estadoVacio, normalizarEstado, limpiar, decisionDe, subidaDe, decidirTarjeta, borrarDecision, marcarLlevadas, llevadaA,
     temaPrendido, temaOculto, alternarTema, aplicarMezcla, repartir, pivoteSiguiente, hayNuevas, textoAvance, textoDeshacer,
-    decididasEnVisita, cargarEstado, guardarEstado,
+    decididasEnVisita, mismaTarjeta, cargarEstado, guardarEstado,
   };
 });
