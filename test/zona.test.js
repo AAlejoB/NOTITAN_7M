@@ -130,7 +130,7 @@ test('los bloques salen en el orden de reglas.anillos, con la forma de decidir()
   assert.equal(z.bloques.local.nombre, 'Comodoro');
   assert.equal(z.bloques.chubut.nombre, 'Chubut');
   const s = z.bloques.local.noticias[0];
-  assert.deepEqual(Object.keys(s), ['id', 'titulo', 'bajada', 'bloque', 'seccion', 'pais', 'via', 'etiqueta', 'gruposIndependientes', 'links']);
+  assert.deepEqual(Object.keys(s), ['id', 'titulo', 'bajada', 'bloque', 'seccion', 'pais', 'via', 'etiqueta', 'gruposIndependientes', 'links', 'primera', 'secciones']);
   assert.deepEqual(s.links.map(l => l.portal), ['elcomodorense.net', 'elpatagonico.com']);
 });
 
@@ -151,4 +151,15 @@ test('con preparar(): dos notas reales de Comodoro llegan a candidato con minGru
   assert.equal(p.candidatos.length, 1);
   const z = decidirZona(p, { portales, reglas });
   assert.equal(z.bloques.local.noticias.length, 1);
+});
+
+test('carta del 17-10: cada noticia de decidirZona suma primera y secciones; el resto no cambia', () => {
+  const a = { ...nota('comodorense', 'Algo'), seccion: 'policiales' };
+  const b = { ...nota('patagonico', 'Algo'), seccion: '' };
+  const h = hecho([a, b]);
+  const s = decidirZona(preparado([h]), { portales, reglas }).bloques.local.noticias[0];
+  assert.equal(s.primera, h.primera);
+  assert.deepEqual(s.secciones, ['policiales']);
+  assert.equal(s.via, 'A');
+  assert.equal(s.gruposIndependientes, 2);
 });

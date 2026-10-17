@@ -931,3 +931,25 @@ test('bajada: sale de la primera nota que la trae (el sitemap no tiene) y el tí
   assert.equal(r.hecho.bajada, 'El intendente anunció…');
   assert.equal(r.hecho.titulo, 'El intendente inauguró la planta de agua');
 });
+
+// ── Carta del 17-10 (la página C): decidir suma primera y secciones, y nada más cambia ──
+test('decidir: cada salida (también las de aMano) suma primera y secciones de sus notas, sin repetir y sin vacías', () => {
+  const c = { portales, reglas, firmas: dia.firmas, ahora: dia.ahora };
+  const p = N.preparar(dia.notas, c);
+  const d = N.decidir(p.candidatos, dia.juicios, { ...c, elegiblesAMano: p.elegiblesAMano });
+  const salidas = [...d.nacionales, ...d.internacionales, ...d.aMano.nacional, ...d.aMano.internacional];
+  assert.ok(salidas.length > 10);
+  const todos = [...p.candidatos, ...p.elegiblesAMano];
+  for (const s of salidas) {
+    const h = todos.find(x => x.id === s.id);
+    assert.equal(s.primera, h.primera, s.id);
+    assert.deepEqual(s.secciones, [...new Set(h.notas.map(n => n.seccion).filter(Boolean))], s.id);
+  }
+  // Lo de antes sigue igual y en el mismo lugar: los dos campos nuevos van al final.
+  assert.deepEqual(Object.keys(d.nacionales[0]), ['id', 'titulo', 'bajada', 'bloque', 'seccion', 'pais', 'via', 'etiqueta', 'gruposIndependientes', 'links', 'primera', 'secciones']);
+});
+
+test('seccionesDe: tal cual, sin repetir y sin las vacías', () => {
+  assert.deepEqual(N.seccionesDe({ notas: [{ seccion: 'policiales' }, { seccion: '' }, { seccion: 'sociedad' }, { seccion: 'policiales' }, {}] }), ['policiales', 'sociedad']);
+  assert.deepEqual(N.seccionesDe({}), []);
+});

@@ -1,7 +1,10 @@
 {
-  "generadaEn": "2026-10-10T01:17:28.396Z",
+  "generadaEn": "2026-10-17T04:05:10.498Z",
   "ejemplo": true,
   "sinIA": false,
+  "provisorias": 0,
+  "cliente": "",
+  "paginaViejaMinutos": 60,
   "cupoMinimo": 3,
   "minGrupos": 5,
   "bloques": {
@@ -48,7 +51,9 @@
               "medio": "El Cronista",
               "url": "https://www.cronista.com/sociedad/n2-6"
             }
-          ]
+          ],
+          "tema": "Sociedad",
+          "hora": "2026-10-04T06:00:00.000Z"
         },
         {
           "id": "g:N1-1",
@@ -94,7 +99,9 @@
               "medio": "TN",
               "url": "https://www.tn.com.ar/politica/n1-7"
             }
-          ]
+          ],
+          "tema": "Política",
+          "hora": "2026-10-04T05:00:00.000Z"
         },
         {
           "id": "g:E4-1",
@@ -131,7 +138,9 @@
               "medio": "Ámbito",
               "url": "https://www.ambito.com/economia/e4-5"
             }
-          ]
+          ],
+          "tema": "Economía",
+          "hora": "2026-10-04T07:30:00.000Z"
         },
         {
           "id": "g:E3-1",
@@ -168,7 +177,9 @@
               "medio": "Perfil",
               "url": "https://www.perfil.com/economia/e3-5"
             }
-          ]
+          ],
+          "tema": "Economía",
+          "hora": "2026-10-04T07:12:00.000Z"
         },
         {
           "id": "g:N3-1",
@@ -205,7 +216,9 @@
               "medio": "Perfil",
               "url": "https://www.perfil.com/economia/n3-5"
             }
-          ]
+          ],
+          "tema": "Economía",
+          "hora": "2026-10-04T07:00:00.000Z"
         },
         {
           "id": "g:N6-1",
@@ -242,7 +255,9 @@
               "medio": "elDiarioAR",
               "url": "https://www.eldiarioar.com/salud/n6-5"
             }
-          ]
+          ],
+          "tema": "Sociedad",
+          "hora": "2026-10-04T06:00:00.000Z"
         },
         {
           "id": "g:NB-1",
@@ -264,7 +279,9 @@
               "medio": "Página/12",
               "url": "https://www.pagina12.com.ar/politica/nb-2"
             }
-          ]
+          ],
+          "tema": "Política",
+          "hora": "2026-10-04T08:00:00.000Z"
         }
       ],
       "aMano": [
@@ -298,7 +315,9 @@
               "medio": "Página/12",
               "url": "https://www.pagina12.com.ar/sociedad/m1-4"
             }
-          ]
+          ],
+          "tema": "Sociedad",
+          "hora": "2026-10-04T09:00:00.000Z"
         }
       ],
       "afueraPorTope": 0
@@ -351,7 +370,9 @@
               "medio": "France 24",
               "url": "https://www.france24.com/sociedad/i6-7"
             }
-          ]
+          ],
+          "tema": "Sociedad",
+          "hora": "2026-10-04T08:00:00.000Z"
         },
         {
           "id": "g:I1-1",
@@ -393,7 +414,9 @@
               "medio": "DW",
               "url": "https://www.dw.com/economia/i1-6"
             }
-          ]
+          ],
+          "tema": "Economía",
+          "hora": "2026-10-04T04:00:00.000Z"
         },
         {
           "id": "g:I4-1",
@@ -430,7 +453,9 @@
               "medio": "El País",
               "url": "https://www.elpais.com/economia/i4-5"
             }
-          ]
+          ],
+          "tema": "Economía",
+          "hora": "2026-10-04T07:00:00.000Z"
         },
         {
           "id": "g:I3-1",
@@ -467,7 +492,9 @@
               "medio": "DW",
               "url": "https://www.dw.com/economia/i3-5"
             }
-          ]
+          ],
+          "tema": "Economía",
+          "hora": "2026-10-04T06:00:00.000Z"
         },
         {
           "id": "g:IB-1",
@@ -494,7 +521,9 @@
               "medio": "El País",
               "url": "https://www.elpais.com/politica/ib-3"
             }
-          ]
+          ],
+          "tema": "Política",
+          "hora": "2026-10-04T07:00:00.000Z"
         }
       ],
       "aMano": [
@@ -528,11 +557,77 @@
               "medio": "El País",
               "url": "https://www.elpais.com/sociedad/m2-4"
             }
-          ]
+          ],
+          "tema": "Sociedad",
+          "hora": "2026-10-04T08:30:00.000Z"
         }
       ],
       "afueraPorTope": 0
     }
   },
-  "avisos": []
+  "orden": [
+    "nacional",
+    "internacional"
+  ],
+  "avisos": [],
+  "pagina": {
+    "nombre": "7M",
+    "escalon": "plus",
+    "temas": [
+      {
+        "nombre": "Política",
+        "prendido": true
+      },
+      {
+        "nombre": "Economía",
+        "prendido": true
+      },
+      {
+        "nombre": "Sociedad",
+        "prendido": true
+      },
+      {
+        "nombre": "Policiales",
+        "prendido": true
+      },
+      {
+        "nombre": "Deportes",
+        "prendido": true
+      },
+      {
+        "nombre": "Espectáculos",
+        "prendido": true
+      }
+    ],
+    "motivos": [
+      {
+        "clave": "dato",
+        "texto": "Es un dato, no una noticia"
+      },
+      {
+        "clave": "tengo",
+        "texto": "Ya la tengo"
+      },
+      {
+        "clave": "opinion",
+        "texto": "Opinión o reacción a otra"
+      },
+      {
+        "clave": "bloque",
+        "texto": "Está en el bloque equivocado"
+      },
+      {
+        "clave": "vieja",
+        "texto": "Ya pasó, llegó tarde"
+      },
+      {
+        "clave": "publico",
+        "texto": "No va con nuestro público"
+      },
+      {
+        "clave": "otro",
+        "texto": "Otro motivo…"
+      }
+    ]
+  }
 }

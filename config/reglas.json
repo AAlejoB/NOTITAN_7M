@@ -49,5 +49,26 @@
   },
   "cortes": { "molde": "^(?!.*\\b(ruta|calle|transito|calzada|tarifa|boleta|factura)\\b)(?=.*\\b(corte|cortes|cortan|cortaran|cortaron|cortara|cortado|cortada|sin (agua|luz|energia|gas)|interrupcion|interrumpe|suministro|restablec\\w*|normaliz\\w*|maniobras? operativas?|baja presion)\\b)(?=.*\\b(agua|luz|energia|electric\\w*|gas|suministro|acueducto)\\b)(?=.*\\b(comodoro|rada tilly|caleta olivia|zona (norte|sur|central)|km ?\\d+|kilometro \\d+|barrios?|sectores?)\\b)" },
   "avisos": { "topeMinutos": 60, "paginaViejaMinutos": 60 },
-  "cliente": "Canal 2"
+  "cliente": "Canal 2",
+  "pagina": {
+    "nombre": "7M",
+    "escalon": "plus",
+    "temas": [
+      { "nombre": "Política", "prendido": true, "secciones": ["politica", "política", "el-pais", "elecciones", "politics", "poli"], "palabras": [] },
+      { "nombre": "Economía", "prendido": true, "secciones": ["economia", "economía", "negocios", "finanzas", "dolar", "mercados", "economia-politica", "finanzas-mercados", "campo", "agro", "rural", "revista-chacra", "propiedades", "real-estate", "companias", "business", "economy", "pulso-energetico"], "palabras": [] },
+      { "nombre": "Sociedad", "prendido": true, "secciones": ["sociedad", "informacion-general", "salud", "educacion", "ciencia", "tecnologia", "tecnología", "informacion-gral", "interes-general", "la-ciudad", "comunidad", "tecno", "salud-y-bienestar", "clima-y-medio-ambiente", "environment", "clima", "el-tiempo"], "palabras": [] },
+      { "nombre": "Policiales", "prendido": true, "secciones": ["policiales", "judiciales", "seguridad", "inseguridad", "policiales-judiciales"], "palabras": [] },
+      { "nombre": "Deportes", "prendido": true, "secciones": ["deportes", "deporte", "futbol", "fútbol", "ole", "ovacion", "superdepor", "sports", "agenda-deportiva", "futbol-primera", "futbol-internacional", "futbol-ascenso", "seleccion", "river-plate", "boca-juniors", "racing", "independiente", "belgrano", "gimnasia-de-mendoza", "messi", "basquet"], "palabras": [] },
+      { "nombre": "Espectáculos", "prendido": true, "secciones": ["espectaculos", "espectáculos", "farandula", "farándula", "cultura", "musica", "cine", "series", "show", "teleshow", "television", "gente", "fama", "entretenimiento", "cultura-espectaculos", "music", "film", "babelia", "que-sale"], "palabras": [] }
+    ],
+    "motivos": [
+      { "clave": "dato", "texto": "Es un dato, no una noticia" },
+      { "clave": "tengo", "texto": "Ya la tengo" },
+      { "clave": "opinion", "texto": "Opinión o reacción a otra" },
+      { "clave": "bloque", "texto": "Está en el bloque equivocado" },
+      { "clave": "vieja", "texto": "Ya pasó, llegó tarde" },
+      { "clave": "publico", "texto": "No va con nuestro público" },
+      { "clave": "otro", "texto": "Otro motivo…" }
+    ]
+  }
 }

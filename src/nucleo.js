@@ -388,6 +388,9 @@ function motivoCriterios3a6(j) {
   return null;
 }
 
+// Las secciones de las notas de un hecho, tal cual vienen, sin repetir y sin las vacías (la página saca el tema de ahí).
+const seccionesDe = c => [...new Set((c.notas || []).map(n => n.seccion).filter(Boolean))];
+
 function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
   const descartadas = [];
   const avisos = [];
@@ -439,6 +442,8 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
         etiqueta: `Confirmada por ${c.gruposIndependientes} medios · elegida a mano`,
         gruposIndependientes: c.gruposIndependientes,
         links: c.notas.map(n => ({ portal: n.portal, url: n.url })),
+        primera: c.primera,
+        secciones: seccionesDe(c),
       }));
   }
 
@@ -470,6 +475,8 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
         etiqueta: viaB ? etiquetaViaB(firmasDelBloque, reglas) : `Confirmada por ${c.gruposIndependientes} medios`,
         gruposIndependientes: c.gruposIndependientes,
         links: c.notas.map(n => ({ portal: n.portal, url: n.url })),
+        primera: c.primera,
+        secciones: seccionesDe(c),
       };
       if (motivo) { reserva.push({ ...salida, motivo }); continue; }
       listas[bloque].push(salida);
@@ -491,4 +498,4 @@ function decidir(candidatos, juicios, { reglas, cupo, elegiblesAMano = [] }) {
   return { nacionales: listas.nacional, internacionales: listas.internacional, aMano, cupo: cupoUsado, reserva, descartadas, avisos, aviso };
 }
 
-module.exports = { normalizar, STOP, tokens, similitud, firma, jaccard, dominioDe, buscarPortal, nombreDeMedio, emisor, gruposIndependientes, esInformativa, agrupar, acumular, clasificarHecho, preparar, decidir };
+module.exports = { normalizar, STOP, tokens, similitud, firma, jaccard, dominioDe, buscarPortal, nombreDeMedio, emisor, gruposIndependientes, esInformativa, agrupar, acumular, clasificarHecho, preparar, decidir, seccionesDe };

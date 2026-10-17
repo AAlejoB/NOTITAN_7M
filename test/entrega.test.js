@@ -235,3 +235,67 @@ test('avisos: un «se normalizó» lleva normalizado y publicado en aviso; los o
   const otro = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas, avisos: [aviso({ normalizado: false })] }).bloques.avisos.noticias[0];
   assert.equal('normalizado' in otro.aviso, false);
 });
+
+// ── Carta del 17-10 (la página C): tema, hora y lista.pagina ──
+const { temaDe } = require('../src/entrega.js');
+const TEMAS = reglas.pagina.temas;
+
+test('E1 · temaDe: la sección que más se repite, la de la IA manda, las palabras del título y «Sin tema»', () => {
+  const secciones = ['policiales', 'sociedad', 'policiales'];
+  assert.equal(temaDe({ seccionIA: '', secciones, titulo: 'Detienen a dos hombres…' }, TEMAS), 'Policiales');
+  assert.equal(temaDe({ seccionIA: 'economía', secciones, titulo: 'Detienen a dos hombres…' }, TEMAS), 'Economía');
+  const conPetroleo = [...TEMAS, { nombre: 'Petróleo', secciones: [], palabras: ['vaca muerta'] }];
+  assert.equal(temaDe({ seccionIA: '', secciones: ['opinion', 'ultimas-noticias'], titulo: 'YPF anunció inversiones en Vaca Muerta' }, conPetroleo), 'Petróleo');
+  assert.equal(temaDe({ seccionIA: '', secciones: [], titulo: 'Qué dijo el Papa' }, TEMAS), 'Sin tema');
+});
+
+test('E1 · temaDe: empate entre dos temas → el que va primero en la config; la sección se compara normalizada', () => {
+  assert.equal(temaDe({ secciones: ['deportes', 'politica'], titulo: 'x' }, TEMAS), 'Política');
+  assert.equal(temaDe({ secciones: ['Policiales---Judiciales'], titulo: 'x' }, TEMAS), 'Policiales');
+  assert.equal(temaDe({ seccionIA: 'algo-que-no-es-tema', secciones: ['cultura'], titulo: 'x' }, TEMAS), 'Espectáculos');
+});
+
+test('E2 · lista.pagina sale de reglas.pagina, sin secciones ni palabras', () => {
+  const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas: { ...reglas, pagina: { ...reglas.pagina, escalon: 'normal' } } });
+  assert.equal(e.pagina.escalon, 'normal');
+  assert.equal(e.pagina.nombre, '7M');
+  assert.equal(e.pagina.temas.length, 6);
+  for (const t of e.pagina.temas) assert.deepEqual(Object.keys(t), ['nombre', 'prendido']);
+  assert.equal(e.pagina.motivos.length, 7);
+  assert.equal(e.pagina.motivos[6].texto, 'Otro motivo…');
+});
+
+test('E2 · sin reglas.pagina (o con un escalón que no existe): plus y los seis temas y siete motivos por defecto', () => {
+  const { pagina, ...sinPagina } = reglas;
+  const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas: sinPagina });
+  assert.equal(e.pagina.escalon, 'plus');
+  assert.equal(e.pagina.nombre, '7M');
+  assert.deepEqual(e.pagina.temas.map(t => t.nombre), ['Política', 'Economía', 'Sociedad', 'Policiales', 'Deportes', 'Espectáculos']);
+  assert.deepEqual(e.pagina.motivos.map(m => m.clave), ['dato', 'tengo', 'opinion', 'bloque', 'vieja', 'publico', 'otro']);
+  const raro = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas: { ...reglas, pagina: { escalon: 'oro' } } });
+  assert.equal(raro.pagina.escalon, 'plus');
+});
+
+test('E2 · cada tarjeta de noticia trae tema y hora; los avisos no traen tema', () => {
+  const ctx = { portales, reglas, firmas: dia.firmas, ahora: dia.ahora };
+  const p = N.preparar(dia.notas, ctx);
+  const d = N.decidir(p.candidatos, dia.juicios, { ...ctx, elegiblesAMano: p.elegiblesAMano });
+  const nombres = [...reglas.pagina.temas.map(t => t.nombre), 'Sin tema'];
+  const aviso = { id: 'scpl-1', titulo: 'Corte', resumen: '', fuentes: [{ medio: 'SCPL', url: 'https://scpl.coop/1' }], servicio: 'agua', programado: true, barrios: [] };
+  const e = armarEntrega(d, { ahora: AHORA, portales, reglas, avisos: [aviso] });
+  const todas = ['nacional', 'internacional'].flatMap(b => [...e.bloques[b].noticias, ...e.bloques[b].aMano]);
+  assert.ok(todas.length > 10);
+  for (const t of todas) {
+    assert.ok(nombres.includes(t.tema), t.tema);
+    assert.ok(!Number.isNaN(Date.parse(t.hora)) && new Date(t.hora).toISOString() === t.hora, t.id);
+  }
+  assert.equal('tema' in e.bloques.avisos.noticias[0], false);
+});
+
+test('una salida con secciones y primera: el tema sale de sus notas y la hora es la de su primera nota', () => {
+  const d = decididoVacio();
+  d.nacionales = [salida('n1', [{ portal: 'clarin.com', url: 'https://www.clarin.com/a' }], { primera: '2026-10-04T12:00:00.000Z', secciones: ['policiales', 'sociedad', 'policiales'] })];
+  const e = armarEntrega(d, { ahora: AHORA, portales, reglas });
+  assert.equal(e.bloques.nacional.noticias[0].tema, 'Policiales');
+  assert.equal(e.bloques.nacional.noticias[0].hora, '2026-10-04T12:00:00.000Z');
+});

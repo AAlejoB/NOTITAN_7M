@@ -12,7 +12,7 @@
  * - decidirZona: la lista de cada anillo (sin 1/2 a mano, sin IA): viejo → afuera; también nacional → afuera;
  *   sin anillo → afuera; si no, a su anillo, ordenado por grupos y después la más nueva, hasta el cupo.
  */
-const { agrupar, buscarPortal, dominioDe, emisor } = require('./nucleo.js');
+const { agrupar, buscarPortal, dominioDe, emisor, seccionesDe } = require('./nucleo.js');
 
 // Los grupos distintos de un hecho que suman (como gruposIndependientes), y cuántos de esos son locales y cuántos provinciales.
 // Un cable copiado suma para la agencia (como en el núcleo) y se cuenta en la zona del portal que lo publicó primero.
@@ -93,6 +93,8 @@ function decidirZona(preparado, { portales, reglas, hechosNacionales = [] }) {
         etiqueta: String(a.etiqueta).replace('{n}', c.gruposIndependientes),
         gruposIndependientes: c.gruposIndependientes,
         links: c.notas.map(n => ({ portal: n.portal, url: n.url })),
+        primera: c.primera,
+        secciones: seccionesDe(c),
       });
     }
     bloques[a.clave] = { nombre: a.nombre, tope: a.cupo, noticias, aMano: [], afueraPorTope: afuera, minimo: 1 };
