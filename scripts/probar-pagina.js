@@ -228,7 +228,7 @@ async function comprobar(navegador, URL, base, actual) {
   let p = await abrir(ctx);
   ok(/^última vuelta \d\d:\d\d$/.test(await texto(p, '#vuelta')), '1 · el encabezado dice «' + await texto(p, '#vuelta') + '»');
   ok((await texto(p, '#actualizar')) === '↻ Actualizar', '1 · el botón dice «↻ Actualizar»');
-  ok((await texto(p, '#marca')) === '7M' && (await p.title()) === '7M', '1 · el título es el nombre de la página («7M», sin cliente en la lista de ejemplo)');
+  ok((await texto(p, '#marca')) === 'Werken' && (await p.title()) === 'Werken', '1 · el título es el nombre de la página («Werken», sin cliente en la lista de ejemplo)');
   ok((await pivote(p)) === orden[0].titulo, '2 · el pivote es la primera de Por decidir: «' + orden[0].titulo + '»');
   const nNac = lista.bloques.nacional.noticias.length + lista.bloques.nacional.aMano.length;
   ok((await texto(p, '#avance span')) === `1 de ${nNac} · Nacionales`, '2 · el avance dice «' + await texto(p, '#avance span') + '»');
