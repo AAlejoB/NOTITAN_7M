@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * Prueba la página (pagina/index.html) en Chromium: lo que `npm test` no ve, porque vive en el navegador
- * (el orden de traer(), los colores de los sellos, lo apagado de lo llevado, el portapapeles, el estado guardado).
- * Se corre con `npm run probar-pagina`; con `-- --capturas <nombre>` además guarda 3 capturas en buzon/capturas/
- * (pagina-<nombre>-390.png, -1200.png y -390-oscuro.png). Necesita Playwright (npm i --no-save playwright) y un Chromium.
- * Sirve una COPIA de pagina/ en una carpeta temporal: nunca escribe pagina/lista.json ni usa la red de afuera.
+ * Prueba la página C (pagina/index.html) en Chromium: lo que `npm test` no ve, porque vive en el navegador
+ * (el pivote, los botones, los motivos, las pestañas, Deshacer, los temas, el portapapeles, el estado guardado).
+ * Se corre con `npm run probar-pagina`; con `-- --capturas <nombre>` además guarda 4 capturas en buzon/capturas/
+ * (pagina-c-<nombre>-390.png, -1200.png, -390-oscuro.png y -normal-390.png, esta con el escalón Normal).
+ * Necesita Playwright (npm i --no-save playwright) y un Chromium.
+ * Sirve una COPIA de pagina/ desde la memoria: nunca escribe pagina/lista.json ni usa la red de afuera. A la copia de la
+ * lista de ejemplo le suma un aviso y le pone el tema «Espectáculos» a una noticia (la de ejemplo no trae ninguna), y para
+ * la mezcla pasa las dos «le falta 1» a confirmadas.
  * Una línea por comprobación (bien / MAL) y al final «N bien, M mal»; código 0 si no hay MAL, 1 si hay, 2 si falta Playwright.
  * Con `-- --solo-capturas <carpeta> --capturas <nombre>` no corre las comprobaciones: sirve esa carpeta tal cual
- * (index.html, logica.js y lista.json, por ejemplo datos/pagina con la lista real), saca las mismas 3 capturas y termina. No escribe nada en la carpeta.
+ * (index.html, logica.js y lista.json, por ejemplo datos/pagina con la lista real), saca las 3 capturas de siempre y termina.
+ * No escribe nada en la carpeta.
  */
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const http = require('http');
 
@@ -24,7 +27,8 @@ try {
 }
 
 const RAIZ = path.join(__dirname, '..');
-const CLAVE = '7m-marcas-v1';
+const CLAVE = '7m-decisiones-v2';
+const CLAVE_V1 = '7m-marcas-v1';
 const arg = process.argv.indexOf('--capturas');
 const NOMBRE_CAPTURAS = arg >= 0 ? process.argv[arg + 1] : null;
 if (arg >= 0 && (!NOMBRE_CAPTURAS || NOMBRE_CAPTURAS.startsWith('--'))) {
@@ -51,34 +55,53 @@ function ok(cond, que) {
   console.log((cond ? 'bien ' : 'MAL  ') + ' ' + que);
 }
 
-const VIOLETA = { claro: 'rgb(106, 63, 181)', oscuro: 'rgb(196, 168, 255)' };
-const NARANJA = { claro: 'rgb(138, 82, 0)', oscuro: 'rgb(242, 182, 80)' };
-const VERDE_OSCURO = 'rgb(98, 212, 147)';
+const MOTIVOS = ['Es un dato, no una noticia', 'Ya la tengo', 'Opinión o reacción a otra', 'Está en el bloque equivocado', 'Ya pasó, llegó tarde', 'No va con nuestro público', 'Otro motivo…'];
+const HHMM = /^\d\d:\d\d$/;
 
-// La opacidad que se ve: la del elemento por la de todos sus padres.
-const opacidad = loc => loc.evaluate(el => {
-  let o = 1;
-  for (let e = el; e; e = e.parentElement) o *= parseFloat(getComputedStyle(e).opacity);
-  return Math.round(o * 100) / 100;
-});
-const color = loc => loc.evaluate(el => getComputedStyle(el).color);
+/* ───────────── la lista de la copia ───────────── */
 
-/* ───────────── la copia de la página y su servidor ───────────── */
+const AVISO = {
+  id: 'a:scpl.coop:2903', titulo: 'CORTE DE AGUA EN ZONA SUR Y CENTRAL', bajada: '', etiqueta: 'Agua · programado', via: 'aviso', grupos: 1, medios: ['SCPL'],
+  links: [{ medio: 'SCPL', url: 'https://scpl.coop/index.php/site/ver-nota?id=2903' }],
+  aviso: { servicio: 'agua', programado: true, dia: '2026-10-17', desde: '00:00', hasta: '18:00', duracionHoras: 18, barrios: [], zona: ['Zona Sur', 'Zona Central'], cronograma: false },
+};
+const ESPECTACULOS = 'Alerta del Ministerio de Salud';
 
-function armarCopia() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'probar-pagina-'));
-  fs.cpSync(path.join(RAIZ, 'pagina'), dir, { recursive: true });
-  const f = path.join(dir, 'lista.json');
-  const lista = JSON.parse(fs.readFileSync(f, 'utf8'));
-  lista.generadaEn = new Date().toISOString();
-  fs.writeFileSync(f, JSON.stringify(lista, null, 2));
-  return { dir, lista };
+// La de ejemplo, fresca, con un aviso y una noticia de Espectáculos. `escalon` y `mezcla` cambian lo que pide cada escenario.
+function armarLista(base, { escalon = 'plus', mezcla = false } = {}) {
+  const l = JSON.parse(JSON.stringify(base));
+  l.generadaEn = new Date().toISOString();
+  l.orden = ['avisos', ...(l.orden || ['nacional', 'internacional']).filter(k => k !== 'avisos')];
+  l.bloques.avisos = { nombre: 'Avisos', tope: null, noticias: [AVISO], aMano: [], afueraPorTope: 0, minimo: 1 };
+  for (const b of ['nacional', 'internacional']) for (const t of l.bloques[b].noticias) if (t.titulo.includes(ESPECTACULOS)) t.tema = 'Espectáculos';
+  l.pagina.escalon = escalon;
+  if (mezcla) {
+    // Las dos «le falta 1» llegaron al 5.º medio: ahora son confirmadas (vía A) y van al final de las noticias de su bloque.
+    for (const b of ['nacional', 'internacional']) {
+      const subidas = l.bloques[b].aMano.map(t => ({ ...t, via: 'A', grupos: 5, etiqueta: 'Confirmada por 5 medios' }));
+      l.bloques[b].noticias.push(...subidas);
+      l.bloques[b].aMano = [];
+    }
+  }
+  return l;
 }
 
-function servir(dir) {
+// Por decidir de la lista, como lo arma repartir con el estado vacío (sin avisos ni ocultas).
+const porDecidir = l => l.orden.filter(k => k !== 'avisos').flatMap(k => [...l.bloques[k].noticias, ...l.bloques[k].aMano]);
+const buscar = (l, titulo) => porDecidir(l).find(t => t.titulo.includes(titulo));
+const urlsDe = t => t.links.map(x => x.url).filter(Boolean);
+
+/* ───────────── el servidor de la copia ───────────── */
+
+function servir(dir, actual) {
   const tipos = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8' };
   const servidor = http.createServer((req, res) => {
-    const nombre = req.url.split('?')[0] === '/' ? 'index.html' : req.url.split('?')[0];
+    const nombre = req.url.split('?')[0] === '/' ? 'index.html' : req.url.split('?')[0].slice(1);
+    if (actual && nombre === 'lista.json') {
+      res.writeHead(200, { 'content-type': tipos['.json'], 'cache-control': 'no-store' });
+      res.end(JSON.stringify(actual.lista));
+      return;
+    }
     const f = path.join(dir, path.normalize(nombre).replace(/^(\.\.[/\\])+/, ''));
     fs.readFile(f, (e, d) => {
       if (e) { res.writeHead(404); res.end('no'); return; }
@@ -89,499 +112,332 @@ function servir(dir) {
   return new Promise(resolver => servidor.listen(0, '127.0.0.1', () => resolver({ servidor, url: `http://127.0.0.1:${servidor.address().port}/` })));
 }
 
-/* ───────────── lo que se arma en localStorage ───────────── */
-
-const todas = lista => ['nacional', 'internacional'].flatMap(b => [...lista.bloques[b].noticias, ...lista.bloques[b].aMano]);
-const urlsDe = t => t.links.map(l => l.url);
-const tarjeta = (lista, titulo) => todas(lista).find(t => t.titulo.includes(titulo));
-
-// Todo visto hace una hora (las de la vía A, también como confirmadas), menos lo que se pide:
-// `recien` (vista, pero no como confirmada), `sinVer` (no vista) y `llevar` (llevada hace 5 min).
-function estadoDe(lista, { recien = [], sinVer = [], llevar = [] } = {}) {
-  const hace = min => new Date(Date.now() - min * 60000).toISOString();
-  const est = { vistas: {}, vistasConfirmadas: {}, llevadas: [] };
-  const de = nombres => nombres.map(n => tarjeta(lista, n));
-  const quitar = de(sinVer);
-  const sinConfirmar = de(recien);
-  for (const t of todas(lista)) {
-    if (quitar.includes(t)) continue;
-    for (const u of urlsDe(t)) {
-      est.vistas[u] = hace(60);
-      if (t.via === 'A' && !sinConfirmar.includes(t)) est.vistasConfirmadas[u] = hace(60);
-    }
-  }
-  for (const t of de(llevar)) est.llevadas.push({ urls: urlsDe(t), hora: hace(5) });
-  return est;
-}
-
 // Se arma antes de que corra la página, y solo si todavía no hay nada (una recarga no lo pisa).
-const sembrar = (page, estado) => page.addInitScript(([k, v]) => {
+const sembrar = (page, clave, estado) => page.addInitScript(([k, v]) => {
   try { if (!localStorage.getItem(k)) localStorage.setItem(k, v); } catch (e) { /* bloqueado */ }
-}, [CLAVE, JSON.stringify(estado)]);
+}, [clave, JSON.stringify(estado)]);
 
-// Lo que se ve en las capturas: una «Recién confirmada», una «Nueva» y una 4/5 llevada.
-const estadoCaptura = lista => estadoDe(lista, { recien: ['Paro general'], sinVer: ['dólar blue'], llevar: ['Rescataron'] });
+/* ───────────── las capturas ───────────── */
 
-/* ───────────── las comprobaciones ───────────── */
-
-// Las 3 capturas de siempre; los nombres son pagina-<nombre>-<sufijo>.png.
 const CAPTURAS = [
   { sufijo: '390', ancho: 390, esquema: 'light' },
   { sufijo: '1200', ancho: 1200, esquema: 'light' },
   { sufijo: '390-oscuro', ancho: 390, esquema: 'dark' },
+  { sufijo: 'normal-390', ancho: 390, esquema: 'light', escalon: 'normal' },
 ];
 const CARPETA_CAPTURAS = path.join(RAIZ, 'buzon', 'capturas');
+const ESPERAR = '#pivote, .nada, .franja.error';
+
+// La ventana se estira hasta el alto de la página: así la barra fija de abajo queda abajo de todo.
+async function capturar(p, ancho, ruta) {
+  const alto = await p.evaluate(() => document.documentElement.scrollHeight);
+  await p.setViewportSize({ width: ancho, height: alto });
+  await p.evaluate(() => window.scrollTo(0, 0));
+  await p.screenshot({ path: ruta });
+}
 
 // --solo-capturas: abre la página tal cual está en la carpeta (sin estado guardado ni comprobaciones) y saca las 3 capturas.
 async function soloCapturas(navegador, url) {
   const rutas = [];
-  for (const c of CAPTURAS) {
+  for (const c of CAPTURAS.filter(x => !x.escalon)) {
     const ctx = await navegador.newContext({ viewport: { width: c.ancho, height: 900 }, locale: 'es-AR', timezoneId: 'America/Argentina/Buenos_Aires', colorScheme: c.esquema });
     const p = await ctx.newPage();
     await p.goto(url);
-    await p.waitForSelector('.noticia, .franja.error', { timeout: 10000 });
-    const alto = await p.evaluate(() => document.documentElement.scrollHeight);
-    await p.setViewportSize({ width: c.ancho, height: alto });
-    await p.evaluate(() => window.scrollTo(0, 0));
-    const ruta = path.join(CARPETA_CAPTURAS, `pagina-${NOMBRE_CAPTURAS}-${c.sufijo}.png`);
-    await p.screenshot({ path: ruta });
+    await p.waitForSelector(ESPERAR, { timeout: 10000 });
+    const ruta = path.join(CARPETA_CAPTURAS, `pagina-c-${NOMBRE_CAPTURAS}-${c.sufijo}.png`);
+    await capturar(p, c.ancho, ruta);
     rutas.push(path.relative(RAIZ, ruta));
     await ctx.close();
   }
   return rutas;
 }
 
+async function abrirChromium() {
+  try {
+    return await chromium.launch({ args: ['--no-sandbox'] });
+  } catch (e) {
+    const base = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
+    const carpeta = fs.existsSync(base) ? fs.readdirSync(base).filter(n => /^chromium-\d+$/.test(n)).sort().pop() : null;
+    const exe = carpeta && path.join(base, carpeta, 'chrome-linux', 'chrome');
+    if (!exe || !fs.existsSync(exe)) throw new Error('No se pudo abrir Chromium (ni el de Playwright ni uno en ' + base + ')');
+    return chromium.launch({ executablePath: exe, args: ['--no-sandbox'] });
+  }
+}
+
 async function main() {
   let dir;
-  let lista = null;
+  let actual = null;
+  let base = null;
   if (CARPETA_SOLO) {
     dir = path.resolve(CARPETA_SOLO);
     const faltan = ['index.html', 'logica.js', 'lista.json'].filter(n => !fs.existsSync(path.join(dir, n)));
     if (faltan.length) { console.error(`En ${CARPETA_SOLO} faltan: ${faltan.join(', ')}`); process.exit(2); }
   } else {
-    ({ dir, lista } = armarCopia());
+    dir = path.join(RAIZ, 'pagina');
+    base = JSON.parse(fs.readFileSync(path.join(dir, 'lista.json'), 'utf8'));
+    actual = { lista: armarLista(base) };
   }
-  const { servidor, url } = await servir(dir);
+  const { servidor, url } = await servir(dir, actual);
   let navegador;
   try {
-    try {
-      navegador = await chromium.launch({ args: ['--no-sandbox'] });
-    } catch (e) {
-      const base = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
-      const carpeta = fs.existsSync(base) ? fs.readdirSync(base).filter(n => /^chromium-\d+$/.test(n)).sort().pop() : null;
-      const exe = carpeta && path.join(base, carpeta, 'chrome-linux', 'chrome');
-      if (!exe || !fs.existsSync(exe)) throw new Error('No se pudo abrir Chromium (ni el de Playwright ni uno en ' + base + ')');
-      navegador = await chromium.launch({ executablePath: exe, args: ['--no-sandbox'] });
-    }
+    navegador = await abrirChromium();
     if (CARPETA_SOLO) {
       fs.mkdirSync(CARPETA_CAPTURAS, { recursive: true });
       (await soloCapturas(navegador, url)).forEach(r => console.log(r));
     } else {
-      await comprobar(navegador, url, lista);
+      await comprobar(navegador, url, base, actual);
     }
   } finally {
     if (navegador) await navegador.close();
     servidor.close();
-    if (!CARPETA_SOLO) fs.rmSync(dir, { recursive: true, force: true });
   }
 }
 
-async function comprobar(navegador, URL, lista) {
-  const nuevoCtx = (extra = {}) => navegador.newContext({ viewport: { width: 390, height: 844 }, locale: 'es-AR', timezoneId: 'America/Argentina/Buenos_Aires', colorScheme: 'light', ...extra });
+/* ───────────── las comprobaciones ───────────── */
+
+async function comprobar(navegador, URL, base, actual) {
+  const nuevoCtx = (extra = {}) => navegador.newContext({
+    viewport: { width: 390, height: 844 }, locale: 'es-AR', timezoneId: 'America/Argentina/Buenos_Aires', colorScheme: 'light',
+    permissions: ['clipboard-read', 'clipboard-write'], ...extra,
+  });
   const errores = [];
   const vigilar = p => { p.on('pageerror', e => errores.push(e.message)); p.on('console', m => { if (m.type() === 'error') errores.push(m.text()); }); };
-  const abrir = async (ctx, { estado, vigilada = true } = {}) => {
+  const abrir = async (ctx, { estado = null, clave = CLAVE } = {}) => {
     const p = await ctx.newPage();
-    if (vigilada) vigilar(p);
-    if (estado) await sembrar(p, estado);
+    vigilar(p);
+    if (estado) await sembrar(p, clave, estado);
     await p.goto(URL);
-    await p.waitForSelector('.noticia');
+    await p.waitForSelector(ESPERAR);
     return p;
   };
-  const tildar = (p, bloque, n) => p.locator('.bloque').nth(bloque).locator('article.noticia input[type=checkbox]').nth(n).check();
-  const carta = (p, titulo) => p.locator('article.noticia', { hasText: titulo }).first();
-  const lleva = (p, titulo) => p.locator('article.noticia.llevada', { hasText: titulo }).first();
-  const pastillas = (p, titulo) => carta(p, titulo).locator('.recien, .nueva').evaluateAll(es => es.map(e => e.textContent));
+  const texto = async (p, sel) => ((await p.locator(sel).allTextContents()).join(' | ')).trim();
+  const numeros = async p => p.evaluate(() => Object.fromEntries([...document.querySelectorAll('.pestana')].map(b => [b.childNodes[0].textContent, Number(b.querySelector('.numero').textContent)])));
+  const pivote = p => texto(p, '#pivote h3');
+  const usar = opciones => { actual.lista = armarLista(base, opciones); return actual.lista; };
+  const leerEstado = p => p.evaluate(k => JSON.parse(localStorage.getItem(k)), CLAVE);
 
-  /* ── 1 · el flujo completo: tildar, 4/5, copiar, recargar, traer ── */
-  console.log('\n# 1 · tildar, copiar, recargar y traer');
-  let ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
+  let lista = usar();
+  const orden = porDecidir(lista);
+  const total = orden.length;
+
+  /* ── 1, 2, 3 · encabezado, pivote, avance y pestañas ── */
+  console.log('# 1 · encabezado · 2 · pivote y avance · 3 · pestañas');
+  let ctx = await nuevoCtx();
   let p = await abrir(ctx);
-  await tildar(p, 0, 1);
-  await p.locator('.amano button', { hasText: 'Llevármela igual' }).first().click();
-  ok((await p.textContent('#cuenta')) === '2 elegidas', 'la barra dice «2 elegidas»');
-  ok((await p.textContent('#copiar')) === 'Copiar las 2', 'el botón dice «Copiar las 2»');
-  ok((await p.locator('.amano button').first().textContent()) === 'Sacar', 'la 4/5 tildada dice «Sacar»');
-  ok((await p.locator('.franja.ejemplo').textContent()) === 'Datos de ejemplo, inventados', 'la franja «Datos de ejemplo, inventados» está (ejemplo: true)');
-  const elegidas = await p.evaluate(() => [...document.querySelectorAll('.noticia.tildada h3, .noticia.tildada h4')].map(e => e.textContent));
-  await p.click('#copiar');
-  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
-  ok((await p.textContent('#mensaje')) === 'Copiadas. Ya podés pegarlas.', 'aparece «Copiadas. Ya podés pegarlas.»');
-  const portapapeles = await p.evaluate(() => navigator.clipboard.readText());
-  ok(elegidas.length === 2 && elegidas.every(t => portapapeles.includes(t)), 'el portapapeles trae los títulos de las 2 elegidas');
-  ok(!/Confirmada por|Respaldada por|elegida a mano|Nueva|Recién confirmada/.test(portapapeles), 'el texto copiado no lleva el sello ni pastillas');
-  ok(/^[^\n]+\n(?:[^\n]+\n)*[A-Za-zÁ-ú+/ 0-9]+: https?:\/\//m.test(portapapeles), 'el texto copiado trae renglones «Medio: url»');
-  ok((await p.textContent('#cuenta')) === '0 elegidas', 'después de copiar se destilda todo');
-  ok((await p.locator('.noticia.llevada').count()) === 2, 'las 2 copiadas bajan al fondo como llevadas');
-  const hora = await p.locator('.hora-llevada').first().textContent();
-  ok(/^Te la llevaste a las \d\d:\d\d$/.test(hora), 'la llevada dice «' + hora + '»');
-  ok((await p.locator('.bloque').first().locator('h2').textContent()) === 'Nacionales · 7', 'lo llevado sigue contando para el tope («Nacionales · 7»)');
-  await p.reload();
-  await p.waitForSelector('.noticia');
-  ok((await p.locator('.nueva, .recien').count()) === 0, 'al recargar, nada es «Nueva» ni «Recién confirmada»');
-  const ll = p.locator('.noticia.llevada');
-  ok((await ll.count()) === 2 && (await opacidad(ll.first().locator('h3'))) === 0.6, 'al recargar, lo llevado sigue apagado (título al 0,6)');
-  await tildar(p, 0, 0);
-  await p.click('#traer');
-  await p.waitForTimeout(400);
-  ok((await p.textContent('#cuenta')) === '1 elegida', '«Traer noticias» no pierde lo tildado');
+  ok(/^última vuelta \d\d:\d\d$/.test(await texto(p, '#vuelta')), '1 · el encabezado dice «' + await texto(p, '#vuelta') + '»');
+  ok((await texto(p, '#actualizar')) === '↻ Actualizar', '1 · el botón dice «↻ Actualizar»');
+  ok((await texto(p, '#marca')) === '7M' && (await p.title()) === '7M', '1 · el título es el nombre de la página («7M», sin cliente en la lista de ejemplo)');
+  ok((await pivote(p)) === orden[0].titulo, '2 · el pivote es la primera de Por decidir: «' + orden[0].titulo + '»');
+  const nNac = lista.bloques.nacional.noticias.length + lista.bloques.nacional.aMano.length;
+  ok((await texto(p, '#avance span')) === `1 de ${nNac} · Nacionales`, '2 · el avance dice «' + await texto(p, '#avance span') + '»');
+  ok((await p.locator('#avance .puntos i').count()) === nNac && (await p.locator('#avance .puntos i.aca').count()) === 1, '2 · un punto por noticia del bloque, el de la abierta en azul');
+  ok((await texto(p, '.pestana')).replace(/\d+/g, '') === 'Por decidir | Me interesa | Archivo | No por hoy', '3 · las pestañas de Plus: ' + await texto(p, '.pestana'));
+  ok(JSON.stringify(await numeros(p)) === JSON.stringify({ 'Por decidir': total, 'Me interesa': 0, Archivo: 0, 'No por hoy': 0 }), `3 · los números: ${total} por decidir (sin el aviso) y 0 en las demás`);
+  ok((await p.locator('#pivote .botones .boton').allTextContents()).join('|') === 'Me interesa|No por hoy…|Archivar', '3 · Plus: tres botones, en ese orden');
+  const fila = await p.locator('#pivote .meta span').allTextContents();
+  ok(fila[0] === orden[0].etiqueta && fila[1] === orden[0].tema && HHMM.test(fila[2]), '2 · la fila de pastillas: sello, tema y hora (' + fila.join(' · ') + ')');
+  ok((await texto(p, '#guardado-en')) === 'Tus decisiones se guardan en este navegador', '14 · la línea al pie: «Tus decisiones se guardan en este navegador»');
+
+  /* ── 4, 5 · Me interesa y Deshacer ── */
+  console.log('\n# 4 · Me interesa · 5 · Deshacer');
+  await p.click('[data-accion=interesa]');
+  let n = await numeros(p);
+  ok(n['Por decidir'] === total - 1 && n['Me interesa'] === 1, '4 · Por decidir baja 1 y Me interesa sube 1');
+  ok((await pivote(p)) === orden[1].titulo, '4 · sube la siguiente: «' + orden[1].titulo + '»');
+  ok((await texto(p, '#deshacer-texto')) === 'Mandada a “Me interesa”' && (await p.isVisible('#deshacer')), '4 · aparece «Mandada a “Me interesa” · Deshacer»');
+  ok((await texto(p, '#cuenta')) === 'Me interesa: 1' && (await texto(p, '#copiar')) === 'Copiar la 1', '4 · la barra: «Me interesa: 1» y «Copiar la 1»');
+  await p.click('#deshacer-boton');
+  n = await numeros(p);
+  ok(n['Por decidir'] === total && n['Me interesa'] === 0 && (await pivote(p)) === orden[0].titulo, '5 · Deshacer: los números vuelven y el pivote vuelve a ser la misma');
+  ok(!(await p.isVisible('#deshacer')), '5 · la franja se va al deshacer');
+  await p.click('[data-accion=archivo]');
+  await p.waitForTimeout(6500);
+  ok(!(await p.isVisible('#deshacer')), '5 · a los 6 segundos la franja se va sola');
+  await p.click('[data-pestana=archivo]');
+  await p.click('#archivo button:has-text("Volver")');
+  await p.click('[data-pestana=decidir]');
+
+  /* ── 6 · No por hoy y los motivos ── */
+  console.log('\n# 6 · No por hoy');
+  await p.click('[data-accion=nopor]');
+  ok((await texto(p, '.porque')) === 'No por hoy. ¿Por qué?', '6 · «No por hoy. ¿Por qué?»');
+  ok(JSON.stringify(await p.locator('.chip').allTextContents()) === JSON.stringify(MOTIVOS), '6 · los siete chips, con los textos exactos');
+  await p.click('[data-accion=volver-chips]');
+  ok((await p.locator('#pivote .botones > .boton').count()) === 3 && (await numeros(p))['No por hoy'] === 0, '6 · «‹ Volver» cierra los chips sin decidir');
+  const primera = await pivote(p);
+  await p.click('[data-accion=nopor]');
+  await p.click('.chip:has-text("Opinión o reacción a otra")');
+  ok((await texto(p, '#deshacer-texto')) === 'Mandada a “No por hoy”', '6 · «Mandada a “No por hoy” · Deshacer»');
+  await p.click('[data-accion=nopor]');
+  await p.click('[data-motivo=otro]');
+  ok(await p.isVisible('.otro input'), '6 · «Otro motivo…» muestra el renglón para escribir');
+  await p.click('[data-accion=listo]');
+  ok((await numeros(p))['No por hoy'] === 1, '6 · con el renglón vacío «Listo» no hace nada');
+  await p.fill('.otro input', 'hay cosas más importantes');
+  await p.click('[data-accion=listo]');
+  await p.click('[data-pestana=nopor]');
+  const pastillas = await p.locator('#no-por-hoy .pastilla').allTextContents();
+  ok(pastillas.includes('Opinión o reacción a otra') && pastillas.includes('Otro: hay cosas más importantes'), '6 · en No por hoy: ' + pastillas.join(' · '));
+  ok((await p.locator('#no-por-hoy .titulo').first().textContent()) !== primera, '6 · de la más nueva a la más vieja');
+  for (let i = 0; i < 2; i++) await p.click('#no-por-hoy button:has-text("Volver") >> nth=0');
+  await p.click('[data-pestana=decidir]');
+
+  /* ── 7 · Archivar ── */
+  console.log('\n# 7 · Archivar');
+  const archivada = await pivote(p);
+  await p.click('[data-accion=archivo]');
+  const archivada2 = await pivote(p);
+  await p.click('[data-accion=archivo]');
+  await p.click('[data-pestana=archivo]');
+  ok((await p.locator('#archivo .corta').count()) === 2 && /^archivada \d\d:\d\d$/.test(await p.locator('#archivo .cuando').first().textContent()), '7 · en Archivo, con «archivada HH:MM»');
+  ok((await p.locator('#archivo .titulo').first().textContent()) === archivada2, '7 · de la más nueva a la más vieja');
+  await p.click('#archivo .corta:has-text("' + archivada2.slice(0, 30) + '") button:has-text("Me interesa")');
+  ok((await numeros(p))['Me interesa'] === 1 && (await numeros(p)).Archivo === 1, '7 · «Me interesa» desde Archivo la pasa a Me interesa');
+  await p.click('#archivo button:has-text("Volver")');
+  n = await numeros(p);
+  ok(n.Archivo === 0 && n['Por decidir'] === total - 1, '7 · «Volver» la devuelve a Por decidir');
+  await p.click('[data-pestana=decidir]');
+  ok((await pivote(p)) !== archivada && (await p.locator('.renglon', { hasText: archivada.slice(0, 30) }).count()) === 1, '7 · vuelve como renglón, sin volverse pivote');
+
+  /* ── 8 · tocar un renglón ── */
+  console.log('\n# 8 · un renglón');
+  const renglon = p.locator('.renglon').nth(2);
+  const titRenglon = await renglon.getAttribute('aria-label');
+  await renglon.click();
+  ok((await pivote(p)) === titRenglon, '8 · tocar un renglón lo sube al pivote: «' + titRenglon + '»');
+  ok((await p.locator('.renglon', { hasText: titRenglon }).count()) === 0, '8 · el pivote no se repite como renglón');
+  const mano = buscar(lista, 'Rescataron');
+  ok((await p.locator('.renglon', { hasText: mano.titulo }).locator('.cant').textContent()) === `${mano.grupos}/${lista.minGrupos}`, '8 · la «le falta 1» lleva «4/5» en su renglón');
+
+  /* ── 9 · temas ── */
+  console.log('\n# 9 · temas');
+  ok((await texto(p, '.sintema')) === 'Sin tema', '9 · «Sin tema» siempre se ve');
+  const antesTema = (await numeros(p))['Por decidir'];
+  await p.click('.tema:has-text("Espectáculos")');
+  ok((await p.getAttribute('.tema:has-text("Espectáculos")', 'aria-pressed')) === 'false', '9 · el botón queda apagado');
+  ok((await numeros(p))['Por decidir'] === antesTema - 1 && (await p.locator('.renglon', { hasText: ESPECTACULOS }).count()) === 0, '9 · apagar «Espectáculos» oculta su noticia y baja el número');
+  ok((await texto(p, '#ocultas')) === '1 oculta por tema (Espectáculos) · ver', '9 · «' + await texto(p, '#ocultas') + '»');
+  await p.click('[data-accion=ver-ocultas]');
+  ok((await p.locator('.renglon', { hasText: ESPECTACULOS }).count()) === 1 && (await numeros(p))['Por decidir'] === antesTema - 1, '9 · «ver» la muestra como renglón (el número no la cuenta)');
+  await p.click('.tema:has-text("Espectáculos")');
   await ctx.close();
 
-  /* ── 2 · el portapapeles bloqueado ── */
-  console.log('\n# 2 · portapapeles bloqueado');
+  /* ── 10, 11 · Me interesa, Copiar y el aviso ── */
+  console.log('\n# 10 · Copiar · 11 · el aviso');
   ctx = await nuevoCtx();
-  p = await ctx.newPage();
-  await p.addInitScript(() => { Object.defineProperty(navigator, 'clipboard', { value: { writeText: () => Promise.reject(new Error('no')) } }); });
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  await tildar(p, 0, 0);
-  await p.click('#copiar');
-  await p.waitForSelector('#manual:not([hidden])');
-  ok(await p.locator('#manual').isVisible(), 'si el portapapeles falla, aparece el cuadro para copiar a mano');
-  ok((await p.inputValue('#manual-cuadro')).length > 20, 'el cuadro trae el texto');
-  await ctx.close();
-
-  /* ── 3 · lista vieja, lista que no carga, sin localStorage, modo oscuro ── */
-  console.log('\n# 3 · lista vieja, error, sin localStorage y modo oscuro');
-  ctx = await nuevoCtx();
-  p = await ctx.newPage();
-  await p.route('**/lista.json', r => r.fulfill({ json: { ...lista, generadaEn: new Date(Date.now() - 125 * 60000).toISOString(), ejemplo: false } }));
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  ok((await p.textContent('#actualizada')) === 'Actualizada hace 2 h 5 min', 'una lista de hace 2 h 5 min dice «' + (await p.textContent('#actualizada')) + '»');
-  ok(/^No se actualiza desde las \d\d:\d\d · contactá al administrador$/.test(await p.locator('.franja.vieja').textContent()), 'el aviso ámbar dice «' + (await p.locator('.franja.vieja').textContent()) + '»');
-  ok((await p.locator('.franja.ejemplo').count()) === 0, 'sin la franja de ejemplo cuando ejemplo es false');
-  ok((await p.locator('.franja.sinia').count()) === 0, 'sin la franja «sin IA» cuando la lista no trae sinIA');
-  await ctx.close();
-
-  ctx = await nuevoCtx();
-  p = await ctx.newPage();
-  await p.route('**/lista.json', r => r.fulfill({ json: { ...lista, ejemplo: false, sinIA: true } }));
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  ok((await p.locator('.franja.sinia').count()) === 1 && (await p.locator('.franja.sinia').textContent()) === 'Sin el juicio de la IA: el bloque de cada noticia es provisorio', 'con sinIA: true aparece la franja «Sin el juicio de la IA: el bloque de cada noticia es provisorio»');
-  await ctx.close();
-
-  ctx = await nuevoCtx();
-  p = await ctx.newPage();
-  let fallar = true;
-  await p.route('**/lista.json', r => (fallar ? r.abort() : r.continue()));
-  await p.goto(URL);
-  await p.waitForSelector('.franja.error');
-  ok((await p.locator('.franja.error span').textContent()) === 'No se pudo traer la lista. Probá de nuevo en un rato.', 'una lista que no carga muestra el mensaje de error');
-  fallar = false;
-  await p.click('.franja.error button');
-  await p.waitForSelector('.noticia');
-  ok((await p.locator('.franja.error').count()) === 0, '«Reintentar» trae la lista y saca el error');
-  await ctx.close();
-
-  ctx = await nuevoCtx();
-  p = await ctx.newPage();
-  const errs = [];
-  p.on('pageerror', e => errs.push(e.message));
-  await p.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('bloqueado'); } }); });
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  ok(errs.length === 0 && (await p.locator('.nueva').count()) === 12, 'con localStorage bloqueado la página anda, todo «Nueva» y sin errores');
-  await p.click('#traer');
-  await p.waitForTimeout(300);
-  ok((await p.locator('.nueva').count()) === 12 && errs.length === 0, 'con localStorage bloqueado, «Nueva» dura la visita aunque se traiga de nuevo');
-  await ctx.close();
-
-  ctx = await nuevoCtx({ colorScheme: 'dark' });
   p = await abrir(ctx);
-  const fondo = await p.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  ok(fondo !== 'rgb(244, 245, 247)' && fondo !== 'rgb(255, 255, 255)', 'en modo oscuro el fondo cambia (' + fondo + ')');
-  await ctx.close();
-
-  /* ── 4 · «Nueva» y «Recién confirmada» ── */
-  console.log('\n# 4 · «Nueva» y «Recién confirmada»');
-  const [t1, t2, t3] = lista.bloques.nacional.noticias.slice(0, 3).map(t => t.titulo.slice(0, 20));
-  const est = estadoDe(lista, { recien: [t1], sinVer: [t3] });
-  ctx = await nuevoCtx();
-  p = await abrir(ctx, { estado: est });
-  ok(JSON.stringify(await pastillas(p, t1)) === '["Recién confirmada"]', 'vista sin la etiqueta de confirmada: 1.ª dice «Recién confirmada», sin «Nueva»');
-  ok((await pastillas(p, t2)).length === 0, 'vista y ya confirmada: la 2.ª no lleva pastilla');
-  ok(JSON.stringify(await pastillas(p, t3)) === '["Nueva"]', 'nunca vista: la 3.ª dice «Nueva»');
-  ok((await p.locator('.recien').count()) === 1 && (await p.locator('.nueva').count()) === 1, 'en total hay 1 «Recién confirmada» y 1 «Nueva»');
-  await p.click('#traer');
-  await p.waitForTimeout(300);
-  ok(JSON.stringify(await pastillas(p, t1)) === '["Recién confirmada"]' && JSON.stringify(await pastillas(p, t3)) === '["Nueva"]', '«Traer noticias» no empieza una visita nueva: siguen la 1.ª y la 3.ª');
-  const guardado = await p.evaluate(k => JSON.parse(localStorage.getItem(k)), CLAVE);
-  ok(urlsDe(tarjeta(lista, t1)).every(u => u in guardado.vistasConfirmadas), 'lo guardado ahora tiene a la 1.ª en vistasConfirmadas');
-  await p.reload();
-  await p.waitForSelector('.noticia');
-  ok((await p.locator('.nueva, .recien').count()) === 0, 'al recargar, ninguna lleva pastilla');
-  await ctx.close();
-
-  // Una versión de la lista donde «El dólar blue» es una 4/5 (abajo, en observación)
-  const dolar = 'dólar blue';
-  const variante = JSON.parse(JSON.stringify(lista));
-  const bn = variante.bloques.nacional;
-  const i = bn.noticias.findIndex(t => t.titulo.includes(dolar));
-  const [mov] = bn.noticias.splice(i, 1);
-  bn.aMano.push({ ...mov, via: 'mano', grupos: 4, etiqueta: 'Confirmada por 4 medios · elegida a mano' });
-
-  // E10: sin recargar, una 4/5 que al traer de nuevo ya está arriba como confirmada
-  ctx = await nuevoCtx();
-  p = await ctx.newPage();
-  vigilar(p);
-  let servida = variante;
-  await p.route('**/lista.json', r => r.fulfill({ json: servida }));
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  await p.reload();
-  await p.waitForSelector('.noticia');
-  ok((await p.locator('.amano', { hasText: dolar }).count()) === 1, 'la 4/5 está abajo, en observación');
-  servida = lista;
-  await p.click('#traer');
-  await p.waitForTimeout(300);
-  ok(JSON.stringify(await pastillas(p, dolar)) === '["Recién confirmada"]', 'una 4/5 que ya vio y sube a confirmada, sin recargar: «Recién confirmada» (no «Nueva»)');
-  await p.click('#traer');
-  await p.waitForTimeout(300);
-  ok(JSON.stringify(await pastillas(p, dolar)) === '["Recién confirmada"]', '«Recién confirmada» sigue al traer otra vez');
-  await p.reload();
-  await p.waitForSelector('.noticia');
-  ok((await pastillas(p, dolar)).length === 0, 'al recargar, ya no lleva pastilla');
-  await ctx.close();
-
-  // E3: se la lleva como 4/5 y después sube a confirmada
-  ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
-  p = await ctx.newPage();
-  vigilar(p);
-  servida = variante;
-  await p.route('**/lista.json', r => r.fulfill({ json: servida }));
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  await p.locator('.amano article', { hasText: dolar }).locator('button').click();
-  await p.click('#copiar');
-  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
-  servida = lista;
-  await p.click('#traer');
-  await p.waitForTimeout(300);
-  const baja = lleva(p, dolar);
-  ok((await baja.count()) === 1 && /^Te la llevaste a las \d\d:\d\d$/.test(await baja.locator('.hora-llevada').textContent()), 'se la llevó como 4/5 y después sube: baja con «Te la llevaste a las HH:MM»');
-  ok((await baja.locator('.recien, .nueva').count()) === 0, 'lo llevado va sin pastillas');
-  const normal = await color(carta(p, 'Paro general').locator('.sello'));
-  ok((await baja.locator('.sello.mano').count()) === 0 && (await color(baja.locator('.sello'))) === normal, 'el sello de esa llevada es verde (vía A), no naranja');
-  await ctx.close();
-
-  /* ── 5 · los colores de los sellos ── */
-  console.log('\n# 5 · colores de los sellos');
-  for (const esquema of ['claro', 'oscuro']) {
-    ctx = await nuevoCtx({ colorScheme: esquema === 'claro' ? 'light' : 'dark' });
-    p = await abrir(ctx, { estado: estadoCaptura(lista) });
-    const viab = p.locator('.sello.viab');
-    ok((await viab.count()) === 2 && (await color(viab.first())) === VIOLETA[esquema] && (await color(viab.last())) === VIOLETA[esquema], `vía B (2, una por bloque): violeta ${VIOLETA[esquema]} (${esquema})`);
-    ok((await color(lleva(p, 'Rescataron').locator('.sello.mano'))) === NARANJA[esquema], `4/5 llevada: naranja ${NARANJA[esquema]} (${esquema})`);
-    await ctx.close();
-  }
-
-  /* ── 6 · lo llevado: apagado salvo el sello y la hora (S1 a S4) ── */
-  console.log('\n# 6 · lo llevado, apagado salvo el sello y la hora');
-  ctx = await nuevoCtx();
-  p = await abrir(ctx, { estado: estadoCaptura(lista) });
-  let s1 = lleva(p, 'Rescataron');
-  ok((await color(s1.locator('.sello'))) === NARANJA.claro && (await opacidad(s1.locator('.sello'))) === 1, 'S1 · 4/5 llevada, claro: sello naranja rgb(138, 82, 0), opacidad 1');
-  ok((await opacidad(s1.locator('h3'))) === 0.6, 'S1 · el título llevado se ve al 0,6');
-  ok((await opacidad(s1.locator('.hora-llevada'))) === 1, 'S1 · «Te la llevaste a las…» al 1');
-  ok((await opacidad(s1.locator('.links'))) === 0.6 && (await opacidad(s1.locator('.fila input'))) === 0.6, 'S1 · los links y la casilla llevados se ven al 0,6');
-  const s4 = carta(p, 'dólar blue');
-  ok((await opacidad(s4.locator('.sello'))) === 1 && (await opacidad(s4.locator('h3'))) === 1 && (await s4.locator('.hora-llevada').count()) === 0, 'S4 · una confirmada que no se llevó: sello 1, título 1 y sin hora');
-  await s1.locator('.fila input').check();
-  s1 = lleva(p, 'Rescataron');
-  ok((await s1.evaluate(e => e.classList.contains('tildada'))) && (await opacidad(s1.locator('.sello'))) === 1 && (await opacidad(s1.locator('.hora-llevada'))) === 1, 'S3 · la volvió a tildar: sello 1 y hora 1');
-  ok((await opacidad(s1.locator('h3'))) === 0.9, 'S3 · el título de la tildada se ve al 0,9');
-  await ctx.close();
-
-  ctx = await nuevoCtx({ colorScheme: 'dark' });
-  p = await abrir(ctx, { estado: estadoDe(lista, { llevar: ['Paro general'] }) });
-  const s2 = lleva(p, 'Paro general');
-  ok((await color(s2.locator('.sello'))) === VERDE_OSCURO && (await opacidad(s2.locator('.sello'))) === 1, 'S2 · confirmada llevada, oscuro: sello verde rgb(98, 212, 147), opacidad 1');
-  ok((await opacidad(s2.locator('h3'))) === 0.6, 'S2 · el título llevado se ve al 0,6');
-  ok((await opacidad(s2.locator('.hora-llevada'))) === 1, 'S2 · «Te la llevaste a las…» al 1');
-  await ctx.close();
-
-  /* ── 7 · cada medio una sola vez en la fila de links (E1, E3) ── */
-  console.log('\n# 7 · cada medio una sola vez en la fila de links');
-  const repetida = JSON.parse(JSON.stringify(lista));
-  const primera = repetida.bloques.nacional.noticias[0];
-  const quinta = repetida.bloques.nacional.aMano[0];
-  primera.links = [{ medio: 'Perfil', url: 'https://www.perfil.com/a' }, { medio: 'Perfil', url: 'https://www.perfil.com/b' }, { medio: 'BBC', url: 'https://www.bbc.com/c' }, { medio: 'Perfil', url: 'https://www.perfil.com/d' }];
-  quinta.links = [{ medio: 'TN', url: 'https://tn.com.ar/a' }, { medio: 'TN', url: 'https://tn.com.ar/b' }, { medio: 'Infobae', url: 'https://www.infobae.com/c' }];
-  ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
-  p = await ctx.newPage();
-  vigilar(p);
-  await p.route('**/lista.json', r => r.fulfill({ json: repetida }));
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  const cartaPerfil = p.locator('.bloque').first().locator('article.noticia', { has: p.locator('a[href="https://www.perfil.com/a"]') });
-  const enlaces = cartaPerfil.locator('.links a');
-  ok((await enlaces.count()) === 2, 'E1 · la noticia con Perfil tres veces y BBC dibuja 2 links');
-  ok(JSON.stringify(await enlaces.allTextContents()) === '["Perfil","BBC"]', 'E1 · los textos, en orden, son Perfil y BBC');
-  ok((await enlaces.first().getAttribute('href')) === 'https://www.perfil.com/a', 'E1 · el link «Perfil» lleva a la primera nota de Perfil');
-  await cartaPerfil.locator('input[type=checkbox]').check();
+  ok((await texto(p, '#avisos h2')) === 'Avisos · 1' && (await p.locator('#avisos button:has-text("Me interesa")').count()) === 1, '11 · el aviso tiene «Me interesa» en su franja');
+  ok((await p.locator('.renglon', { hasText: AVISO.titulo }).count()) === 0 && (await pivote(p)) !== AVISO.titulo, '11 · nunca aparece en Por decidir');
+  const elegidas = [];
+  elegidas.push(await pivote(p));
+  await p.click('[data-accion=interesa]');
+  await p.click('#avisos button:has-text("Me interesa")');
+  ok((await texto(p, '#avisos .estado-aviso')) === 'En Me interesa' && (await numeros(p))['Me interesa'] === 2, '11 · tocado dice «En Me interesa» y cuenta en Me interesa');
+  ok((await numeros(p))['Por decidir'] === total - 1, '11 · el aviso no cuenta en Por decidir');
+  elegidas.push(AVISO.titulo);
+  await p.locator('.renglon').nth(3).click();
+  elegidas.push(await pivote(p));
+  await p.click('[data-accion=interesa]');
+  await p.click('[data-pestana=interesa]');
+  ok((await texto(p, '#me-interesa h2')) === 'Para llevar · 3', '10 · «Para llevar · 3»');
+  ok(JSON.stringify(await p.locator('#me-interesa .titulo').allTextContents()) === JSON.stringify(elegidas), '10 · en el orden en que se eligieron');
+  ok((await texto(p, '#copiar')) === 'Copiar las 3', '10 · «Copiar las 3»');
   await p.click('#copiar');
   await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
   const pegado = await p.evaluate(() => navigator.clipboard.readText());
-  ok(['Perfil: https://www.perfil.com/a', 'Perfil: https://www.perfil.com/b', 'BBC: https://www.bbc.com/c', 'Perfil: https://www.perfil.com/d'].every(r => pegado.split('\n').includes(r)), 'lo que se copia trae las 4 urls, una por renglón, aunque en pantalla se vean 2');
-  const enlacesMano = p.locator('.amano', { has: p.locator('a[href="https://tn.com.ar/a"]') }).locator('.links a');
-  ok((await enlacesMano.count()) === 2 && JSON.stringify(await enlacesMano.allTextContents()) === '["TN","Infobae"]', 'E3 · la 4/5 con TN, TN e Infobae dibuja 2 links: TN e Infobae');
+  ok(pegado.startsWith(elegidas[0] + '\n'), '10 · lo copiado empieza por el título de la primera elegida');
+  ok(pegado.includes('Corte de agua programado · sábado 17/10 desde las 00:00, 18 h · Zona Sur y Zona Central'), '10 · el aviso se copia en una línea, en su lugar');
+  ok((await texto(p, '#mensaje')) === 'Copiadas. Ya podés pegarlas.', '10 · «Copiadas. Ya podés pegarlas.»');
+  ok((await texto(p, '#me-interesa h2')) === 'Para llevar · 0' && (await p.locator('#me-interesa .llevada').count()) === 3, '10 · «Para llevar» queda vacío y las tres pasan a «Llevadas hoy»');
+  ok(/Te lo llevaste a las \d\d:\d\d/.test(await texto(p, '#me-interesa .llevada .hora-llevada')) && /Te la llevaste a las \d\d:\d\d/.test(await texto(p, '#me-interesa .llevada .hora-llevada')), '10 · «Te la llevaste…» y, en el aviso, «Te lo llevaste…»');
+  ok(await p.isDisabled('#copiar'), '10 · el botón queda apagado');
+  ok(/^Te lo llevaste · \d\d:\d\d$/.test(await texto(p, '#avisos .estado-aviso')), '11 · el aviso dice «Te lo llevaste · HH:MM» en su franja');
+
+  /* ── 15 · recargar ── */
+  console.log('\n# 15 · recargar');
+  const antesRecarga = await numeros(p);
+  await p.click('[data-pestana=decidir]');
+  await p.locator('.renglon').nth(1).click();
+  await p.reload();
+  await p.waitForSelector(ESPERAR);
+  ok(JSON.stringify(await numeros(p)) === JSON.stringify(antesRecarga), '15 · al recargar, las decisiones siguen (números iguales)');
+  ok((await pivote(p)) === orden.find(t => !elegidas.includes(t.titulo)).titulo, '15 · y el pivote vuelve a ser la primera de Por decidir');
+  ok((await p.getAttribute('[data-pestana=decidir]', 'aria-selected')) === 'true', '15 · arranca en Por decidir');
   await ctx.close();
 
-  /* ── 7b · una noticia sin bajada (los sitemaps no la traen) ── */
-  console.log('\n# 7b · una noticia sin bajada');
-  const sinBajada = JSON.parse(JSON.stringify(lista));
-  sinBajada.bloques.nacional.noticias[0].bajada = '';
-  ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
-  p = await ctx.newPage();
-  vigilar(p);
-  await p.route('**/lista.json', r => r.fulfill({ json: sinBajada }));
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  const cartaSin = p.locator('.bloque').first().locator('article.noticia', { has: p.locator(`a[href="${sinBajada.bloques.nacional.noticias[0].links[0].url}"]`) });
-  ok((await cartaSin.locator('.bajada.sin').count()) === 1 && (await cartaSin.locator('.bajada.sin').textContent()) === 'Sin bajada: este medio no la publica en su listado.', 'sin bajada: la tarjeta dice «Sin bajada: este medio no la publica en su listado.»');
-  await cartaSin.locator('input[type=checkbox]').check();
-  await p.click('#copiar');
-  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
-  const pegadoSin = await p.evaluate(() => navigator.clipboard.readText());
-  ok(pegadoSin.includes(sinBajada.bloques.nacional.noticias[0].titulo) && !pegadoSin.includes('Sin bajada'), 'sin bajada: lo que se copia no lleva «Sin bajada»');
+  /* ── 12 · la mezcla ── */
+  console.log('\n# 12 · la mezcla');
+  const H = new Date(Date.now() - 2 * 3600e3).toISOString();
+  const rescate = buscar(lista, 'Rescataron');
+  const chile = buscar(lista, 'Chile declaró');
+  lista = usar({ mezcla: true });
+  ctx = await nuevoCtx();
+  p = await abrir(ctx, { estado: { version: 2, decisiones: [
+    { urls: urlsDe(rescate), que: 'archivo', hora: H, sello: 'mano', grupos: 4, minimo: 5 },
+    { urls: urlsDe(chile), que: 'nopor', motivo: 'vieja', hora: H, sello: 'mano', grupos: 4, minimo: 5 },
+  ], llevadas: [], subidas: [], temasApagados: [] } });
+  ok((await pivote(p)) === rescate.titulo, '12 · E9: la que estaba en Archivo vuelve primera de todas y es el pivote');
+  ok((await texto(p, '#avance span')) === '1 de 1 · Subieron a confirmada', '12 · E9: el avance dice «1 de 1 · Subieron a confirmada»');
+  ok((await texto(p, '#pivote .subio')).startsWith('↳ Subió a confirmada. A las ') && (await texto(p, '#pivote .subio')).endsWith(' la habías archivado'), '12 · E9: «' + await texto(p, '#pivote .subio') + '»');
+  ok((await texto(p, '#pivote .meta .sello')) === 'Confirmada por 5 medios', '12 · E9: con el sello verde de la lista');
+  ok((await texto(p, '#subieron')) === '1 que mandaste a No por hoy subió a confirmada · ver', '12 · E10: «' + await texto(p, '#subieron') + '»');
+  await p.click('[data-accion=ver-subieron]');
+  ok((await p.getAttribute('[data-pestana=nopor]', 'aria-selected')) === 'true', '12 · E10: «ver» abre No por hoy');
+  const meta = await p.locator('#no-por-hoy .corta', { hasText: chile.titulo }).locator('.meta span').allTextContents();
+  ok(meta.join(' · ') === 'Confirmada por 5 medios · Subió a confirmada · Ya pasó, llegó tarde', '12 · E10: en No por hoy, sello verde, «Subió a confirmada» y su motivo (' + meta.join(' · ') + ')');
+  await ctx.close();
+  ctx = await nuevoCtx();
+  p = await abrir(ctx, { estado: { version: 2, decisiones: [{ urls: urlsDe(rescate), que: 'interesa', hora: H, sello: 'mano', grupos: 4, minimo: 5 }] } });
+  await p.click('[data-pestana=interesa]');
+  ok((await texto(p, '#me-interesa .subio')) === '↳ Era 4 de 5 cuando la elegiste; ahora confirmada', '12 · E10: en Me interesa, «↳ Era 4 de 5 cuando la elegiste; ahora confirmada»');
+  ok((await texto(p, '#me-interesa .sello')) === 'Confirmada por 5 medios', '12 · E10: el sello se dibuja con la lista de ahora');
+  ok((await leerEstado(p)).decisiones[0].subio === true, '12 · E10: la decisión queda con subio: true');
+  await ctx.close();
+  lista = usar();
+
+  /* ── 13 · estado viejo ── */
+  console.log('\n# 13 · estado viejo');
+  ctx = await nuevoCtx();
+  const llevadaVieja = { urls: urlsDe(orden[0]), hora: new Date(Date.now() - 3600e3).toISOString() };
+  p = await abrir(ctx, { clave: CLAVE_V1, estado: { vistas: { [urlsDe(orden[0])[0]]: llevadaVieja.hora }, llevadas: [llevadaVieja], vistasConfirmadas: {} } });
+  const guardado = await leerEstado(p);
+  ok(guardado && guardado.version === 2 && JSON.stringify(guardado.llevadas) === JSON.stringify([llevadaVieja]) && guardado.decisiones.length === 0, '13 · queda v2 con sus llevadas');
+  ok((await p.evaluate(k => localStorage.getItem(k), CLAVE_V1)) === null, '13 · la clave v1 ya no existe');
+  ok((await pivote(p)) === orden[1].titulo, '13 · lo llevado no vuelve a Por decidir');
   await ctx.close();
 
-  /* ── 8 · capa 4: «contactá al administrador», las provisorias y el nombre del cliente ── */
-  console.log('\n# 8 · capa 4');
-  const conLista = async (extra, que) => {
-    ctx = await nuevoCtx();
-    p = await ctx.newPage();
-    await p.route('**/lista.json', r => r.fulfill({ json: { ...lista, ejemplo: false, ...extra } }));
-    await p.goto(URL);
-    await p.waitForSelector('.noticia');
-    const r = await que(p);
-    await ctx.close();
-    return r;
-  };
-  const hace = min => new Date(Date.now() - min * 60000).toISOString();
-  const vieja61 = await conLista({ generadaEn: hace(61), paginaViejaMinutos: 60 }, q => q.locator('.franja.vieja').allTextContents());
-  const vieja30 = await conLista({ generadaEn: hace(30), paginaViejaMinutos: 60 }, q => q.locator('.franja.vieja').count());
-  ok(vieja61.length === 1 && /contactá al administrador$/.test(vieja61[0]) && vieja30 === 0, 'capa 4: «contactá al administrador» con una lista de hace 61 minutos y no con una de hace 30');
-  const prov = await conLista({ generadaEn: hace(5), sinIA: false, provisorias: 2 }, q => q.locator('.franja.sinia').allTextContents());
-  ok(prov.length === 1 && prov[0] === '2 noticias con bloque provisorio: la IA no contestó por ellas', 'capa 4: con provisorias 2 la franja dice «' + prov[0] + '»');
-  const marca = await conLista({ generadaEn: hace(5), cliente: 'Canal 2' }, q => q.textContent('#marca'));
-  ok(marca === 'Canal 2 · 7M', 'capa 4: el encabezado dice «' + marca + '»');
-
-  /* ── 8b · la zona: los bloques que vengan, en el orden de lista.orden ── */
-  console.log('\n# 8b · la zona');
-  const conZona = JSON.parse(JSON.stringify(lista));
-  const deComodoro = { ...conZona.bloques.nacional.noticias[0], id: 'g:zona-1', titulo: 'Comodoro tiene la canasta básica más cara de la Patagonia', etiqueta: 'Confirmada por 2 medios locales', grupos: 2, medios: ['El Comodorense', 'El Patagónico'],
-    links: [{ medio: 'El Comodorense', url: 'https://www.elcomodorense.net/canasta' }, { medio: 'El Patagónico', url: 'https://www.elpatagonico.com/canasta' }] };
-  conZona.orden = ['local', 'chubut', 'nacional', 'internacional'];
-  conZona.bloques = {
-    local: { nombre: 'Comodoro', minimo: 1, tope: 3, noticias: [deComodoro], aMano: [], afueraPorTope: 0 },
-    chubut: { nombre: 'Chubut', minimo: 1, tope: 3, noticias: [], aMano: [], afueraPorTope: 0 },
-    ...conZona.bloques,
-  };
-  const titulosZona = await conLista({ generadaEn: hace(5), ...conZona }, q => q.locator('.bloque > h2').allTextContents());
-  ok(titulosZona.length === 3 && titulosZona[0] === 'Comodoro · 1' && /^Nacionales/.test(titulosZona[1]) && /^Internacionales/.test(titulosZona[2]),
-    'zona: se dibujan tres bloques, Comodoro → Nacionales → Internacionales, y el primero dice «Comodoro · 1» (' + titulosZona.join(' | ') + ')');
-  const titulosDeSiempre = await conLista({ generadaEn: hace(5) }, q => q.locator('.bloque > h2').allTextContents());
-  ok(titulosDeSiempre.length === 2 && /^Nacionales/.test(titulosDeSiempre[0]) && /^Internacionales/.test(titulosDeSiempre[1]),
-    'zona: con la lista de ejemplo de siempre se dibujan dos bloques, como antes (' + titulosDeSiempre.join(' | ') + ')');
-
-  /* ── 8c · los avisos de cortes: el bloque va primero, con la pastilla y la línea de datos ── */
-  console.log('\n# 8c · los avisos');
-  const conAvisos = JSON.parse(JSON.stringify(lista));
-  const avisoTodo = {
-    id: 'a:scpl.coop:2898', titulo: 'CORTE DE AGUA EN 23 BARRIOS DE COMODORO POR TAREAS PROGRAMADAS', bajada: 'Mañana, jueves 08 de octubre, desde las 15:00hs…', etiqueta: 'Agua · programado', via: 'aviso', grupos: 2, medios: ['SCPL', 'ADNSUR'],
-    links: [{ medio: 'SCPL', url: 'https://scpl.coop/index.php/site/ver-nota?id=2898' }, { medio: 'ADNSUR', url: 'https://www.adnsur.com.ar/corte-agua' }],
-    aviso: { servicio: 'agua', programado: true, dia: '2026-10-08', desde: '15:00', hasta: '15:00', duracionHoras: 24, zona: null, cronograma: false,
-      barrios: ['Laprida', 'Güemes', 'Sarmiento', 'Manantial Rosales', 'Bella Vista Norte', 'Ara San Juan', 'Padre Corti', 'Km.8'] },
-  };
-  const avisoSinDia = {
-    id: 'a:elpatagonico.com:sin-luz', titulo: 'Varios sectores de Comodoro se quedaron sin luz', bajada: '', etiqueta: 'Luz · avería', via: 'aviso', grupos: 1, medios: ['El Patagónico'],
-    links: [{ medio: 'El Patagónico', url: 'https://www.elpatagonico.com/sin-luz' }],
-    aviso: { servicio: 'luz', programado: false, dia: null, desde: null, hasta: null, duracionHoras: null, barrios: [], zona: null, cronograma: false },
-  };
-  const avisoNormalizado = {
-    id: 'a:scpl.coop:2905', titulo: 'SE NORMALIZA EL SERVICIO DE AGUA EN COMODORO TRAS LAS TAREAS DE MANTENIMIENTO', bajada: '', etiqueta: 'Agua · se normalizó', via: 'aviso', grupos: 1, medios: ['SCPL'],
-    links: [{ medio: 'SCPL', url: 'https://scpl.coop/index.php/site/ver-nota?id=2905' }],
-    aviso: { servicio: 'agua', programado: true, dia: null, desde: null, hasta: null, duracionHoras: null, barrios: ['Laprida'], zona: null, cronograma: false,
-      normalizado: true, publicado: '2026-10-16T17:30:00.000Z' },
-  };
-  conAvisos.orden = ['avisos', 'nacional', 'internacional'];
-  conAvisos.bloques = { avisos: { nombre: 'Avisos', minimo: 1, tope: null, noticias: [avisoTodo, avisoSinDia, avisoNormalizado], aMano: [], afueraPorTope: 0 }, ...conAvisos.bloques };
-  ctx = await nuevoCtx({ permissions: ['clipboard-read', 'clipboard-write'] });
-  p = await ctx.newPage();
-  vigilar(p);
-  await p.route('**/lista.json', r => r.fulfill({ json: { ...conAvisos, ejemplo: false, generadaEn: hace(5) } }));
-  await p.goto(URL);
-  await p.waitForSelector('.noticia');
-  const titulosAvisos = await p.locator('.bloque > h2').allTextContents();
-  ok(titulosAvisos[0] === 'Avisos · 3' && /^Nacionales/.test(titulosAvisos[1]), 'avisos: el bloque sale primero y dice «Avisos · 3» (' + titulosAvisos.join(' | ') + ')');
-  const primerBloque = p.locator('.bloque').first();
-  const cartaTodo = primerBloque.locator('article.noticia').nth(0);
-  const cartaSinDia = primerBloque.locator('article.noticia').nth(1);
-  const cartaNormalizado = primerBloque.locator('article.noticia').nth(2);
-  ok((await cartaNormalizado.locator('.sello.lleno').textContent()) === 'Agua · se normalizó' && (await cartaNormalizado.locator('.sello').evaluate(el => getComputedStyle(el).backgroundColor)) === 'rgb(23, 114, 74)' && (await color(cartaNormalizado.locator('.sello'))) === 'rgb(255, 255, 255)',
-    'avisos: la pastilla «Agua · se normalizó» verde llena, con letra blanca');
-  const lineaNormalizado = await cartaNormalizado.locator('.datos-aviso').textContent();
-  ok(lineaNormalizado === 'Se normalizó el servicio · Viernes 16/10 · 14:30', 'avisos: la línea de un «se normalizó» «' + lineaNormalizado + '» (sin barrios)');
-  ok((await cartaTodo.locator('.sello').textContent()) === 'Agua · programado' && (await color(cartaTodo.locator('.sello'))) === 'rgb(23, 114, 74)', 'avisos: la pastilla «Agua · programado» en verde');
-  ok((await cartaSinDia.locator('.sello.mano').textContent()) === 'Luz · avería' && (await color(cartaSinDia.locator('.sello'))) === NARANJA.claro, 'avisos: la pastilla «Luz · avería» en naranja');
-  const lineaTodo = await cartaTodo.locator('.datos-aviso').textContent();
-  ok(lineaTodo === 'Jueves 8/10 · desde las 15:00 · 24 h · 8 barrios: Laprida, Güemes, Sarmiento, Manantial Rosales, Bella Vista Norte, Ara San Juan y 2 más', 'avisos: la línea de datos «' + lineaTodo + '»');
-  await cartaTodo.locator('.datos-aviso button').click();
-  const lineaAbierta = await primerBloque.locator('article.noticia').nth(0).locator('.datos-aviso').textContent();
-  const tildadaTrasAbrir = await primerBloque.locator('article.noticia').nth(0).locator('input[type=checkbox]').isChecked();
-  ok(lineaAbierta.endsWith('Padre Corti, Km.8') && !tildadaTrasAbrir, 'avisos: «2 más» muestra el resto de los barrios sin tildar la tarjeta');
-  ok((await cartaSinDia.locator('.datos-aviso').textContent()) === 'Sin horario en el aviso: abrí el link', 'avisos: sin día ni horario la línea dice «Sin horario en el aviso: abrí el link»');
-  ok((await cartaTodo.locator('.links a').allTextContents()).join(',') === 'SCPL,ADNSUR', 'avisos: los links, la SCPL primero');
-  await primerBloque.locator('article.noticia').nth(0).locator('input[type=checkbox]').check();
-  await primerBloque.locator('article.noticia').nth(1).locator('input[type=checkbox]').check();
-  await p.click('#copiar');
-  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
-  const pegadoAvisos = await p.evaluate(() => navigator.clipboard.readText());
-  ok(pegadoAvisos === 'Corte de agua programado · jueves 8/10 desde las 15:00, 24 h · Barrios: Laprida, Güemes, Sarmiento, Manantial Rosales, Bella Vista Norte, Ara San Juan, Padre Corti, Km.8 · Fuente: SCPL https://scpl.coop/index.php/site/ver-nota?id=2898 · ADNSUR https://www.adnsur.com.ar/corte-agua\n\nCorte de luz por avería · Fuente: El Patagónico https://www.elpatagonico.com/sin-luz',
-    'avisos: lo que se copia es una línea por aviso: ' + JSON.stringify(pegadoAvisos));
-  ok(/Te la llevaste a las \d\d:\d\d/.test(await p.locator('.bloque').first().locator('.hora-llevada').first().textContent()), 'avisos: lo copiado queda como «Te la llevaste», igual que una noticia');
-  await primerBloque.locator('article.noticia', { hasText: 'SE NORMALIZA' }).locator('input[type=checkbox]').check();
-  await p.evaluate(() => { document.getElementById('mensaje').textContent = ''; });
-  await p.click('#copiar');
-  await p.waitForFunction(() => document.getElementById('mensaje').textContent.length > 0);
-  const pegadoNormalizado = await p.evaluate(() => navigator.clipboard.readText());
-  ok(pegadoNormalizado === 'Se normalizó el servicio de agua en Comodoro · Fuente: SCPL https://scpl.coop/index.php/site/ver-nota?id=2905', 'avisos: lo que se copia de un «se normalizó»: ' + JSON.stringify(pegadoNormalizado));
+  /* ── 3 · el escalón Normal ── */
+  console.log('\n# 3 · Normal');
+  lista = usar({ escalon: 'normal' });
+  ctx = await nuevoCtx();
+  p = await abrir(ctx);
+  ok((await texto(p, '.pestana')).replace(/\d+/g, '') === 'Por decidir | Me interesa | Pasadas', '3 · Normal: Por decidir · Me interesa · Pasadas');
+  ok((await p.locator('#pivote .botones .boton').allTextContents()).join('|') === 'Me interesa|Siguiente', '3 · Normal: dos botones, «Me interesa» y «Siguiente»');
+  ok(await p.isHidden('#temas'), '3 · Normal: sin la fila de temas');
+  await p.click('[data-accion=siguiente]');
+  ok((await texto(p, '#deshacer-texto')) === 'Pasada' && (await numeros(p)).Pasadas === 1, '3 · Normal: «Siguiente» la manda a Pasadas («Pasada · Deshacer»)');
   await ctx.close();
-  const sinAvisos = await conLista({ generadaEn: hace(5) }, async q => ({ datos: await q.locator('.datos-aviso').count(), primero: (await q.locator('.bloque > h2').allTextContents())[0] }));
-  ok(sinAvisos.datos === 0 && /^Nacionales/.test(sinAvisos.primero), 'avisos: sin bloque avisos nada cambia (primero Nacionales, ninguna línea de aviso)');
+  lista = usar();
 
-  /* ── 9 · las capturas (se miran siempre; los archivos, solo con --capturas) ── */
-  console.log('\n# 9 · lo que se ve en las 3 capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
-  const carpeta = CARPETA_CAPTURAS;
+  /* ── 16 · medidas y las capturas ── */
+  console.log('\n# 16 · medidas y capturas' + (NOMBRE_CAPTURAS ? ' (se guardan en buzon/capturas/)' : ' (sin --capturas no se guarda nada)'));
+  if (NOMBRE_CAPTURAS) fs.mkdirSync(CARPETA_CAPTURAS, { recursive: true });
   for (const c of CAPTURAS) {
+    lista = usar({ escalon: c.escalon || 'plus' });
     ctx = await nuevoCtx({ colorScheme: c.esquema, viewport: { width: c.ancho, height: 900 } });
-    p = await abrir(ctx, { estado: estadoCaptura(lista) });
-    const etiqueta = `(${c.sufijo})`;
-    ok((await p.locator('.recien').count()) === 1, `captura ${etiqueta}: hay una «Recién confirmada»`);
-    ok((await p.locator('.nueva').count()) >= 1, `captura ${etiqueta}: hay una «Nueva»`);
-    ok((await p.locator('.sello.viab').count()) === 2 && (await p.getByText('4 de 5 medios').count()) >= 1, `captura ${etiqueta}: la vía B en violeta (una por bloque) y «4 de 5 medios»`);
-    const llev = lleva(p, 'Rescataron');
-    ok((await color(llev.locator('.sello.mano'))) === NARANJA[c.esquema === 'dark' ? 'oscuro' : 'claro'] && /Te la llevaste a las \d\d:\d\d/.test(await llev.locator('.hora-llevada').textContent()), `captura ${etiqueta}: la 4/5 llevada con el sello naranja y su hora`);
-    if (NOMBRE_CAPTURAS) {
-      // La ventana se estira hasta el alto de la página: así la barra fija de abajo queda abajo de todo.
-      const alto = await p.evaluate(() => document.documentElement.scrollHeight);
-      await p.setViewportSize({ width: c.ancho, height: alto });
-      await p.evaluate(() => window.scrollTo(0, 0));
-      await p.screenshot({ path: path.join(carpeta, `pagina-${NOMBRE_CAPTURAS}-${c.sufijo}.png`) });
+    // Una elegida, para que se vea la barra con algo.
+    p = await abrir(ctx, { estado: { version: 2, decisiones: [{ urls: urlsDe(buscar(lista, 'Diputados')), que: 'interesa', hora: new Date().toISOString(), sello: 'A', grupos: 6, minimo: 5 }] } });
+    if (c.sufijo === '1200') {
+      ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), '16 · 1200: sin scroll horizontal');
     }
+    if (c.sufijo === '390') {
+      const altos = await p.locator('#pivote .botones .boton').evaluateAll(bs => bs.map(b => b.getBoundingClientRect().height));
+      ok(altos.length === 3 && altos.every(a => a >= 44), '16 · 390: ningún botón de la abierta mide menos de 44 px (' + altos.map(Math.round).join(', ') + ')');
+      ok(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), '16 · 390: sin scroll horizontal');
+      ok(await p.evaluate(() => { const n = document.getElementById('pestanas'); return n.scrollWidth <= n.clientWidth; }), '16 · 390: las cuatro pestañas entran sin correrlas');
+    }
+    ok((await p.locator('#pivote').count()) === 1 && (await texto(p, '#cuenta')) === 'Me interesa: 1', `captura (${c.sufijo}): pivote abierto y «Me interesa: 1»`);
+    if (NOMBRE_CAPTURAS) await capturar(p, c.ancho, path.join(CARPETA_CAPTURAS, `pagina-c-${NOMBRE_CAPTURAS}-${c.sufijo}.png`));
     await ctx.close();
   }
 

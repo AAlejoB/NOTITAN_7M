@@ -94,11 +94,11 @@
   .sintema { color: var(--suave); font-size: 14px; padding: 4px 6px; }
 
   /* pestañas */
-  .pestanas { margin-top: 14px; display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--borde); }
-  .pestana { background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 5px; min-height: 44px; color: var(--suave); white-space: nowrap; font-size: 14px; }
-  @media (min-width: 420px) { .pestana { padding: 8px 10px; font-size: 15px; } }
+  .pestanas { margin-top: 14px; display: flex; gap: 2px; justify-content: space-between; overflow-x: auto; border-bottom: 1px solid var(--borde); }
+  .pestana { background: none; border: 0; border-bottom: 3px solid transparent; padding: 6px 2px; min-height: 44px; color: var(--suave); font-size: 13px; line-height: 1.2; flex: 1 1 auto; min-width: 0; }
+  @media (min-width: 420px) { .pestanas { justify-content: flex-start; } .pestana { flex: none; white-space: nowrap; padding: 8px 10px; font-size: 15px; } }
   .pestana[aria-selected="true"] { color: var(--texto); border-bottom-color: var(--marca); font-weight: 600; }
-  .numero { display: inline-block; min-width: 22px; margin-left: 4px; padding: 0 6px; border-radius: 999px; background: var(--gris-fondo); color: var(--texto); font-size: 13px; text-align: center; }
+  .numero { display: inline-block; white-space: nowrap; min-width: 20px; margin-left: 3px; padding: 0 5px; border-radius: 999px; background: var(--gris-fondo); color: var(--texto); font-size: 13px; text-align: center; }
 
   /* avance */
   .avance { display: flex; align-items: center; gap: 10px; margin: 12px 0 8px; color: var(--suave); font-size: 14px; }
