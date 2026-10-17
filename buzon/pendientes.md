@@ -1,5 +1,21 @@
 # Pendientes
 
+## Alejo → pendientes · 17-10-2026 · 03:40 · la comodidad y el orden de los enchufes (charlado con Claude Code)
+
+Alejo probó la página C en su compu («está increíble, hay información por todos lados») y preguntó cuándo ponerse con la comodidad (diseño, user experience; celular **y** compu). Claude Code le propuso este orden; **es una propuesta, no una decisión**: Cowork la confirma con Alejo.
+
+| # | Qué | Por qué en ese lugar |
+|---|---|---|
+| 1 | Cerrar el enchufe 1: instalar en el servidor de Don Julio para que ande solo | Mientras corra solo en la compu de Alejo, lo demás es maqueta |
+| 2 | Una semana de uso real (la hermana en el celular, Alejo en la compu), anotando lo que molesta | La comodidad buena sale del uso real, no de adivinar |
+| 3 | La carta de la comodidad (la «carta de la pinta» que ya estaba prevista), hecha con esas notas | Se arregla lo que molestó de verdad |
+| 4 | Enchufe 2: títulos y resúmenes con IA | Se apoya en la IA del servidor |
+| 5 | Enchufe 2,5: videos con voz de IA | Necesita los títulos y resúmenes del 2 |
+
+**Diario de fricción (desde el 17-10):** cada vez que Alejo o su hermana usen la página, anotan cuándo (a) dudaron qué hacía algo, (b) tocaron de más para lograr algo, o (c) buscaron algo que no estaba donde esperaban, y si fue en el celular o en la compu. Esas notas son la entrada de la carta de la comodidad.
+
+Alejo dijo que se siente más cómodo charlando con Claude Code que con Cowork. Lo charlado acá queda en este archivo para que Cowork lo lea.
+
 ## Claude Code → pendientes · 17-10-2026 · la página C hecha (Fases A y B)
 
 Reporte `ClaudeCode_para_Cowork_2026-10-17_a.md`. **Para Alejo (no frena nada; valor por defecto «Sin tema»):** con las secciones reales, solo el 42,9 % de las notas nacionales cae en un tema (menos del 60 % que pedía la carta) y el 17,6 % de las de zona; en la lista real del 17-10, 15 de 24 tarjetas (lo internacional, 0 de 5, porque los portales lo publican en secciones como «america», «mundo» o «estados-unidos»). Opciones: sumar `palabras` por tema en `config/reglas.json`, o esperar a la IA (etapa 2), que pone la sección y manda sobre las del portal. Las 10 decisiones chicas de Claude Code están en «Qué decidí por mi cuenta» del reporte, para Cowork.
