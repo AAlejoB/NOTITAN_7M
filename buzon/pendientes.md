@@ -23,7 +23,7 @@ Carta de la página C, Fases A (la página) y B (guardado por persona). Alejo la
 
 **Abierto (nuevo, de Alejo, sin apuro):**
 
-- **Nombre del producto:** Alejo quiere cambiarlo por algo más original alrededor de la luz que entra chica y sale alumbrando grande (linterna, cono, anillos). Candidatos de Cowork del 14-10: FOCO, HAZ, VÉRTICE; se charla el 17-10. Mientras tanto «7M», y ya es una línea de config (`pagina.nombre`).
+- **Nombre del producto:** **decidido: Werken · Las 7 Mejores (decidió Alejo el 17-10, 00:45).** `pagina.nombre` en `config/reglas.json` es «Werken» (el encabezado dice «Canal 2 · Werken»; sin la clave sigue «7M»); el lema todavía no se muestra. Antes: Alejo quería cambiarlo por algo más original alrededor de la luz que entra chica y sale alumbrando grande (linterna, cono, anillos). Candidatos de Cowork del 14-10: FOCO, HAZ, VÉRTICE; se charla el 17-10. Mientras tanto «7M», y ya es una línea de config (`pagina.nombre`).
 - **Nombre de los escalones:** «Plus» suena a pago extra. Candidatos de Cowork: «Rápida / Completa», «Simple / A fondo». En la página no aparece el nombre; no frena nada.
 - **Temas creados por la persona desde la página** (botón «+ tema»): después de la Fase B.
 - **Pestañas más prácticas:** las pestañas chicas («Por decidir», etc.) buscarles una forma mejor, inspirada en las páginas más visitadas; va con la carta de la pinta.
@@ -195,7 +195,7 @@ No es una carta de cambios. Don Julio contestó las 14 preguntas de la capa 4 po
 - Cuántas horas por semana tiene Don Julio. Mientras tanto: sin plazo.
 - Cuánto esperar a un feed lento antes de seguir sin él. Mientras tanto: lo que ya hace el lector.
 - Precios de los planes y del mensual de Canal 2: de Alejo y Don Julio.
-- Nombre del producto: sigue 7M hasta que Alejo decida.
+- Nombre del producto: ~~sigue 7M hasta que Alejo decida~~ **decidido el 17-10, 00:45: Werken · Las 7 Mejores** (ver la sección de la carta del 17-10).
 
 ## Qué viene después
 

@@ -51,7 +51,7 @@
   "avisos": { "topeMinutos": 60, "paginaViejaMinutos": 60 },
   "cliente": "Canal 2",
   "pagina": {
-    "nombre": "7M",
+    "nombre": "Werken",
     "escalon": "plus",
     "temas": [
       { "nombre": "Política", "prendido": true, "secciones": ["politica", "política", "el-pais", "elecciones", "politics", "poli"], "palabras": [] },

@@ -258,7 +258,7 @@ test('E1 · temaDe: empate entre dos temas → el que va primero en la config; l
 test('E2 · lista.pagina sale de reglas.pagina, sin secciones ni palabras', () => {
   const e = armarEntrega(decididoVacio(), { ahora: AHORA, portales, reglas: { ...reglas, pagina: { ...reglas.pagina, escalon: 'normal' } } });
   assert.equal(e.pagina.escalon, 'normal');
-  assert.equal(e.pagina.nombre, '7M');
+  assert.equal(e.pagina.nombre, 'Werken', 'el nombre de config/reglas.json (decidió Alejo el 17-10)');
   assert.equal(e.pagina.temas.length, 6);
   for (const t of e.pagina.temas) assert.deepEqual(Object.keys(t), ['nombre', 'prendido']);
   assert.equal(e.pagina.motivos.length, 7);
